@@ -5,6 +5,21 @@ for ready-to-create issue bodies before opening the repository.
 
 ## Good First Issues
 
+### Add a paper-first strategy plugin
+
+Labels: `good first issue`, `strategy`, `examples`
+
+Add a deterministic strategy plugin under `examples/strategy-plugin/` or a new
+example directory that follows [strategy plugin docs](strategy-plugins.md).
+
+Acceptance:
+
+- The plugin declares `StrategyPluginMetadata` with `paper_only=true`.
+- The plugin returns `StrategySignal` or `None`; it never submits orders
+  directly.
+- The example runs without network access or exchange credentials.
+- Tests prove accepted and rejected paths still go through `PaperEngine.submit`.
+
 ### Add paper example output summary
 
 Labels: `good first issue`, `docs`, `examples`

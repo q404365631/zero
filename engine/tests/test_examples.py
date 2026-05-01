@@ -22,3 +22,23 @@ def test_paper_trading_example_runs_from_repo_root() -> None:
     assert payload["market"]["BTC"]["last"] == 40500
     assert payload["decisions"][0]["source"] == "scenario:paper-launch-smoke"
     assert "as_of" in payload["decisions"][0]
+
+
+def test_strategy_plugin_example_runs_from_repo_root() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    result = subprocess.run(
+        [sys.executable, "examples/strategy-plugin/run.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    payload = json.loads(result.stdout)
+    assert payload["mode"] == "paper"
+    assert payload["plugin"]["name"] == "close-strength"
+    assert payload["plugin"]["paper_only"] is True
+    assert payload["proposed"] is True
+    assert payload["allowed"] is True
+    assert payload["fills"] == 1
+    assert payload["decisions"][0]["source"] == "strategy-plugin:close-strength"

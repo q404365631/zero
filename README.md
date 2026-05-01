@@ -215,6 +215,8 @@ deployment project, secrets, exchange credentials, and runtime state.
 Good first contribution areas:
 
 - Strategy examples that stay paper-first.
+- Strategy plugins that return signals but leave execution and risk checks to
+  ZERO.
 - Market data adapters with deterministic tests.
 - CLI diagnostics and replay views.
 - Safety gate tests.
@@ -240,6 +242,7 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and
 - [API](docs/api.md)
 - [OpenAPI Contract](openapi/zero-paper-api.v1.yaml)
 - [API Compatibility](docs/api-compatibility.md)
+- [Strategy Plugins](docs/strategy-plugins.md)
 - [Hyperliquid Read-only](docs/hyperliquid-readonly.md)
 - [ZERO Network](docs/zero-network.md)
 - [ZERO Intelligence](docs/zero-intelligence.md)

@@ -12,6 +12,9 @@ example:
 strategy-example:
     PYTHONPATH="$PWD/engine/src" python3 examples/paper-trading/strategy_demo.py
 
+strategy-plugin-example:
+    PYTHONPATH="$PWD/engine/src:$PWD/examples/strategy-plugin" python3 examples/strategy-plugin/run.py
+
 paper-api:
     cd engine && python3 -m zero_engine.api
 
@@ -55,6 +58,7 @@ docs-check:
     test -f docs/cli-quickstart.md
     test -f docs/api.md
     test -f docs/api-compatibility.md
+    test -f docs/strategy-plugins.md
     test -f docs/positioning.md
     test -f docs/open-core-boundary.md
     test -f docs/zero-network.md
@@ -74,6 +78,9 @@ docs-check:
     test -f examples/paper-trading/strategy_demo.py
     test -f examples/paper-trading/scenario.json
     test -f examples/paper-trading/candles.jsonl
+    test -f examples/strategy-plugin/README.md
+    test -f examples/strategy-plugin/plugin.py
+    test -f examples/strategy-plugin/run.py
     test -f contracts/paper-api/v2_status.json
     test -f contracts/paper-api/execute_accepted.json
     test -f contracts/paper-api/execute_rejected.json
@@ -112,4 +119,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke example strategy-example package-dry-run
+ci: lint test paper-api-smoke example strategy-example strategy-plugin-example package-dry-run

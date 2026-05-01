@@ -14,7 +14,7 @@
 
 ## Near Term
 
-- Strategy plugin template
+- Strategy plugin template with paper-first contributor example
 - Market data adapter template
 - Railway deployment template
 - Docker Compose local demo
