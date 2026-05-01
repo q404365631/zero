@@ -382,7 +382,12 @@ class PaperApi:
         return HTTPStatus.NOT_FOUND, {"error": "not found", "path": path}
 
     def root(self) -> dict[str, Any]:
-        return {"name": "zero-paper-engine", "version": "0.1.0", "status": "ok", "ts": self.state.now_iso()}
+        return {
+            "name": "zero-paper-engine",
+            "version": "0.1.1",
+            "status": "ok",
+            "ts": self.state.now_iso(),
+        }
 
     def health(self) -> dict[str, Any]:
         ts = self.state.now_iso()

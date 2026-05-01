@@ -44,6 +44,10 @@ Every release note should include:
 - Migration notes when applicable
 - Known limitations
 
+Version-specific notes live in `docs/releases/<tag>.md`. The release workflow
+uses that file when it exists and falls back to `.github/RELEASE_TEMPLATE.md`
+for unrehearsed tags.
+
 ## Artifacts
 
 Target launch artifacts:

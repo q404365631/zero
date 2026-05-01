@@ -4158,7 +4158,7 @@ dependencies = [
 
 [[package]]
 name = "zero"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "chrono",
@@ -4182,7 +4182,7 @@ dependencies = [
 
 [[package]]
 name = "zero-commands"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "chrono",
@@ -4201,7 +4201,7 @@ dependencies = [
 
 [[package]]
 name = "zero-config"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "directories",
  "keyring",
@@ -4213,7 +4213,7 @@ dependencies = [
 
 [[package]]
 name = "zero-doctor"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "serde",
@@ -4230,7 +4230,7 @@ dependencies = [
 
 [[package]]
 name = "zero-engine-client"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "chrono",
@@ -4253,7 +4253,7 @@ dependencies = [
 
 [[package]]
 name = "zero-headless"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "chrono",
  "clap",
@@ -4273,7 +4273,7 @@ dependencies = [
 
 [[package]]
 name = "zero-onboarding"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "chrono",
@@ -4290,7 +4290,7 @@ dependencies = [
 
 [[package]]
 name = "zero-operator-state"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "chrono",
  "criterion",
@@ -4302,7 +4302,7 @@ dependencies = [
 
 [[package]]
 name = "zero-session"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "chrono",
  "refinery",
@@ -4315,7 +4315,7 @@ dependencies = [
 
 [[package]]
 name = "zero-testkit"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "axum",
@@ -4329,7 +4329,7 @@ dependencies = [
 
 [[package]]
 name = "zero-tui"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "chrono",

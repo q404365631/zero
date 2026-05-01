@@ -1,6 +1,6 @@
 # zero — operator terminal
 
-A CLI for running a ZERO trading engine. The engine is the
+A CLI for operating ZERO self-custodial onchain operations. The engine is the
 source of truth; this binary is a renderer and a dispatcher,
 with a friction ladder that refuses to let a tilted operator
 rush a risk-increasing command.

@@ -59,6 +59,7 @@ docs-check:
     test -f docs/hyperliquid-readonly.md
     test -f docs/production-readiness.md
     test -f docs/release.md
+    test -f docs/releases/v0.1.1.md
     test -f docs/launch-scorecard.md
     test -f docs/backlog.md
     test -f docs/launch-issues.md

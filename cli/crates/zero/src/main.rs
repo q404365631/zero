@@ -85,7 +85,7 @@ impl From<ExitKind> for ExitCode {
     name = "zero",
     version,
     about = "ZERO operator terminal",
-    long_about = "The CLI-native surface for the ZERO trading engine. \
+    long_about = "The CLI-native surface for ZERO self-custodial onchain operations. \
                   Plan → Auto → Headless, with Shadow → Paper → Live for every \
                   composition change. Engine is source of truth; CLI is a \
                   renderer + dispatcher."

@@ -22,8 +22,9 @@ The `commands_doc_is_fresh` test runs in the default `cargo test` lane and will 
 
 ```
 $ zero --help
-The CLI-native surface for the ZERO trading engine. Plan → Auto → Headless, with Shadow → Paper →
-Live for every composition change. Engine is source of truth; CLI is a renderer + dispatcher.
+The CLI-native surface for ZERO self-custodial onchain operations. Plan → Auto → Headless, with
+Shadow → Paper → Live for every composition change. Engine is source of truth; CLI is a renderer +
+dispatcher.
 
 Usage: zero [OPTIONS] [COMMAND]
 

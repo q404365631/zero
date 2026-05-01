@@ -80,7 +80,7 @@ just paper-api-smoke
 Expected abbreviated output from the manual CLI path:
 
 ```text
-[ ok ] engine_reachable  zero-paper-engine v0.1.0 (http://127.0.0.1:8765/)
+[ ok ] engine_reachable  zero-paper-engine v0.1.1 (http://127.0.0.1:8765/)
 [ ok ] engine_healthy    ok
 [warn] auth              no token set - read-only endpoints only
 [ ok ] ws_reachable      ws://127.0.0.1:8765/ws

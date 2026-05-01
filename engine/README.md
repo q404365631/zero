@@ -1,6 +1,6 @@
 # ZERO Engine
 
-Paper-first trading engine runtime for ZERO.
+Paper-first runtime for ZERO self-custodial onchain operations.
 
 This package is the public seed of the open-core engine. It starts with a
 small, testable safety contract and now includes an optional, local-only

@@ -5,7 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
-description = "ZERO operator terminal — the CLI-native surface for the ZERO trading engine."
+description = "ZERO operator terminal for self-custodial onchain operations."
 
 [lints]
 workspace = true
