@@ -35,7 +35,8 @@ def test_strategy_proposal_still_goes_through_safety_gate() -> None:
     assert order is not None
 
     engine = PaperEngine(limits=RiskLimits(max_notional_usd=500))
-    decision = engine.submit(order)
+    decision = engine.submit(order, source="strategy:test")
 
     assert not decision.allowed
     assert decision.reason == "order notional exceeds limit"
+    assert engine.decisions[0].to_dict()["source"] == "strategy:test"

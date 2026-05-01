@@ -71,6 +71,25 @@ updates paper positions.
 
 The method must not require exchange credentials or network access.
 
+`submit(intent, source="manual")` returns a `RiskDecision` and appends a
+`DecisionRecord` to `engine.decisions`.
+
+### `DecisionRecord`
+
+Inspectable paper decision log entry:
+
+- `intent`
+- `decision`
+- `as_of`
+- `source`
+
+Use `to_dict()` for JSON output in examples, tests, and CLI inspection. Every
+paper decision should name its source, such as `manual`, `scenario:<name>`, or
+`strategy:<name>`.
+
+`PaperEngine` accepts an optional `clock` callable so tests and examples can
+produce deterministic `as_of` timestamps.
+
 ## Paper Scenarios
 
 ### `load_scenario(path)`

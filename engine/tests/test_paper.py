@@ -9,6 +9,8 @@ def test_paper_engine_records_fill() -> None:
     assert decision.allowed
     assert len(engine.fills) == 1
     assert engine.positions["BTC"].quantity == 0.01
+    assert len(engine.decisions) == 1
+    assert engine.decisions[0].decision.allowed
 
 
 def test_paper_engine_records_rejection() -> None:
@@ -18,4 +20,19 @@ def test_paper_engine_records_rejection() -> None:
     assert not decision.allowed
     assert len(engine.rejections) == 1
     assert not engine.fills
+    assert engine.decisions[0].to_dict()["reason"] == "order notional exceeds limit"
 
+
+def test_paper_engine_records_source_in_decision_log() -> None:
+    engine = PaperEngine(limits=RiskLimits(max_notional_usd=1_000), clock=lambda: 123.0)
+    engine.submit(
+        OrderIntent("BTC", Side.BUY, quantity=0.01, price=40_000, confidence=0.9),
+        source="strategy:test",
+    )
+
+    record = engine.decisions[0].to_dict()
+
+    assert record["source"] == "strategy:test"
+    assert record["as_of"] == 123.0
+    assert record["symbol"] == "BTC"
+    assert record["allowed"] is True

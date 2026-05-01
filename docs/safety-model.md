@@ -9,6 +9,8 @@ ZERO treats trading execution as safety-critical software.
 - Risk gates fail closed when required data is missing.
 - Risk-reducing actions must not be delayed by confirmation friction.
 - Operator-visible state must include source and freshness where possible.
+- Every paper order decision records source, timestamp, allowed/rejected state,
+  and reason.
 
 ## Safety-Critical Areas
 
@@ -21,4 +23,3 @@ ZERO treats trading execution as safety-critical software.
 - paper/live isolation
 
 Changes in these areas need focused regression tests and maintainer review.
-
