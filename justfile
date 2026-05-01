@@ -41,6 +41,7 @@ cli-test:
 
 docs-check:
     test -f docs/local-development.md
+    test -f docs/cli-quickstart.md
     test -f docs/api.md
     test -f docs/open-core-boundary.md
     test -f docs/release.md

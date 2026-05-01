@@ -50,6 +50,9 @@ cargo run -p zero -- --api http://127.0.0.1:8765 doctor
 cargo run -p zero -- --api http://127.0.0.1:8765 run status
 ```
 
+See [docs/cli-quickstart.md](docs/cli-quickstart.md) for a redacted terminal
+capture of the expected CLI output.
+
 Container path:
 
 ```bash
@@ -98,6 +101,7 @@ Read [docs/safety-model.md](docs/safety-model.md) before adding execution or ris
 - [Architecture](docs/architecture.md)
 - [Safety model](docs/safety-model.md)
 - [Local development](docs/local-development.md)
+- [CLI quickstart capture](docs/cli-quickstart.md)
 - [API contract](docs/api.md)
 - [Open-core boundary](docs/open-core-boundary.md)
 - [Release process](docs/release.md)

@@ -90,6 +90,8 @@ today: trades=0  wins=0  pnl=+0.00
 ```
 
 The auth warning is expected for the local paper API when no token is set.
+See [cli-quickstart.md](cli-quickstart.md) for the fuller redacted terminal
+capture.
 
 ## Rust CLI
 

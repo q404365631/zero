@@ -6,7 +6,7 @@ reserved for ZERO Cloud.
 
 ## Current Score
 
-**96/100**
+**98/100**
 
 ## Ready
 
@@ -15,6 +15,7 @@ reserved for ZERO Cloud.
 - Inspectable paper decision log
 - Local paper HTTP API with CLI-compatible endpoints
 - Rust operator CLI with doctor, TUI, command tests, and safety invariants
+- Redacted CLI quickstart capture for doctor, status, and risk inspection
 - Public CI for engine, CLI, docs, paper example, paper API smoke, and container smoke
 - Release workflow for Python package, CLI binaries, container image artifact, and checksums
 - Package dry-run gate for Python artifacts and the Rust crate graph
@@ -44,7 +45,6 @@ reserved for ZERO Cloud.
 - Publish repository and confirm all GitHub Actions pass on GitHub-hosted runners
 - Add signed GitHub Releases after ownership and token permissions are finalized
 - Add Homebrew tap or one-line binary install path
-- Add screenshots or richer terminal captures for the full TUI quickstart
 
 ## Definition Of 100
 

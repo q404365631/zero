@@ -44,17 +44,19 @@ Acceptance:
 - The command verifies checksums before placing a binary on `PATH`.
 - The path works without private package registry access.
 
-## Help Wanted: CLI Quickstart Terminal Capture
+## Maintainer Task: Signed Release Provenance
 
-Labels: `help wanted`, `cli`, `docs`
+Labels: `release`, `security`
 
-Add an abbreviated terminal capture for the CLI quickstart.
+Add signed release provenance once the public repository, tags, and token
+permissions are finalized.
 
 Acceptance:
 
-- The capture shows `zero doctor` against `http://127.0.0.1:8765`.
-- The capture shows `zero run status`.
-- The capture excludes machine-specific paths and secrets.
+- Release artifacts are attached to GitHub Releases, not only workflow runs.
+- `SHA256SUMS` is signed or accompanied by verifiable provenance.
+- `docs/release.md` explains verification from a fresh clone.
+- Signing does not require contributor secrets for normal pull requests.
 
 ## Maintainer Task: First Release Candidate
 
