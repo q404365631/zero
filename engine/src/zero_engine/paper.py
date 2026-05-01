@@ -26,6 +26,7 @@ class DecisionRecord:
     as_of: float
     source: str
     idempotency_key: str | None = None
+    trace_id: str | None = None
 
     def to_dict(self) -> dict:
         payload = {
@@ -43,6 +44,8 @@ class DecisionRecord:
         }
         if self.idempotency_key:
             payload["idempotency_key"] = self.idempotency_key
+        if self.trace_id:
+            payload["trace_id"] = self.trace_id
         return payload
 
     @classmethod
@@ -60,12 +63,14 @@ class DecisionRecord:
             reason=str(payload["reason"]),
         )
         key = payload.get("idempotency_key")
+        trace_id = payload.get("trace_id")
         return cls(
             intent=intent,
             decision=decision,
             as_of=float(payload["as_of"]),
             source=str(payload.get("source") or "journal"),
             idempotency_key=str(key) if key else None,
+            trace_id=str(trace_id) if trace_id else None,
         )
 
 
@@ -154,6 +159,7 @@ class PaperEngine:
         intent: OrderIntent,
         source: str = "manual",
         idempotency_key: str | None = None,
+        trace_id: str | None = None,
     ) -> RiskDecision:
         current = self.positions.get(intent.symbol)
         decision = evaluate_order(intent, self.limits, current)
@@ -164,6 +170,7 @@ class PaperEngine:
             as_of=decided_at,
             source=source,
             idempotency_key=idempotency_key,
+            trace_id=trace_id,
         )
         self.decisions.append(record)
         if self.journal is not None:

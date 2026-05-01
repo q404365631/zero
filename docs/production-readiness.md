@@ -14,18 +14,18 @@ end.
 |---|---:|---|
 | Public repo hygiene | 92 | Strong CI, release artifacts, governance, docs, and clean boundaries. |
 | CLI readiness | 84 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, and recovery-aware status output. Blocked by paper-only engine. |
-| Engine runtime | 56 | Deterministic paper runtime, append-only decision journal, restart replay, read-only Hyperliquid info adapter, and live-mid paper execution exist. No OODA loop, runners, durable bus, or live executor. |
+| Engine runtime | 60 | Deterministic paper runtime, append-only decision journal, restart replay, read-only Hyperliquid info adapter, live-mid paper execution, and traceable audit export exist. No OODA loop, runners, durable bus, or live executor. |
 | Safety and risk | 58 | Good local contracts and CLI risk asymmetry. Missing live kill-switch drills, dead-man enforcement, custody flow, and exchange-failure tests. |
-| API contracts | 61 | Paper fixtures are pinned across Python and Rust, `/hl/status` exposes read-only market status, `/market/quote` names the active price source, and `/health` plus `/v2/status` expose recovery state. Missing OpenAPI, versioned live contracts, auth scopes, and compatibility policy for production. |
-| Deployment | 62 | Docker path, Railway config, healthcheck, restart policy, `PORT`-aware start script, durable journal replay, and Railway smoke test exist. Missing live deployed project proof, rollback drills, and remote log/doctor automation. |
-| Observability and audit | 58 | Paper decision logs, idempotency keys, replay counts, and optional JSONL journal recovery exist. Missing production audit journal, metrics, trace IDs, retention policy, and operator export format. |
+| API contracts | 66 | Paper fixtures are pinned across Python and Rust, `/hl/status` exposes read-only market status, `/market/quote` names the active price source, `/health` plus `/v2/status` expose recovery state, and `/metrics` plus `/audit/export` expose observable runtime state. Missing OpenAPI, versioned live contracts, auth scopes, and compatibility policy for production. |
+| Deployment | 66 | Docker path, Railway config, healthcheck, restart policy, `PORT`-aware start script, durable journal replay, traceable paper decisions, and Railway smoke test exist. Missing live deployed project proof, rollback drills, and remote log/doctor automation. |
+| Observability and audit | 76 | HTTP trace IDs, traced paper decisions, metrics, idempotency counters, replay counts, retention/redaction metadata, and structured audit export exist for paper mode. Missing production-grade metrics backend, log drains, signed audit bundles, and live execution trace coverage. |
 | Security and custody | 55 | No secrets needed for first run. Missing live key handling, redaction tests, permission model, and threat-model coverage for Railway deploys. |
 | ZERO Network | 15 | Product boundary is defined. Profiles, leaderboards, verification, and opt-in publishing do not exist yet. |
 | ZERO Intelligence | 12 | Commercial boundary is defined. API, billing, datasets, rate limits, and terms do not exist yet. |
 | Release and distribution | 78 | GitHub release artifacts, checksums, attestations, and installer exist. Package registries and Homebrew are not yet shipped. |
-| Documentation for operators | 76 | Good local docs, Hyperliquid read-only boundary docs, live-paper quote docs, Railway paper deploy docs, and restart recovery docs. Missing live-mode warnings and incident recovery playbooks. |
+| Documentation for operators | 80 | Good local docs, Hyperliquid read-only boundary docs, live-paper quote docs, Railway paper deploy docs, restart recovery docs, and audit/metrics docs. Missing live-mode warnings and incident recovery playbooks. |
 
-**Overall production product readiness: 70/100.**
+**Overall production product readiness: 76/100.**
 
 This is acceptable for an open-source foundation release. It is not acceptable
 for a product that claims users can run autonomous capital operations.
@@ -68,11 +68,10 @@ ZERO is 100/100 when a new serious operator can:
 
 ## Execution Cycles
 
-Forecast after Cycle 5: **6 more major cycles** to credible 100/100.
+Forecast after Cycle 6: **5 more major cycles** to credible 100/100.
 
 | Cycle | Target | Expected Score |
 |---|---|---:|
-| 5 | Durable runtime state and restart recovery | 70 |
 | 6 | Production audit journal, metrics, and trace IDs | 76 |
 | 7 | Live custody preflight and local key handling | 84 |
 | 8 | Self-custodial Hyperliquid live execution with kill switches | 90 |
@@ -212,6 +211,21 @@ Exit gate:
 
 - An operator can export a complete paper-session audit trail and correlate CLI
   actions with engine decisions.
+
+Current progress:
+
+- Every HTTP response carries `X-Zero-Trace-Id`.
+- HTTP `POST /execute` writes the request trace into the paper decision journal
+  and echoes it in the HTTP response; idempotency replays preserve the original
+  decision trace.
+- `GET /metrics` exposes runtime counters for API calls, status codes, execute
+  outcomes, idempotency hits, decisions, fills, rejections, open positions, and
+  recovery state.
+- `GET /audit/export?limit=100` returns a structured `zero.audit.v1` packet
+  with summary, retention/redaction metadata, metrics, recovery state, and
+  recent decisions.
+- Local and Railway smoke tests verify traced execution, metrics, and audit
+  export.
 
 ### Cycle 7: Live Custody Preflight
 

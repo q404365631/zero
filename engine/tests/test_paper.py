@@ -29,11 +29,13 @@ def test_paper_engine_records_source_in_decision_log() -> None:
     engine.submit(
         OrderIntent("BTC", Side.BUY, quantity=0.01, price=40_000, confidence=0.9),
         source="strategy:test",
+        trace_id="trace-paper-test",
     )
 
     record = engine.decisions[0].to_dict()
 
     assert record["source"] == "strategy:test"
+    assert record["trace_id"] == "trace-paper-test"
     assert record["as_of"] == 123.0
     assert record["symbol"] == "BTC"
     assert record["allowed"] is True

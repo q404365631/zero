@@ -106,6 +106,66 @@ def test_paper_api_journal_reads_persisted_decisions(tmp_path) -> None:
     assert payload["decisions"][0]["source"] == "api:/execute"
     assert payload["decisions"][0]["allowed"] is True
     assert payload["decisions"][0]["idempotency_key"] == "journal-fill"
+    assert payload["decisions"][0]["trace_id"].startswith("trace-")
+
+
+def test_paper_api_metrics_tracks_requests_and_execute_outcomes() -> None:
+    api = PaperApi(PaperApiState(clock=lambda: FIXED_DT, started_at=FIXED_DT))
+
+    execute_status, execute = api.post(
+        "/execute",
+        {"coin": "BTC", "side": "buy", "size": 0.01, "idempotency_key": "metrics-fill"},
+        trace_id="trace-test-metrics",
+        expose_trace=True,
+    )
+    duplicate_status, duplicate = api.post(
+        "/execute",
+        {"coin": "BTC", "side": "buy", "size": 0.01, "idempotency_key": "metrics-fill"},
+        trace_id="trace-test-duplicate",
+        expose_trace=True,
+    )
+    metrics_status, metrics = api.get("/metrics", {}, trace_id="trace-test-read")
+
+    assert execute_status == 200
+    assert duplicate_status == 200
+    assert execute["trace_id"] == "trace-test-metrics"
+    assert duplicate["trace_id"] == "trace-test-metrics"
+    assert metrics_status == 200
+    assert metrics["schema_version"] == "zero.metrics.v1"
+    assert metrics["api"]["request_count"] == 2
+    assert metrics["api"]["by_path"]["/execute"] == 2
+    assert metrics["api"]["execute_count"] == 2
+    assert metrics["api"]["execute_accepted"] == 2
+    assert metrics["api"]["idempotency_hits"] == 1
+    assert metrics["engine"]["decisions"] == 1
+    assert metrics["engine"]["fills"] == 1
+    assert metrics["engine"]["acceptance_rate"] == 1.0
+
+
+def test_paper_api_audit_export_includes_traceable_decisions(tmp_path) -> None:
+    journal = DecisionJournal(tmp_path / "decisions.jsonl")
+    api = PaperApi(
+        PaperApiState(
+            engine=PaperEngine(clock=lambda: FIXED_TS, journal=journal),
+            clock=lambda: FIXED_DT,
+            started_at=FIXED_DT,
+        )
+    )
+
+    api.post(
+        "/execute",
+        {"coin": "BTC", "side": "buy", "size": 0.01, "idempotency_key": "audit-fill"},
+        trace_id="trace-test-audit",
+    )
+    audit_status, audit = api.get("/audit/export", {"limit": ["10"]}, trace_id="trace-test-export")
+
+    assert audit_status == 200
+    assert audit["schema_version"] == "zero.audit.v1"
+    assert audit["source"] == "journal"
+    assert audit["summary"]["decisions"] == 1
+    assert audit["retention"]["format"] == "append-only-jsonl"
+    assert audit["decisions"][0]["symbol"] == "BTC"
+    assert audit["decisions"][0]["trace_id"] == "trace-test-audit"
 
 
 def test_paper_api_recovers_runtime_state_and_idempotency_from_journal(tmp_path) -> None:

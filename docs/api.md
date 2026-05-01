@@ -99,6 +99,7 @@ contract:
 - `GET /`, `/health`, `/v2/status`
 - `GET /positions`, `/risk`, `/brief`
 - `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
+- `GET /metrics`, `/audit/export`
 - `GET /hl/status`, `/market/quote`
 - `GET /operator/state`
 - `POST /execute`
@@ -109,6 +110,11 @@ contract:
 with source `api:/execute`, and returns `simulated=true`. It honors the request
 idempotency key so repeated submissions with the same key do not create
 duplicate paper fills.
+
+Every HTTP response carries `X-Zero-Trace-Id`. When an HTTP `POST /execute`
+creates a paper decision, that trace ID is written into the decision journal
+and echoed in the HTTP response. Idempotency replays return the original
+decision trace, which keeps audit trails tied to the first accepted action.
 
 `GET /journal?limit=50` returns the most recent paper decisions in the same
 shape as `DecisionRecord.to_dict()`. When `zero-paper-api --journal PATH` is
@@ -121,6 +127,14 @@ rejections, and idempotency keys, so a repeated `POST /execute` with an already
 journaled key returns the original simulated response instead of creating a
 duplicate fill. `/health` and `/v2/status` include a `recovery` object with the
 journal mode, recovered counts, and current runtime counts.
+
+`GET /metrics` returns JSON runtime counters for API requests, status codes,
+execute outcomes, idempotency hits, decision counts, fill counts, rejection
+counts, and recovery state.
+
+`GET /audit/export?limit=100` returns a structured `zero.audit.v1` export with
+runtime summary, retention/redaction metadata, metrics, recovery state, and the
+most recent decisions. The public paper runtime records no secrets.
 
 `GET /hl/status` returns disabled metadata by default. When `zero-paper-api
 --hyperliquid` is used, it queries Hyperliquid's public info endpoint for

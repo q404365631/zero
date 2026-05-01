@@ -5,6 +5,7 @@
       "direction": "buy",
       "reason": "order notional exceeds limit",
       "stage": "risk",
+      "trace_id": "trace-c6cf390162cf35dd",
       "ts": "2026-05-01T00:00:00Z"
     }
   ]

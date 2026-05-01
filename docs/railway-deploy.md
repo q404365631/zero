@@ -88,6 +88,16 @@ The journal itself remains available through:
 curl -fsS "$ZERO_RAILWAY_URL/journal?limit=50"
 ```
 
+Audit and runtime counters are available without secrets:
+
+```bash
+curl -fsS "$ZERO_RAILWAY_URL/metrics"
+curl -fsS "$ZERO_RAILWAY_URL/audit/export?limit=100"
+```
+
+Every HTTP response carries `X-Zero-Trace-Id`. Paper decisions created through
+`POST /execute` write that trace ID into the journal and audit export.
+
 If a deployment starts without a volume, the API still runs, but the journal is
 ephemeral and will be lost on restart. Do not use an ephemeral journal for
 operator demos or public behavior verification.

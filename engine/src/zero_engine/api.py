@@ -47,6 +47,65 @@ class PriceQuote:
 
 
 @dataclass
+class ApiMetrics:
+    request_count: int = 0
+    by_method: dict[str, int] = field(default_factory=dict)
+    by_path: dict[str, int] = field(default_factory=dict)
+    by_status: dict[str, int] = field(default_factory=dict)
+    total_request_ms: float = 0.0
+    execute_count: int = 0
+    execute_accepted: int = 0
+    execute_rejected: int = 0
+    idempotency_hits: int = 0
+    last_trace_id: str | None = None
+    last_request_at: str | None = None
+
+    def record_request(
+        self,
+        *,
+        method: str,
+        path: str,
+        status: int,
+        elapsed_ms: float,
+        trace_id: str,
+        at: str,
+    ) -> None:
+        self.request_count += 1
+        self.by_method[method] = self.by_method.get(method, 0) + 1
+        self.by_path[path] = self.by_path.get(path, 0) + 1
+        status_key = str(int(status))
+        self.by_status[status_key] = self.by_status.get(status_key, 0) + 1
+        self.total_request_ms += elapsed_ms
+        self.last_trace_id = trace_id
+        self.last_request_at = at
+
+    def record_execute(self, *, accepted: bool, idempotency_hit: bool = False) -> None:
+        self.execute_count += 1
+        if accepted:
+            self.execute_accepted += 1
+        else:
+            self.execute_rejected += 1
+        if idempotency_hit:
+            self.idempotency_hits += 1
+
+    def to_dict(self) -> dict[str, Any]:
+        avg_ms = self.total_request_ms / self.request_count if self.request_count else 0.0
+        return {
+            "request_count": self.request_count,
+            "by_method": dict(sorted(self.by_method.items())),
+            "by_path": dict(sorted(self.by_path.items())),
+            "by_status": dict(sorted(self.by_status.items())),
+            "avg_request_ms": round(avg_ms, 3),
+            "execute_count": self.execute_count,
+            "execute_accepted": self.execute_accepted,
+            "execute_rejected": self.execute_rejected,
+            "idempotency_hits": self.idempotency_hits,
+            "last_trace_id": self.last_trace_id,
+            "last_request_at": self.last_request_at,
+        }
+
+
+@dataclass
 class PaperApiState:
     engine: PaperEngine = field(default_factory=PaperEngine)
     prices: dict[str, float] = field(default_factory=lambda: dict(DEFAULT_PRICES))
@@ -60,6 +119,8 @@ class PaperApiState:
     price_cache: HyperliquidMarketStatus | None = None
     price_cache_at: datetime | None = None
     last_market_error: str | None = None
+    metrics: ApiMetrics = field(default_factory=ApiMetrics)
+    trace_sequence: int = 0
 
     def __post_init__(self) -> None:
         if self.execution_cache:
@@ -119,12 +180,59 @@ class PaperApiState:
     def market_source(self) -> str:
         return "hyperliquid:allMids" if self.use_live_hyperliquid_prices else "paper:static"
 
+    def next_trace_id(self, method: str, path: str) -> str:
+        self.trace_sequence += 1
+        seed = f"{self.started_at.isoformat()}:{method}:{path}:{self.trace_sequence}"
+        digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()[:16]
+        return f"trace-{digest}"
+
+    def record_request(
+        self,
+        *,
+        method: str,
+        path: str,
+        status: int,
+        elapsed_ms: float,
+        trace_id: str,
+    ) -> None:
+        self.metrics.record_request(
+            method=method,
+            path=path,
+            status=status,
+            elapsed_ms=elapsed_ms,
+            trace_id=trace_id,
+            at=self.now_iso(),
+        )
+
 
 class PaperApi:
     def __init__(self, state: PaperApiState | None = None) -> None:
         self.state = state or PaperApiState()
 
-    def get(self, path: str, query: dict[str, list[str]]) -> tuple[int, dict[str, Any]]:
+    def get(
+        self,
+        path: str,
+        query: dict[str, list[str]],
+        trace_id: str | None = None,
+    ) -> tuple[int, dict[str, Any]]:
+        trace_id = trace_id or self.state.next_trace_id("GET", path)
+        started = time.perf_counter()
+        status, payload = self._get(path, query, trace_id)
+        self.state.record_request(
+            method="GET",
+            path=path,
+            status=status,
+            elapsed_ms=(time.perf_counter() - started) * 1000,
+            trace_id=trace_id,
+        )
+        return status, payload
+
+    def _get(
+        self,
+        path: str,
+        query: dict[str, list[str]],
+        trace_id: str,
+    ) -> tuple[int, dict[str, Any]]:
         routes = {
             "/": self.root,
             "/health": self.health,
@@ -137,13 +245,15 @@ class PaperApi:
             "/approaching": self.approaching,
             "/rejections": lambda: self.rejections(query),
             "/journal": lambda: self.journal(query),
+            "/audit/export": lambda: self.audit_export(query),
             "/hl/status": lambda: self.hl_status(query),
             "/market/quote": lambda: self.market_quote(query),
+            "/metrics": self.metrics,
             "/operator/state": self.operator_state,
         }
         if path.startswith("/evaluate/"):
             try:
-                return HTTPStatus.OK, self.evaluate(path.removeprefix("/evaluate/"))
+                return HTTPStatus.OK, self.evaluate(path.removeprefix("/evaluate/"), trace_id=trace_id)
             except RuntimeError as exc:
                 return HTTPStatus.SERVICE_UNAVAILABLE, {"error": str(exc)}
             except ValueError as exc:
@@ -158,10 +268,40 @@ class PaperApi:
         except ValueError as exc:
             return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
 
-    def post(self, path: str, payload: dict[str, Any]) -> tuple[int, dict[str, Any]]:
+    def post(
+        self,
+        path: str,
+        payload: dict[str, Any],
+        trace_id: str | None = None,
+        expose_trace: bool = False,
+    ) -> tuple[int, dict[str, Any]]:
+        trace_id = trace_id or self.state.next_trace_id("POST", path)
+        started = time.perf_counter()
+        status, response = self._post(path, payload, trace_id, expose_trace=expose_trace)
+        self.state.record_request(
+            method="POST",
+            path=path,
+            status=status,
+            elapsed_ms=(time.perf_counter() - started) * 1000,
+            trace_id=trace_id,
+        )
+        return status, response
+
+    def _post(
+        self,
+        path: str,
+        payload: dict[str, Any],
+        trace_id: str,
+        *,
+        expose_trace: bool = False,
+    ) -> tuple[int, dict[str, Any]]:
         if path == "/execute":
             try:
-                return HTTPStatus.OK, self.execute(payload)
+                return HTTPStatus.OK, self.execute(
+                    payload,
+                    trace_id=trace_id,
+                    expose_trace=expose_trace,
+                )
             except RuntimeError as exc:
                 return HTTPStatus.SERVICE_UNAVAILABLE, {"error": str(exc)}
             except ValueError as exc:
@@ -173,9 +313,14 @@ class PaperApi:
                 "state": "on" if enabled else "off",
                 "simulated": True,
                 "reason": None,
+                **({"trace_id": trace_id} if expose_trace else {}),
             }
         if path == "/operator/events":
-            return HTTPStatus.OK, {"accepted": 1, "snapshot": self.operator_state()}
+            return HTTPStatus.OK, {
+                "accepted": 1,
+                "snapshot": self.operator_state(),
+                **({"trace_id": trace_id} if expose_trace else {}),
+            }
         return HTTPStatus.NOT_FOUND, {"error": "not found", "path": path}
 
     def root(self) -> dict[str, Any]:
@@ -318,12 +463,12 @@ class PaperApi:
             "source": "zero-paper-api",
         }
 
-    def evaluate(self, raw_symbol: str) -> dict[str, Any]:
+    def evaluate(self, raw_symbol: str, trace_id: str | None = None) -> dict[str, Any]:
         symbol = raw_symbol.upper()
         quote = self.state.quote_for(symbol)
         intent = OrderIntent(symbol, Side.BUY, quantity=1 / quote.price, price=quote.price, confidence=0.9)
         decision = evaluate_order(intent, self.state.engine.limits, self.state.engine.positions.get(symbol))
-        return {
+        payload = {
             "coin": symbol,
             "price": quote.price,
             "price_source": quote.source,
@@ -342,6 +487,9 @@ class PaperApi:
             "data_fresh": True,
             "timestamp": self.state.now_iso(),
         }
+        if trace_id:
+            payload["trace_id"] = trace_id
+        return payload
 
     def pulse(self, query: dict[str, list[str]]) -> dict[str, Any]:
         limit = int(first(query, "limit") or "20")
@@ -352,6 +500,7 @@ class PaperApi:
                 "message": record.decision.reason,
                 "severity": "info" if record.decision.allowed else "warn",
                 "ts": epoch_to_iso(record.as_of),
+                "trace_id": record.trace_id,
             }
             for record in self.state.engine.decisions[-limit:]
         ]
@@ -377,6 +526,67 @@ class PaperApi:
         else:
             decisions = [record.to_dict() for record in self.state.engine.decisions[-limit:]]
         return {"decisions": decisions, "count": len(decisions)}
+
+    def metrics(self) -> dict[str, Any]:
+        decisions = self.state.engine.decisions
+        return {
+            "schema_version": "zero.metrics.v1",
+            "generated_at": self.state.now_iso(),
+            "mode": "paper",
+            "runtime": {
+                "started_at": self.state.started_at.isoformat().replace("+00:00", "Z"),
+                "uptime_s": max(0.0, (self.state.now() - self.state.started_at).total_seconds()),
+                "market_source": self.state.market_source(),
+            },
+            "api": self.state.metrics.to_dict(),
+            "engine": {
+                "decisions": len(decisions),
+                "fills": len(self.state.engine.fills),
+                "rejections": len(self.state.engine.rejections),
+                "open_positions": len(
+                    [p for p in self.state.engine.positions.values() if p.quantity != 0]
+                ),
+                "acceptance_rate": round(
+                    len([record for record in decisions if record.decision.allowed]) / len(decisions),
+                    4,
+                )
+                if decisions
+                else 0.0,
+            },
+            "recovery": self.recovery(),
+        }
+
+    def audit_export(self, query: dict[str, list[str]]) -> dict[str, Any]:
+        limit = int(first(query, "limit") or "100")
+        if self.state.engine.journal is not None:
+            decisions = self.state.engine.journal.tail(limit)
+            source = "journal"
+        else:
+            decisions = [record.to_dict() for record in self.state.engine.decisions[-limit:]]
+            source = "memory"
+        return {
+            "schema_version": "zero.audit.v1",
+            "exported_at": self.state.now_iso(),
+            "mode": "paper",
+            "source": source,
+            "limit": limit,
+            "summary": {
+                "decisions": len(self.state.engine.decisions),
+                "fills": len(self.state.engine.fills),
+                "rejections": len(self.state.engine.rejections),
+                "open_positions": len(
+                    [p for p in self.state.engine.positions.values() if p.quantity != 0]
+                ),
+            },
+            "retention": {
+                "policy": "operator-managed",
+                "redaction": "no secrets are recorded by the public paper runtime",
+                "format": "append-only-jsonl",
+            },
+            "metrics": self.metrics(),
+            "recovery": self.recovery(),
+            "decisions": decisions,
+        }
 
     def hl_status(self, query: dict[str, list[str]]) -> dict[str, Any]:
         if self.state.hyperliquid is None:
@@ -438,9 +648,20 @@ class PaperApi:
             "version": len(self.state.engine.decisions),
         }
 
-    def execute(self, payload: dict[str, Any]) -> dict[str, Any]:
+    def execute(
+        self,
+        payload: dict[str, Any],
+        trace_id: str | None = None,
+        *,
+        expose_trace: bool = False,
+    ) -> dict[str, Any]:
         key = str(payload.get("idempotency_key") or "")
         if key and key in self.state.execution_cache:
+            cached = self.state.execution_cache[key]
+            self.state.metrics.record_execute(
+                accepted=bool(cached.get("accepted")),
+                idempotency_hit=True,
+            )
             return self.state.execution_cache[key]
 
         symbol = str(payload.get("coin") or "").upper()
@@ -453,8 +674,17 @@ class PaperApi:
             if quote.source == "paper:static"
             else f"api:/execute:{quote.source}"
         )
-        self.state.engine.submit(intent, source=source, idempotency_key=key or None)
-        response = execute_response_from_record(self.state.engine.decisions[-1])
+        self.state.engine.submit(
+            intent,
+            source=source,
+            idempotency_key=key or None,
+            trace_id=trace_id,
+        )
+        response = execute_response_from_record(
+            self.state.engine.decisions[-1],
+            include_trace=expose_trace,
+        )
+        self.state.metrics.record_execute(accepted=bool(response["accepted"]))
         if key:
             self.state.execution_cache[key] = response
         return response
@@ -482,18 +712,25 @@ def position_to_wire(position: Position, quote: PriceQuote) -> dict[str, Any]:
 
 
 def rejection_to_wire(record: DecisionRecord) -> dict[str, Any]:
-    return {
+    payload = {
         "coin": record.intent.symbol,
         "direction": record.intent.side.value,
         "stage": "risk",
         "reason": record.decision.reason,
         "ts": epoch_to_iso(record.as_of),
     }
+    if record.trace_id:
+        payload["trace_id"] = record.trace_id
+    return payload
 
 
-def execute_response_from_record(record: DecisionRecord) -> dict[str, Any]:
+def execute_response_from_record(
+    record: DecisionRecord,
+    *,
+    include_trace: bool = False,
+) -> dict[str, Any]:
     key = record.idempotency_key or ""
-    return {
+    payload = {
         "accepted": record.decision.allowed,
         "simulated": True,
         "fill_id": f"paper-{key[:8]}" if record.decision.allowed and key else None,
@@ -502,6 +739,9 @@ def execute_response_from_record(record: DecisionRecord) -> dict[str, Any]:
         "size": record.intent.quantity,
         "reason": record.decision.reason,
     }
+    if include_trace and record.trace_id:
+        payload["trace_id"] = record.trace_id
+    return payload
 
 
 def first(query: dict[str, list[str]], name: str) -> str | None:
@@ -523,46 +763,72 @@ def make_handler(api: PaperApi) -> type[BaseHTTPRequestHandler]:
 
         def do_GET(self) -> None:
             parsed = urlparse(self.path)
+            trace_id = api.state.next_trace_id("GET", parsed.path)
             if parsed.path == "/ws":
-                self.accept_websocket()
+                self.accept_websocket(trace_id)
                 return
-            status, payload = api.get(parsed.path, parse_qs(parsed.query))
-            self.write_json(status, payload)
+            status, payload = api.get(parsed.path, parse_qs(parsed.query), trace_id=trace_id)
+            self.write_json(status, payload, trace_id=trace_id)
 
         def do_POST(self) -> None:
             parsed = urlparse(self.path)
+            trace_id = api.state.next_trace_id("POST", parsed.path)
             try:
                 length = int(self.headers.get("content-length", "0"))
                 body = self.rfile.read(length).decode("utf-8") if length else "{}"
                 payload = json.loads(body)
-                status, response = api.post(parsed.path, payload)
+                status, response = api.post(
+                    parsed.path,
+                    payload,
+                    trace_id=trace_id,
+                    expose_trace=True,
+                )
             except (ValueError, TypeError, json.JSONDecodeError) as exc:
                 status, response = HTTPStatus.BAD_REQUEST, {"error": str(exc)}
-            self.write_json(status, response)
+                api.state.record_request(
+                    method="POST",
+                    path=parsed.path,
+                    status=status,
+                    elapsed_ms=0.0,
+                    trace_id=trace_id,
+                )
+            self.write_json(status, response, trace_id=trace_id)
 
-        def write_json(self, status: int, payload: dict[str, Any]) -> None:
+        def write_json(
+            self,
+            status: int,
+            payload: dict[str, Any],
+            trace_id: str | None = None,
+        ) -> None:
             body = json.dumps(payload, sort_keys=True).encode("utf-8")
             self.send_response(status)
             self.send_header("content-type", "application/json")
             self.send_header("content-length", str(len(body)))
+            if trace_id:
+                self.send_header("x-zero-trace-id", trace_id)
             self.end_headers()
             self.wfile.write(body)
 
-        def accept_websocket(self) -> None:
+        def accept_websocket(self, trace_id: str) -> None:
             key = self.headers.get("Sec-WebSocket-Key")
             if not key:
-                self.write_json(HTTPStatus.BAD_REQUEST, {"error": "missing websocket key"})
+                self.write_json(
+                    HTTPStatus.BAD_REQUEST,
+                    {"error": "missing websocket key"},
+                    trace_id=trace_id,
+                )
                 return
             accept = websocket_accept_key(key)
             self.send_response(HTTPStatus.SWITCHING_PROTOCOLS)
             self.send_header("Upgrade", "websocket")
             self.send_header("Connection", "Upgrade")
             self.send_header("Sec-WebSocket-Accept", accept)
+            self.send_header("x-zero-trace-id", trace_id)
             self.end_headers()
             payload = {
                 "event": "heartbeat",
                 "ts": api.state.now_iso(),
-                "data": {"mode": "paper", "source": "zero-paper-api"},
+                "data": {"mode": "paper", "source": "zero-paper-api", "trace_id": trace_id},
             }
             self.wfile.write(websocket_text_frame(json.dumps(payload, sort_keys=True)))
             self.wfile.flush()
