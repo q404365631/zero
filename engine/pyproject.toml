@@ -9,6 +9,7 @@ authors = [{ name = "ZERO contributors" }]
 
 [project.scripts]
 zero-paper-demo = "zero_engine.demo:main"
+zero-paper-api = "zero_engine.api:main"
 
 [project.optional-dependencies]
 dev = [
@@ -30,4 +31,3 @@ addopts = "-q"
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-

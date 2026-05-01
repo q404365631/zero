@@ -41,6 +41,15 @@ just example
 
 The first public demo runs in paper mode and requires no exchange private key.
 
+To inspect the local paper engine from the operator CLI:
+
+```bash
+just paper-api
+cd cli
+cargo run -p zero -- --api http://127.0.0.1:8765 doctor
+cargo run -p zero -- --api http://127.0.0.1:8765 run status
+```
+
 Container path:
 
 ```bash

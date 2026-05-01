@@ -12,6 +12,9 @@ example:
 strategy-example:
     cd examples/paper-trading && python3 strategy_demo.py
 
+paper-api:
+    cd engine && python3 -m zero_engine.api
+
 engine-lint:
     cd engine && ruff check .
 

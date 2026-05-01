@@ -90,6 +90,25 @@ paper decision should name its source, such as `manual`, `scenario:<name>`, or
 `PaperEngine` accepts an optional `clock` callable so tests and examples can
 produce deterministic `as_of` timestamps.
 
+## Local Paper API
+
+`zero-paper-api` starts a paper-only HTTP server on `127.0.0.1:8765`.
+It requires no secrets and implements the CLI-facing subset of the engine
+contract:
+
+- `GET /`, `/health`, `/v2/status`
+- `GET /positions`, `/risk`, `/brief`
+- `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`
+- `GET /operator/state`
+- `POST /execute`
+- `POST /auto/toggle`
+- `POST /operator/events`
+
+`POST /execute` always runs through `PaperEngine.submit`, records a decision
+with source `api:/execute`, and returns `simulated=true`. It honors the request
+idempotency key so repeated submissions with the same key do not create
+duplicate paper fills.
+
 ## Paper Scenarios
 
 ### `load_scenario(path)`

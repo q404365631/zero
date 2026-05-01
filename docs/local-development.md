@@ -57,6 +57,20 @@ python -m zero_engine.demo
 The public engine starts with a small safety contract. Keep changes focused and
 add tests beside the behavior being changed.
 
+Run the local paper API in one terminal:
+
+```bash
+just paper-api
+```
+
+Then inspect it from the CLI in another terminal:
+
+```bash
+cd cli
+cargo run -p zero -- --api http://127.0.0.1:8765 doctor
+cargo run -p zero -- --api http://127.0.0.1:8765 run status
+```
+
 ## Rust CLI
 
 ```bash

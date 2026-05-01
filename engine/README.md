@@ -18,6 +18,19 @@ pip install -e ".[dev]"
 zero-paper-demo
 ```
 
+## Local API
+
+```bash
+zero-paper-api
+```
+
+The local paper API listens on `http://127.0.0.1:8765` by default and
+exposes the paper-mode subset of the engine contract used by the Rust CLI:
+`/`, `/health`, `/v2/status`, `/positions`, `/risk`, `/brief`,
+`/regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`,
+`/operator/state`, `POST /execute`, `POST /auto/toggle`, and
+`POST /operator/events`.
+
 ## Test
 
 ```bash
