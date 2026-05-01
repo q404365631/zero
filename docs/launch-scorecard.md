@@ -29,6 +29,8 @@ reserved for ZERO Intelligence.
 - One-line CLI install path with checksum and attestation verification
 - Package dry-run gate for Python artifacts and the Rust crate graph
 - Shared paper API contract fixtures pinned by Python API tests and Rust client tests
+- First-class GitHub product page with category narrative, quickstart, safety
+  model, open-core boundary, and contributor paths
 - Public contribution, security, governance, support, and issue templates
 - First-release notes template and ready-to-create contributor issue set
 - Public boundary audit from the private repo

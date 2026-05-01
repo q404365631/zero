@@ -1,9 +1,14 @@
 # Architecture
 
+ZERO is an autonomous operating system for self-custodial onchain operations,
+starting with onchain perpetual markets.
+
 ZERO has four product surfaces:
 
-- ZERO Runtime: local Autonomous Risk Operations engine with paper mode, safety gates, API, and extension contracts.
-- ZERO Terminal: operator CLI for setup, diagnostics, state inspection, replay, and supervised actions.
+- ZERO Runtime: local autonomous operations engine with paper mode, safety
+  gates, API, journals, and extension contracts.
+- ZERO Terminal: operator CLI for setup, diagnostics, state inspection, replay,
+  and supervised actions.
 - ZERO Network: public profiles, leaderboards, verification badges, and public decision-flow proof.
 - ZERO Intelligence: delayed public snapshots plus a commercial API and
   subscription layer for realtime intelligence, history, cohorts, webhooks, and

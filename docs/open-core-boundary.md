@@ -1,9 +1,10 @@
 # Open Runtime Boundary
 
-ZERO is open runtime plus commercial intelligence.
+ZERO is an open autonomous operating system plus commercial intelligence.
 
-This public repository contains the self-hosted runtime that engineers can run,
-inspect, test, and extend locally. Deployment should be Railway-first and
+This public repository contains the local-first runtime, operator terminal,
+public proof contracts, and deployment paths that engineers can run, inspect,
+test, and extend locally. Deployment should be Railway-first and
 self-custodial: operators own their Railway project, environment variables,
 exchange credentials, and runtime state.
 

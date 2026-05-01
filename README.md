@@ -1,140 +1,189 @@
 # ZERO
 
 [![CI](https://github.com/zero-intel/zero/actions/workflows/ci.yml/badge.svg)](https://github.com/zero-intel/zero/actions/workflows/ci.yml)
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/zero-intel/zero/badge)](https://securityscorecards.dev/viewer/?uri=github.com/zero-intel/zero)
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![CodeQL](https://github.com/zero-intel/zero/actions/workflows/codeql.yml/badge.svg)](https://github.com/zero-intel/zero/actions/workflows/codeql.yml)
+[![Secret Scan](https://github.com/zero-intel/zero/actions/workflows/secret-scan.yml/badge.svg)](https://github.com/zero-intel/zero/actions/workflows/secret-scan.yml)
+[![OpenSSF Scorecard](https://github.com/zero-intel/zero/actions/workflows/scorecard.yml/badge.svg)](https://github.com/zero-intel/zero/actions/workflows/scorecard.yml)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-Self-hosted Autonomous Risk Operations runtime and operator terminal.
+**Autonomous operating system for self-custodial onchain operations.**
 
-ZERO is for engineers who want to build, test, and supervise AI-assisted trading systems without handing execution to a black box. The public repo starts with paper mode, local operation, explicit safety gates, inspectable decisions, and extension points for market data, strategies, operator workflows, and deployment targets.
+ZERO is an open-source runtime and operator terminal for running autonomous
+capital operations without giving up custody. It starts with onchain perpetual
+markets: paper-first execution, safety gates, local journals, Hyperliquid
+read-only/live boundaries, public proof packets, and intelligence contracts.
 
-> This repository is the open runtime. Railway-first deployment and public profiles belong in the public product surface. ZERO Intelligence is the commercial API and subscription layer built from verified autonomous behavior.
+> Not another trading bot. ZERO is the control plane that makes autonomous
+> onchain operations inspectable, interruptible, and self-custodial.
 
-## What Is Open Source
+## Why ZERO Exists
 
-- Local engine runtime
-- Paper-trading adapter
-- Safety and risk gates
-- Operator CLI
-- API contracts
-- Strategy/plugin examples
-- Railway and Docker deployment paths
-- Public profile and leaderboard contracts
-- Delayed public intelligence snapshots
-- Tests and reproducible local demo
+Onchain markets are open 24/7. Leverage punishes attention failure. The old
+stack asks operators to stitch together dashboards, alerts, exchange tabs,
+copy-trading feeds, scripts, and private spreadsheets, then somehow stay
+disciplined under stress.
 
-## What Is Commercial
+ZERO turns that workflow into an explicit operating system:
 
-- Realtime ZERO Intelligence API
-- Historical intelligence datasets
-- Advanced cohort and benchmark analytics
-- Commercial intelligence connectors and enrichment feeds
-- Higher API limits, webhooks, and exports
-- Commercial redistribution rights
-- Enterprise support, reliability commitments, and SLAs
+- A runtime that evaluates, rejects, executes, and records decisions.
+- A terminal that keeps the operator in control.
+- A safety model that makes risk-reducing actions fast and risk-increasing
+  actions deliberate.
+- A public proof surface for profiles, leaderboards, and verification.
+- A commercial intelligence layer built from verified autonomous behavior.
+
+The default mode is paper. Live operation is self-custodial, explicit, and
+guarded by preflight checks.
+
+## Product Surfaces
+
+| Surface | Role | Public status |
+| --- | --- | --- |
+| ZERO Runtime | Python engine for paper/live execution, journals, safety gates, strategy adapters, and venue adapters. | Open source |
+| ZERO Terminal | Rust CLI/TUI for setup, diagnostics, state inspection, replay, and supervised actions. | Open source |
+| ZERO Network | Public-safe profiles, leaderboards, verification badges, and proof packets. | Open source contracts |
+| ZERO Intelligence | Delayed public snapshots plus commercial realtime APIs, history, cohorts, webhooks, exports, and SLAs. | Open contracts + paid access |
+
+```mermaid
+flowchart LR
+  A["Market data and strategy inputs"] --> B["ZERO Runtime"]
+  B --> C["Safety gates and risk policy"]
+  C --> D["Paper or self-custodial live execution"]
+  B --> E["ZERO Terminal"]
+  B --> F["Audit journal"]
+  F --> G["ZERO Network proof"]
+  G --> H["ZERO Intelligence"]
+```
+
+## What You Can Run Today
+
+- Run the local paper engine against bundled example candles.
+- Start a local paper API and inspect operator state.
+- Use the Rust CLI for health checks, status, replay, and supervised actions.
+- Query Hyperliquid read-only market data without exposing funds.
+- Package release assets with checksums.
+- Deploy the paper runtime on Railway or Docker.
+- Generate public-safe Network and Intelligence contract artifacts.
 
 ## Quickstart
+
+Requirements: Python 3.11+, Rust stable, Cargo, and `just`.
 
 ```bash
 git clone https://github.com/zero-intel/zero.git
 cd zero
 just bootstrap
 just demo
-just example
+just paper-api-smoke
 ```
 
-The first public demo runs in paper mode and requires no exchange private key.
-
-After the first release is published, install the latest CLI binary with:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/zero-intel/zero/main/scripts/install.sh | bash
-```
-
-The installer downloads the latest GitHub Release asset for your OS, verifies
-`SHA256SUMS`, verifies the GitHub artifact attestation with `gh`, and installs
-`zero` to `~/.local/bin`.
-
-To inspect the local paper engine from the operator CLI:
+Run the paper API:
 
 ```bash
 just paper-api
+```
+
+Run the CLI:
+
+```bash
 cd cli
-cargo run -p zero -- --api http://127.0.0.1:8765 doctor
-cargo run -p zero -- --api http://127.0.0.1:8765 run status
+cargo run -q -p zero -- --api http://127.0.0.1:8765 doctor
+cargo run -q -p zero -- --api http://127.0.0.1:8765 run status
+cargo run -q -p zero -- --api http://127.0.0.1:8765 run risk
 ```
 
-See [docs/cli-quickstart.md](docs/cli-quickstart.md) for a redacted terminal
-capture of the expected CLI output.
-
-Container path:
+Run the full local gate:
 
 ```bash
-docker compose run --rm zero-paper-example
-```
-
-## Repository Layout
-
-```text
-zero/
-├── engine/              Python engine runtime
-├── cli/                 Rust operator terminal
-├── docs/                Architecture, safety model, API, contributor docs
-├── examples/            Paper trading and plugin examples
-└── .github/             CI, issue templates, PR template
-```
-
-## Development
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-just bootstrap
-just lint
-just test
 just ci
 ```
 
-For full setup, see [docs/local-development.md](docs/local-development.md).
+## Safety Model
 
-## Safety
+ZERO is built around operational discipline, not activity.
 
-ZERO must be safe by default:
+- Paper mode is the default.
+- Public examples must run without real funds.
+- Live execution requires explicit environment configuration and preflight
+  checks.
+- Risk-reducing actions should remain low-friction.
+- Risk-increasing actions should require deliberate operator confirmation.
+- Journals and proof packets must be redacted before publication.
+- Hosted custody is not part of the product.
 
-- Paper mode is the default local demo.
-- Risk-increasing actions need explicit operator confirmation.
-- Risk-reducing actions must not be blocked by friction gates.
-- Decisions should be logged with source, timestamp, and confidence.
-- No secrets are required for first-run contribution work.
+Read the full model in [docs/safety-model.md](docs/safety-model.md),
+[docs/threat-model.md](docs/threat-model.md), and
+[docs/incident-runbooks.md](docs/incident-runbooks.md).
 
-Read [docs/safety-model.md](docs/safety-model.md) before adding execution or risk logic.
+## Open Core Boundary
 
-## Docs
+ZERO is open infrastructure plus commercial intelligence.
 
-- [CLI operator terminal](cli/README.md)
+| Open | Commercial |
+| --- | --- |
+| Runtime engine, safety gates, paper mode, local API, CLI, Docker/Railway deployment, public profile contracts, leaderboards, delayed snapshots, docs, tests, and release tooling. | Realtime Intelligence API, deeper history, cohorts, benchmarks, commercial connectors, higher rate limits, webhooks, bulk exports, redistribution rights, support, reliability commitments, and SLAs. |
+
+The open repository must stay useful without a ZERO-hosted control plane. The
+commercial product sells speed, scale, history, reliability, and intelligence
+access, not custody or basic runtime operation.
+
+See [docs/open-core-boundary.md](docs/open-core-boundary.md) and
+[docs/zero-intelligence.md](docs/zero-intelligence.md).
+
+## Repository Map
+
+```text
+engine/        Python ZERO Runtime and paper API
+cli/           Rust operator terminal
+contracts/     Public API, Network, and Intelligence contract examples
+examples/      Paper-trading examples and sample candles
+docs/          Architecture, safety, deployment, release, and product docs
+scripts/       Smoke tests, release packaging, Railway entrypoints, hardening gates
+.github/       CI, CodeQL, secret scanning, Scorecard, issue and PR templates
+```
+
+## Deployment
+
+ZERO is local-first, Railway-first, and Docker-compatible. Operators own their
+deployment project, secrets, exchange credentials, and runtime state.
+
+- [docs/local-development.md](docs/local-development.md)
+- [docs/railway-deploy.md](docs/railway-deploy.md)
+- [docs/distribution.md](docs/distribution.md)
+- [docs/release.md](docs/release.md)
+
+## Contributor Paths
+
+Good first contribution areas:
+
+- Strategy examples that stay paper-first.
+- Market data adapters with deterministic tests.
+- CLI diagnostics and replay views.
+- Safety gate tests.
+- Documentation and runbook improvements.
+- Public Network and Intelligence contract examples.
+
+Before opening a pull request:
+
+```bash
+just ci
+```
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and
+[GOVERNANCE.md](GOVERNANCE.md).
+
+## Documentation
+
 - [Architecture](docs/architecture.md)
-- [Safety model](docs/safety-model.md)
-- [Local development](docs/local-development.md)
-- [CLI quickstart capture](docs/cli-quickstart.md)
-- [API contract](docs/api.md)
-- [Open-core boundary](docs/open-core-boundary.md)
+- [Positioning](docs/positioning.md)
+- [CLI Quickstart](docs/cli-quickstart.md)
+- [API](docs/api.md)
+- [Hyperliquid Read-only](docs/hyperliquid-readonly.md)
 - [ZERO Network](docs/zero-network.md)
 - [ZERO Intelligence](docs/zero-intelligence.md)
-- [Threat model](docs/threat-model.md)
-- [Incident runbooks](docs/incident-runbooks.md)
-- [Distribution readiness](docs/distribution.md)
-- [Hyperliquid read-only runtime](docs/hyperliquid-readonly.md)
-- [Railway paper deployment](docs/railway-deploy.md)
-- [Production readiness](docs/production-readiness.md)
-- [Release process](docs/release.md)
-- [Launch scorecard](docs/launch-scorecard.md)
-- [Launch backlog](docs/backlog.md)
-- [Launch issue set](docs/launch-issues.md)
+- [Production Readiness](docs/production-readiness.md)
+- [Launch Scorecard](docs/launch-scorecard.md)
 - [Roadmap](docs/roadmap.md)
-
-## Contributing
-
-Start with [CONTRIBUTING.md](CONTRIBUTING.md). Good first issues are labeled `good first issue`; larger design work should start as a discussion or proposal.
 
 ## License
 
