@@ -49,6 +49,9 @@ docs-check:
     test -f examples/paper-trading/strategy_demo.py
     test -f examples/paper-trading/scenario.json
     test -f examples/paper-trading/candles.jsonl
+    test -f contracts/paper-api/v2_status.json
+    test -f contracts/paper-api/execute_accepted.json
+    test -f contracts/paper-api/execute_rejected.json
     test -f Dockerfile
     test -f compose.yaml
 

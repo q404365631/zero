@@ -1,0 +1,9 @@
+{
+  "accepted": false,
+  "coin": "BTC",
+  "fill_id": null,
+  "reason": "order notional exceeds limit",
+  "side": "buy",
+  "simulated": true,
+  "size": 1.0
+}

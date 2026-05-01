@@ -1,0 +1,11 @@
+{
+  "rejections": [
+    {
+      "coin": "BTC",
+      "direction": "buy",
+      "reason": "order notional exceeds limit",
+      "stage": "risk",
+      "ts": "2026-05-01T00:00:00Z"
+    }
+  ]
+}

@@ -44,6 +44,9 @@ jobs:
           test -f docs/release.md
           test -f docs/launch-scorecard.md
           test -f docs/launch-issues.md
+          test -f contracts/paper-api/v2_status.json
+          test -f contracts/paper-api/execute_accepted.json
+          test -f contracts/paper-api/execute_rejected.json
           test -f .github/RELEASE_TEMPLATE.md
 
   cli:

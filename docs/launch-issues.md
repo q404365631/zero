@@ -30,19 +30,18 @@ Acceptance:
 - The note keeps the container path paper-only.
 - The note does not weaken CI expectations.
 
-## Help Wanted: API Compatibility Fixtures
+## Help Wanted: Package Publishing Dry Runs
 
-Labels: `help wanted`, `api`, `cli`, `tests`
+Labels: `help wanted`, `release`, `packaging`
 
-Add fixture tests that pin the Python paper API responses against the Rust
-client's expected wire shapes.
+Add non-publishing checks for the first public package paths.
 
 Acceptance:
 
-- Fixtures cover `/v2/status`, `/positions`, `/risk`, `/brief`, `/rejections`,
-  and `POST /execute`.
-- The tests fail if the Python paper API drops a field required by the Rust CLI.
-- The tests remain paper-only and require no network beyond localhost.
+- The Python engine package can build an sdist and wheel locally.
+- The Rust CLI crates pass `cargo package --no-verify` or documented equivalent.
+- The check does not require publishing tokens.
+- Any name-ownership assumptions are documented in `docs/release.md`.
 
 ## Help Wanted: CLI Quickstart Terminal Capture
 

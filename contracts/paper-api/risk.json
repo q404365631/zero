@@ -1,0 +1,19 @@
+{
+  "account_value": 10000.0,
+  "capital_floor_hit": false,
+  "daily_loss_since": "2026-05-01T00:00:00Z",
+  "daily_loss_usd": 0.0,
+  "daily_pnl_usd": 0.0,
+  "drawdown_pct": 0.0,
+  "global_halt": false,
+  "halt_reason": null,
+  "halt_until": null,
+  "halted": false,
+  "last_drawdown_alert_pct": 20.0,
+  "open_count": 1,
+  "peak_equity": 10000.0,
+  "peak_equity_30d": 10000.0,
+  "per_runner": {},
+  "stop_failure_halt": false,
+  "updated_at": "2026-05-01T00:00:00Z"
+}

@@ -1,0 +1,9 @@
+{
+  "accepted": true,
+  "coin": "BTC",
+  "fill_id": "paper-contract",
+  "reason": "allowed",
+  "side": "buy",
+  "simulated": true,
+  "size": 0.01
+}

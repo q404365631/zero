@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from typing import Any
+from typing import Any, Callable
 from urllib.parse import parse_qs, urlparse
 
 from zero_engine.models import OrderIntent, Position, Side
@@ -24,16 +24,21 @@ DEFAULT_PRICES = {
 }
 
 
+def utc_now() -> datetime:
+    return datetime.now(UTC)
+
+
 @dataclass
 class PaperApiState:
     engine: PaperEngine = field(default_factory=PaperEngine)
     prices: dict[str, float] = field(default_factory=lambda: dict(DEFAULT_PRICES))
-    started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    clock: Callable[[], datetime] = field(default_factory=lambda: utc_now)
+    started_at: datetime = field(default_factory=utc_now)
     auto_enabled: bool = False
     execution_cache: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     def now(self) -> datetime:
-        return datetime.now(UTC)
+        return self.clock()
 
     def now_iso(self) -> str:
         return self.now().isoformat().replace("+00:00", "Z")

@@ -1,0 +1,30 @@
+{
+  "alert": null,
+  "approaching": [],
+  "blind_spots": [],
+  "confidence": {
+    "level": "paper",
+    "score": 90
+  },
+  "market": {
+    "coins_tradeable": 3,
+    "fear_greed": 50,
+    "health": 1.0,
+    "prediction": "stable",
+    "regime": "PAPER MARKET. Local deterministic demo.",
+    "signal": "stable"
+  },
+  "positions": {
+    "equity": 10000.0,
+    "open": 1,
+    "unrealized_pnl": 0.0
+  },
+  "today": {
+    "pnl": 0.0,
+    "sizing_mult": 1.0,
+    "streak": 0,
+    "trades": 1,
+    "wins": 0
+  },
+  "ts": "2026-05-01T00:00:00Z"
+}

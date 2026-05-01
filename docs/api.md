@@ -109,6 +109,22 @@ with source `api:/execute`, and returns `simulated=true`. It honors the request
 idempotency key so repeated submissions with the same key do not create
 duplicate paper fills.
 
+### Contract Fixtures
+
+Shared JSON fixtures live in `contracts/paper-api/`. Python tests assert the
+local paper API emits these exact payloads, and Rust client tests deserialize the
+same files into `zero-engine-client` models. Any endpoint change that affects
+the CLI contract should update the fixture and both test expectations together.
+
+The fixture set currently covers:
+
+- `GET /v2/status`
+- `GET /positions`
+- `GET /risk`
+- `GET /brief`
+- `GET /rejections`
+- `POST /execute` accepted and rejected responses
+
 ## Paper Scenarios
 
 ### `load_scenario(path)`

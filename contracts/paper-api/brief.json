@@ -1,0 +1,25 @@
+{
+  "approaching": [],
+  "fear_greed": 50,
+  "last_cycle": {
+    "decisions": 2,
+    "fills": 1,
+    "mode": "paper",
+    "rejections": 1
+  },
+  "open_positions": 1,
+  "positions": [
+    {
+      "age_s": 0.0,
+      "entry": 40500.0,
+      "mark": 40500.0,
+      "side": "long",
+      "size": 0.01,
+      "symbol": "BTC",
+      "unrealized_pnl": 0.0,
+      "unrealized_r": 0.0
+    }
+  ],
+  "recent_signals": [],
+  "timestamp": "2026-05-01T00:00:00Z"
+}
