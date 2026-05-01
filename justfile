@@ -45,6 +45,7 @@ docs-check:
     test -f docs/api.md
     test -f docs/open-core-boundary.md
     test -f docs/zero-intelligence.md
+    test -f docs/hyperliquid-readonly.md
     test -f docs/production-readiness.md
     test -f docs/release.md
     test -f docs/launch-scorecard.md

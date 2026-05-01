@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from zero_engine.api import PaperApi, PaperApiState, websocket_accept_key, websocket_text_frame
+from zero_engine.hyperliquid import HyperliquidInfoClient
 from zero_engine.journal import DecisionJournal
 from zero_engine.paper import PaperEngine
 
@@ -104,6 +105,29 @@ def test_paper_api_journal_reads_persisted_decisions(tmp_path) -> None:
     assert payload["decisions"][0]["symbol"] == "BTC"
     assert payload["decisions"][0]["source"] == "api:/execute"
     assert payload["decisions"][0]["allowed"] is True
+
+
+def test_paper_api_hl_status_is_disabled_by_default() -> None:
+    status, payload = PaperApi().get("/hl/status", {})
+
+    assert status == 200
+    assert payload["enabled"] is False
+    assert payload["exchange"] == "hyperliquid"
+
+
+def test_paper_api_hl_status_uses_read_only_adapter() -> None:
+    client = HyperliquidInfoClient(transport=lambda *_args: {"BTC": "40500", "ETH": "2850"})
+    api = PaperApi(PaperApiState(hyperliquid=client))
+
+    status, payload = api.get("/hl/status", {"symbol": ["BTC"]})
+    health_status, health = api.get("/health", {})
+
+    assert status == 200
+    assert payload["enabled"] is True
+    assert payload["secrets_required"] is False
+    assert payload["mids"] == {"BTC": 40500.0}
+    assert health_status == 200
+    assert health["dependencies"]["exchange"] == "hyperliquid"
 
 
 def test_paper_api_matches_shared_contract_fixtures() -> None:

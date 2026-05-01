@@ -17,6 +17,7 @@
 //! # }
 //! ```
 
+use std::collections::BTreeMap;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
@@ -322,6 +323,7 @@ fn router(shared: AppState) -> Router<AppState> {
         .route("/pulse", get(pulse))
         .route("/approaching", get(approaching))
         .route("/rejections", get(rejections))
+        .route("/hl/status", get(hl_status))
         .route("/operator/state", get(operator_state))
         .route("/operator/events", post(operator_events))
         .route("/execute", post(execute))
@@ -707,6 +709,25 @@ async fn rejections() -> Json<serde_json::Value> {
         "rejections": [
             {"coin": "SOL", "direction": "long", "stage": "stage2", "reason": "volume below threshold", "ts": chrono_utc_now_iso()}
         ]
+    }))
+}
+
+async fn hl_status(
+    axum::extract::Query(query): axum::extract::Query<BTreeMap<String, String>>,
+) -> Json<serde_json::Value> {
+    let mids = match query.get("symbol").map(String::as_str) {
+        Some("BTC") => json!({"BTC": 40500.0}),
+        Some("ETH") => json!({"ETH": 2850.0}),
+        Some(symbol) => json!({symbol: 100.0}),
+        None => json!({"BTC": 40500.0, "ETH": 2850.0}),
+    };
+    Json(json!({
+        "enabled": true,
+        "exchange": "hyperliquid",
+        "endpoint": "https://api.hyperliquid.xyz/info",
+        "coins": 2,
+        "mids": mids,
+        "secrets_required": false
     }))
 }
 

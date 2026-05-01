@@ -63,6 +63,27 @@ async fn risk_command_decodes_summary() {
 }
 
 #[tokio::test]
+async fn hl_status_renders_read_only_exchange_status() {
+    let (mock, ctx) = ctx_with_mock().await;
+    let out = dispatch(&ctx, "/hl-status BTC").await.unwrap().unwrap();
+
+    assert_eq!(out.risk, Some(RiskDirection::Neutral));
+    let OutputLine::Command(s) = &out.lines[0] else {
+        panic!("expected Command, got {:?}", out.lines);
+    };
+    assert!(s.contains("hl: enabled"), "enabled row: {s}");
+    assert!(s.contains("secrets_required=false"), "secrets field: {s}");
+    assert!(
+        out.lines
+            .iter()
+            .any(|line| matches!(line, OutputLine::System(s) if s.contains("BTC"))),
+        "BTC mid row missing: {:?}",
+        out.lines
+    );
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn risk_flags_equity_above_peak_inconsistency() {
     // Production drift: the engine wrote `risk.json` with
     // account_value=638 and peak_equity=577. Equity above peak is

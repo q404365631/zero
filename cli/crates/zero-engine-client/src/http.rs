@@ -21,8 +21,8 @@ use zero_operator_state::{Event as OperatorEvent, Snapshot as OperatorSnapshot};
 
 use crate::models::{
     ApproachingFeed, AutoToggleRequest, AutoToggleResponse, Brief, Evaluation, ExecuteRequest,
-    ExecuteResponse, Health, OperatorEventsAccepted, Positions, Pulse, Regime, RejectionsFeed,
-    Risk, Root, V2Status,
+    ExecuteResponse, Health, HyperliquidStatus, OperatorEventsAccepted, Positions, Pulse, Regime,
+    RejectionsFeed, Risk, Root, V2Status,
 };
 use crate::rate_budget::{self, RateBudget};
 
@@ -556,6 +556,20 @@ impl HttpClient {
     /// `GET /health` — unauthenticated component heartbeat rollup.
     pub async fn health(&self) -> Result<Health, HttpError> {
         self.get_json("/health").await
+    }
+
+    /// `GET /hl/status[?symbol=...]` — read-only Hyperliquid info adapter status.
+    pub async fn hyperliquid_status(
+        &self,
+        symbol: Option<&str>,
+    ) -> Result<HyperliquidStatus, HttpError> {
+        match symbol {
+            Some(s) => {
+                let path = format!("/hl/status?symbol={}", urlencoding(s));
+                self.get_json(&path).await
+            }
+            None => self.get_json("/hl/status").await,
+        }
     }
 
     /// `GET /v2/status` — condensed engine summary for the status bar.

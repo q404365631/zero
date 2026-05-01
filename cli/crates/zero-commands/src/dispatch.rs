@@ -593,6 +593,7 @@ async fn run(ctx: &DispatchContext, cmd: &Command) -> DispatchOutput {
         Command::Status => status(ctx).await,
         Command::Brief => brief(ctx).await,
         Command::Risk => risk_cmd(ctx).await,
+        Command::HyperliquidStatus { symbol } => hl_status_cmd(ctx, symbol.as_deref()).await,
         Command::Regime { coin } => regime_cmd(ctx, coin.as_deref()).await,
         Command::Evaluate { coin, extras } => evaluate_cmd(ctx, coin.as_deref(), extras).await,
         Command::Positions => positions_cmd(ctx).await,
@@ -655,6 +656,9 @@ fn help() -> DispatchOutput {
     ));
     out.lines.push(OutputLine::system(
         "  /risk                — guardrail summary",
+    ));
+    out.lines.push(OutputLine::system(
+        "  /hl-status [coin]    — read-only Hyperliquid info status",
     ));
     out.lines.push(OutputLine::system(
         "  /heat                — composite heat (risk + circuit state)",
@@ -882,6 +886,38 @@ async fn brief(ctx: &DispatchContext) -> DispatchOutput {
             }
         }
         Err(e) => out.lines.push(OutputLine::alert(format!("brief: {e}"))),
+    }
+    out
+}
+
+async fn hl_status_cmd(ctx: &DispatchContext, symbol: Option<&str>) -> DispatchOutput {
+    let mut out = DispatchOutput::default();
+    let Some(http) = require_http(ctx, &mut out) else {
+        return out;
+    };
+    match http.hyperliquid_status(symbol).await {
+        Ok(s) if !s.enabled => {
+            let reason = s
+                .reason
+                .as_deref()
+                .unwrap_or("Hyperliquid read-only adapter disabled");
+            out.lines
+                .push(OutputLine::warn(format!("hl: disabled — {reason}")));
+        }
+        Ok(s) => {
+            let coins = s.coins.map_or("—".into(), |n| n.to_string());
+            let secrets = s
+                .secrets_required
+                .map_or("—".into(), |required| required.to_string());
+            out.lines.push(OutputLine::command(format!(
+                "hl: enabled  coins={coins}  secrets_required={secrets}"
+            )));
+            for (symbol, mid) in s.mids.iter().take(8) {
+                out.lines
+                    .push(OutputLine::system(format!("  {symbol}: mid={mid:.4}")));
+            }
+        }
+        Err(e) => out.lines.push(OutputLine::alert(format!("hl-status: {e}"))),
     }
     out
 }

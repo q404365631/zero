@@ -69,6 +69,21 @@ async fn risk_decodes_and_is_not_halted() {
 }
 
 #[tokio::test]
+async fn hyperliquid_status_decodes_read_only_shape() {
+    let (mock, http) = client().await;
+    let status = http
+        .hyperliquid_status(Some("BTC"))
+        .await
+        .expect("hl-status");
+
+    assert!(status.enabled);
+    assert_eq!(status.exchange.as_deref(), Some("hyperliquid"));
+    assert_eq!(status.secrets_required, Some(false));
+    assert_eq!(status.mids.get("BTC"), Some(&40500.0));
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn regime_decodes_without_coin() {
     let (mock, http) = client().await;
     let r = http.regime(None).await.expect("regime");

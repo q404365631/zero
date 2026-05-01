@@ -78,6 +78,11 @@ pub enum Command {
     Status,
     Brief,
     Risk,
+    /// `/hl-status [coin]` — read-only Hyperliquid public info status.
+    /// This cannot sign payloads or place orders, so it is Neutral.
+    HyperliquidStatus {
+        symbol: Option<String>,
+    },
     Regime {
         coin: Option<String>,
     },
@@ -488,6 +493,7 @@ impl Command {
             | Self::Status
             | Self::Brief
             | Self::Risk
+            | Self::HyperliquidStatus { .. }
             | Self::Regime { .. }
             | Self::Evaluate { .. }
             | Self::Positions
@@ -569,6 +575,7 @@ impl Command {
             Self::Status => "/status",
             Self::Brief => "/brief",
             Self::Risk => "/risk",
+            Self::HyperliquidStatus { .. } => "/hl-status",
             Self::Regime { .. } => "/regime",
             Self::Evaluate { .. } => "/evaluate",
             Self::Positions => "/pos",
@@ -666,6 +673,11 @@ pub const COMMAND_CATALOG: &[CommandInfo] = &[
     CommandInfo {
         name: "/risk",
         summary: "risk posture",
+        risk: RiskDirection::Neutral,
+    },
+    CommandInfo {
+        name: "/hl-status",
+        summary: "read-only Hyperliquid info status",
         risk: RiskDirection::Neutral,
     },
     CommandInfo {
@@ -887,6 +899,9 @@ pub fn resolve(line: &ParsedLine) -> Option<Command> {
         "status" => Command::Status,
         "brief" => Command::Brief,
         "risk" => Command::Risk,
+        "hl-status" | "hl" | "hyperliquid" => Command::HyperliquidStatus {
+            symbol: line.args.first().cloned(),
+        },
         "regime" => Command::Regime {
             coin: line.args.first().cloned(),
         },
@@ -1285,6 +1300,10 @@ mod tests {
     #[test]
     fn new_read_commands_are_neutral() {
         assert_eq!(
+            Command::HyperliquidStatus { symbol: None }.risk(),
+            RiskDirection::Neutral
+        );
+        assert_eq!(
             Command::Pulse { limit: None }.risk(),
             RiskDirection::Neutral
         );
@@ -1296,6 +1315,26 @@ mod tests {
             }
             .risk(),
             RiskDirection::Neutral
+        );
+    }
+
+    #[test]
+    fn hyperliquid_status_takes_optional_symbol() {
+        assert_eq!(
+            r("/hl-status"),
+            Some(Command::HyperliquidStatus { symbol: None })
+        );
+        assert_eq!(
+            r("/hl BTC"),
+            Some(Command::HyperliquidStatus {
+                symbol: Some("BTC".into())
+            })
+        );
+        assert_eq!(
+            r("/hyperliquid ETH"),
+            Some(Command::HyperliquidStatus {
+                symbol: Some("ETH".into())
+            })
         );
     }
 

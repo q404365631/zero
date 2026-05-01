@@ -40,6 +40,22 @@ pub struct Health {
     pub ws_connections: u64,
 }
 
+// ─── /hl/status  ───────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct HyperliquidStatus {
+    pub enabled: bool,
+    pub exchange: Option<String>,
+    pub endpoint: Option<String>,
+    pub coins: Option<u32>,
+    pub mids: BTreeMap<String, f64>,
+    pub secrets_required: Option<bool>,
+    pub reason: Option<String>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ComponentHealth {
     pub status: String,

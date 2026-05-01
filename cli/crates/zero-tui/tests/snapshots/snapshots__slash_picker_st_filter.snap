@@ -1,5 +1,6 @@
 ---
 source: crates/zero-tui/tests/snapshots.rs
+assertion_line: 309
 expression: snap
 ---
 18:30:00 zero — deterministic test harness                                      
@@ -18,10 +19,10 @@ expression: snap
                                                                                 
                                                                                 
                                                                                 
-                                                                                
 › /status [read] operator + engine snapshot                                     
   /state [read] operator-state overlay                                          
   /state-override [trade] declare operator-state label (gated)                  
+  /hl-status [read] read-only Hyperliquid info status                           
   /pause-entries [reduce] block new positions                                   
   /coaching reset [read] clear coaching notice buffer                           
 > /st                                                                           

@@ -121,7 +121,7 @@ impl Clock for ManualClock {
 ///
 /// - **1 point:** the cheap rollups the CLI reads for chrome —
 ///   `/`, `/health`, `/status`, `/risk`, `/positions`, `/brief`,
-///   `/regime`, `/approaching`, `/rejections`, `/operator/state`,
+///   `/regime`, `/approaching`, `/rejections`, `/hl/status`, `/operator/state`,
 ///   and `POST /operator/events` (append-only, cheap).
 /// - **2 points:** endpoints that trigger meaningful engine work —
 ///   `/evaluate/{coin}` (runs the verdict pipeline against live
@@ -447,6 +447,8 @@ mod tests {
         assert_eq!(cost_of("/operator/events"), 1);
         assert_eq!(cost_of("/approaching"), 1);
         assert_eq!(cost_of("/rejections"), 1);
+        assert_eq!(cost_of("/hl/status"), 1);
+        assert_eq!(cost_of("/hl/status?symbol=BTC"), 1);
 
         // Engine-work endpoints.
         assert_eq!(cost_of("/evaluate/BTC"), 2);

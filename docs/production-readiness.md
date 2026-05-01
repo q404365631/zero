@@ -14,18 +14,18 @@ end.
 |---|---:|---|
 | Public repo hygiene | 92 | Strong CI, release artifacts, governance, docs, and clean boundaries. |
 | CLI readiness | 82 | Mature Rust terminal, doctor, TUI, friction gates, tests, and release binary path. Blocked by paper-only engine. |
-| Engine runtime | 36 | Deterministic paper runtime and append-only paper decision journal exist. No real Hyperliquid data, OODA loop, runners, durable bus, or live executor. |
+| Engine runtime | 40 | Deterministic paper runtime, append-only decision journal, and read-only Hyperliquid info adapter exist. No OODA loop, runners, durable bus, or live executor. |
 | Safety and risk | 58 | Good local contracts and CLI risk asymmetry. Missing live kill-switch drills, dead-man enforcement, custody flow, and exchange-failure tests. |
-| API contracts | 50 | Paper fixtures are pinned across Python and Rust. Missing OpenAPI, versioned live contracts, auth scopes, and compatibility policy for production. |
+| API contracts | 53 | Paper fixtures are pinned across Python and Rust, and `/hl/status` exposes read-only market status. Missing OpenAPI, versioned live contracts, auth scopes, and compatibility policy for production. |
 | Deployment | 42 | Docker path exists. Railway template, persistent volume layout, env validation, health checks, and rollback docs are missing. |
 | Observability and audit | 50 | Paper decision logs and optional JSONL journal exist. Missing production audit journal, metrics, trace IDs, retention policy, and operator export format. |
 | Security and custody | 55 | No secrets needed for first run. Missing live key handling, redaction tests, permission model, and threat-model coverage for Railway deploys. |
 | ZERO Network | 15 | Product boundary is defined. Profiles, leaderboards, verification, and opt-in publishing do not exist yet. |
 | ZERO Intelligence | 12 | Commercial boundary is defined. API, billing, datasets, rate limits, and terms do not exist yet. |
 | Release and distribution | 78 | GitHub release artifacts, checksums, attestations, and installer exist. Package registries and Homebrew are not yet shipped. |
-| Documentation for operators | 62 | Good local docs. Missing real production runbook, Railway deploy guide, live-mode warnings, and incident recovery playbooks. |
+| Documentation for operators | 65 | Good local docs and Hyperliquid read-only boundary docs. Missing real production runbook, Railway deploy guide, live-mode warnings, and incident recovery playbooks. |
 
-**Overall production product readiness: 51/100.**
+**Overall production product readiness: 54/100.**
 
 This is acceptable for an open-source foundation release. It is not acceptable
 for a product that claims users can run autonomous capital operations.
@@ -102,6 +102,15 @@ Target score: 66/100.
 Exit gate:
 
 - Users can run live market-data paper mode without exchange private keys.
+
+Current progress:
+
+- `HyperliquidInfoClient` reads public `allMids` and validates account-read
+  addresses for `clearinghouseState`.
+- `zero-paper-api --hyperliquid` enables `/hl/status` without requiring secrets
+  or signing.
+- `/hl/status` stays disabled by default so contributor examples remain
+  deterministic and offline.
 
 ### Cycle 3: Paper Trading On Live Data
 

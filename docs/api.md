@@ -99,6 +99,7 @@ contract:
 - `GET /`, `/health`, `/v2/status`
 - `GET /positions`, `/risk`, `/brief`
 - `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
+- `GET /hl/status`
 - `GET /operator/state`
 - `POST /execute`
 - `POST /auto/toggle`
@@ -113,6 +114,11 @@ duplicate paper fills.
 shape as `DecisionRecord.to_dict()`. When `zero-paper-api --journal PATH` is
 used, records are read from the append-only JSONL journal at `PATH`; otherwise
 the endpoint returns the in-memory decision log for the current process.
+
+`GET /hl/status` returns disabled metadata by default. When `zero-paper-api
+--hyperliquid` is used, it queries Hyperliquid's public info endpoint for
+read-only mids and returns `secrets_required=false`. This endpoint must not
+place orders, sign payloads, or require exchange credentials.
 
 ### Contract Fixtures
 

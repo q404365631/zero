@@ -1,5 +1,6 @@
 """ZERO public engine runtime."""
 
+from zero_engine.hyperliquid import HyperliquidInfoClient, HyperliquidMarketStatus
 from zero_engine.market import Candle, JsonlCandleAdapter, MarketDataAdapter
 from zero_engine.models import OrderIntent, Position, RiskLimits, Side
 from zero_engine.paper import DecisionRecord, PaperEngine
@@ -10,6 +11,8 @@ from zero_engine.strategy import MomentumStrategy, Strategy, StrategySignal, pro
 __all__ = [
     "Candle",
     "DecisionRecord",
+    "HyperliquidInfoClient",
+    "HyperliquidMarketStatus",
     "JsonlCandleAdapter",
     "MarketDataAdapter",
     "MomentumStrategy",

@@ -12,6 +12,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Callable
 from urllib.parse import parse_qs, urlparse
 
+from zero_engine.hyperliquid import HyperliquidInfoClient
 from zero_engine.journal import DecisionJournal
 from zero_engine.models import OrderIntent, Position, Side
 from zero_engine.paper import DecisionRecord, PaperEngine
@@ -33,6 +34,7 @@ def utc_now() -> datetime:
 class PaperApiState:
     engine: PaperEngine = field(default_factory=PaperEngine)
     prices: dict[str, float] = field(default_factory=lambda: dict(DEFAULT_PRICES))
+    hyperliquid: HyperliquidInfoClient | None = None
     clock: Callable[[], datetime] = field(default_factory=lambda: utc_now)
     started_at: datetime = field(default_factory=utc_now)
     auto_enabled: bool = False
@@ -65,6 +67,7 @@ class PaperApi:
             "/approaching": self.approaching,
             "/rejections": lambda: self.rejections(query),
             "/journal": lambda: self.journal(query),
+            "/hl/status": lambda: self.hl_status(query),
             "/operator/state": self.operator_state,
         }
         if path.startswith("/evaluate/"):
@@ -94,14 +97,15 @@ class PaperApi:
 
     def health(self) -> dict[str, Any]:
         ts = self.state.now_iso()
+        exchange = "hyperliquid" if self.state.hyperliquid is not None else "paper"
         return {
             "status": "ok",
             "components": {
                 "paper_engine": {"status": "healthy", "last_seen": ts, "age_s": 0.0},
                 "risk": {"status": "healthy", "last_seen": ts, "age_s": 0.0},
             },
-            "dependencies": {"exchange": "paper", "secrets": "not_required"},
-            "circuit_breakers": {"paper": "closed"},
+            "dependencies": {"exchange": exchange, "secrets": "not_required"},
+            "circuit_breakers": {"paper": "closed", "hl_info": "closed" if self.state.hyperliquid is not None else "n/a"},
             "risk": {"equity": 10_000.0, "drawdown_pct": 0.0, "kill_all": False},
             "ws_connections": 0,
         }
@@ -254,6 +258,21 @@ class PaperApi:
         else:
             decisions = [record.to_dict() for record in self.state.engine.decisions[-limit:]]
         return {"decisions": decisions, "count": len(decisions)}
+
+    def hl_status(self, query: dict[str, list[str]]) -> dict[str, Any]:
+        if self.state.hyperliquid is None:
+            return {
+                "enabled": False,
+                "exchange": "hyperliquid",
+                "reason": "start zero-paper-api with --hyperliquid to enable read-only market data",
+            }
+        symbols = [symbol.upper() for symbol in query.get("symbol", [])]
+        status = self.state.hyperliquid.market_status()
+        payload = status.to_dict(symbols=symbols or None)
+        payload["enabled"] = True
+        payload["exchange"] = "hyperliquid"
+        payload["secrets_required"] = False
+        return payload
 
     def operator_state(self) -> dict[str, Any]:
         return {
@@ -420,9 +439,19 @@ def websocket_text_frame(text: str) -> bytes:
     return bytes([0x81, 127]) + length.to_bytes(8, "big") + payload
 
 
-def serve(host: str = "127.0.0.1", port: int = 8765, journal_path: str | None = None) -> None:
+def serve(
+    host: str = "127.0.0.1",
+    port: int = 8765,
+    journal_path: str | None = None,
+    *,
+    hyperliquid: bool = False,
+) -> None:
     engine = PaperEngine(journal=DecisionJournal(journal_path)) if journal_path else PaperEngine()
-    server = ThreadingHTTPServer((host, port), make_handler(PaperApi(PaperApiState(engine=engine))))
+    hl_client = HyperliquidInfoClient() if hyperliquid else None
+    server = ThreadingHTTPServer(
+        (host, port),
+        make_handler(PaperApi(PaperApiState(engine=engine, hyperliquid=hl_client))),
+    )
     print(f"zero paper API listening on http://{host}:{port}", flush=True)
     server.serve_forever()
 
@@ -432,8 +461,13 @@ def main() -> None:
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--journal", help="Append paper decisions to this JSONL journal")
+    parser.add_argument(
+        "--hyperliquid",
+        action="store_true",
+        help="Enable read-only Hyperliquid public market data endpoints",
+    )
     args = parser.parse_args()
-    serve(args.host, args.port, args.journal)
+    serve(args.host, args.port, args.journal, hyperliquid=args.hyperliquid)
 
 
 if __name__ == "__main__":
