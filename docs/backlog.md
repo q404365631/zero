@@ -5,20 +5,6 @@ opening the repository.
 
 ## Good First Issues
 
-### Add a paper-market fixture file
-
-Labels: `good first issue`, `engine`, `examples`
-
-Create a small deterministic JSON fixture under `examples/paper-trading/` and
-update the example to read it instead of hardcoding orders. Keep the current
-output shape stable.
-
-Acceptance:
-
-- `python examples/paper-trading/run.py` still works.
-- Engine tests still pass.
-- No network or credentials are required.
-
 ### Improve paper example README output section
 
 Labels: `good first issue`, `docs`, `examples`

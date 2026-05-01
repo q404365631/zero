@@ -71,6 +71,22 @@ updates paper positions.
 
 The method must not require exchange credentials or network access.
 
+## Paper Scenarios
+
+### `load_scenario(path)`
+
+Loads a deterministic paper scenario from JSON.
+
+Required behavior:
+
+- `mode` must be `paper`.
+- At least one order must be present.
+- Symbols are normalized to uppercase.
+- Side values are parsed as `buy` or `sell`.
+
+The public examples use this path so contributor demos are data-driven and easy
+to extend without touching engine code.
+
 ## Compatibility Rules
 
 - Additive fields are preferred over breaking changes.

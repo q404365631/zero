@@ -18,3 +18,5 @@ It must:
 - be covered by CI smoke tests
 
 The output is deterministic JSON so it can be copied into issues and tests.
+
+The scenario lives in `scenario.json`. Keep it deterministic and paper-only.

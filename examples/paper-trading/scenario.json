@@ -1,0 +1,40 @@
+{
+  "name": "paper-launch-smoke",
+  "mode": "paper",
+  "limits": {
+    "max_notional_usd": 500,
+    "max_position_notional_usd": 900,
+    "min_confidence": 0.7
+  },
+  "orders": [
+    {
+      "symbol": "BTC",
+      "side": "buy",
+      "quantity": 0.01,
+      "price": 40000,
+      "confidence": 0.84
+    },
+    {
+      "symbol": "ETH",
+      "side": "buy",
+      "quantity": 1,
+      "price": 3000,
+      "confidence": 0.93
+    },
+    {
+      "symbol": "BTC",
+      "side": "sell",
+      "quantity": 0.005,
+      "price": 40500,
+      "confidence": 0.1,
+      "reduce_only": true
+    },
+    {
+      "symbol": "SOL",
+      "side": "buy",
+      "quantity": 10,
+      "price": 140,
+      "confidence": 0.95
+    }
+  ]
+}
