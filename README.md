@@ -65,6 +65,37 @@ flowchart LR
 - Deploy the paper runtime on Railway or Docker.
 - Generate public-safe Network and Intelligence contract artifacts.
 
+## See It Run
+
+This is a shortened excerpt from `scripts/demo_capture.sh`, the maintained
+local paper-mode demo:
+
+```text
+$ zero --api http://127.0.0.1:8765 doctor
+[   ok] engine_reachable       zero-paper-engine v0.1.1
+[ warn] auth                   no token set — read-only endpoints only
+[ warn] live_preflight         not ready: live_executor, wallet, key, journal
+
+$ zero --api http://127.0.0.1:8765 run status
+engine: regime=PAPER MARKET. Local deterministic demo.
+equity=$10000.00  open=0  recovery=ephemeral
+
+$ zero --api http://127.0.0.1:8765 run risk
+risk: OK  equity=$10000.00  peak=$10000.00  dd=0.00%  open=0
+
+$ curl -fsS -H 'content-type: application/json' -d '{...}' /execute
+{"accepted": true, "coin": "BTC", "side": "buy", "simulated": true}
+
+$ curl -fsS http://127.0.0.1:8765/network/profile
+{"schema_version": "zero.network.profile.v1", "mode": "paper", "verification": {"status": "verified"}}
+
+$ curl -fsS http://127.0.0.1:8765/intelligence/snapshot
+{"schema_version": "zero.intelligence.snapshot.v1", "access": {"class": "public_delayed", "delay_s": 900}}
+
+$ curl -fsS http://127.0.0.1:8765/live/preflight
+{"schema_version": "zero.live_preflight.v1", "live_mode": "refused", "ready": false}
+```
+
 ## Install CLI
 
 Install the latest release binary:
