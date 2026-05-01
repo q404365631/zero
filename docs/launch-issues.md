@@ -30,21 +30,21 @@ Acceptance:
 - The note keeps the container path paper-only.
 - The note does not weaken CI expectations.
 
-## Good First Issue: Add Static ZERO Network Leaderboard Page
+## Good First Issue: Add Static ZERO Network Index Page
 
 Labels: `good first issue`, `network`, `frontend`, `docs`
 
-Add a deterministic static page generated from redacted
-`zero.network.leaderboard.v1` rows.
+Add a deterministic static index page that links the checked ZERO Network
+profile and leaderboard contract pages.
 
 Acceptance:
 
-- The page uses `contracts/network/leaderboard.json` or the public leaderboard
-  example fixture.
-- The page shows rank, handle, aggregate counts, verification score, and proof
-  hash only.
-- The page does not render raw decisions, symbols, trace IDs, wallet addresses,
-  exchange order IDs, strategy labels, or private notes.
+- The page links `contracts/network/profile.html` and
+  `contracts/network/leaderboard.html`.
+- The page explains that ZERO Network is opt-in, aggregate-only, and
+  proof-of-process rather than financial advice.
+- The page does not render raw decisions, symbols, trace IDs, idempotency keys,
+  wallet addresses, exchange order IDs, strategy labels, or private notes.
 - The generator runs without network access.
 
 ## Help Wanted: Homebrew Tap

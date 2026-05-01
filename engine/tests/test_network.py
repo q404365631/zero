@@ -11,6 +11,7 @@ from zero_engine.network import (
     PublicProfileConfig,
     load_public_profiles,
     public_leaderboard,
+    public_leaderboard_page,
     public_profile,
     public_profile_page,
 )
@@ -185,6 +186,36 @@ def test_network_leaderboard_example_profiles_load_from_jsonl() -> None:
     assert leaderboard["rows"][0]["proof_hash"].startswith("sha256:")
 
 
+def test_public_leaderboard_page_renders_public_rows_only() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    profiles = load_public_profiles(repo_root / "examples/network-leaderboard/profiles.jsonl")
+    leaderboard = public_leaderboard(profiles, generated_at=FIXED_DT.isoformat())
+
+    page = public_leaderboard_page(leaderboard, generated_at=FIXED_DT.isoformat())
+
+    assert "<!doctype html>" in page
+    assert "ZERO Network Leaderboard" in page
+    assert "@zero_alpha" in page
+    assert "70.5" in page
+    assert leaderboard["rows"][0]["proof_hash"] in page
+    assert "network-fill" not in page
+    assert "trace-network" not in page
+    assert "BTC" not in page
+    assert "ETH" not in page
+
+
+def test_public_leaderboard_page_escapes_row_text() -> None:
+    leaderboard = json.loads(
+        (Path(__file__).resolve().parents[2] / "contracts/network/leaderboard.json").read_text()
+    )
+    leaderboard["rows"][0]["display_name"] = "<script>alert(1)</script>"
+
+    page = public_leaderboard_page(leaderboard, generated_at=FIXED_DT.isoformat())
+
+    assert "<script>" not in page
+    assert "&lt;script&gt;alert(1)&lt;/script&gt;" in page
+
+
 def test_public_profile_page_renders_aggregate_html_only(tmp_path) -> None:
     profile = seed_api(tmp_path).network_profile()
 
@@ -217,5 +248,15 @@ def test_network_profile_page_contract_is_fresh() -> None:
     expected = (repo_root / "contracts/network/profile.html").read_text()
 
     page = public_profile_page(profile, generated_at=FIXED_DT.isoformat())
+
+    assert page == expected
+
+
+def test_network_leaderboard_page_contract_is_fresh() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    leaderboard = json.loads((repo_root / "contracts/network/leaderboard.json").read_text())
+    expected = (repo_root / "contracts/network/leaderboard.html").read_text()
+
+    page = public_leaderboard_page(leaderboard, generated_at=FIXED_DT.isoformat())
 
     assert page == expected

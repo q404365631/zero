@@ -11,6 +11,7 @@
 - Contributor docs
 - First release artifact
 - Threat model and incident runbooks
+- Static ZERO Network profile and leaderboard page builders
 
 ## Near Term
 
@@ -19,8 +20,6 @@
 - Railway deployment template
 - Docker Compose local demo
 - OpenAPI contract hardening and compatibility checks
-- Static ZERO Network profile page builder
-- Static ZERO Network leaderboard builder
 - Public examples
 - Hosted public profile and leaderboard pages
 - Hosted ZERO Intelligence ingestion and billing

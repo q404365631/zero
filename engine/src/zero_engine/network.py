@@ -181,6 +181,197 @@ def public_leaderboard(
     return payload
 
 
+def public_leaderboard_page(leaderboard: dict[str, Any], *, generated_at: str) -> str:
+    if leaderboard.get("schema_version") != LEADERBOARD_SCHEMA_VERSION:
+        raise ValueError("public leaderboard schema_version must be zero.network.leaderboard.v1")
+    rows = leaderboard.get("rows", [])
+    if not isinstance(rows, list):
+        raise ValueError("public leaderboard rows must be a list")
+    assert_public_profile_safe(leaderboard)
+
+    row_items = "\n".join(_leaderboard_page_row(row) for row in rows if isinstance(row, dict))
+    row_count = int(leaderboard.get("row_count", len(rows)))
+    top_row = rows[0] if rows and isinstance(rows[0], dict) else {}
+    top_handle = _escape(str(top_row.get("handle", "none")))
+    top_score = _escape(str(top_row.get("verification_score", 0)))
+    timestamp = _escape(generated_at)
+
+    page = f"""<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ZERO Network Leaderboard</title>
+    <style>
+      :root {{
+        color-scheme: light;
+        --bg: #f7f8f8;
+        --ink: #111614;
+        --muted: #5d6864;
+        --line: #d9dfdc;
+        --panel: #ffffff;
+        --accent: #0b6b53;
+        --accent-soft: #dff2eb;
+      }}
+      * {{ box-sizing: border-box; }}
+      body {{
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }}
+      main {{
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 56px 24px;
+      }}
+      header {{
+        display: grid;
+        gap: 12px;
+        padding-bottom: 28px;
+        border-bottom: 1px solid var(--line);
+      }}
+      h1 {{
+        margin: 0;
+        font-size: clamp(2.25rem, 5vw, 4.5rem);
+        line-height: 0.98;
+        letter-spacing: 0;
+      }}
+      .eyebrow {{
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }}
+      .summary {{
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin: 28px 0;
+      }}
+      .panel {{
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+      }}
+      .label {{
+        color: var(--muted);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }}
+      .value {{
+        margin-top: 8px;
+        font-size: 1.35rem;
+        font-weight: 700;
+      }}
+      table {{
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+      }}
+      th, td {{
+        padding: 14px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }}
+      th {{
+        color: var(--muted);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }}
+      tr:last-child td {{ border-bottom: 0; }}
+      code {{
+        overflow-wrap: anywhere;
+        color: var(--accent);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.84rem;
+      }}
+      .handle {{
+        font-weight: 700;
+      }}
+      .name {{
+        color: var(--muted);
+        font-size: 0.9rem;
+      }}
+      footer {{
+        margin-top: 28px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }}
+      @media (max-width: 820px) {{
+        main {{ padding: 36px 16px; }}
+        .summary {{ grid-template-columns: 1fr; }}
+        table, thead, tbody, th, td, tr {{ display: block; }}
+        thead {{ display: none; }}
+        tr {{ border-bottom: 1px solid var(--line); }}
+        tr:last-child {{ border-bottom: 0; }}
+        td {{
+          display: grid;
+          grid-template-columns: 9rem minmax(0, 1fr);
+          gap: 12px;
+          border-bottom: 0;
+          padding: 10px 14px;
+        }}
+        td::before {{
+          content: attr(data-label);
+          color: var(--muted);
+          font-size: 0.78rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }}
+      }}
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="eyebrow">ZERO Network</div>
+        <h1>Public Leaderboard</h1>
+        <p>Verified autonomous behavior ranked by proof-of-process, not financial advice.</p>
+      </header>
+      <section class="summary" aria-label="Leaderboard summary">
+        <div class="panel"><div class="label">Rows</div><div class="value">{_escape(str(row_count))}</div></div>
+        <div class="panel"><div class="label">Top Handle</div><div class="value">@{top_handle}</div></div>
+        <div class="panel"><div class="label">Top Score</div><div class="value">{top_score}</div></div>
+      </section>
+      <table aria-label="ZERO Network leaderboard">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Operator</th>
+            <th>Mode</th>
+            <th>Decisions</th>
+            <th>Rejection</th>
+            <th>Open</th>
+            <th>Score</th>
+            <th>Proof</th>
+          </tr>
+        </thead>
+        <tbody>
+{row_items}
+        </tbody>
+      </table>
+      <footer>
+        Generated {timestamp}. Public ZERO Network leaderboards are aggregate proof surfaces and exclude raw trades, symbols, trace IDs, idempotency keys, wallet addresses, exchange order IDs, strategy labels, and private notes.
+      </footer>
+    </main>
+  </body>
+</html>
+"""
+    assert_public_profile_safe({"html": page})
+    return page
+
+
 def public_profile_page(profile: dict[str, Any], *, generated_at: str) -> str:
     row = _public_leaderboard_row(profile)
     assert_public_profile_safe(profile)
@@ -510,6 +701,28 @@ def _public_leaderboard_row(profile: dict[str, Any]) -> dict[str, Any]:
 
 def _metric(label: str, value: Any) -> str:
     return f"""            <div><dt>{_escape(label)}</dt><dd>{_escape(str(value))}</dd></div>"""
+
+
+def _leaderboard_page_row(row: dict[str, Any]) -> str:
+    rank = _escape(str(row.get("rank", "")))
+    handle = _escape(str(row.get("handle", "")))
+    display_name = _escape(str(row.get("display_name") or row.get("handle", "")))
+    mode = _escape(str(row.get("mode", "paper")).upper())
+    decisions = _escape(str(int(row.get("decisions", 0))))
+    rejection_rate = _escape(f"{float(row.get('rejection_rate', 0.0)):.2%}")
+    open_positions = _escape(str(int(row.get("open_positions", 0))))
+    score = _escape(str(float(row.get("verification_score", 0.0))))
+    proof_hash = _escape(str(row.get("proof_hash", "")))
+    return f"""          <tr>
+            <td data-label="Rank">{rank}</td>
+            <td data-label="Operator"><div class="handle">@{handle}</div><div class="name">{display_name}</div></td>
+            <td data-label="Mode">{mode}</td>
+            <td data-label="Decisions">{decisions}</td>
+            <td data-label="Rejection">{rejection_rate}</td>
+            <td data-label="Open">{open_positions}</td>
+            <td data-label="Score">{score}</td>
+            <td data-label="Proof"><code>{proof_hash}</code></td>
+          </tr>"""
 
 
 def _escape(value: str) -> str:

@@ -47,22 +47,21 @@ Acceptance:
 - The example command remains `just example`.
 - The output summary stays deterministic and paper-only.
 
-### Add a static ZERO Network leaderboard page
+### Add a static ZERO Network index page
 
 Labels: `good first issue`, `network`, `frontend`, `docs`
 
-Add a static HTML or markdown leaderboard page generated from redacted
-`zero.network.leaderboard.v1` rows and link it from
-[ZERO Network docs](zero-network.md).
+Add a deterministic static index page that links the checked ZERO Network
+profile and leaderboard contract pages and explains the public proof surface.
 
 Acceptance:
 
-- The page uses `contracts/network/leaderboard.json` or the public leaderboard
-  example fixture.
-- The page shows rank, handle, aggregate counts, verification score, and proof
-  hash only.
-- The page does not render raw decisions, symbols, trace IDs, wallet addresses,
-  exchange order IDs, strategy labels, or private notes.
+- The page links `contracts/network/profile.html` and
+  `contracts/network/leaderboard.html`.
+- The page explains that ZERO Network is opt-in, aggregate-only, and
+  proof-of-process rather than financial advice.
+- The page does not render raw decisions, symbols, trace IDs, idempotency keys,
+  wallet addresses, exchange order IDs, strategy labels, or private notes.
 - The generator is deterministic and runs without network access.
 
 ### Add Docker daemon troubleshooting note

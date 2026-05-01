@@ -95,6 +95,23 @@ The builder:
 
 See [examples/network-leaderboard](../examples/network-leaderboard).
 
+## Public Leaderboard Page Builder
+
+The public repository also includes a deterministic static page builder for an
+already-redacted `zero.network.leaderboard.v1` payload:
+
+```bash
+just network-leaderboard-page-example
+```
+
+The page renders rank, handle, display name, mode, aggregate counts,
+verification score, and proof hash only. It escapes row-provided text and uses
+no JavaScript, remote assets, raw journals, symbols, trace IDs, idempotency
+keys, wallet addresses, exchange order IDs, strategy labels, or private notes.
+
+See [examples/network-leaderboard-page](../examples/network-leaderboard-page)
+and [contracts/network/leaderboard.html](../contracts/network/leaderboard.html).
+
 ## Verification Badges
 
 - `paper_verified`: aggregate paper behavior was observed.
