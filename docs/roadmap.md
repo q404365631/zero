@@ -20,12 +20,14 @@
 - OpenAPI spec
 - Public examples
 - Hosted public profile and leaderboard pages
+- Hosted ZERO Intelligence ingestion and billing
 - Good-first-issue backlog
 
 ## Product Boundary
 
-ZERO Runtime and ZERO Network stay public. Railway is the preferred hosted
-deployment substrate. ZERO Intelligence is the commercial API and subscription
-layer for realtime intelligence, historical datasets, advanced cohorts,
-commercial intelligence connectors, webhooks, exports, commercial
-redistribution, support, and reliability commitments.
+ZERO Runtime, ZERO Network, and delayed public intelligence snapshots stay
+public. Railway is the preferred hosted deployment substrate. ZERO Intelligence
+is the commercial API and subscription layer for realtime intelligence,
+historical datasets, advanced cohorts, commercial intelligence connectors,
+webhooks, exports, commercial redistribution, support, and reliability
+commitments.

@@ -22,6 +22,12 @@ from zero_engine.hyperliquid import (
     redact_secret,
     validate_dry_run_order,
 )
+from zero_engine.intelligence import (
+    IntelligenceConfig,
+    export_intelligence_snapshot,
+    intelligence_catalog,
+    intelligence_snapshot,
+)
 from zero_engine.journal import DecisionJournal
 from zero_engine.live import HyperliquidSdkAdapter, LiveExecutionPolicy, LiveExecutor
 from zero_engine.models import OrderIntent, Position, Side
@@ -141,6 +147,8 @@ class PaperApiState:
     network_display_name: str | None = None
     network_publish_enabled: bool = False
     network_publish_path: str | None = None
+    intelligence_public_delay_s: int = 900
+    intelligence_export_path: str | None = None
 
     def __post_init__(self) -> None:
         if self.execution_cache:
@@ -267,6 +275,8 @@ class PaperApi:
             "/journal": lambda: self.journal(query),
             "/audit/export": lambda: self.audit_export(query),
             "/hl/status": lambda: self.hl_status(query),
+            "/intelligence/catalog": self.intelligence_catalog,
+            "/intelligence/snapshot": self.intelligence_snapshot,
             "/live/preflight": self.live_preflight,
             "/market/quote": lambda: self.market_quote(query),
             "/metrics": self.metrics,
@@ -357,6 +367,8 @@ class PaperApi:
                 return HTTPStatus.OK, self.network_publish(payload)
             except ValueError as exc:
                 return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
+        if path == "/intelligence/export":
+            return HTTPStatus.OK, self.intelligence_export(payload)
         if path == "/live/heartbeat":
             return HTTPStatus.OK, self.live_heartbeat()
         if path == "/live/pause":
@@ -789,6 +801,32 @@ class PaperApi:
             return 0
         return len([record for record in self.state.live_executor.records if record.accepted])
 
+    def intelligence_snapshot(self) -> dict[str, Any]:
+        return intelligence_snapshot(
+            self.network_profile(),
+            generated_at=self.state.now_iso(),
+            config=self.intelligence_config(),
+        )
+
+    def intelligence_catalog(self) -> dict[str, Any]:
+        return intelligence_catalog(
+            generated_at=self.state.now_iso(),
+            public_delay_s=self.state.intelligence_public_delay_s,
+        )
+
+    def intelligence_export(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return export_intelligence_snapshot(
+            self.intelligence_snapshot(),
+            consent=bool(payload.get("consent")),
+            export_path=self.state.intelligence_export_path,
+        )
+
+    def intelligence_config(self) -> IntelligenceConfig:
+        return IntelligenceConfig(
+            public_delay_s=self.state.intelligence_public_delay_s,
+            export_path=self.state.intelligence_export_path,
+        )
+
     def hl_status(self, query: dict[str, list[str]]) -> dict[str, Any]:
         if self.state.hyperliquid is None:
             return {
@@ -1187,6 +1225,11 @@ def serve(
                     network_display_name=os.environ.get("ZERO_NETWORK_DISPLAY_NAME"),
                     network_publish_enabled=parse_bool_env("ZERO_NETWORK_PUBLISH_ENABLED", False),
                     network_publish_path=os.environ.get("ZERO_NETWORK_PUBLISH_PATH"),
+                    intelligence_public_delay_s=parse_int_env(
+                        "ZERO_INTELLIGENCE_PUBLIC_DELAY_S",
+                        900,
+                    ),
+                    intelligence_export_path=os.environ.get("ZERO_INTELLIGENCE_EXPORT_PATH"),
                 )
             )
         ),
@@ -1204,6 +1247,17 @@ def parse_float_env(name: str, default: float) -> float:
     except ValueError:
         return default
     return parsed if parsed > 0 else default
+
+
+def parse_int_env(name: str, default: int) -> int:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    try:
+        parsed = int(raw)
+    except ValueError:
+        return default
+    return parsed if parsed >= 0 else default
 
 
 def parse_bool_env(name: str, default: bool) -> bool:

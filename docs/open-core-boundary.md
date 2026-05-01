@@ -45,6 +45,9 @@ webhooks, benchmarks, and enterprise support.
 - Public profiles and leaderboards are part of the public product surface.
 - ZERO Network publication must use redacted proof packets and must not require
   a ZERO-hosted control plane.
+- Delayed ZERO Intelligence snapshots and the local intelligence export
+  contract are public; hosted realtime feeds, history, cohorts, webhooks, bulk
+  exports, and redistribution remain commercial.
 - Core runtime and venue adapters should be public; commercial connectors should
   enrich, distribute, or integrate ZERO Intelligence rather than gate basic
   runtime operation.

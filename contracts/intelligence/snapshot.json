@@ -1,0 +1,53 @@
+{
+  "schema_version": "zero.intelligence.snapshot.v1",
+  "generated_at": "2026-05-01T00:00:00Z",
+  "access": {
+    "class": "public_delayed",
+    "delay_s": 900,
+    "commercial_realtime": true,
+    "commercial_history": true,
+    "commercial_redistribution": true
+  },
+  "source": {
+    "schema_version": "zero.network.profile.v1",
+    "proof_hash": "sha256:example",
+    "mode": "paper",
+    "verification_status": "verified"
+  },
+  "signals": {
+    "activity_level": "low",
+    "rejection_discipline": "selective",
+    "execution_pressure": "balanced",
+    "journal_quality": "durable",
+    "live_observed": false
+  },
+  "aggregates": {
+    "decisions": 2,
+    "fills": 1,
+    "rejections": 1,
+    "open_positions": 1,
+    "acceptance_rate": 0.5,
+    "rejection_rate": 0.5,
+    "total_notional_usd": 28500.0
+  },
+  "commercial_unlocks": [
+    "realtime feed",
+    "longer history",
+    "cohort analytics",
+    "benchmark analytics",
+    "webhooks",
+    "bulk exports",
+    "commercial redistribution rights",
+    "enterprise reliability commitments"
+  ],
+  "privacy": {
+    "default": "aggregate-only",
+    "decision_records_included": false,
+    "contains_exchange_credentials": false,
+    "contains_private_notes": false,
+    "inherits": {
+      "default": "private",
+      "publication": "opt-in"
+    }
+  }
+}

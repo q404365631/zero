@@ -73,6 +73,15 @@ curl -fsS \
   -d '{"consent":false}' \
   "${API}/network/publish" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["ok"] is False; assert p["reason"] == "explicit consent required"'
+curl -fsS "${API}/intelligence/snapshot" \
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.intelligence.snapshot.v1"; assert p["access"]["class"] == "public_delayed"; assert p["source"]["proof_hash"].startswith("sha256:"); assert "railway-smoke" not in body; assert "trace-" not in body'
+curl -fsS "${API}/intelligence/catalog" \
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.intelligence.catalog.v1"; assert "local runtime use" in p["commercial"]["not_metered_by"]; assert "freshness" in p["commercial"]["metered_by"]'
+curl -fsS \
+  -H "content-type: application/json" \
+  -d '{"consent":false}' \
+  "${API}/intelligence/export" \
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["ok"] is False; assert p["reason"] == "explicit consent required"'
 curl -fsS \
   -H "content-type: application/json" \
   -d '{}' \

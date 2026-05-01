@@ -1,0 +1,98 @@
+{
+  "schema_version": "zero.intelligence.catalog.v1",
+  "generated_at": "2026-05-01T00:00:00Z",
+  "positioning": "commercial data product created by verified autonomous behavior",
+  "public": {
+    "runtime": "open-source",
+    "network_profiles": "open",
+    "leaderboards": "open",
+    "delayed_snapshots": {
+      "schema_version": "zero.intelligence.snapshot.v1",
+      "delay_s": 900,
+      "endpoint": "GET /intelligence/snapshot"
+    }
+  },
+  "commercial": {
+    "metered_by": [
+      "freshness",
+      "history",
+      "scale",
+      "webhooks",
+      "exports",
+      "SLA"
+    ],
+    "not_metered_by": [
+      "local runtime use",
+      "paper mode",
+      "self-custodial operation"
+    ],
+    "plans": [
+      {
+        "name": "free",
+        "scopes": [
+          "intelligence:read:delayed"
+        ],
+        "limits": "low public quota"
+      },
+      {
+        "name": "pro_operator",
+        "scopes": [
+          "intelligence:read:realtime",
+          "intelligence:read:history",
+          "intelligence:webhooks"
+        ],
+        "limits": "subscription quota"
+      },
+      {
+        "name": "team_fund",
+        "scopes": [
+          "intelligence:read:realtime",
+          "intelligence:read:history",
+          "intelligence:cohorts",
+          "intelligence:exports",
+          "intelligence:webhooks"
+        ],
+        "limits": "subscription plus usage"
+      },
+      {
+        "name": "enterprise",
+        "scopes": [
+          "intelligence:read:realtime",
+          "intelligence:read:history",
+          "intelligence:cohorts",
+          "intelligence:exports",
+          "intelligence:webhooks",
+          "intelligence:redistribute"
+        ],
+        "limits": "contract SLO and redistribution terms"
+      }
+    ]
+  },
+  "hosted_api_contract": {
+    "auth": "bearer API key",
+    "rate_limit_headers": [
+      "x-zero-ratelimit-limit",
+      "x-zero-ratelimit-remaining",
+      "x-zero-ratelimit-reset"
+    ],
+    "datasets": [
+      "verified_behavior_snapshots",
+      "cohort_benchmarks",
+      "risk_operations_history",
+      "leaderboard_history"
+    ],
+    "endpoints": [
+      "GET /v1/intelligence/snapshots",
+      "GET /v1/intelligence/cohorts",
+      "GET /v1/intelligence/benchmarks",
+      "POST /v1/intelligence/webhooks",
+      "POST /v1/intelligence/exports"
+    ]
+  },
+  "data_rules": {
+    "source": "verified redacted network proof packets",
+    "raw_operator_data": "excluded unless explicitly consented and contracted",
+    "exchange_credentials": "never collected",
+    "custody": "never transferred"
+  }
+}

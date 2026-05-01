@@ -97,6 +97,8 @@ curl -fsS "$ZERO_RAILWAY_URL/metrics"
 curl -fsS "$ZERO_RAILWAY_URL/audit/export?limit=100"
 curl -fsS "$ZERO_RAILWAY_URL/network/profile"
 curl -fsS "$ZERO_RAILWAY_URL/network/leaderboard"
+curl -fsS "$ZERO_RAILWAY_URL/intelligence/snapshot"
+curl -fsS "$ZERO_RAILWAY_URL/intelligence/catalog"
 curl -fsS "$ZERO_RAILWAY_URL/live/preflight"
 ```
 
@@ -108,6 +110,11 @@ surfaces. They exclude raw decisions, trace IDs, idempotency keys, wallet
 addresses, exchange order IDs, private notes, strategy source labels, and
 per-trade symbols. Publishing remains opt-in and local unless you configure a
 publish path.
+
+ZERO Intelligence snapshot and catalog endpoints are also public-safe aggregate
+contracts. The snapshot is delayed public intelligence. The catalog describes
+the paid hosted API boundary for realtime access, history, cohorts, webhooks,
+exports, redistribution, and reliability commitments.
 
 `/live/preflight` is intentionally non-secret. It reports whether a
 self-custodial Hyperliquid live mode would be allowed to start, but this Railway

@@ -18,6 +18,7 @@ reserved for ZERO Intelligence.
 - Hyperliquid read-only market data path
 - Optional self-custodial live-executor boundary with fail-closed paper deploys
 - Public-safe ZERO Network profile, leaderboard, and local publish contracts
+- Delayed public ZERO Intelligence snapshot, catalog, and local export contracts
 - Rust operator CLI with doctor, TUI, command tests, and safety invariants
 - Redacted CLI quickstart capture for doctor, status, and risk inspection
 - Public CI for engine, CLI, docs, paper example, paper API smoke, and container smoke
@@ -45,6 +46,7 @@ reserved for ZERO Intelligence.
 - Hosted ZERO Network profile pages and anti-gaming controls
 - Realtime ZERO Intelligence API
 - Historical intelligence datasets
+- Hosted intelligence ingestion and billing
 - Commercial intelligence connectors
 - Enterprise support and SLAs
 

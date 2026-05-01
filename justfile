@@ -63,6 +63,8 @@ docs-check:
     test -f contracts/paper-api/v2_status.json
     test -f contracts/paper-api/execute_accepted.json
     test -f contracts/paper-api/execute_rejected.json
+    test -f contracts/intelligence/snapshot.json
+    test -f contracts/intelligence/catalog.json
     test -x scripts/assemble_release_assets.sh
     test -x scripts/install.sh
     test -x scripts/package_dry_run.sh

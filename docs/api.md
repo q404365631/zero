@@ -101,12 +101,14 @@ contract:
 - `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
 - `GET /metrics`, `/audit/export`
 - `GET /network/profile`, `/network/leaderboard`
+- `GET /intelligence/snapshot`, `/intelligence/catalog`
 - `GET /hl/status`, `/market/quote`, `/live/preflight`
 - `GET /operator/state`
 - `POST /execute`
 - `POST /auto/toggle`
 - `POST /operator/events`
 - `POST /network/publish`
+- `POST /intelligence/export`
 - `POST /live/heartbeat`, `/live/pause`, `/live/resume`, `/live/kill`, `/live/flatten`
 
 `POST /execute` runs through `PaperEngine.submit`, records a decision with
@@ -157,6 +159,23 @@ screenshots.
 `ZERO_NETWORK_PUBLISH_PATH`. When both are present, the runtime appends the
 redacted profile packet to a local JSONL proof log. It does not upload to a
 ZERO-hosted service from the public runtime.
+
+`GET /intelligence/snapshot` returns a `zero.intelligence.snapshot.v1` delayed
+public intelligence packet derived from the verified ZERO Network profile. It
+contains aggregate signals such as activity level, rejection discipline,
+execution pressure, journal quality, and proof hash. It excludes raw decisions,
+trace IDs, idempotency keys, per-trade symbols, credentials, and private notes.
+
+`GET /intelligence/catalog` returns a `zero.intelligence.catalog.v1` commercial
+API contract. The contract makes the open-core rule explicit: the runtime,
+paper mode, self-custodial operation, public profiles, public leaderboards, and
+delayed snapshots are public; realtime feeds, history, cohorts, benchmarks,
+webhooks, bulk exports, commercial redistribution, and SLOs are paid surfaces.
+
+`POST /intelligence/export` requires `{"consent": true}` and
+`ZERO_INTELLIGENCE_EXPORT_PATH`. When both are present, the runtime appends the
+redacted delayed snapshot to a local JSONL packet log for future hosted
+ingestion. It does not upload to a ZERO-hosted service from the public runtime.
 
 `GET /live/preflight` returns a structured `zero.live_preflight.v1` readiness
 packet for the Hyperliquid live executor. It never accepts private keys over

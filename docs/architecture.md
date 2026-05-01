@@ -5,7 +5,9 @@ ZERO has four product surfaces:
 - ZERO Runtime: local Autonomous Risk Operations engine with paper mode, safety gates, API, and extension contracts.
 - ZERO Terminal: operator CLI for setup, diagnostics, state inspection, replay, and supervised actions.
 - ZERO Network: public profiles, leaderboards, verification badges, and public decision-flow proof.
-- ZERO Intelligence: commercial API and subscription layer for realtime intelligence, history, cohorts, webhooks, and enterprise support.
+- ZERO Intelligence: delayed public snapshots plus a commercial API and
+  subscription layer for realtime intelligence, history, cohorts, webhooks, and
+  enterprise support.
 
 Deployment is Railway-first, Docker-compatible, and local-first. Operators own
 their deployment project, secrets, exchange credentials, and runtime state.
@@ -37,4 +39,5 @@ Runtime behavior -> opt-in verification -> public network proof -> ZERO Intellig
 
 The commercial product is advantaged access to verified autonomous behavior at
 speed, scale, and history. Basic runtime use, self-custody, public profiles, and
-public leaderboards remain public surfaces.
+public leaderboards, and delayed public intelligence snapshots remain public
+surfaces.

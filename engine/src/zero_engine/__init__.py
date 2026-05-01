@@ -1,6 +1,12 @@
 """ZERO public engine runtime."""
 
 from zero_engine.hyperliquid import HyperliquidInfoClient, HyperliquidMarketStatus
+from zero_engine.intelligence import (
+    IntelligenceConfig,
+    export_intelligence_snapshot,
+    intelligence_catalog,
+    intelligence_snapshot,
+)
 from zero_engine.live import LiveExecutionPolicy, LiveExecutionRecord, LiveExecutor
 from zero_engine.market import Candle, JsonlCandleAdapter, MarketDataAdapter
 from zero_engine.models import OrderIntent, Position, RiskLimits, Side
@@ -15,6 +21,7 @@ __all__ = [
     "DecisionRecord",
     "HyperliquidInfoClient",
     "HyperliquidMarketStatus",
+    "IntelligenceConfig",
     "JsonlCandleAdapter",
     "LiveExecutionPolicy",
     "LiveExecutionRecord",
@@ -33,6 +40,9 @@ __all__ = [
     "Strategy",
     "StrategySignal",
     "evaluate_order",
+    "export_intelligence_snapshot",
+    "intelligence_catalog",
+    "intelligence_snapshot",
     "load_scenario",
     "parse_scenario",
     "propose_order",

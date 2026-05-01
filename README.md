@@ -20,6 +20,7 @@ ZERO is for engineers who want to build, test, and supervise AI-assisted trading
 - Strategy/plugin examples
 - Railway and Docker deployment paths
 - Public profile and leaderboard contracts
+- Delayed public intelligence snapshots
 - Tests and reproducible local demo
 
 ## What Is Commercial

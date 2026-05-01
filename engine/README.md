@@ -31,9 +31,11 @@ exposes the paper-mode subset of the engine contract used by the Rust CLI:
 `/`, `/health`, `/v2/status`, `/positions`, `/risk`, `/brief`,
 `/regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`,
 `/journal`, `/metrics`, `/audit/export`, `/hl/status`, `/market/quote`,
-`/network/profile`, `/network/leaderboard`, `/live/preflight`,
+`/network/profile`, `/network/leaderboard`, `/intelligence/snapshot`,
+`/intelligence/catalog`, `/live/preflight`,
 `/operator/state`, `POST /execute`, `POST /auto/toggle`, `POST /operator/events`,
-`POST /network/publish`, and the live-control endpoints under `POST /live/*`.
+`POST /network/publish`, `POST /intelligence/export`, and the live-control
+endpoints under `POST /live/*`.
 
 For a replayable local audit log, pass a JSONL journal path:
 
@@ -54,6 +56,12 @@ ZERO Network profile and leaderboard contracts are exposed through
 `/network/profile` and `/network/leaderboard`. They are aggregate and redacted
 by default. To write an opt-in local publish packet, set
 `ZERO_NETWORK_PUBLISH_PATH` and call `POST /network/publish` with
+`{"consent":true}`.
+
+ZERO Intelligence contracts are exposed through `/intelligence/snapshot` and
+`/intelligence/catalog`. Delayed public snapshots are aggregate and redacted.
+To write an opt-in local intelligence packet, set
+`ZERO_INTELLIGENCE_EXPORT_PATH` and call `POST /intelligence/export` with
 `{"consent":true}`.
 
 Live custody preflight is visible through `/live/preflight`. It is a non-secret

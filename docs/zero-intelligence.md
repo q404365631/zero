@@ -33,6 +33,23 @@ databases, logs, and billing relationship.
 - Commercial redistribution rights
 - Enterprise support, reliability commitments, and SLAs
 
+## Public Runtime Contract
+
+The open runtime now emits the same safe packets that the commercial data
+product should ingest later:
+
+- `GET /intelligence/snapshot` returns `zero.intelligence.snapshot.v1`, a
+  delayed public aggregate derived from a verified ZERO Network profile.
+- `GET /intelligence/catalog` returns `zero.intelligence.catalog.v1`, the
+  commercial API, billing, scope, dataset, and rate-limit contract.
+- `POST /intelligence/export` writes an opt-in local JSONL packet when
+  `ZERO_INTELLIGENCE_EXPORT_PATH` is configured and the request includes
+  `{"consent":true}`.
+
+The public runtime does not upload intelligence packets to ZERO. Hosted
+ingestion is a future commercial API surface, not a requirement for local
+operation.
+
 ## Packaging
 
 - Free: runtime, CLI, public profiles, public leaderboards, delayed snapshots,
@@ -43,6 +60,32 @@ databases, logs, and billing relationship.
   realtime feeds, exports, and private benchmarks.
 - Enterprise: contract pricing for SLOs, support, compliance needs, custom
   retention, and commercial redistribution.
+
+## Hosted API Shape
+
+The paid hosted API should use bearer API keys, explicit scopes, and standard
+rate-limit headers:
+
+- `x-zero-ratelimit-limit`
+- `x-zero-ratelimit-remaining`
+- `x-zero-ratelimit-reset`
+
+Primary scopes:
+
+- `intelligence:read:delayed`
+- `intelligence:read:realtime`
+- `intelligence:read:history`
+- `intelligence:cohorts`
+- `intelligence:exports`
+- `intelligence:webhooks`
+- `intelligence:redistribute`
+
+Primary datasets:
+
+- `verified_behavior_snapshots`
+- `cohort_benchmarks`
+- `risk_operations_history`
+- `leaderboard_history`
 
 ## Data Rules
 

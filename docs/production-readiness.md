@@ -16,16 +16,16 @@ end.
 | CLI readiness | 89 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, and live risk-reducer wiring. Still needs live operator drills against real exchange faults. |
 | Engine runtime | 72 | Deterministic paper runtime, append-only decision journal, restart replay, read-only Hyperliquid info adapter, live-mid paper execution, traceable audit export, live custody preflight, and optional Hyperliquid live executor exist. Still missing OODA loop, runners, and durable production bus. |
 | Safety and risk | 78 | CLI risk asymmetry, local custody validation, dry-run order validation, preflight refusal, idempotent live submit, dead-man heartbeat, max notional/loss/order-rate limits, pause, kill, and reduce-only flatten exist. Missing external exchange-failure chaos drills. |
-| API contracts | 78 | Paper fixtures are pinned across Python and Rust, `/hl/status` exposes read-only market status, `/market/quote` names the active price source, `/health` plus `/v2/status` expose recovery state, `/metrics` plus `/audit/export` expose observable runtime state, `/live/preflight` exposes a non-secret live-readiness gate, and `POST /live/*` controls are typed in the CLI. Missing OpenAPI, auth scopes, and compatibility policy for production. |
+| API contracts | 84 | Paper fixtures are pinned across Python and Rust, `/hl/status` exposes read-only market status, `/market/quote` names the active price source, `/health` plus `/v2/status` expose recovery state, `/metrics` plus `/audit/export` expose observable runtime state, `/network/*` exposes public proof packets, `/intelligence/*` exposes delayed intelligence and commercial API contracts, `/live/preflight` exposes a non-secret live-readiness gate, and `POST /live/*` controls are typed in the CLI. Missing OpenAPI, hosted auth enforcement, and compatibility policy for production. |
 | Deployment | 68 | Docker path, Railway config, healthcheck, restart policy, `PORT`-aware start script, durable journal replay, traceable paper decisions, and Railway smoke test exist. Smoke tests now prove public paper deploys refuse live mode. Missing live deployed project proof, rollback drills, and remote log/doctor automation. |
 | Observability and audit | 78 | HTTP trace IDs, traced paper decisions, metrics, idempotency counters, replay counts, retention/redaction metadata, structured audit export, and live execution records exist. Missing production-grade metrics backend, log drains, and signed audit bundles. |
 | Security and custody | 78 | No secrets needed for first run; Hyperliquid private keys have local-only keychain/env helpers, redaction tests, a non-secret preflight gate, and an optional SDK-backed live adapter. Missing full threat model and external security review. |
 | ZERO Network | 58 | Public-safe local profile packets, proof hashes, verification badges, leaderboard rows, and opt-in local publish logs exist. Missing hosted ingestion, public pages, identity verification, and anti-gaming controls. |
-| ZERO Intelligence | 12 | Commercial boundary is defined. API, billing, datasets, rate limits, and terms do not exist yet. |
+| ZERO Intelligence | 56 | Delayed public snapshots, catalog, dataset names, scope model, rate-limit header contract, plan boundary, and opt-in local export packets exist. Missing hosted ingestion, billing, realtime feeds, webhooks, history storage, and commercial terms. |
 | Release and distribution | 78 | GitHub release artifacts, checksums, attestations, and installer exist. Package registries and Homebrew are not yet shipped. |
 | Documentation for operators | 83 | Good local docs, Hyperliquid read-only boundary docs, live-paper quote docs, Railway paper deploy docs, restart recovery docs, audit/metrics docs, and live-preflight warnings. Missing incident recovery playbooks. |
 
-**Overall production product readiness: 94/100.**
+**Overall production product readiness: 96/100.**
 
 This is acceptable for an open-source foundation release. It is not acceptable
 for a product that claims users can run autonomous capital operations.
@@ -68,7 +68,7 @@ ZERO is 100/100 when a new serious operator can:
 
 ## Execution Cycles
 
-Forecast after Cycle 9: **2 more major cycles** to credible 100/100.
+Forecast after Cycle 10: **1 more major cycle** to credible 100/100.
 
 | Cycle | Target | Expected Score |
 |---|---|---:|
@@ -315,13 +315,27 @@ Current progress:
 Target score: 97/100.
 
 - Add API key, rate-limit, billing, and dataset model.
-- Ship delayed public snapshots and realtime paid feeds.
+- Ship delayed public snapshots and realtime paid feed contracts.
 - Add cohort, benchmark, webhook, and export contracts.
+
+Current progress:
+
+- Added `zero.intelligence.snapshot.v1` delayed public intelligence packets
+  derived from verified ZERO Network proof.
+- Added `zero.intelligence.catalog.v1` with public/commercial packaging,
+  hosted API auth shape, rate-limit headers, dataset names, scopes, and plan
+  boundaries.
+- Added `POST /intelligence/export` with explicit consent plus
+  `ZERO_INTELLIGENCE_EXPORT_PATH`; the public runtime writes a local JSONL
+  packet log and does not upload to a hosted ZERO service.
+- Added tests and smoke checks proving intelligence packets exclude raw
+  decisions, trace IDs, idempotency keys, per-trade symbols, exchange
+  credentials, private notes, and strategy source labels.
 
 Exit gate:
 
-- Commercial users can pay for speed, history, scale, webhooks, exports, and
-  redistribution while the runtime stays open.
+- Hosted commercial users can pay for speed, history, scale, webhooks, exports,
+  and redistribution while the runtime stays open.
 
 ### Cycle 11: Production Hardening
 
