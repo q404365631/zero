@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import html
 import json
 import re
 from dataclasses import dataclass
@@ -180,6 +181,209 @@ def public_leaderboard(
     return payload
 
 
+def public_profile_page(profile: dict[str, Any], *, generated_at: str) -> str:
+    row = _public_leaderboard_row(profile)
+    assert_public_profile_safe(profile)
+    metrics = profile.get("metrics", {})
+    verification = profile.get("verification", {})
+    badges = verification.get("badges", [])
+    if not isinstance(metrics, dict):
+        raise ValueError("public profile metrics must be a JSON object")
+    if not isinstance(badges, list):
+        raise ValueError("public profile verification.badges must be a list")
+
+    badge_items = "\n".join(
+        f"""          <li><span>{_escape(str(badge.get("name", "unknown")))}</span><strong>{_escape(str(badge.get("status", "unknown")))}</strong></li>"""
+        for badge in badges
+        if isinstance(badge, dict)
+    )
+    metric_items = "\n".join(
+        [
+            _metric("Decisions", metrics.get("decisions", 0)),
+            _metric("Fills", metrics.get("fills", 0)),
+            _metric("Rejections", metrics.get("rejections", 0)),
+            _metric("Rejection Rate", f"{float(metrics.get('rejection_rate', 0.0)):.2%}"),
+            _metric("Open Positions", metrics.get("open_positions", 0)),
+            _metric("Verification Score", row["verification_score"]),
+        ]
+    )
+    proof_hash = _escape(row["proof_hash"])
+    display_name = _escape(row["display_name"])
+    handle = _escape(row["handle"])
+    mode = _escape(row["mode"].upper())
+    status = _escape(str(verification.get("status", "unknown")))
+    timestamp = _escape(generated_at)
+    rejection_rate = _escape(f"{float(metrics.get('rejection_rate', 0.0)):.2%}")
+
+    page = f"""<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{display_name} · ZERO Network</title>
+    <style>
+      :root {{
+        color-scheme: light;
+        --bg: #f7f8f8;
+        --ink: #111614;
+        --muted: #5d6864;
+        --line: #d9dfdc;
+        --panel: #ffffff;
+        --accent: #0b6b53;
+        --accent-soft: #dff2eb;
+      }}
+      * {{ box-sizing: border-box; }}
+      body {{
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }}
+      main {{
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 56px 24px;
+      }}
+      header {{
+        display: grid;
+        gap: 12px;
+        padding-bottom: 28px;
+        border-bottom: 1px solid var(--line);
+      }}
+      h1 {{
+        margin: 0;
+        font-size: clamp(2rem, 5vw, 4.25rem);
+        line-height: 0.98;
+        letter-spacing: 0;
+      }}
+      .handle {{
+        color: var(--muted);
+        font-size: 1rem;
+      }}
+      .summary {{
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin: 28px 0;
+      }}
+      .panel {{
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+      }}
+      .label {{
+        color: var(--muted);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }}
+      .value {{
+        margin-top: 8px;
+        font-size: 1.35rem;
+        font-weight: 700;
+      }}
+      .grid {{
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 18px;
+      }}
+      h2 {{
+        margin: 0 0 14px;
+        font-size: 1rem;
+      }}
+      dl {{
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin: 0;
+      }}
+      dt {{
+        color: var(--muted);
+        font-size: 0.78rem;
+      }}
+      dd {{
+        margin: 4px 0 0;
+        font-size: 1.15rem;
+        font-weight: 700;
+      }}
+      ul {{
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 10px;
+      }}
+      li {{
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 10px;
+      }}
+      li:last-child {{ border-bottom: 0; padding-bottom: 0; }}
+      code {{
+        display: block;
+        overflow-wrap: anywhere;
+        border-radius: 8px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        padding: 12px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.84rem;
+      }}
+      footer {{
+        margin-top: 28px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }}
+      @media (max-width: 720px) {{
+        main {{ padding: 36px 16px; }}
+        .summary, .grid, dl {{ grid-template-columns: 1fr; }}
+      }}
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>{display_name}</h1>
+        <div class="handle">@{handle} · {mode} · {status}</div>
+      </header>
+      <section class="summary" aria-label="Profile summary">
+        <div class="panel"><div class="label">Decisions</div><div class="value">{_escape(str(metrics.get("decisions", 0)))}</div></div>
+        <div class="panel"><div class="label">Rejection Rate</div><div class="value">{rejection_rate}</div></div>
+        <div class="panel"><div class="label">Verification</div><div class="value">{_escape(str(row["verification_score"]))}</div></div>
+      </section>
+      <section class="grid">
+        <div class="panel">
+          <h2>Aggregate Behavior</h2>
+          <dl>
+{metric_items}
+          </dl>
+        </div>
+        <div class="panel">
+          <h2>Verification Badges</h2>
+          <ul>
+{badge_items}
+          </ul>
+        </div>
+      </section>
+      <section class="panel" style="margin-top:18px">
+        <h2>Proof Hash</h2>
+        <code>{proof_hash}</code>
+      </section>
+      <footer>
+        Generated {timestamp}. Public ZERO Network profiles are aggregate proof-of-process surfaces, not financial advice.
+      </footer>
+    </main>
+  </body>
+</html>
+"""
+    assert_public_profile_safe({"html": page})
+    return page
+
+
 def load_public_profiles(path: str | Path) -> tuple[dict[str, Any], ...]:
     profiles = []
     with Path(path).open(encoding="utf-8") as fh:
@@ -302,3 +506,11 @@ def _public_leaderboard_row(profile: dict[str, Any]) -> dict[str, Any]:
         "verification_score": float(row.get("verification_score", 0.0)),
         "proof_hash": proof_hash,
     }
+
+
+def _metric(label: str, value: Any) -> str:
+    return f"""            <div><dt>{_escape(label)}</dt><dd>{_escape(str(value))}</dd></div>"""
+
+
+def _escape(value: str) -> str:
+    return html.escape(value, quote=True)

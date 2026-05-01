@@ -21,6 +21,7 @@ from zero_engine.network import (
     PublicProfileConfig,
     load_public_profiles,
     public_leaderboard,
+    public_profile_page,
     public_profile,
     publish_profile,
 )
@@ -72,6 +73,7 @@ __all__ = [
     "propose_plugin_order",
     "propose_order",
     "public_leaderboard",
+    "public_profile_page",
     "public_profile",
     "publish_profile",
     "validate_strategy_plugin",

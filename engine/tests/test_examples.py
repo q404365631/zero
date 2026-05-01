@@ -60,3 +60,21 @@ def test_network_leaderboard_example_runs_from_repo_root() -> None:
     assert payload["rows"][0]["rank"] == 1
     assert payload["rows"][0]["handle"] == "zero_alpha"
     assert payload["rows"][0]["verification_score"] == 70.5
+
+
+def test_network_profile_page_example_runs_from_repo_root() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    result = subprocess.run(
+        [sys.executable, "examples/network-profile-page/build.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    page = result.stdout
+    assert "<!doctype html>" in page
+    assert "<title>ZERO Local · ZERO Network</title>" in page
+    assert "@zero_local" in page
+    assert "Aggregate Behavior" in page
+    assert "sha256:1111111111111111111111111111111111111111111111111111111111111111" in page

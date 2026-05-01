@@ -56,6 +56,23 @@ The public runtime writes a JSONL proof packet to the configured local path. It
 does not upload to a ZERO-hosted service. A future hosted Network ingestion API
 can consume the same packet without changing the local privacy contract.
 
+## Public Profile Page Builder
+
+The public repository includes a deterministic static page builder for one
+already-redacted `zero.network.profile.v1` packet:
+
+```bash
+just network-profile-page-example
+```
+
+The builder emits HTML for aggregate behavior, verification badges, and proof
+hash only. It escapes profile-provided text and uses no JavaScript, remote
+assets, raw journals, symbols, trace IDs, idempotency keys, wallet addresses,
+exchange order IDs, strategy labels, or private notes.
+
+See [examples/network-profile-page](../examples/network-profile-page) and
+[contracts/network/profile.html](../contracts/network/profile.html).
+
 ## Public Leaderboard Builder
 
 The public repository includes a deterministic builder that turns already
