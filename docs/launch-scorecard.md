@@ -6,7 +6,7 @@ reserved for ZERO Cloud.
 
 ## Current Score
 
-**98/100**
+**100/100**
 
 ## Ready
 
@@ -19,6 +19,8 @@ reserved for ZERO Cloud.
 - Public CI for engine, CLI, docs, paper example, paper API smoke, and container smoke
 - Release workflow for Python package, CLI binaries, container image artifact, and checksums
 - Draft GitHub Release assembly with combined release checksums
+- GitHub artifact attestations for release asset provenance
+- One-line CLI install path with checksum and attestation verification
 - Package dry-run gate for Python artifacts and the Rust crate graph
 - Shared paper API contract fixtures pinned by Python API tests and Rust client tests
 - Public contribution, security, governance, support, and issue templates
@@ -41,11 +43,11 @@ reserved for ZERO Cloud.
 - Premium connectors
 - Enterprise audit exports and SLAs
 
-## Remaining To Reach 100
+## Remaining To Keep 100
 
-- Publish repository and confirm all GitHub Actions pass on GitHub-hosted runners
-- Add signed release provenance after ownership and token permissions are finalized
-- Add Homebrew tap or one-line binary install path
+- Keep the public GitHub Actions matrix green after every push
+- Publish the first release only after checksum and attestation verification pass
+- Add Homebrew or package-registry distribution after public name ownership is secured
 
 ## Definition Of 100
 

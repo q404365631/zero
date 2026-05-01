@@ -30,32 +30,32 @@ Acceptance:
 - The note keeps the container path paper-only.
 - The note does not weaken CI expectations.
 
-## Help Wanted: One-Line CLI Install Path
+## Help Wanted: Homebrew Tap
 
 Labels: `help wanted`, `release`, `cli`, `packaging`
 
-Add a documented one-line install path for the Rust CLI once public release
-artifacts are available.
+Add a Homebrew tap or formula after public release artifact names stabilize.
 
 Acceptance:
 
-- `README.md` shows the install command near the quickstart.
-- `docs/release.md` names the supported install path and artifact source.
-- The command verifies checksums before placing a binary on `PATH`.
+- `README.md` links the Homebrew install command.
+- The formula installs the checksummed GitHub Release binary or builds from source.
+- `docs/release.md` names Homebrew as a supported distribution path.
 - The path works without private package registry access.
 
-## Maintainer Task: Signed Release Provenance
+## Maintainer Task: First Public Release Verification
 
 Labels: `release`, `security`
 
-Add signed release provenance once the public repository, tags, and token
-permissions are finalized.
+Verify the first public release from a clean download directory before
+publishing it.
 
 Acceptance:
 
-- `SHA256SUMS` is signed or accompanied by verifiable provenance.
-- `docs/release.md` explains verification from a fresh clone.
-- Signing does not require contributor secrets for normal pull requests.
+- The draft GitHub Release includes all expected assets.
+- `shasum -a 256 -c SHA256SUMS` passes.
+- `gh attestation verify zero-linux -R zero-intel/zero` passes.
+- `gh attestation verify zero-macos -R zero-intel/zero` passes.
 
 ## Maintainer Task: First Release Candidate
 

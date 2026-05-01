@@ -41,6 +41,16 @@ just example
 
 The first public demo runs in paper mode and requires no exchange private key.
 
+After the first release is published, install the latest CLI binary with:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zero-intel/zero/main/scripts/install.sh | bash
+```
+
+The installer downloads the latest GitHub Release asset for your OS, verifies
+`SHA256SUMS`, verifies the GitHub artifact attestation with `gh`, and installs
+`zero` to `~/.local/bin`.
+
 To inspect the local paper engine from the operator CLI:
 
 ```bash

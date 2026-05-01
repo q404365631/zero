@@ -73,6 +73,27 @@ directory and verify the combined checksum manifest:
 shasum -a 256 -c SHA256SUMS
 ```
 
+Verify the GitHub artifact attestation for any downloaded executable:
+
+```bash
+gh attestation verify zero-linux -R zero-intel/zero
+```
+
+Use `zero-macos` for the macOS binary.
+
+## CLI Install Path
+
+After the first GitHub Release is published, install the latest CLI binary with:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zero-intel/zero/main/scripts/install.sh | bash
+```
+
+The installer requires `gh`. It downloads the latest release asset for the host
+OS, verifies `SHA256SUMS`, verifies the GitHub artifact attestation, and installs
+`zero` to `~/.local/bin` by default. Set `ZERO_VERSION=vX.Y.Z` to install a
+specific release or `ZERO_INSTALL_DIR=/path/to/bin` to choose another location.
+
 ## Package Dry Run
 
 Run the non-publishing package check before opening a release PR or tagging:
@@ -102,6 +123,8 @@ Current package-name assumptions:
 - SHA-256 checksum files for each artifact group
 - A draft GitHub Release containing the wheel, source distribution, CLI
   binaries, paper image tarball, and a combined `SHA256SUMS`
+- GitHub artifact attestations for release assets listed in the combined
+  checksum manifest
 
 The workflow uploads artifacts to the GitHub Actions run and attaches the
 assembled release bundle to a draft GitHub Release. It does not publish to PyPI,
@@ -111,7 +134,8 @@ finalized.
 
 ## Signing And Provenance
 
-The release workflow currently provides checksum verification, not a signed
-provenance chain. Before marking a release as final, maintainers should add
-keyless artifact signing or another verifiable provenance mechanism and document
-the verification command here.
+The release workflow uses GitHub artifact attestations through `actions/attest`.
+For public repositories, GitHub signs the attestation with Sigstore-backed
+provenance. Maintainers should leave releases in draft until checksum and
+attestation verification both pass from a fresh checkout or clean download
+directory.

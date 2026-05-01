@@ -33,18 +33,17 @@ Acceptance:
 
 ## Help Wanted
 
-### Add one-line CLI install path
+### Add Homebrew tap
 
 Labels: `help wanted`, `release`, `cli`, `packaging`
 
-Add a documented one-line install path for the Rust CLI once public release
-artifacts are available.
+Add a Homebrew tap or formula after public release artifact names stabilize.
 
 Acceptance:
 
-- `README.md` shows the install command near the quickstart.
-- `docs/release.md` names the supported install path and artifact source.
-- The command verifies checksums before placing a binary on `PATH`.
+- `README.md` links the Homebrew install command.
+- The formula installs the checksummed GitHub Release binary or builds from source.
+- `docs/release.md` names Homebrew as a supported distribution path.
 - The path works without private package registry access.
 
 ## Maintainer Tasks
