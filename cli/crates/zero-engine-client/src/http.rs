@@ -21,8 +21,8 @@ use zero_operator_state::{Event as OperatorEvent, Snapshot as OperatorSnapshot};
 
 use crate::models::{
     ApproachingFeed, AutoToggleRequest, AutoToggleResponse, Brief, Evaluation, ExecuteRequest,
-    ExecuteResponse, Health, HyperliquidStatus, OperatorEventsAccepted, Positions, Pulse, Regime,
-    RejectionsFeed, Risk, Root, V2Status,
+    ExecuteResponse, Health, HyperliquidStatus, MarketQuote, OperatorEventsAccepted, Positions,
+    Pulse, Regime, RejectionsFeed, Risk, Root, V2Status,
 };
 use crate::rate_budget::{self, RateBudget};
 
@@ -570,6 +570,12 @@ impl HttpClient {
             }
             None => self.get_json("/hl/status").await,
         }
+    }
+
+    /// `GET /market/quote?symbol=...` — active quote source feeding paper mode.
+    pub async fn market_quote(&self, symbol: &str) -> Result<MarketQuote, HttpError> {
+        let path = format!("/market/quote?symbol={}", urlencoding(symbol));
+        self.get_json(&path).await
     }
 
     /// `GET /v2/status` — condensed engine summary for the status bar.

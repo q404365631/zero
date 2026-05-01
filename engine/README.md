@@ -28,7 +28,7 @@ The local paper API listens on `http://127.0.0.1:8765` by default and
 exposes the paper-mode subset of the engine contract used by the Rust CLI:
 `/`, `/health`, `/v2/status`, `/positions`, `/risk`, `/brief`,
 `/regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`,
-`/journal`, `/hl/status`, `/operator/state`, `POST /execute`,
+`/journal`, `/hl/status`, `/market/quote`, `/operator/state`, `POST /execute`,
 `POST /auto/toggle`, and `POST /operator/events`.
 
 For a replayable local audit log, pass a JSONL journal path:
@@ -45,6 +45,17 @@ curl -fsS 'http://127.0.0.1:8765/hl/status?symbol=BTC'
 ```
 
 This does not require exchange credentials and cannot place orders.
+
+To route paper quotes and paper fills through live Hyperliquid mids:
+
+```bash
+zero-paper-api --journal .zero/decisions.jsonl --hyperliquid-live-prices
+curl -fsS 'http://127.0.0.1:8765/market/quote?symbol=BTC'
+```
+
+This still cannot place exchange orders. If live market data is unavailable or a
+symbol is missing from Hyperliquid `allMids`, paper execution fails closed
+instead of silently using fixture prices.
 
 Paper execution example:
 

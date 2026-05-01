@@ -99,7 +99,7 @@ contract:
 - `GET /`, `/health`, `/v2/status`
 - `GET /positions`, `/risk`, `/brief`
 - `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
-- `GET /hl/status`
+- `GET /hl/status`, `/market/quote`
 - `GET /operator/state`
 - `POST /execute`
 - `POST /auto/toggle`
@@ -119,6 +119,14 @@ the endpoint returns the in-memory decision log for the current process.
 --hyperliquid` is used, it queries Hyperliquid's public info endpoint for
 read-only mids and returns `secrets_required=false`. This endpoint must not
 place orders, sign payloads, or require exchange credentials.
+
+`GET /market/quote?symbol=BTC` returns the price source currently feeding paper
+mode. By default it returns deterministic fixture prices with `source=paper:static`.
+When `zero-paper-api --hyperliquid-live-prices` is used, it returns cached
+Hyperliquid mids with `source=hyperliquid:allMids`; `POST /execute`,
+`GET /evaluate/{coin}`, and `GET /positions` use the same quote path. Missing
+symbols or unavailable live market data fail closed instead of falling back to
+fixtures.
 
 ### Contract Fixtures
 

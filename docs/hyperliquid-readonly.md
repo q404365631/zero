@@ -36,6 +36,24 @@ The response includes:
 Without `--hyperliquid`, `/hl/status` returns `enabled=false` and the paper
 runtime remains fully deterministic and offline.
 
+To make paper mode use live Hyperliquid mids for quotes, evaluation, positions,
+and paper fills:
+
+```bash
+zero-paper-api --journal .zero/decisions.jsonl --hyperliquid-live-prices
+curl -fsS 'http://127.0.0.1:8765/market/quote?symbol=BTC'
+curl -fsS \
+  -H "content-type: application/json" \
+  -d '{"coin":"BTC","side":"buy","size":0.01,"idempotency_key":"live-paper-1"}' \
+  http://127.0.0.1:8765/execute
+```
+
+`--hyperliquid-live-prices` implies the read-only Hyperliquid adapter. It still
+does not require credentials, cannot sign payloads, and cannot place exchange
+orders. If Hyperliquid market data is unavailable or a requested symbol is not
+present in `allMids`, paper execution fails closed instead of falling back to
+fixture prices.
+
 ## Safety Boundary
 
 The read-only adapter may call Hyperliquid `info` methods such as `allMids` and
@@ -61,6 +79,6 @@ It unlocks:
 
 - real market visibility without custody;
 - Railway paper deployments that can prove liveness;
-- live-data paper trading in the next cycle;
+- live-data paper trading through the same quote path as later live execution;
 - safer live execution later because diagnostics and exchange failure handling
   exist before signing exists.

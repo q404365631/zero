@@ -594,6 +594,7 @@ async fn run(ctx: &DispatchContext, cmd: &Command) -> DispatchOutput {
         Command::Brief => brief(ctx).await,
         Command::Risk => risk_cmd(ctx).await,
         Command::HyperliquidStatus { symbol } => hl_status_cmd(ctx, symbol.as_deref()).await,
+        Command::Quote { symbol } => quote_cmd(ctx, symbol.as_deref()).await,
         Command::Regime { coin } => regime_cmd(ctx, coin.as_deref()).await,
         Command::Evaluate { coin, extras } => evaluate_cmd(ctx, coin.as_deref(), extras).await,
         Command::Positions => positions_cmd(ctx).await,
@@ -659,6 +660,9 @@ fn help() -> DispatchOutput {
     ));
     out.lines.push(OutputLine::system(
         "  /hl-status [coin]    — read-only Hyperliquid info status",
+    ));
+    out.lines.push(OutputLine::system(
+        "  /quote <coin>        — active paper quote source",
     ));
     out.lines.push(OutputLine::system(
         "  /heat                — composite heat (risk + circuit state)",
@@ -918,6 +922,34 @@ async fn hl_status_cmd(ctx: &DispatchContext, symbol: Option<&str>) -> DispatchO
             }
         }
         Err(e) => out.lines.push(OutputLine::alert(format!("hl-status: {e}"))),
+    }
+    out
+}
+
+async fn quote_cmd(ctx: &DispatchContext, symbol: Option<&str>) -> DispatchOutput {
+    let mut out = DispatchOutput::default();
+    let Some(symbol) = symbol else {
+        out.lines.push(OutputLine::warn(
+            "/quote <coin> — name the coin to inspect (e.g. /quote BTC)",
+        ));
+        return out;
+    };
+    let Some(http) = require_http(ctx, &mut out) else {
+        return out;
+    };
+    match http.market_quote(symbol).await {
+        Ok(q) => {
+            let live = if q.live { "live" } else { "fixture" };
+            out.lines.push(OutputLine::command(format!(
+                "quote {}: {:.4}  source={}  mode={live}",
+                q.symbol, q.price, q.source
+            )));
+            if let Some(as_of) = q.as_of {
+                out.lines
+                    .push(OutputLine::system(format!("  as_of={as_of}")));
+            }
+        }
+        Err(e) => out.lines.push(OutputLine::alert(format!("quote: {e}"))),
     }
     out
 }

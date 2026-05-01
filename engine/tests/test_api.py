@@ -130,6 +130,98 @@ def test_paper_api_hl_status_uses_read_only_adapter() -> None:
     assert health["dependencies"]["exchange"] == "hyperliquid"
 
 
+def test_paper_api_market_quote_uses_fixture_prices_by_default() -> None:
+    status, payload = PaperApi(PaperApiState(clock=lambda: FIXED_DT)).get(
+        "/market/quote",
+        {"symbol": ["BTC"]},
+    )
+
+    assert status == 200
+    assert payload == {
+        "symbol": "BTC",
+        "price": 40500.0,
+        "source": "paper:static",
+        "as_of": "2026-05-01T00:00:00Z",
+        "mode": "paper",
+        "live": False,
+    }
+
+
+def test_live_hyperliquid_prices_feed_paper_execute_and_journal(tmp_path) -> None:
+    client = HyperliquidInfoClient(transport=lambda *_args: {"BTC": "50000", "ETH": "3000"})
+    journal = DecisionJournal(tmp_path / "decisions.jsonl")
+    api = PaperApi(
+        PaperApiState(
+            engine=PaperEngine(clock=lambda: FIXED_TS, journal=journal),
+            hyperliquid=client,
+            use_live_hyperliquid_prices=True,
+            clock=lambda: FIXED_DT,
+        )
+    )
+
+    status, payload = api.post(
+        "/execute",
+        {"coin": "BTC", "side": "buy", "size": 0.01, "idempotency_key": "live-fill"},
+    )
+    quote_status, quote = api.get("/market/quote", {"symbol": ["BTC"]})
+    journal_status, journal_payload = api.get("/journal", {"limit": ["5"]})
+
+    assert status == 200
+    assert payload["accepted"] is True
+    assert api.state.engine.fills[0].price == 50000.0
+    assert api.state.engine.positions["BTC"].avg_price == 50000.0
+    assert quote_status == 200
+    assert quote["source"] == "hyperliquid:allMids"
+    assert quote["price"] == 50000.0
+    assert journal_status == 200
+    assert journal_payload["decisions"][0]["source"] == "api:/execute:hyperliquid:allMids"
+    assert journal_payload["decisions"][0]["price"] == 50000.0
+
+
+def test_live_hyperliquid_positions_mark_to_cached_mid() -> None:
+    mids = iter([{"BTC": "50000"}, {"BTC": "51000"}])
+    client = HyperliquidInfoClient(transport=lambda *_args: next(mids))
+    api = PaperApi(
+        PaperApiState(
+            hyperliquid=client,
+            use_live_hyperliquid_prices=True,
+            price_cache_ttl_s=-1,
+            clock=lambda: FIXED_DT,
+        )
+    )
+
+    execute_status, _ = api.post(
+        "/execute",
+        {"coin": "BTC", "side": "buy", "size": 0.01, "idempotency_key": "mark-fill"},
+    )
+    positions_status, positions = api.get("/positions", {})
+
+    assert execute_status == 200
+    assert positions_status == 200
+    assert positions["positions"][0]["entry"] == 50000.0
+    assert positions["positions"][0]["mark"] == 51000.0
+    assert positions["positions"][0]["unrealized_pnl"] == 10.0
+    assert positions["total_unrealized_pnl"] == 10.0
+
+
+def test_live_hyperliquid_unknown_symbol_fails_without_fixture_fallback() -> None:
+    client = HyperliquidInfoClient(transport=lambda *_args: {"BTC": "50000"})
+    api = PaperApi(
+        PaperApiState(
+            hyperliquid=client,
+            use_live_hyperliquid_prices=True,
+        )
+    )
+
+    status, payload = api.post(
+        "/execute",
+        {"coin": "NOTREAL", "side": "buy", "size": 1, "idempotency_key": "missing"},
+    )
+
+    assert status == 400
+    assert payload == {"error": "NOTREAL missing from Hyperliquid allMids"}
+
+
 def test_paper_api_matches_shared_contract_fixtures() -> None:
     api = contract_api()
 

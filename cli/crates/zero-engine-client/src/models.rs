@@ -56,6 +56,21 @@ pub struct HyperliquidStatus {
     pub extra: BTreeMap<String, Value>,
 }
 
+// ─── /market/quote  ────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct MarketQuote {
+    pub symbol: String,
+    pub price: f64,
+    pub source: String,
+    pub as_of: Option<String>,
+    pub mode: Option<String>,
+    pub live: bool,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ComponentHealth {
     pub status: String,

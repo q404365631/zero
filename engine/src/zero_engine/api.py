@@ -12,7 +12,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Callable
 from urllib.parse import parse_qs, urlparse
 
-from zero_engine.hyperliquid import HyperliquidInfoClient
+from zero_engine.hyperliquid import HyperliquidInfoClient, HyperliquidMarketStatus
 from zero_engine.journal import DecisionJournal
 from zero_engine.models import OrderIntent, Position, Side
 from zero_engine.paper import DecisionRecord, PaperEngine
@@ -30,15 +30,36 @@ def utc_now() -> datetime:
     return datetime.now(UTC)
 
 
+@dataclass(frozen=True)
+class PriceQuote:
+    symbol: str
+    price: float
+    source: str
+    as_of: datetime
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "symbol": self.symbol,
+            "price": self.price,
+            "source": self.source,
+            "as_of": self.as_of.isoformat().replace("+00:00", "Z"),
+        }
+
+
 @dataclass
 class PaperApiState:
     engine: PaperEngine = field(default_factory=PaperEngine)
     prices: dict[str, float] = field(default_factory=lambda: dict(DEFAULT_PRICES))
     hyperliquid: HyperliquidInfoClient | None = None
+    use_live_hyperliquid_prices: bool = False
+    price_cache_ttl_s: float = 2.0
     clock: Callable[[], datetime] = field(default_factory=lambda: utc_now)
     started_at: datetime = field(default_factory=utc_now)
     auto_enabled: bool = False
     execution_cache: dict[str, dict[str, Any]] = field(default_factory=dict)
+    price_cache: HyperliquidMarketStatus | None = None
+    price_cache_at: datetime | None = None
+    last_market_error: str | None = None
 
     def now(self) -> datetime:
         return self.clock()
@@ -47,7 +68,49 @@ class PaperApiState:
         return self.now().isoformat().replace("+00:00", "Z")
 
     def price_for(self, symbol: str) -> float:
-        return self.prices.get(symbol.upper(), 100.0)
+        return self.quote_for(symbol).price
+
+    def quote_for(self, symbol: str) -> PriceQuote:
+        normalized = symbol.upper()
+        if self.use_live_hyperliquid_prices:
+            status = self.hyperliquid_status_cached()
+            price = status.price_for(normalized)
+            if price is None:
+                raise ValueError(f"{normalized} missing from Hyperliquid allMids")
+            return PriceQuote(
+                symbol=normalized,
+                price=price,
+                source="hyperliquid:allMids",
+                as_of=self.price_cache_at or self.now(),
+            )
+
+        return PriceQuote(
+            symbol=normalized,
+            price=self.prices.get(normalized, 100.0),
+            source="paper:static",
+            as_of=self.now(),
+        )
+
+    def hyperliquid_status_cached(self) -> HyperliquidMarketStatus:
+        if self.hyperliquid is None:
+            raise ValueError("--hyperliquid-live-prices requires the Hyperliquid read-only adapter")
+        now = self.now()
+        if self.price_cache is not None and self.price_cache_at is not None:
+            age_s = (now - self.price_cache_at).total_seconds()
+            if age_s <= self.price_cache_ttl_s:
+                return self.price_cache
+        try:
+            status = self.hyperliquid.market_status()
+        except Exception as exc:
+            self.last_market_error = str(exc)
+            raise RuntimeError(f"Hyperliquid market data unavailable: {exc}") from exc
+        self.price_cache = status
+        self.price_cache_at = now
+        self.last_market_error = None
+        return status
+
+    def market_source(self) -> str:
+        return "hyperliquid:allMids" if self.use_live_hyperliquid_prices else "paper:static"
 
 
 class PaperApi:
@@ -68,18 +131,34 @@ class PaperApi:
             "/rejections": lambda: self.rejections(query),
             "/journal": lambda: self.journal(query),
             "/hl/status": lambda: self.hl_status(query),
+            "/market/quote": lambda: self.market_quote(query),
             "/operator/state": self.operator_state,
         }
         if path.startswith("/evaluate/"):
-            return HTTPStatus.OK, self.evaluate(path.removeprefix("/evaluate/"))
+            try:
+                return HTTPStatus.OK, self.evaluate(path.removeprefix("/evaluate/"))
+            except RuntimeError as exc:
+                return HTTPStatus.SERVICE_UNAVAILABLE, {"error": str(exc)}
+            except ValueError as exc:
+                return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
         handler = routes.get(path)
         if handler is None:
             return HTTPStatus.NOT_FOUND, {"error": "not found", "path": path}
-        return HTTPStatus.OK, handler()
+        try:
+            return HTTPStatus.OK, handler()
+        except RuntimeError as exc:
+            return HTTPStatus.SERVICE_UNAVAILABLE, {"error": str(exc)}
+        except ValueError as exc:
+            return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
 
     def post(self, path: str, payload: dict[str, Any]) -> tuple[int, dict[str, Any]]:
         if path == "/execute":
-            return HTTPStatus.OK, self.execute(payload)
+            try:
+                return HTTPStatus.OK, self.execute(payload)
+            except RuntimeError as exc:
+                return HTTPStatus.SERVICE_UNAVAILABLE, {"error": str(exc)}
+            except ValueError as exc:
+                return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
         if path == "/auto/toggle":
             enabled = bool(payload.get("enabled"))
             self.state.auto_enabled = enabled
@@ -98,14 +177,22 @@ class PaperApi:
     def health(self) -> dict[str, Any]:
         ts = self.state.now_iso()
         exchange = "hyperliquid" if self.state.hyperliquid is not None else "paper"
+        market_data = "live" if self.state.use_live_hyperliquid_prices else "fixture"
         return {
             "status": "ok",
             "components": {
                 "paper_engine": {"status": "healthy", "last_seen": ts, "age_s": 0.0},
                 "risk": {"status": "healthy", "last_seen": ts, "age_s": 0.0},
             },
-            "dependencies": {"exchange": exchange, "secrets": "not_required"},
-            "circuit_breakers": {"paper": "closed", "hl_info": "closed" if self.state.hyperliquid is not None else "n/a"},
+            "dependencies": {
+                "exchange": exchange,
+                "market_data": market_data,
+                "secrets": "not_required",
+            },
+            "circuit_breakers": {
+                "paper": "closed",
+                "hl_info": "closed" if self.state.hyperliquid is not None else "n/a",
+            },
             "risk": {"equity": 10_000.0, "drawdown_pct": 0.0, "kill_all": False},
             "ws_connections": 0,
         }
@@ -115,12 +202,14 @@ class PaperApi:
         return {
             "confidence": {"score": 90, "level": "paper"},
             "market": {
-                "regime": "PAPER MARKET. Local deterministic demo.",
+                "regime": "HYPERLIQUID LIVE MIDS. Paper execution only."
+                if self.state.use_live_hyperliquid_prices
+                else "PAPER MARKET. Local deterministic demo.",
                 "health": 1.0,
-                "signal": "stable",
+                "signal": "live" if self.state.use_live_hyperliquid_prices else "stable",
                 "prediction": "stable",
                 "fear_greed": 50,
-                "coins_tradeable": len(self.state.prices),
+                "coins_tradeable": self.coins_tradeable(),
             },
             "positions": {
                 "open": len([p for p in positions if p.quantity != 0]),
@@ -142,7 +231,7 @@ class PaperApi:
 
     def positions(self) -> dict[str, Any]:
         items = [
-            position_to_wire(position, self.state.price_for(position.symbol))
+            position_to_wire(position, self.state.quote_for(position.symbol))
             for position in self.state.engine.positions.values()
             if position.quantity != 0
         ]
@@ -150,7 +239,7 @@ class PaperApi:
             "positions": items,
             "count": len(items),
             "account_value": 10_000.0,
-            "total_unrealized_pnl": 0.0,
+            "total_unrealized_pnl": round(sum(item["unrealized_pnl"] for item in items), 2),
         }
 
     def risk(self) -> dict[str, Any]:
@@ -202,12 +291,13 @@ class PaperApi:
 
     def evaluate(self, raw_symbol: str) -> dict[str, Any]:
         symbol = raw_symbol.upper()
-        price = self.state.price_for(symbol)
-        intent = OrderIntent(symbol, Side.BUY, quantity=1 / price, price=price, confidence=0.9)
+        quote = self.state.quote_for(symbol)
+        intent = OrderIntent(symbol, Side.BUY, quantity=1 / quote.price, price=quote.price, confidence=0.9)
         decision = evaluate_order(intent, self.state.engine.limits, self.state.engine.positions.get(symbol))
         return {
             "coin": symbol,
-            "price": price,
+            "price": quote.price,
+            "price_source": quote.source,
             "consensus": 90 if decision.allowed else 0,
             "conviction": 0.9,
             "direction": "LONG" if decision.allowed else "NONE",
@@ -274,6 +364,16 @@ class PaperApi:
         payload["secrets_required"] = False
         return payload
 
+    def market_quote(self, query: dict[str, list[str]]) -> dict[str, Any]:
+        symbol = first(query, "symbol")
+        if symbol is None:
+            raise ValueError("symbol is required")
+        quote = self.state.quote_for(symbol)
+        payload = quote.to_dict()
+        payload["mode"] = "paper"
+        payload["live"] = self.state.use_live_hyperliquid_prices
+        return payload
+
     def operator_state(self) -> dict[str, Any]:
         return {
             "label": "fresh",
@@ -317,9 +417,14 @@ class PaperApi:
         symbol = str(payload.get("coin") or "").upper()
         side = Side(str(payload.get("side") or "").lower())
         quantity = float(payload.get("size") or 0)
-        price = self.state.price_for(symbol)
-        intent = OrderIntent(symbol, side, quantity=quantity, price=price, confidence=0.9)
-        decision = self.state.engine.submit(intent, source="api:/execute")
+        quote = self.state.quote_for(symbol)
+        intent = OrderIntent(symbol, side, quantity=quantity, price=quote.price, confidence=0.9)
+        source = (
+            "api:/execute"
+            if quote.source == "paper:static"
+            else f"api:/execute:{quote.source}"
+        )
+        decision = self.state.engine.submit(intent, source=source)
         response = {
             "accepted": decision.allowed,
             "simulated": True,
@@ -333,15 +438,23 @@ class PaperApi:
             self.state.execution_cache[key] = response
         return response
 
+    def coins_tradeable(self) -> int:
+        if not self.state.use_live_hyperliquid_prices:
+            return len(self.state.prices)
+        if self.state.price_cache is not None:
+            return len(self.state.price_cache.mids)
+        return 0
 
-def position_to_wire(position: Position, mark: float) -> dict[str, Any]:
+
+def position_to_wire(position: Position, quote: PriceQuote) -> dict[str, Any]:
+    unrealized_pnl = (quote.price - position.avg_price) * position.quantity
     return {
         "symbol": position.symbol,
         "side": "long" if position.quantity > 0 else "short",
         "size": abs(position.quantity),
         "entry": position.avg_price,
-        "mark": mark,
-        "unrealized_pnl": 0.0,
+        "mark": quote.price,
+        "unrealized_pnl": round(unrealized_pnl, 2),
         "unrealized_r": 0.0,
         "age_s": 0.0,
     }
@@ -445,12 +558,21 @@ def serve(
     journal_path: str | None = None,
     *,
     hyperliquid: bool = False,
+    hyperliquid_live_prices: bool = False,
 ) -> None:
     engine = PaperEngine(journal=DecisionJournal(journal_path)) if journal_path else PaperEngine()
-    hl_client = HyperliquidInfoClient() if hyperliquid else None
+    hl_client = HyperliquidInfoClient() if hyperliquid or hyperliquid_live_prices else None
     server = ThreadingHTTPServer(
         (host, port),
-        make_handler(PaperApi(PaperApiState(engine=engine, hyperliquid=hl_client))),
+        make_handler(
+            PaperApi(
+                PaperApiState(
+                    engine=engine,
+                    hyperliquid=hl_client,
+                    use_live_hyperliquid_prices=hyperliquid_live_prices,
+                )
+            )
+        ),
     )
     print(f"zero paper API listening on http://{host}:{port}", flush=True)
     server.serve_forever()
@@ -466,8 +588,19 @@ def main() -> None:
         action="store_true",
         help="Enable read-only Hyperliquid public market data endpoints",
     )
+    parser.add_argument(
+        "--hyperliquid-live-prices",
+        action="store_true",
+        help="Use read-only Hyperliquid mids for paper quotes and paper execution; implies --hyperliquid",
+    )
     args = parser.parse_args()
-    serve(args.host, args.port, args.journal, hyperliquid=args.hyperliquid)
+    serve(
+        args.host,
+        args.port,
+        args.journal,
+        hyperliquid=args.hyperliquid,
+        hyperliquid_live_prices=args.hyperliquid_live_prices,
+    )
 
 
 if __name__ == "__main__":

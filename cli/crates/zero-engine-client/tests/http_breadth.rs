@@ -84,6 +84,18 @@ async fn hyperliquid_status_decodes_read_only_shape() {
 }
 
 #[tokio::test]
+async fn market_quote_decodes_active_quote_source() {
+    let (mock, http) = client().await;
+    let quote = http.market_quote("BTC").await.expect("market quote");
+
+    assert_eq!(quote.symbol, "BTC");
+    assert!((quote.price - 40500.0).abs() < 1e-9);
+    assert_eq!(quote.source, "paper:static");
+    assert!(!quote.live);
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn regime_decodes_without_coin() {
     let (mock, http) = client().await;
     let r = http.regime(None).await.expect("regime");

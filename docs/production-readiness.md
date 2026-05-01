@@ -14,18 +14,18 @@ end.
 |---|---:|---|
 | Public repo hygiene | 92 | Strong CI, release artifacts, governance, docs, and clean boundaries. |
 | CLI readiness | 82 | Mature Rust terminal, doctor, TUI, friction gates, tests, and release binary path. Blocked by paper-only engine. |
-| Engine runtime | 40 | Deterministic paper runtime, append-only decision journal, and read-only Hyperliquid info adapter exist. No OODA loop, runners, durable bus, or live executor. |
+| Engine runtime | 48 | Deterministic paper runtime, append-only decision journal, read-only Hyperliquid info adapter, and live-mid paper execution exist. No OODA loop, runners, durable bus, or live executor. |
 | Safety and risk | 58 | Good local contracts and CLI risk asymmetry. Missing live kill-switch drills, dead-man enforcement, custody flow, and exchange-failure tests. |
-| API contracts | 53 | Paper fixtures are pinned across Python and Rust, and `/hl/status` exposes read-only market status. Missing OpenAPI, versioned live contracts, auth scopes, and compatibility policy for production. |
+| API contracts | 57 | Paper fixtures are pinned across Python and Rust, `/hl/status` exposes read-only market status, and `/market/quote` names the active price source. Missing OpenAPI, versioned live contracts, auth scopes, and compatibility policy for production. |
 | Deployment | 42 | Docker path exists. Railway template, persistent volume layout, env validation, health checks, and rollback docs are missing. |
 | Observability and audit | 50 | Paper decision logs and optional JSONL journal exist. Missing production audit journal, metrics, trace IDs, retention policy, and operator export format. |
 | Security and custody | 55 | No secrets needed for first run. Missing live key handling, redaction tests, permission model, and threat-model coverage for Railway deploys. |
 | ZERO Network | 15 | Product boundary is defined. Profiles, leaderboards, verification, and opt-in publishing do not exist yet. |
 | ZERO Intelligence | 12 | Commercial boundary is defined. API, billing, datasets, rate limits, and terms do not exist yet. |
 | Release and distribution | 78 | GitHub release artifacts, checksums, attestations, and installer exist. Package registries and Homebrew are not yet shipped. |
-| Documentation for operators | 65 | Good local docs and Hyperliquid read-only boundary docs. Missing real production runbook, Railway deploy guide, live-mode warnings, and incident recovery playbooks. |
+| Documentation for operators | 68 | Good local docs, Hyperliquid read-only boundary docs, and live-paper quote docs. Missing real production runbook, Railway deploy guide, live-mode warnings, and incident recovery playbooks. |
 
-**Overall production product readiness: 54/100.**
+**Overall production product readiness: 58/100.**
 
 This is acceptable for an open-source foundation release. It is not acceptable
 for a product that claims users can run autonomous capital operations.
@@ -125,6 +125,17 @@ Exit gate:
 
 - A Railway or local deployment can run paper mode continuously and survive
   restart without losing journaled decisions.
+
+Current progress:
+
+- `zero-paper-api --hyperliquid-live-prices` routes paper quotes through cached
+  Hyperliquid `allMids`.
+- `POST /execute`, `GET /evaluate/{coin}`, and `GET /positions` use the same
+  quote path, so paper fills and marks are sourced from live mids when enabled.
+- `GET /market/quote?symbol=BTC` exposes the active quote source for operator
+  inspection.
+- Missing live symbols and market-data failures fail closed instead of silently
+  falling back to deterministic fixture prices.
 
 ### Cycle 4: Railway-First Deployment
 

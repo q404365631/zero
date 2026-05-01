@@ -83,6 +83,11 @@ pub enum Command {
     HyperliquidStatus {
         symbol: Option<String>,
     },
+    /// `/quote <coin>` — active paper quote source for a symbol.
+    /// This is read-only and cannot sign payloads or place orders.
+    Quote {
+        symbol: Option<String>,
+    },
     Regime {
         coin: Option<String>,
     },
@@ -494,6 +499,7 @@ impl Command {
             | Self::Brief
             | Self::Risk
             | Self::HyperliquidStatus { .. }
+            | Self::Quote { .. }
             | Self::Regime { .. }
             | Self::Evaluate { .. }
             | Self::Positions
@@ -576,6 +582,7 @@ impl Command {
             Self::Brief => "/brief",
             Self::Risk => "/risk",
             Self::HyperliquidStatus { .. } => "/hl-status",
+            Self::Quote { .. } => "/quote",
             Self::Regime { .. } => "/regime",
             Self::Evaluate { .. } => "/evaluate",
             Self::Positions => "/pos",
@@ -678,6 +685,11 @@ pub const COMMAND_CATALOG: &[CommandInfo] = &[
     CommandInfo {
         name: "/hl-status",
         summary: "read-only Hyperliquid info status",
+        risk: RiskDirection::Neutral,
+    },
+    CommandInfo {
+        name: "/quote",
+        summary: "active paper quote source",
         risk: RiskDirection::Neutral,
     },
     CommandInfo {
@@ -900,6 +912,9 @@ pub fn resolve(line: &ParsedLine) -> Option<Command> {
         "brief" => Command::Brief,
         "risk" => Command::Risk,
         "hl-status" | "hl" | "hyperliquid" => Command::HyperliquidStatus {
+            symbol: line.args.first().cloned(),
+        },
+        "quote" | "price" => Command::Quote {
             symbol: line.args.first().cloned(),
         },
         "regime" => Command::Regime {
@@ -1304,6 +1319,10 @@ mod tests {
             RiskDirection::Neutral
         );
         assert_eq!(
+            Command::Quote { symbol: None }.risk(),
+            RiskDirection::Neutral
+        );
+        assert_eq!(
             Command::Pulse { limit: None }.risk(),
             RiskDirection::Neutral
         );
@@ -1334,6 +1353,23 @@ mod tests {
             r("/hyperliquid ETH"),
             Some(Command::HyperliquidStatus {
                 symbol: Some("ETH".into())
+            })
+        );
+    }
+
+    #[test]
+    fn quote_requires_symbol_at_dispatch() {
+        assert_eq!(r("/quote"), Some(Command::Quote { symbol: None }));
+        assert_eq!(
+            r("/quote BTC"),
+            Some(Command::Quote {
+                symbol: Some("BTC".into())
+            })
+        );
+        assert_eq!(
+            r("/price eth"),
+            Some(Command::Quote {
+                symbol: Some("eth".into())
             })
         );
     }

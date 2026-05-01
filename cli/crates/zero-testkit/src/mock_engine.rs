@@ -324,6 +324,7 @@ fn router(shared: AppState) -> Router<AppState> {
         .route("/approaching", get(approaching))
         .route("/rejections", get(rejections))
         .route("/hl/status", get(hl_status))
+        .route("/market/quote", get(market_quote))
         .route("/operator/state", get(operator_state))
         .route("/operator/events", post(operator_events))
         .route("/execute", post(execute))
@@ -728,6 +729,27 @@ async fn hl_status(
         "coins": 2,
         "mids": mids,
         "secrets_required": false
+    }))
+}
+
+async fn market_quote(
+    axum::extract::Query(query): axum::extract::Query<BTreeMap<String, String>>,
+) -> Json<serde_json::Value> {
+    let symbol = query
+        .get("symbol")
+        .map_or_else(|| "BTC".to_string(), |s| s.to_uppercase());
+    let price = match symbol.as_str() {
+        "BTC" => 40500.0,
+        "ETH" => 2850.0,
+        _ => 100.0,
+    };
+    Json(json!({
+        "symbol": symbol,
+        "price": price,
+        "source": "paper:static",
+        "as_of": chrono_utc_now_iso(),
+        "mode": "paper",
+        "live": false
     }))
 }
 
