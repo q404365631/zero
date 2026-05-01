@@ -39,6 +39,8 @@ jobs:
           test -f SECURITY.md
           test -f CODE_OF_CONDUCT.md
           test -f docs/local-development.md
+          test -f docs/first-10-minutes.md
+          test -f docs/demo-terminal.md
           test -f docs/cli-quickstart.md
           test -f docs/api.md
           test -f docs/positioning.md
@@ -56,6 +58,7 @@ jobs:
           test -f contracts/paper-api/execute_rejected.json
           test -x scripts/assemble_release_assets.sh
           test -x scripts/install.sh
+          test -x scripts/demo_capture.sh
           test -x scripts/package_dry_run.sh
           test -x scripts/railway_start.sh
           test -x scripts/railway_smoke.sh

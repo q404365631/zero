@@ -65,7 +65,20 @@ flowchart LR
 - Deploy the paper runtime on Railway or Docker.
 - Generate public-safe Network and Intelligence contract artifacts.
 
-## Quickstart
+## Install CLI
+
+Install the latest release binary:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zero-intel/zero/main/scripts/install.sh | bash
+zero --version
+```
+
+The installer downloads the GitHub Release asset for your OS, verifies
+`SHA256SUMS`, verifies the GitHub artifact attestation, and installs `zero` to
+`~/.local/bin` by default.
+
+## Source Quickstart
 
 Requirements: Python 3.11+, Rust stable, Cargo, and `just`.
 
@@ -96,6 +109,20 @@ Run the full local gate:
 
 ```bash
 just ci
+```
+
+For the complete first-run path, see
+[docs/first-10-minutes.md](docs/first-10-minutes.md). For a reproducible
+terminal demo capture, run:
+
+```bash
+scripts/demo_capture.sh
+```
+
+Use an installed release binary for the same capture:
+
+```bash
+ZERO_BIN="$(command -v zero)" scripts/demo_capture.sh
 ```
 
 ## Safety Model
@@ -176,6 +203,8 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and
 
 - [Architecture](docs/architecture.md)
 - [Positioning](docs/positioning.md)
+- [First 10 Minutes](docs/first-10-minutes.md)
+- [Demo Terminal](docs/demo-terminal.md)
 - [CLI Quickstart](docs/cli-quickstart.md)
 - [API](docs/api.md)
 - [Hyperliquid Read-only](docs/hyperliquid-readonly.md)

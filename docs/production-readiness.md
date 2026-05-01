@@ -12,7 +12,7 @@ end.
 
 | Dimension | Score | Status |
 |---|---:|---|
-| Public repo hygiene | 98 | Strong CI, release artifacts, governance, docs, clean boundaries, first-class GitHub product page, threat model, incident runbooks, distribution policy, and hardening gate. |
+| Public repo hygiene | 99 | Strong CI, release artifacts, governance, docs, clean boundaries, first-class GitHub product page, first-10-minutes guide, reproducible demo capture, threat model, incident runbooks, distribution policy, and hardening gate. |
 | Product narrative | 98 | Clear category around autonomous operating systems for self-custodial onchain operations, with public runtime, terminal, network, and intelligence surfaces separated cleanly. |
 | CLI readiness | 91 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, and live risk-reducer wiring. Remaining live drills are documented as incident runbooks. |
 | Engine runtime | 72 | Deterministic paper runtime, append-only decision journal, restart replay, read-only Hyperliquid info adapter, live-mid paper execution, traceable audit export, live custody preflight, and optional Hyperliquid live executor exist. Still missing OODA loop, runners, and durable production bus. |

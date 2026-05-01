@@ -31,6 +31,8 @@ reserved for ZERO Intelligence.
 - Shared paper API contract fixtures pinned by Python API tests and Rust client tests
 - First-class GitHub product page with category narrative, quickstart, safety
   model, open-core boundary, and contributor paths
+- First-10-minutes guide and reproducible terminal demo capture for source and
+  installed release binaries
 - Public contribution, security, governance, support, and issue templates
 - First-release notes template and ready-to-create contributor issue set
 - Public boundary audit from the private repo

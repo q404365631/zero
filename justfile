@@ -18,6 +18,9 @@ paper-api:
 paper-api-smoke:
     scripts/paper_api_smoke.sh
 
+demo-capture:
+    scripts/demo_capture.sh
+
 hardening-gate:
     scripts/hardening_gate.sh
 
@@ -47,6 +50,8 @@ cli-test:
 
 docs-check:
     test -f docs/local-development.md
+    test -f docs/first-10-minutes.md
+    test -f docs/demo-terminal.md
     test -f docs/cli-quickstart.md
     test -f docs/api.md
     test -f docs/positioning.md
@@ -75,6 +80,7 @@ docs-check:
     test -f contracts/intelligence/catalog.json
     test -x scripts/assemble_release_assets.sh
     test -x scripts/install.sh
+    test -x scripts/demo_capture.sh
     test -x scripts/package_dry_run.sh
     test -x scripts/hardening_gate.sh
     test -x scripts/railway_start.sh
