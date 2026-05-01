@@ -53,7 +53,6 @@ permissions are finalized.
 
 Acceptance:
 
-- Release artifacts are attached to GitHub Releases, not only workflow runs.
 - `SHA256SUMS` is signed or accompanied by verifiable provenance.
 - `docs/release.md` explains verification from a fresh clone.
 - Signing does not require contributor secrets for normal pull requests.

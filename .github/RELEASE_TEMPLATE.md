@@ -23,8 +23,9 @@ just paper-api-smoke
 ## Verification
 
 - [ ] `just ci`
-- [ ] Release artifacts include `SHA256SUMS`.
-- [ ] `shasum -a 256 -c SHA256SUMS` passes for every artifact bundle.
+- [ ] Draft GitHub Release contains the Python package, CLI binaries, paper image tarball, and `SHA256SUMS`.
+- [ ] `shasum -a 256 -c SHA256SUMS` passes after downloading all attached release assets.
+- [ ] Signing/provenance status is called out explicitly before publishing the release.
 
 ## Known Limitations
 

@@ -66,6 +66,13 @@ shasum -a 256 -c SHA256SUMS
 The checksum file uses the standard two-column `sha256  filename` format. A
 failed checksum means the artifact should not be used.
 
+For GitHub Release assets, download all files attached to the release into one
+directory and verify the combined checksum manifest:
+
+```bash
+shasum -a 256 -c SHA256SUMS
+```
+
 ## Package Dry Run
 
 Run the non-publishing package check before opening a release PR or tagging:
@@ -93,8 +100,18 @@ Current package-name assumptions:
 - Linux and macOS CLI binaries for the `zero` crate
 - Paper-mode Docker image smoke tests and an exported image tarball
 - SHA-256 checksum files for each artifact group
+- A draft GitHub Release containing the wheel, source distribution, CLI
+  binaries, paper image tarball, and a combined `SHA256SUMS`
 
-The workflow uploads artifacts to the GitHub Actions run. It does not publish to
-PyPI, crates.io, Homebrew, Docker Hub, or GitHub Releases yet. Publishing should
-be added only after repository ownership, package names, signing, and token
-permissions are finalized.
+The workflow uploads artifacts to the GitHub Actions run and attaches the
+assembled release bundle to a draft GitHub Release. It does not publish to PyPI,
+crates.io, Homebrew, or Docker Hub yet. Package publishing should be added only
+after repository ownership, package names, signing, and token permissions are
+finalized.
+
+## Signing And Provenance
+
+The release workflow currently provides checksum verification, not a signed
+provenance chain. Before marking a release as final, maintainers should add
+keyless artifact signing or another verifiable provenance mechanism and document
+the verification command here.

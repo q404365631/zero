@@ -73,3 +73,32 @@ jobs:
         with:
           name: zero-paper-image
           path: dist/*
+
+  github-release:
+    name: Draft GitHub Release
+    needs: [python-package, cli-binary, container-smoke]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+      - name: Assemble release assets
+        run: |
+          scripts/assemble_release_assets.sh release-artifacts release-dist
+          ls -lh release-dist
+      - name: Create or update draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" release-dist/* --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" release-dist/* \
+              --draft \
+              --verify-tag \
+              --title "$GITHUB_REF_NAME" \
+              --notes-file .github/RELEASE_TEMPLATE.md
+          fi

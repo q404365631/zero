@@ -18,6 +18,7 @@ reserved for ZERO Cloud.
 - Redacted CLI quickstart capture for doctor, status, and risk inspection
 - Public CI for engine, CLI, docs, paper example, paper API smoke, and container smoke
 - Release workflow for Python package, CLI binaries, container image artifact, and checksums
+- Draft GitHub Release assembly with combined release checksums
 - Package dry-run gate for Python artifacts and the Rust crate graph
 - Shared paper API contract fixtures pinned by Python API tests and Rust client tests
 - Public contribution, security, governance, support, and issue templates
@@ -43,7 +44,7 @@ reserved for ZERO Cloud.
 ## Remaining To Reach 100
 
 - Publish repository and confirm all GitHub Actions pass on GitHub-hosted runners
-- Add signed GitHub Releases after ownership and token permissions are finalized
+- Add signed release provenance after ownership and token permissions are finalized
 - Add Homebrew tap or one-line binary install path
 
 ## Definition Of 100
