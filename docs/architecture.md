@@ -16,3 +16,11 @@ Commercial ZERO Cloud is outside the open-source runtime and provides hosted tea
 - Risk-reducing actions stay fast
 - Risk-increasing actions require friction
 
+## Public Engine Flow
+
+```text
+JSONL candles -> MarketDataAdapter -> Strategy -> OrderIntent -> PaperEngine -> RiskDecision
+```
+
+Strategies propose. The paper engine decides. This keeps extension work
+deterministic and prevents examples from bypassing safety gates.

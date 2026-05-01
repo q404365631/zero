@@ -31,19 +31,6 @@ Acceptance:
 
 ## Help Wanted
 
-### Strategy plugin template
-
-Labels: `help wanted`, `engine`, `examples`
-
-Design a minimal strategy plugin interface for paper mode. Start with a proposal
-before code.
-
-Acceptance:
-
-- Proposal names the public interface and safety constraints.
-- The first implementation is paper-only.
-- Tests cover at least one accepted and one rejected order.
-
 ### Container smoke test in CI
 
 Labels: `help wanted`, `ci`, `release`

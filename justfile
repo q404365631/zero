@@ -9,6 +9,9 @@ demo:
 example:
     cd examples/paper-trading && python3 run.py
 
+strategy-example:
+    cd examples/paper-trading && python3 strategy_demo.py
+
 engine-lint:
     cd engine && ruff check .
 
@@ -31,6 +34,7 @@ docs-check:
     test -f docs/release.md
     test -f docs/backlog.md
     test -f examples/paper-trading/run.py
+    test -f examples/paper-trading/strategy_demo.py
     test -f examples/paper-trading/scenario.json
     test -f examples/paper-trading/candles.jsonl
     test -f Dockerfile
@@ -49,4 +53,4 @@ lint: engine-lint cli-lint docs-check
 
 test: engine-test cli-test
 
-ci: lint test example
+ci: lint test example strategy-example

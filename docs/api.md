@@ -119,6 +119,41 @@ for paper examples.
 Loads newline-delimited JSON candles from disk. This is the public template for
 future adapters because it is deterministic, reviewable, and CI-friendly.
 
+## Strategy Plugins
+
+### `StrategySignal`
+
+Paper-only proposal object:
+
+- `symbol`
+- `side`
+- `confidence`
+- `quantity`
+- `reason`
+
+A signal is not a fill. It must be converted to an `OrderIntent` and submitted
+through `PaperEngine.submit`.
+
+### `Strategy`
+
+Protocol for paper strategies:
+
+- `name`
+- `propose(market, symbol)`
+
+Strategies receive a `MarketDataAdapter` and return either a `StrategySignal` or
+`None`.
+
+### `MomentumStrategy`
+
+Minimal deterministic template. It proposes a buy signal when the latest candle
+closes above its open by at least `min_move_pct`.
+
+### `propose_order(strategy, market, symbol)`
+
+Converts a strategy proposal into an `OrderIntent` priced at the latest candle
+close. The returned order still needs safety evaluation.
+
 ## Compatibility Rules
 
 - Additive fields are preferred over breaking changes.
