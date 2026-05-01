@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from time import time
 from typing import Callable
 
+from zero_engine.journal import DecisionJournal
 from zero_engine.models import OrderIntent, Position, RiskLimits
 from zero_engine.safety import RiskDecision, evaluate_order, projected_position
 
@@ -49,19 +50,21 @@ class PaperEngine:
     fills: list[Fill] = field(default_factory=list)
     rejections: list[tuple[OrderIntent, RiskDecision]] = field(default_factory=list)
     decisions: list[DecisionRecord] = field(default_factory=list)
+    journal: DecisionJournal | None = None
 
     def submit(self, intent: OrderIntent, source: str = "manual") -> RiskDecision:
         current = self.positions.get(intent.symbol)
         decision = evaluate_order(intent, self.limits, current)
         decided_at = self.clock()
-        self.decisions.append(
-            DecisionRecord(
-                intent=intent,
-                decision=decision,
-                as_of=decided_at,
-                source=source,
-            )
+        record = DecisionRecord(
+            intent=intent,
+            decision=decision,
+            as_of=decided_at,
+            source=source,
         )
+        self.decisions.append(record)
+        if self.journal is not None:
+            self.journal.append(record.to_dict())
         if not decision.allowed:
             self.rejections.append((intent, decision))
             return decision

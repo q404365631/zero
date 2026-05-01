@@ -12,6 +12,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Callable
 from urllib.parse import parse_qs, urlparse
 
+from zero_engine.journal import DecisionJournal
 from zero_engine.models import OrderIntent, Position, Side
 from zero_engine.paper import DecisionRecord, PaperEngine
 from zero_engine.safety import evaluate_order
@@ -63,6 +64,7 @@ class PaperApi:
             "/pulse": lambda: self.pulse(query),
             "/approaching": self.approaching,
             "/rejections": lambda: self.rejections(query),
+            "/journal": lambda: self.journal(query),
             "/operator/state": self.operator_state,
         }
         if path.startswith("/evaluate/"):
@@ -245,6 +247,14 @@ class PaperApi:
         ]
         return {"rejections": [rejection_to_wire(record) for record in records[-limit:]]}
 
+    def journal(self, query: dict[str, list[str]]) -> dict[str, Any]:
+        limit = int(first(query, "limit") or "50")
+        if self.state.engine.journal is not None:
+            decisions = self.state.engine.journal.tail(limit)
+        else:
+            decisions = [record.to_dict() for record in self.state.engine.decisions[-limit:]]
+        return {"decisions": decisions, "count": len(decisions)}
+
     def operator_state(self) -> dict[str, Any]:
         return {
             "label": "fresh",
@@ -410,8 +420,9 @@ def websocket_text_frame(text: str) -> bytes:
     return bytes([0x81, 127]) + length.to_bytes(8, "big") + payload
 
 
-def serve(host: str = "127.0.0.1", port: int = 8765) -> None:
-    server = ThreadingHTTPServer((host, port), make_handler(PaperApi()))
+def serve(host: str = "127.0.0.1", port: int = 8765, journal_path: str | None = None) -> None:
+    engine = PaperEngine(journal=DecisionJournal(journal_path)) if journal_path else PaperEngine()
+    server = ThreadingHTTPServer((host, port), make_handler(PaperApi(PaperApiState(engine=engine))))
     print(f"zero paper API listening on http://{host}:{port}", flush=True)
     server.serve_forever()
 
@@ -420,8 +431,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run the local ZERO paper engine API")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--journal", help="Append paper decisions to this JSONL journal")
     args = parser.parse_args()
-    serve(args.host, args.port)
+    serve(args.host, args.port, args.journal)
 
 
 if __name__ == "__main__":

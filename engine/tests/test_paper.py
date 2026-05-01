@@ -1,4 +1,5 @@
 from zero_engine.models import OrderIntent, RiskLimits, Side
+from zero_engine.journal import DecisionJournal
 from zero_engine.paper import PaperEngine
 
 
@@ -36,3 +37,20 @@ def test_paper_engine_records_source_in_decision_log() -> None:
     assert record["as_of"] == 123.0
     assert record["symbol"] == "BTC"
     assert record["allowed"] is True
+
+
+def test_paper_engine_appends_decision_journal(tmp_path) -> None:
+    journal = DecisionJournal(tmp_path / "decisions.jsonl")
+    engine = PaperEngine(limits=RiskLimits(max_notional_usd=100), clock=lambda: 456.0, journal=journal)
+
+    engine.submit(
+        OrderIntent("BTC", Side.BUY, quantity=0.01, price=40_000, confidence=0.9),
+        source="strategy:test",
+    )
+
+    records = journal.tail()
+    assert len(records) == 1
+    assert records[0]["as_of"] == 456.0
+    assert records[0]["source"] == "strategy:test"
+    assert records[0]["allowed"] is False
+    assert records[0]["reason"] == "order notional exceeds limit"

@@ -98,7 +98,7 @@ contract:
 
 - `GET /`, `/health`, `/v2/status`
 - `GET /positions`, `/risk`, `/brief`
-- `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`
+- `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
 - `GET /operator/state`
 - `POST /execute`
 - `POST /auto/toggle`
@@ -108,6 +108,11 @@ contract:
 with source `api:/execute`, and returns `simulated=true`. It honors the request
 idempotency key so repeated submissions with the same key do not create
 duplicate paper fills.
+
+`GET /journal?limit=50` returns the most recent paper decisions in the same
+shape as `DecisionRecord.to_dict()`. When `zero-paper-api --journal PATH` is
+used, records are read from the append-only JSONL journal at `PATH`; otherwise
+the endpoint returns the in-memory decision log for the current process.
 
 ### Contract Fixtures
 

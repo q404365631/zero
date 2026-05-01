@@ -13,7 +13,17 @@ Intelligence, not automation.
 
 ### Install
 
-**From source (the only install path that exists today):**
+**Latest release binary:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zero-intel/zero/main/scripts/install.sh | bash
+```
+
+The installer downloads the latest GitHub Release asset for your OS, verifies
+`SHA256SUMS`, verifies the GitHub artifact attestation with `gh`, and installs
+`zero` to `~/.local/bin` by default.
+
+**From source:**
 
 ```bash
 git clone https://github.com/zero-intel/zero.git
@@ -23,8 +33,8 @@ cargo install --path crates/zero --profile release-small
 
 This builds the size-optimised binary (~4.2 MB on
 darwin-arm64) and puts it on your `PATH` at
-`~/.cargo/bin/zero`. Homebrew tap and prebuilt release
-binaries are not yet published; they will land with M2.
+`~/.cargo/bin/zero`. Homebrew and package-registry installs
+are not published yet.
 
 Rust toolchain: `rustc` 1.88+ (pinned in `rust-toolchain.toml`).
 

@@ -28,8 +28,14 @@ The local paper API listens on `http://127.0.0.1:8765` by default and
 exposes the paper-mode subset of the engine contract used by the Rust CLI:
 `/`, `/health`, `/v2/status`, `/positions`, `/risk`, `/brief`,
 `/regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`,
-`/operator/state`, `POST /execute`, `POST /auto/toggle`, and
+`/journal`, `/operator/state`, `POST /execute`, `POST /auto/toggle`, and
 `POST /operator/events`.
+
+For a replayable local audit log, pass a JSONL journal path:
+
+```bash
+zero-paper-api --journal .zero/decisions.jsonl
+```
 
 Paper execution example:
 

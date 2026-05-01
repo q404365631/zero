@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from zero_engine.api import PaperApi, PaperApiState, websocket_accept_key, websocket_text_frame
+from zero_engine.journal import DecisionJournal
 from zero_engine.paper import PaperEngine
 
 
@@ -85,6 +86,24 @@ def test_paper_api_rejections_feed_matches_cli_contract() -> None:
     assert rejections_status == 200
     assert rejections["rejections"][0]["coin"] == "BTC"
     assert rejections["rejections"][0]["stage"] == "risk"
+
+
+def test_paper_api_journal_reads_persisted_decisions(tmp_path) -> None:
+    journal = DecisionJournal(tmp_path / "decisions.jsonl")
+    api = PaperApi(PaperApiState(engine=PaperEngine(clock=lambda: FIXED_TS, journal=journal)))
+
+    execute_status, _ = api.post(
+        "/execute",
+        {"coin": "BTC", "side": "buy", "size": 0.01, "idempotency_key": "journal-fill"},
+    )
+    journal_status, payload = api.get("/journal", {"limit": ["10"]})
+
+    assert execute_status == 200
+    assert journal_status == 200
+    assert payload["count"] == 1
+    assert payload["decisions"][0]["symbol"] == "BTC"
+    assert payload["decisions"][0]["source"] == "api:/execute"
+    assert payload["decisions"][0]["allowed"] is True
 
 
 def test_paper_api_matches_shared_contract_fixtures() -> None:
