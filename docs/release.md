@@ -50,3 +50,16 @@ Target launch artifacts:
 
 The first public release may ship source-only if the quickstart is reliable and
 the limitation is called out clearly.
+
+## Current Automation
+
+`.github/workflows/release.yml` runs on tags shaped like `v*.*.*` and builds:
+
+- Python wheel and source distribution for `engine/`
+- Linux and macOS CLI binaries for the `zero` crate
+- Paper-mode Docker image smoke tests
+
+The workflow uploads artifacts to the GitHub Actions run. It does not publish to
+PyPI, crates.io, Homebrew, Docker Hub, or GitHub Releases yet. Publishing should
+be added only after repository ownership, package names, signing, and token
+permissions are finalized.

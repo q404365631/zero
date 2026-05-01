@@ -82,3 +82,19 @@ Ignored local state includes:
 
 Do not commit generated state, local credentials, runtime databases, or exchange
 material.
+
+## Container Path
+
+The container path is also paper-only:
+
+```bash
+docker build -t zero-public:local .
+docker run --rm zero-public:local
+docker run --rm zero-public:local python /app/examples/paper-trading/run.py
+```
+
+With Compose:
+
+```bash
+docker compose run --rm zero-paper-example
+```

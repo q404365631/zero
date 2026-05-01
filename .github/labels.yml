@@ -1,0 +1,36 @@
+- name: good first issue
+  color: "7057ff"
+  description: Small, well-scoped task suitable for a first contribution.
+- name: help wanted
+  color: "008672"
+  description: Maintainers want community help on this.
+- name: needs triage
+  color: "ededed"
+  description: Needs maintainer review before work starts.
+- name: safety
+  color: "b60205"
+  description: Touches execution, risk, credentials, or operator friction.
+- name: engine
+  color: "1d76db"
+  description: Python engine runtime.
+- name: cli
+  color: "0e8a16"
+  description: Rust operator terminal.
+- name: docs
+  color: "0075ca"
+  description: Documentation.
+- name: examples
+  color: "d4c5f9"
+  description: Examples, templates, and demos.
+- name: ci
+  color: "cfd3d7"
+  description: Continuous integration and repository automation.
+- name: release
+  color: "fbca04"
+  description: Release packaging, artifacts, or versioning.
+- name: bug
+  color: "d73a4a"
+  description: Something is not working as intended.
+- name: enhancement
+  color: "a2eeef"
+  description: New feature or improvement.

@@ -1,0 +1,16 @@
+services:
+  zero-paper:
+    build:
+      context: .
+    image: zero-public:local
+    environment:
+      ZERO_MODE: paper
+    command: ["zero-paper-demo"]
+
+  zero-paper-example:
+    build:
+      context: .
+    image: zero-public:local
+    environment:
+      ZERO_MODE: paper
+    command: ["python", "/app/examples/paper-trading/run.py"]

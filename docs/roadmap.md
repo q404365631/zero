@@ -5,6 +5,7 @@
 - Clean public engine source
 - Clean public CLI source
 - Paper-trading demo
+- Containerized paper demo
 - Strict CI
 - Security scans
 - Contributor docs
@@ -22,4 +23,3 @@
 ## Commercial Boundary
 
 ZERO Cloud will add hosted teams, managed deployment, premium connectors, model gateway, audit exports, and support.
-

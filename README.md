@@ -41,6 +41,12 @@ just example
 
 The first public demo runs in paper mode and requires no exchange private key.
 
+Container path:
+
+```bash
+docker compose run --rm zero-paper-example
+```
+
 ## Repository Layout
 
 ```text
@@ -85,6 +91,7 @@ Read [docs/safety-model.md](docs/safety-model.md) before adding execution or ris
 - [API contract](docs/api.md)
 - [Open-core boundary](docs/open-core-boundary.md)
 - [Release process](docs/release.md)
+- [Launch backlog](docs/backlog.md)
 - [Roadmap](docs/roadmap.md)
 
 ## Contributing

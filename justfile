@@ -29,7 +29,19 @@ docs-check:
     test -f docs/api.md
     test -f docs/open-core-boundary.md
     test -f docs/release.md
+    test -f docs/backlog.md
     test -f examples/paper-trading/run.py
+    test -f Dockerfile
+    test -f compose.yaml
+
+container-build:
+    docker build -t zero-public:local .
+
+container-demo: container-build
+    docker run --rm zero-public:local
+
+container-example: container-build
+    docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
 lint: engine-lint cli-lint docs-check
 
