@@ -71,6 +71,12 @@ cargo run -p zero -- --api http://127.0.0.1:8765 doctor
 cargo run -p zero -- --api http://127.0.0.1:8765 run status
 ```
 
+The same integration check is available as:
+
+```bash
+just paper-api-smoke
+```
+
 ## Rust CLI
 
 ```bash

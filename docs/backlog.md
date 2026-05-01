@@ -5,44 +5,45 @@ opening the repository.
 
 ## Good First Issues
 
-### Improve paper example README output section
+### Improve local paper API output docs
+
+Labels: `good first issue`, `docs`, `api`
+
+Add a short "Expected output" section for `just paper-api-smoke` to
+`docs/local-development.md`. Use abbreviated terminal output, not a long
+transcript.
+
+Acceptance:
+
+- The docs show a healthy `zero doctor` row.
+- The docs show `run status` reading from `http://127.0.0.1:8765`.
+- The docs mention that the auth warning is expected without a token.
+
+### Add paper API examples for `/execute`
 
 Labels: `good first issue`, `docs`, `examples`
 
-Add a short "Expected output" section to `examples/paper-trading/README.md`.
-Use abbreviated JSON, not a long transcript.
+Add a small `curl` example for `POST /execute` to the engine README.
 
 Acceptance:
 
-- The README explains fills, rejections, and reduce-only behavior.
-- The example command remains `just example`.
-
-### Add CLI quickstart link from root README
-
-Labels: `good first issue`, `cli`, `docs`
-
-Make the CLI quickstart easier to find from the root README without duplicating
-the long CLI README.
-
-Acceptance:
-
-- Root README links to `cli/README.md`.
-- No CLI behavior changes.
+- The example uses paper mode only.
+- The example includes an idempotency key.
+- The example explains that `simulated=true` is the expected result.
 
 ## Help Wanted
 
-### Container smoke test in CI
+### Release artifact checksums
 
-Labels: `help wanted`, `ci`, `release`
+Labels: `help wanted`, `release`, `security`
 
-Add a CI job that builds the public Docker image and runs the paper example in
-the container.
+Generate SHA-256 checksum files for release workflow artifacts.
 
 Acceptance:
 
-- The job does not publish an image.
-- The job runs only paper mode.
-- The job fails if the example exits non-zero.
+- Python package, CLI binary, and container artifact outputs have checksums.
+- Checksums are uploaded beside the artifacts.
+- Release docs explain how to verify them.
 
 ## Maintainer Tasks
 

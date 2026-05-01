@@ -94,6 +94,7 @@ Read [docs/safety-model.md](docs/safety-model.md) before adding execution or ris
 
 ## Docs
 
+- [CLI operator terminal](cli/README.md)
 - [Architecture](docs/architecture.md)
 - [Safety model](docs/safety-model.md)
 - [Local development](docs/local-development.md)

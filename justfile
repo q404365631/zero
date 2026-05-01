@@ -15,6 +15,9 @@ strategy-example:
 paper-api:
     cd engine && python3 -m zero_engine.api
 
+paper-api-smoke:
+    scripts/paper_api_smoke.sh
+
 engine-lint:
     cd engine && ruff check .
 
@@ -56,4 +59,9 @@ lint: engine-lint cli-lint docs-check
 
 test: engine-test cli-test
 
-ci: lint test example strategy-example
+container-smoke:
+    docker build -t zero-public:local .
+    docker run --rm zero-public:local
+    docker run --rm zero-public:local python /app/examples/paper-trading/run.py
+
+ci: lint test paper-api-smoke example strategy-example

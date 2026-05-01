@@ -73,3 +73,30 @@ jobs:
       - name: Run paper example
         working-directory: examples/paper-trading
         run: python run.py
+
+  paper-api-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install engine
+        working-directory: engine
+        run: python -m pip install -e ".[dev]"
+      - name: Rust toolchain
+        run: rustup show
+      - name: Smoke local paper API through CLI
+        run: scripts/paper_api_smoke.sh
+
+  container-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build paper image
+        run: docker build -t zero-public:ci .
+      - name: Run paper demo
+        run: docker run --rm zero-public:ci
+      - name: Run paper example
+        run: docker run --rm zero-public:ci python /app/examples/paper-trading/run.py
