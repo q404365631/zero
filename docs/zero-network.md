@@ -36,8 +36,8 @@ credentials to ZERO.
 }
 ```
 
-`GET /network/leaderboard` returns `zero.network.leaderboard.v1` with rows
-derived from the local profile.
+`GET /network/leaderboard` returns `zero.network.leaderboard.v1` with ranked
+rows derived from the same redacted profile format.
 
 `POST /network/publish` requires explicit consent and a local publish path:
 
@@ -56,6 +56,28 @@ The public runtime writes a JSONL proof packet to the configured local path. It
 does not upload to a ZERO-hosted service. A future hosted Network ingestion API
 can consume the same packet without changing the local privacy contract.
 
+## Public Leaderboard Builder
+
+The public repository includes a deterministic builder that turns already
+redacted `zero.network.profile.v1` JSONL packets into
+`zero.network.leaderboard.v1`:
+
+```bash
+just network-leaderboard-example
+```
+
+The builder:
+
+- accepts public profile packets only;
+- rejects malformed rows and mismatched proof hashes;
+- ranks deterministically by verification score, decisions, rejection rate, and
+  handle;
+- emits only public-safe row fields;
+- never reads raw journals, symbols, trace IDs, idempotency keys, wallet
+  addresses, exchange order IDs, or private notes.
+
+See [examples/network-leaderboard](../examples/network-leaderboard).
+
 ## Verification Badges
 
 - `paper_verified`: aggregate paper behavior was observed.
@@ -71,7 +93,9 @@ than PnL screenshots. It is a proof-of-process surface, not financial advice.
 
 The leaderboard row includes:
 
+- rank;
 - handle;
+- display name;
 - mode;
 - decision count;
 - rejection rate;

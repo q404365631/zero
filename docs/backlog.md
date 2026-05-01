@@ -47,6 +47,22 @@ Acceptance:
 - The example command remains `just example`.
 - The output summary stays deterministic and paper-only.
 
+### Add a static ZERO Network profile page
+
+Labels: `good first issue`, `network`, `frontend`, `docs`
+
+Add a static HTML or markdown profile page generated from a redacted
+`zero.network.profile.v1` packet and link it from
+[ZERO Network docs](zero-network.md).
+
+Acceptance:
+
+- The page uses `contracts/network/profile.json` or a public profile fixture.
+- The page shows badges, aggregate counts, and proof hash only.
+- The page does not render raw decisions, symbols, trace IDs, wallet addresses,
+  exchange order IDs, or private notes.
+- The generator is deterministic and runs without network access.
+
 ### Add Docker daemon troubleshooting note
 
 Labels: `good first issue`, `docs`, `containers`

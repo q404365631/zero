@@ -42,3 +42,21 @@ def test_strategy_plugin_example_runs_from_repo_root() -> None:
     assert payload["allowed"] is True
     assert payload["fills"] == 1
     assert payload["decisions"][0]["source"] == "strategy-plugin:close-strength"
+
+
+def test_network_leaderboard_example_runs_from_repo_root() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    result = subprocess.run(
+        [sys.executable, "examples/network-leaderboard/build.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    payload = json.loads(result.stdout)
+    assert payload["schema_version"] == "zero.network.leaderboard.v1"
+    assert payload["row_count"] == 3
+    assert payload["rows"][0]["rank"] == 1
+    assert payload["rows"][0]["handle"] == "zero_alpha"
+    assert payload["rows"][0]["verification_score"] == 70.5

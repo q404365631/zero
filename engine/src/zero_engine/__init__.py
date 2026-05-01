@@ -17,7 +17,13 @@ from zero_engine.market import (
     validate_market_data_adapter,
 )
 from zero_engine.models import OrderIntent, Position, RiskLimits, Side
-from zero_engine.network import PublicProfileConfig, public_profile, publish_profile
+from zero_engine.network import (
+    PublicProfileConfig,
+    load_public_profiles,
+    public_leaderboard,
+    public_profile,
+    publish_profile,
+)
 from zero_engine.paper import DecisionRecord, PaperEngine, RecoveryState
 from zero_engine.plugins import (
     StrategyPlugin,
@@ -60,10 +66,12 @@ __all__ = [
     "intelligence_catalog",
     "intelligence_snapshot",
     "latest_close",
+    "load_public_profiles",
     "load_scenario",
     "parse_scenario",
     "propose_plugin_order",
     "propose_order",
+    "public_leaderboard",
     "public_profile",
     "publish_profile",
     "validate_strategy_plugin",

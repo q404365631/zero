@@ -2,10 +2,17 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
+from pathlib import Path
 
+import pytest
 from zero_engine.api import PaperApi, PaperApiState
 from zero_engine.journal import DecisionJournal
-from zero_engine.network import PublicProfileConfig, public_profile
+from zero_engine.network import (
+    PublicProfileConfig,
+    load_public_profiles,
+    public_leaderboard,
+    public_profile,
+)
 from zero_engine.paper import PaperEngine
 
 FIXED_DT = datetime(2026, 5, 1, tzinfo=UTC)
@@ -76,6 +83,8 @@ def test_network_leaderboard_uses_same_public_proof(tmp_path) -> None:
     assert profile_status == 200
     assert leaderboard_status == 200
     assert leaderboard["schema_version"] == "zero.network.leaderboard.v1"
+    assert leaderboard["row_count"] == 1
+    assert leaderboard["rows"][0]["rank"] == 1
     assert leaderboard["rows"][0]["handle"] == "zero_test"
     assert leaderboard["rows"][0]["proof_hash"] == profile["verification"]["proof_hash"]
     assert leaderboard["rows"][0]["decisions"] == 2
@@ -130,3 +139,46 @@ def test_public_profile_rejects_invalid_handles() -> None:
         assert "network handle" in str(exc)
     else:
         raise AssertionError("invalid handle should fail")
+
+
+def test_public_leaderboard_ranks_redacted_profiles(tmp_path) -> None:
+    first = seed_api(tmp_path / "first").network_profile()
+    second = seed_api(tmp_path / "second").network_profile()
+    second["profile"]["handle"] = "zero_alpha"
+    second["profile"]["display_name"] = "ZERO Alpha"
+    second["leaderboard_row"]["handle"] = "zero_alpha"
+    second["leaderboard_row"]["decisions"] = 8
+    second["leaderboard_row"]["verification_score"] = 24
+    second["verification"]["proof_hash"] = "sha256:alpha"
+    second["leaderboard_row"]["proof_hash"] = "sha256:alpha"
+
+    leaderboard = public_leaderboard(
+        [first, second],
+        generated_at=FIXED_DT.isoformat(),
+    )
+
+    assert leaderboard["schema_version"] == "zero.network.leaderboard.v1"
+    assert leaderboard["row_count"] == 2
+    assert leaderboard["rows"][0]["rank"] == 1
+    assert leaderboard["rows"][0]["handle"] == "zero_alpha"
+    assert leaderboard["rows"][1]["rank"] == 2
+    assert leaderboard["rows"][1]["handle"] == "zero_test"
+
+
+def test_public_leaderboard_rejects_unsafe_profile(tmp_path) -> None:
+    profile = seed_api(tmp_path).network_profile()
+    profile["debug"] = {"idempotency_key": "must-not-leak"}
+
+    with pytest.raises(ValueError, match="forbidden token"):
+        public_leaderboard([profile], generated_at=FIXED_DT.isoformat())
+
+
+def test_network_leaderboard_example_profiles_load_from_jsonl() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    profiles = load_public_profiles(repo_root / "examples/network-leaderboard/profiles.jsonl")
+    leaderboard = public_leaderboard(profiles, generated_at=FIXED_DT.isoformat())
+
+    assert leaderboard["row_count"] == 3
+    assert leaderboard["rows"][0]["rank"] == 1
+    assert leaderboard["rows"][0]["handle"] == "zero_alpha"
+    assert leaderboard["rows"][0]["proof_hash"].startswith("sha256:")

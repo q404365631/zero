@@ -1,0 +1,31 @@
+{
+  "generated_at": "2026-05-01T00:00:00+00:00",
+  "privacy": {
+    "default": "private",
+    "publication": "opt-in"
+  },
+  "row_count": 1,
+  "rows": [
+    {
+      "decisions": 12,
+      "display_name": "ZERO Local",
+      "handle": "zero_local",
+      "mode": "paper",
+      "open_positions": 0,
+      "proof_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "rank": 1,
+      "rejection_rate": 0.9167,
+      "verification_score": 28.5
+    }
+  ],
+  "rules": {
+    "purpose": "proof-of-process, not financial advice",
+    "ranking": [
+      "verification_score desc",
+      "decisions desc",
+      "rejection_rate desc",
+      "handle asc"
+    ]
+  },
+  "schema_version": "zero.network.leaderboard.v1"
+}

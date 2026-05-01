@@ -30,6 +30,21 @@ Acceptance:
 - The note keeps the container path paper-only.
 - The note does not weaken CI expectations.
 
+## Good First Issue: Add Static ZERO Network Profile Page
+
+Labels: `good first issue`, `network`, `frontend`, `docs`
+
+Add a deterministic static page generated from a redacted
+`zero.network.profile.v1` packet.
+
+Acceptance:
+
+- The page uses `contracts/network/profile.json` or a public profile fixture.
+- The page shows badges, aggregate counts, and proof hash only.
+- The page does not render raw decisions, symbols, trace IDs, wallet addresses,
+  exchange order IDs, or private notes.
+- The generator runs without network access.
+
 ## Help Wanted: Homebrew Tap
 
 Labels: `help wanted`, `release`, `cli`, `packaging`

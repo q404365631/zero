@@ -1,0 +1,50 @@
+{
+  "generated_at": "2026-05-01T00:00:00+00:00",
+  "leaderboard_row": {
+    "decisions": 12,
+    "handle": "zero_local",
+    "mode": "paper",
+    "open_positions": 0,
+    "proof_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "rejection_rate": 0.9167,
+    "verification_score": 28.5
+  },
+  "metrics": {
+    "acceptance_rate": 0.0833,
+    "decisions": 12,
+    "fills": 1,
+    "journal_durable": true,
+    "live_execution_count": 0,
+    "open_positions": 0,
+    "rejection_rate": 0.9167,
+    "rejections": 11,
+    "total_notional_usd": 405.0
+  },
+  "mode": "paper",
+  "privacy": {
+    "default": "private",
+    "publication": "opt-in"
+  },
+  "profile": {
+    "display_name": "ZERO Local",
+    "handle": "zero_local",
+    "publish_enabled": true
+  },
+  "schema_version": "zero.network.profile.v1",
+  "verification": {
+    "badges": [
+      {
+        "evidence": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "name": "paper_verified",
+        "status": "verified"
+      },
+      {
+        "evidence": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "name": "durable_journal",
+        "status": "verified"
+      }
+    ],
+    "proof_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "status": "verified"
+  }
+}

@@ -31,7 +31,12 @@ from zero_engine.intelligence import (
 from zero_engine.journal import DecisionJournal
 from zero_engine.live import HyperliquidSdkAdapter, LiveExecutionPolicy, LiveExecutor
 from zero_engine.models import OrderIntent, Position, Side
-from zero_engine.network import PublicProfileConfig, public_profile, publish_profile
+from zero_engine.network import (
+    PublicProfileConfig,
+    public_leaderboard,
+    public_profile,
+    publish_profile,
+)
 from zero_engine.paper import DecisionRecord, PaperEngine
 from zero_engine.safety import evaluate_order
 
@@ -761,11 +766,8 @@ class PaperApi:
     def network_leaderboard(self) -> dict[str, Any]:
         profile = self.network_profile()
         return {
-            "schema_version": "zero.network.leaderboard.v1",
-            "generated_at": self.state.now_iso(),
+            **public_leaderboard([profile], generated_at=self.state.now_iso()),
             "mode": profile["mode"],
-            "rows": [profile["leaderboard_row"]],
-            "privacy": profile["privacy"],
         }
 
     def network_publish(self, payload: dict[str, Any]) -> dict[str, Any]:

@@ -19,6 +19,7 @@
 - Railway deployment template
 - Docker Compose local demo
 - OpenAPI contract hardening and compatibility checks
+- Static ZERO Network leaderboard builder
 - Public examples
 - Hosted public profile and leaderboard pages
 - Hosted ZERO Intelligence ingestion and billing

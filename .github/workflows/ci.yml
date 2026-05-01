@@ -59,6 +59,8 @@ jobs:
           test -f contracts/paper-api/v2_status.json
           test -f contracts/paper-api/execute_accepted.json
           test -f contracts/paper-api/execute_rejected.json
+          test -f contracts/network/profile.json
+          test -f contracts/network/leaderboard.json
           test -f contracts/intelligence/snapshot.json
           test -f contracts/intelligence/catalog.json
           test -f examples/strategy-plugin/README.md
@@ -67,6 +69,9 @@ jobs:
           test -f examples/market-data-adapter/README.md
           test -f examples/market-data-adapter/adapter.py
           test -f examples/market-data-adapter/run.py
+          test -f examples/network-leaderboard/README.md
+          test -f examples/network-leaderboard/build.py
+          test -f examples/network-leaderboard/profiles.jsonl
           test -f openapi/zero-paper-api.v1.yaml
           test -x scripts/assemble_release_assets.sh
           test -x scripts/install.sh
@@ -111,6 +116,20 @@ jobs:
         run: |
           PYTHONPATH="$PWD/engine/src:$PWD/examples/market-data-adapter" \
             python3 examples/market-data-adapter/run.py
+
+  network-leaderboard-example:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install engine
+        working-directory: engine
+        run: python -m pip install -e ".[dev]"
+      - name: Build network leaderboard example
+        run: PYTHONPATH="$PWD/engine/src" python3 examples/network-leaderboard/build.py
 
   cli:
     runs-on: ubuntu-latest

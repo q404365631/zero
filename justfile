@@ -18,6 +18,9 @@ strategy-plugin-example:
 market-data-adapter-example:
     PYTHONPATH="$PWD/engine/src:$PWD/examples/market-data-adapter" python3 examples/market-data-adapter/run.py
 
+network-leaderboard-example:
+    PYTHONPATH="$PWD/engine/src" python3 examples/network-leaderboard/build.py
+
 paper-api:
     cd engine && python3 -m zero_engine.api
 
@@ -88,9 +91,14 @@ docs-check:
     test -f examples/market-data-adapter/README.md
     test -f examples/market-data-adapter/adapter.py
     test -f examples/market-data-adapter/run.py
+    test -f examples/network-leaderboard/README.md
+    test -f examples/network-leaderboard/build.py
+    test -f examples/network-leaderboard/profiles.jsonl
     test -f contracts/paper-api/v2_status.json
     test -f contracts/paper-api/execute_accepted.json
     test -f contracts/paper-api/execute_rejected.json
+    test -f contracts/network/profile.json
+    test -f contracts/network/leaderboard.json
     test -f contracts/intelligence/snapshot.json
     test -f contracts/intelligence/catalog.json
     test -f openapi/zero-paper-api.v1.yaml
@@ -126,4 +134,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke example strategy-example strategy-plugin-example market-data-adapter-example package-dry-run
+ci: lint test paper-api-smoke example strategy-example strategy-plugin-example market-data-adapter-example network-leaderboard-example package-dry-run

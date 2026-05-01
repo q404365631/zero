@@ -10,6 +10,8 @@ from typing import Any
 from zero_engine.paper import PaperEngine
 
 HANDLE_RE = re.compile(r"^[a-zA-Z0-9_-]{3,32}$")
+PROFILE_SCHEMA_VERSION = "zero.network.profile.v1"
+LEADERBOARD_SCHEMA_VERSION = "zero.network.leaderboard.v1"
 
 
 @dataclass(frozen=True)
@@ -43,7 +45,7 @@ def public_profile(
     }
     proof_hash = sha256_json(proof_payload)
     profile = {
-        "schema_version": "zero.network.profile.v1",
+        "schema_version": PROFILE_SCHEMA_VERSION,
         "generated_at": generated_at,
         "mode": mode,
         "profile": {
@@ -134,6 +136,65 @@ def leaderboard_row(
     }
 
 
+def public_leaderboard(
+    profiles: list[dict[str, Any]] | tuple[dict[str, Any], ...],
+    *,
+    generated_at: str,
+    limit: int = 100,
+) -> dict[str, Any]:
+    if limit <= 0:
+        raise ValueError("leaderboard limit must be positive")
+    rows = [_public_leaderboard_row(profile) for profile in profiles]
+    rows.sort(
+        key=lambda row: (
+            -float(row["verification_score"]),
+            -int(row["decisions"]),
+            -float(row["rejection_rate"]),
+            str(row["handle"]),
+        )
+    )
+    ranked_rows = [
+        {
+            "rank": index,
+            **row,
+        }
+        for index, row in enumerate(rows[:limit], start=1)
+    ]
+    payload = {
+        "schema_version": LEADERBOARD_SCHEMA_VERSION,
+        "generated_at": generated_at,
+        "row_count": len(ranked_rows),
+        "rows": ranked_rows,
+        "rules": {
+            "ranking": [
+                "verification_score desc",
+                "decisions desc",
+                "rejection_rate desc",
+                "handle asc",
+            ],
+            "purpose": "proof-of-process, not financial advice",
+        },
+        "privacy": privacy_policy(),
+    }
+    assert_public_profile_safe(payload)
+    return payload
+
+
+def load_public_profiles(path: str | Path) -> tuple[dict[str, Any], ...]:
+    profiles = []
+    with Path(path).open(encoding="utf-8") as fh:
+        for line_number, line in enumerate(fh, start=1):
+            stripped = line.strip()
+            if not stripped:
+                continue
+            profile = json.loads(stripped)
+            if not isinstance(profile, dict):
+                raise ValueError(f"profile log line {line_number} must be a JSON object")
+            _public_leaderboard_row(profile)
+            profiles.append(profile)
+    return tuple(profiles)
+
+
 def publish_profile(
     profile: dict[str, Any],
     *,
@@ -213,3 +274,31 @@ def assert_public_profile_safe(payload: dict[str, Any]) -> None:
 def sha256_json(payload: dict[str, Any]) -> str:
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def _public_leaderboard_row(profile: dict[str, Any]) -> dict[str, Any]:
+    if profile.get("schema_version") != PROFILE_SCHEMA_VERSION:
+        raise ValueError("public profile schema_version must be zero.network.profile.v1")
+    assert_public_profile_safe(profile)
+
+    row = profile.get("leaderboard_row")
+    if not isinstance(row, dict):
+        raise ValueError("public profile missing leaderboard_row")
+
+    handle = str(profile.get("profile", {}).get("handle", ""))
+    proof_hash = str(profile.get("verification", {}).get("proof_hash", ""))
+    if row.get("handle") != handle:
+        raise ValueError("leaderboard row handle must match profile handle")
+    if row.get("proof_hash") != proof_hash:
+        raise ValueError("leaderboard row proof_hash must match profile proof_hash")
+
+    return {
+        "handle": handle,
+        "display_name": str(profile.get("profile", {}).get("display_name") or handle),
+        "mode": str(row.get("mode", profile.get("mode", "paper"))),
+        "decisions": int(row.get("decisions", 0)),
+        "rejection_rate": float(row.get("rejection_rate", 0.0)),
+        "open_positions": int(row.get("open_positions", 0)),
+        "verification_score": float(row.get("verification_score", 0.0)),
+        "proof_hash": proof_hash,
+    }
