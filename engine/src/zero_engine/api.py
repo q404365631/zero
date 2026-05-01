@@ -5,6 +5,7 @@ import base64
 import hashlib
 import json
 import os
+import sys
 import time
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -22,6 +23,7 @@ from zero_engine.hyperliquid import (
     validate_dry_run_order,
 )
 from zero_engine.journal import DecisionJournal
+from zero_engine.live import HyperliquidSdkAdapter, LiveExecutionPolicy, LiveExecutor
 from zero_engine.models import OrderIntent, Position, Side
 from zero_engine.paper import DecisionRecord, PaperEngine
 from zero_engine.safety import evaluate_order
@@ -133,6 +135,7 @@ class PaperApiState:
     live_api_private_key: str | None = None
     live_kill_switch_path: str | None = None
     live_dead_man_timeout_s: float = 30.0
+    live_executor: LiveExecutor | None = None
 
     def __post_init__(self) -> None:
         if self.execution_cache:
@@ -287,10 +290,11 @@ class PaperApi:
         payload: dict[str, Any],
         trace_id: str | None = None,
         expose_trace: bool = False,
+        mode: str | None = None,
     ) -> tuple[int, dict[str, Any]]:
         trace_id = trace_id or self.state.next_trace_id("POST", path)
         started = time.perf_counter()
-        status, response = self._post(path, payload, trace_id, expose_trace=expose_trace)
+        status, response = self._post(path, payload, trace_id, expose_trace=expose_trace, mode=mode)
         self.state.record_request(
             method="POST",
             path=path,
@@ -307,9 +311,16 @@ class PaperApi:
         trace_id: str,
         *,
         expose_trace: bool = False,
+        mode: str | None = None,
     ) -> tuple[int, dict[str, Any]]:
         if path == "/execute":
             try:
+                if mode == "live":
+                    return HTTPStatus.OK, self.live_execute(
+                        payload,
+                        trace_id=trace_id,
+                        expose_trace=expose_trace,
+                    )
                 return HTTPStatus.OK, self.execute(
                     payload,
                     trace_id=trace_id,
@@ -334,6 +345,16 @@ class PaperApi:
                 "snapshot": self.operator_state(),
                 **({"trace_id": trace_id} if expose_trace else {}),
             }
+        if path == "/live/heartbeat":
+            return HTTPStatus.OK, self.live_heartbeat()
+        if path == "/live/pause":
+            return HTTPStatus.OK, self.live_pause()
+        if path == "/live/resume":
+            return HTTPStatus.OK, self.live_resume()
+        if path == "/live/kill":
+            return HTTPStatus.OK, self.live_kill()
+        if path == "/live/flatten":
+            return HTTPStatus.OK, self.live_flatten(trace_id=trace_id)
         return HTTPStatus.NOT_FOUND, {"error": "not found", "path": path}
 
     def root(self) -> dict[str, Any]:
@@ -383,10 +404,15 @@ class PaperApi:
         wallet_ok = bool(wallet and is_hex_address(wallet))
         key_ok = is_private_key(private_key)
 
+        live_executor_ready = (
+            self.state.live_executor is not None
+            and self.state.live_executor.enabled
+            and not self.state.live_executor.dead_man_expired()
+        )
         add(
             "live_executor",
-            "fail",
-            "public runtime is paper-only until Cycle 8 live execution ships",
+            "ok" if live_executor_ready else "fail",
+            "live executor configured" if live_executor_ready else "live executor not configured",
         )
         add(
             "wallet_address",
@@ -457,7 +483,7 @@ class PaperApi:
             "schema_version": "zero.live_preflight.v1",
             "generated_at": self.state.now_iso(),
             "exchange": "hyperliquid",
-            "mode": "paper",
+            "mode": "paper" if self.state.live_executor is None else "live-capable",
             "ready": ready,
             "live_mode": "ready" if ready else "refused",
             "controls_ready": controls_ready,
@@ -795,6 +821,65 @@ class PaperApi:
             self.state.execution_cache[key] = response
         return response
 
+    def live_execute(
+        self,
+        payload: dict[str, Any],
+        trace_id: str | None = None,
+        *,
+        expose_trace: bool = False,
+    ) -> dict[str, Any]:
+        key = str(payload.get("idempotency_key") or trace_id or "")
+        symbol = str(payload.get("coin") or "").upper()
+        side = Side(str(payload.get("side") or "").lower())
+        quantity = float(payload.get("size") or 0)
+        quote = self.state.quote_for(symbol)
+        intent = OrderIntent(symbol, side, quantity=quantity, price=quote.price, confidence=0.9)
+        executor = self.state.live_executor
+        if executor is None:
+            self.state.metrics.record_execute(accepted=False)
+            return live_response(
+                accepted=False,
+                reason="live executor not configured",
+                intent=intent,
+                key=key,
+                trace_id=trace_id if expose_trace else None,
+            )
+        record = executor.submit(intent, idempotency_key=key, trace_id=trace_id)
+        self.state.metrics.record_execute(accepted=record.accepted)
+        return live_response_from_record(record, include_trace=expose_trace)
+
+    def live_heartbeat(self) -> dict[str, Any]:
+        if self.state.live_executor is None:
+            return {"ok": False, "reason": "live executor not configured"}
+        return self.state.live_executor.heartbeat()
+
+    def live_pause(self) -> dict[str, Any]:
+        if self.state.live_executor is None:
+            return {"ok": False, "reason": "live executor not configured"}
+        return self.state.live_executor.pause()
+
+    def live_resume(self) -> dict[str, Any]:
+        if self.state.live_executor is None:
+            return {"ok": False, "reason": "live executor not configured"}
+        return self.state.live_executor.resume()
+
+    def live_kill(self) -> dict[str, Any]:
+        if self.state.live_executor is None:
+            return {"ok": False, "reason": "live executor not configured"}
+        return self.state.live_executor.kill()
+
+    def live_flatten(self, trace_id: str | None = None) -> dict[str, Any]:
+        if self.state.live_executor is None:
+            return {"ok": False, "reason": "live executor not configured", "orders": []}
+        prices = {symbol: self.state.quote_for(symbol).price for symbol in self.state.engine.positions}
+        records = self.state.live_executor.flatten(
+            self.state.engine.positions,
+            prices,
+            idempotency_prefix=f"flatten-{self.state.next_trace_id('POST', '/live/flatten')}",
+            trace_id=trace_id,
+        )
+        return {"ok": True, "orders": [live_response_from_record(record) for record in records]}
+
     def coins_tradeable(self) -> int:
         if not self.state.use_live_hyperliquid_prices:
             return len(self.state.prices)
@@ -850,6 +935,47 @@ def execute_response_from_record(
     return payload
 
 
+def live_response(
+    *,
+    accepted: bool,
+    reason: str,
+    intent: OrderIntent,
+    key: str,
+    trace_id: str | None = None,
+) -> dict[str, Any]:
+    payload = {
+        "accepted": accepted,
+        "simulated": False,
+        "fill_id": None,
+        "coin": intent.symbol,
+        "side": intent.side.value,
+        "size": intent.quantity,
+        "reason": reason,
+        "idempotency_key": key,
+        "status": "submitted" if accepted else "refused",
+    }
+    if trace_id:
+        payload["trace_id"] = trace_id
+    return payload
+
+
+def live_response_from_record(record: Any, *, include_trace: bool = False) -> dict[str, Any]:
+    payload = {
+        "accepted": record.accepted,
+        "simulated": False,
+        "fill_id": None,
+        "coin": record.symbol,
+        "side": record.side,
+        "size": record.quantity,
+        "reason": record.reason,
+        "idempotency_key": record.idempotency_key,
+        "status": record.status,
+    }
+    if include_trace and record.trace_id:
+        payload["trace_id"] = record.trace_id
+    return payload
+
+
 def first(query: dict[str, list[str]], name: str) -> str | None:
     values = query.get(name)
     return values[0] if values else None
@@ -888,6 +1014,7 @@ def make_handler(api: PaperApi) -> type[BaseHTTPRequestHandler]:
                     payload,
                     trace_id=trace_id,
                     expose_trace=True,
+                    mode=self.headers.get("x-zero-mode"),
                 )
             except (ValueError, TypeError, json.JSONDecodeError) as exc:
                 status, response = HTTPStatus.BAD_REQUEST, {"error": str(exc)}
@@ -973,6 +1100,7 @@ def serve(
     )
     hl_client = HyperliquidInfoClient() if hyperliquid or hyperliquid_live_prices else None
     dead_man_timeout_s = parse_float_env("ZERO_LIVE_DEAD_MAN_TIMEOUT_S", 30.0)
+    live_executor = build_live_executor(dead_man_timeout_s)
     server = ThreadingHTTPServer(
         (host, port),
         make_handler(
@@ -985,6 +1113,7 @@ def serve(
                     live_api_private_key=os.environ.get("ZERO_HYPERLIQUID_API_PRIVATE_KEY"),
                     live_kill_switch_path=os.environ.get("ZERO_LIVE_KILL_SWITCH_PATH"),
                     live_dead_man_timeout_s=dead_man_timeout_s,
+                    live_executor=live_executor,
                 )
             )
         ),
@@ -1002,6 +1131,30 @@ def parse_float_env(name: str, default: float) -> float:
     except ValueError:
         return default
     return parsed if parsed > 0 else default
+
+
+def build_live_executor(dead_man_timeout_s: float) -> LiveExecutor | None:
+    if os.environ.get("ZERO_LIVE_EXECUTION_ENABLED", "").lower() not in {"1", "true", "yes"}:
+        return None
+    wallet = os.environ.get("ZERO_HYPERLIQUID_WALLET_ADDRESS")
+    key = os.environ.get("ZERO_HYPERLIQUID_API_PRIVATE_KEY")
+    if not wallet or not key:
+        raise RuntimeError("live execution requires ZERO_HYPERLIQUID_WALLET_ADDRESS and key")
+    policy = LiveExecutionPolicy(
+        max_notional_usd=parse_float_env("ZERO_LIVE_MAX_NOTIONAL_USD", 1_000.0),
+        max_daily_loss_usd=parse_float_env("ZERO_LIVE_MAX_DAILY_LOSS_USD", 250.0),
+        max_orders_per_minute=int(parse_float_env("ZERO_LIVE_MAX_ORDERS_PER_MINUTE", 6)),
+        dead_man_timeout_s=dead_man_timeout_s,
+    )
+    adapter = HyperliquidSdkAdapter(wallet_address=wallet, private_key=key)
+    executor = LiveExecutor(adapter=adapter, policy=policy, enabled=True)
+    try:
+        heartbeat = executor.heartbeat()
+        if not heartbeat.get("ok"):
+            print(f"zero live executor heartbeat failed during startup: {heartbeat}", file=sys.stderr)
+    except Exception as exc:
+        print(f"zero live executor heartbeat failed during startup: {exc}", file=sys.stderr)
+    return executor
 
 
 def main() -> None:

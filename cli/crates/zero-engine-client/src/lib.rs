@@ -18,9 +18,9 @@ pub use http::{HttpClient, HttpError, Mode, RateLimitSource};
 pub use models::{
     Approaching, ApproachingFeed, AutoState, AutoToggleRequest, AutoToggleResponse, Brief,
     ComponentCounts, ComponentHealth, Evaluation, EvaluationLayer, ExecuteRequest, ExecuteResponse,
-    ExecuteSide, Health, HlRate, LivePreflight, LivePreflightCheck, Position, Positions, Pulse,
-    PulseEvent, Regime, Rejection, RejectionsFeed, Risk, RiskSummary, Root, V2Confidence, V2Market,
-    V2Positions, V2Status, V2Today,
+    ExecuteSide, Health, HlRate, LiveControlResponse, LivePreflight, LivePreflightCheck, Position,
+    Positions, Pulse, PulseEvent, Regime, Rejection, RejectionsFeed, Risk, RiskSummary, Root,
+    V2Confidence, V2Market, V2Positions, V2Status, V2Today,
 };
 pub use poll::{BACKFILL_INTERVAL, EngineStatePoller, OperatorStatePoller, POLL_INTERVAL};
 pub use rate_budget::{

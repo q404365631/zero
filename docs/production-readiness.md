@@ -13,19 +13,19 @@ end.
 | Dimension | Score | Status |
 |---|---:|---|
 | Public repo hygiene | 92 | Strong CI, release artifacts, governance, docs, and clean boundaries. |
-| CLI readiness | 86 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, and live-preflight diagnostics. Blocked by paper-only engine. |
-| Engine runtime | 63 | Deterministic paper runtime, append-only decision journal, restart replay, read-only Hyperliquid info adapter, live-mid paper execution, traceable audit export, and live custody preflight exist. No OODA loop, runners, durable bus, or live executor. |
-| Safety and risk | 66 | Good local contracts, CLI risk asymmetry, local live-custody validation, dry-run order validation, and preflight refusal. Missing live kill-switch drills, dead-man enforcement, and exchange-failure tests. |
-| API contracts | 70 | Paper fixtures are pinned across Python and Rust, `/hl/status` exposes read-only market status, `/market/quote` names the active price source, `/health` plus `/v2/status` expose recovery state, `/metrics` plus `/audit/export` expose observable runtime state, and `/live/preflight` exposes a non-secret live-readiness gate. Missing OpenAPI, versioned live contracts, auth scopes, and compatibility policy for production. |
-| Deployment | 66 | Docker path, Railway config, healthcheck, restart policy, `PORT`-aware start script, durable journal replay, traceable paper decisions, and Railway smoke test exist. Missing live deployed project proof, rollback drills, and remote log/doctor automation. |
-| Observability and audit | 76 | HTTP trace IDs, traced paper decisions, metrics, idempotency counters, replay counts, retention/redaction metadata, and structured audit export exist for paper mode. Missing production-grade metrics backend, log drains, signed audit bundles, and live execution trace coverage. |
-| Security and custody | 72 | No secrets needed for first run; Hyperliquid private keys now have local-only keychain/env helpers, redaction tests, and a non-secret preflight gate. Missing signed live requests, permission model, and full threat-model coverage. |
+| CLI readiness | 89 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, and live risk-reducer wiring. Still needs live operator drills against real exchange faults. |
+| Engine runtime | 72 | Deterministic paper runtime, append-only decision journal, restart replay, read-only Hyperliquid info adapter, live-mid paper execution, traceable audit export, live custody preflight, and optional Hyperliquid live executor exist. Still missing OODA loop, runners, and durable production bus. |
+| Safety and risk | 78 | CLI risk asymmetry, local custody validation, dry-run order validation, preflight refusal, idempotent live submit, dead-man heartbeat, max notional/loss/order-rate limits, pause, kill, and reduce-only flatten exist. Missing external exchange-failure chaos drills. |
+| API contracts | 78 | Paper fixtures are pinned across Python and Rust, `/hl/status` exposes read-only market status, `/market/quote` names the active price source, `/health` plus `/v2/status` expose recovery state, `/metrics` plus `/audit/export` expose observable runtime state, `/live/preflight` exposes a non-secret live-readiness gate, and `POST /live/*` controls are typed in the CLI. Missing OpenAPI, auth scopes, and compatibility policy for production. |
+| Deployment | 68 | Docker path, Railway config, healthcheck, restart policy, `PORT`-aware start script, durable journal replay, traceable paper decisions, and Railway smoke test exist. Smoke tests now prove public paper deploys refuse live mode. Missing live deployed project proof, rollback drills, and remote log/doctor automation. |
+| Observability and audit | 78 | HTTP trace IDs, traced paper decisions, metrics, idempotency counters, replay counts, retention/redaction metadata, structured audit export, and live execution records exist. Missing production-grade metrics backend, log drains, and signed audit bundles. |
+| Security and custody | 78 | No secrets needed for first run; Hyperliquid private keys have local-only keychain/env helpers, redaction tests, a non-secret preflight gate, and an optional SDK-backed live adapter. Missing full threat model and external security review. |
 | ZERO Network | 15 | Product boundary is defined. Profiles, leaderboards, verification, and opt-in publishing do not exist yet. |
 | ZERO Intelligence | 12 | Commercial boundary is defined. API, billing, datasets, rate limits, and terms do not exist yet. |
 | Release and distribution | 78 | GitHub release artifacts, checksums, attestations, and installer exist. Package registries and Homebrew are not yet shipped. |
 | Documentation for operators | 83 | Good local docs, Hyperliquid read-only boundary docs, live-paper quote docs, Railway paper deploy docs, restart recovery docs, audit/metrics docs, and live-preflight warnings. Missing incident recovery playbooks. |
 
-**Overall production product readiness: 84/100.**
+**Overall production product readiness: 90/100.**
 
 This is acceptable for an open-source foundation release. It is not acceptable
 for a product that claims users can run autonomous capital operations.
@@ -36,18 +36,18 @@ for a product that claims users can run autonomous capital operations.
 |---|---:|---|
 | Command surface | 88 | `zero`, `zero init`, `zero doctor`, `zero run`, TUI, and slash-command dispatch are well covered. |
 | Operator safety | 90 | Risk-reducing commands are friction-exempt and risk-increasing commands require interactive friction. |
-| Engine integration | 70 | HTTP, WebSocket, mock engine, and contract tests exist. Production engine parity is not available. |
+| Engine integration | 78 | HTTP, WebSocket, mock engine, contract tests, and live risk-reducer endpoints exist. Production OODA parity is not available. |
 | Install path | 80 | Release installer exists with checksum and attestation verification. Homebrew/package registries are missing. |
-| Diagnostics | 88 | Doctor, JSON output, exit codes, rate-budget checks, and live-preflight diagnostics are strong. Railway remote-log automation is still missing. |
+| Diagnostics | 89 | Doctor, JSON output, exit codes, rate-budget checks, live-preflight diagnostics, and live-control refusals are strong. Railway remote-log automation is still missing. |
 | TUI production UX | 78 | Snapshot coverage and status honesty are strong. Needs live operator drills against real engine faults. |
 | Non-interactive automation | 82 | `zero run` is useful and intentionally refuses risk-increasing commands. Needs production examples. |
-| Documentation freshness | 76 | Good command docs, but production deployment and live-mode docs are missing. |
+| Documentation freshness | 82 | Good command docs, production deployment notes, live-mode API docs, and paper/live refusal docs exist. Incident docs remain thin. |
 
-**CLI readiness: 86/100.**
+**CLI readiness: 89/100.**
 
-The CLI is close to first-class. The reason it is not above 90 is that it is
-ahead of the engine: it can supervise a serious engine, but the public engine is
-still paper-only.
+The CLI is close to first-class. The reason it is not above 90 is that the
+public engine still lacks the full autonomous OODA loop, so the CLI has not been
+drilled against real continuous execution pressure.
 
 ## Definition Of 100
 
@@ -68,7 +68,7 @@ ZERO is 100/100 when a new serious operator can:
 
 ## Execution Cycles
 
-Forecast after Cycle 7: **4 more major cycles** to credible 100/100.
+Forecast after Cycle 8: **3 more major cycles** to credible 100/100.
 
 | Cycle | Target | Expected Score |
 |---|---|---:|
@@ -267,6 +267,21 @@ Exit gate:
 
 - Operators can start live mode only after preflight and can immediately pause,
   kill, or flatten exposure from the CLI.
+
+Current progress:
+
+- Added `zero_engine.live.LiveExecutor` with idempotent submit, deterministic
+  Hyperliquid client order IDs, dead-man heartbeat, pause/resume, kill switch,
+  reduce-only flatten, max notional, daily loss, and order-rate limits.
+- Added an optional `HyperliquidSdkAdapter` behind the `engine[live]`
+  dependency group; paper installs and Railway paper deploys do not need it.
+- `POST /execute` now routes to live execution only when `X-Zero-Mode: live`
+  is sent and a local live executor is configured; otherwise it fails closed.
+- Added `POST /live/heartbeat`, `/live/pause`, `/live/resume`, `/live/kill`,
+  and `/live/flatten` plus CLI wiring for `/kill`, `/pause-entries`, and
+  `/flatten-all`.
+- Local and Railway smoke tests now assert public paper deployments refuse live
+  execution and live controls with `live executor not configured`.
 
 ### Cycle 9: ZERO Network
 

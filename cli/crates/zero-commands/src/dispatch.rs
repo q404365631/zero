@@ -8,7 +8,7 @@
 use std::sync::Arc;
 
 use parking_lot::RwLock;
-use zero_engine_client::{EngineState, HttpClient};
+use zero_engine_client::{EngineState, HttpClient, LiveControlResponse};
 use zero_operator_state::label::Label;
 
 use crate::command::{
@@ -601,9 +601,9 @@ async fn run(ctx: &DispatchContext, cmd: &Command) -> DispatchOutput {
         Command::Pulse { limit } => pulse_cmd(ctx, *limit).await,
         Command::Approaching => approaching_cmd(ctx).await,
         Command::Rejections { coin, limit } => rejections_cmd(ctx, coin.as_deref(), *limit).await,
-        Command::Kill => kill_cmd(ctx),
-        Command::FlattenAll => flatten_stub(),
-        Command::PauseEntries => pause_stub(),
+        Command::Kill => kill_cmd(ctx).await,
+        Command::FlattenAll => flatten_cmd(ctx).await,
+        Command::PauseEntries => pause_cmd(ctx).await,
         Command::Break { minutes } => break_stub(ctx, *minutes).await,
         Command::Execute => execute_stub(),
         Command::State => DispatchOutput {
@@ -1471,77 +1471,100 @@ fn trim_ts(raw: Option<&str>) -> String {
 }
 
 /// `/kill` — hard stop. Risk-reducer, friction-exempt (see the
-/// 2 AM suite in `tests/two_am_scenarios.rs`). Engine-side wiring
-/// to `POST /kill` lands with the risk pack; this function holds
-/// the placeholder + the **compound behavior** when a supervisor
-/// is attached.
+/// 2 AM suite in `tests/two_am_scenarios.rs`). Posts to the live
+/// executor when an engine client is attached and preserves the
+/// compound local-supervisor tear-down behavior.
 ///
 /// Compound contract: when [`DispatchContext::supervisor`] is
 /// `Some` *and* the daemon is running, `/kill` tears down the
 /// listener socket as part of the same call and tags the
 /// confirmation line so the operator sees both effects in one
-/// breadcrumb. When the supervisor is unattached or stopped,
-/// the line is exactly the pre-M2 wording — scripts pinning on
-/// the existing phrasing keep working.
-fn kill_cmd(ctx: &DispatchContext) -> DispatchOutput {
-    let primary =
-        "/kill — risk kill is staged. Live wiring to POST /kill lands with the risk pack.";
+/// breadcrumb. When no engine client is attached, the command still
+/// reports that the live kill was not posted instead of pretending
+/// exchange state changed.
+async fn kill_cmd(ctx: &DispatchContext) -> DispatchOutput {
+    let mut lines = match &ctx.http {
+        Some(http) => match http.post_live_kill().await {
+            Ok(reply) => render_live_control("/kill", "live kill", &reply),
+            Err(e) => vec![OutputLine::alert(format!("/kill — engine refused: {e}"))],
+        },
+        None => vec![OutputLine::alert(
+            "/kill — engine client unavailable; live kill not posted.",
+        )],
+    };
     let Some(sup) = ctx.supervisor.as_ref() else {
         return DispatchOutput {
-            lines: vec![OutputLine::alert(primary)],
+            lines,
             ..Default::default()
         };
     };
-    let tag = match sup.tear_down_socket() {
+    match sup.tear_down_socket() {
         // `tear_down_socket` returns `true` only when the daemon
         // was running *and* this call shut it down. `false`
         // means the daemon was already stopped — `/kill` does not
         // need to tag a non-event.
-        Ok(true) => Some(" + headless supervisor stopped and ~/.zero/sock torn down"),
-        Ok(false) => None,
+        Ok(true) => lines.push(OutputLine::alert(
+            "/kill — headless supervisor stopped and ~/.zero/sock torn down.",
+        )),
+        Ok(false) => {}
         // A tear-down failure is an honesty bug if we silently
         // dropped it — the operator pressed `/kill` in part to
         // stop the daemon. Surface the error on its own line so
         // the primary `/kill` confirmation is not hidden behind a
         // multi-sentence alert.
-        Err(e) => {
-            return DispatchOutput {
-                lines: vec![
-                    OutputLine::alert(primary),
-                    OutputLine::alert(format!(
-                        "/kill — headless tear-down failed: {e}. Manual cleanup may be required."
-                    )),
-                ],
-                ..Default::default()
-            };
-        }
-    };
-    let line = match tag {
-        Some(suffix) => format!("{primary}{suffix}."),
-        None => primary.to_owned(),
-    };
+        Err(e) => lines.push(OutputLine::alert(format!(
+            "/kill — headless tear-down failed: {e}. Manual cleanup may be required."
+        ))),
+    }
     DispatchOutput {
-        lines: vec![OutputLine::alert(line)],
+        lines,
         ..Default::default()
     }
 }
 
-fn flatten_stub() -> DispatchOutput {
-    DispatchOutput {
-        lines: vec![OutputLine::warn(
-            "/flatten-all — staged; wiring to POST /flatten lands with the risk pack.",
-        )],
-        ..Default::default()
+async fn flatten_cmd(ctx: &DispatchContext) -> DispatchOutput {
+    let Some(http) = &ctx.http else {
+        return single_alert("/flatten-all — engine client unavailable; live flatten not posted.");
+    };
+    match http.post_live_flatten().await {
+        Ok(reply) => DispatchOutput {
+            lines: render_live_control("/flatten-all", "live flatten", &reply),
+            ..Default::default()
+        },
+        Err(e) => single_alert(format!("/flatten-all — engine refused: {e}")),
     }
 }
 
-fn pause_stub() -> DispatchOutput {
-    DispatchOutput {
-        lines: vec![OutputLine::warn(
-            "/pause-entries — staged; wiring to POST /pause-entries lands with the risk pack.",
-        )],
-        ..Default::default()
+async fn pause_cmd(ctx: &DispatchContext) -> DispatchOutput {
+    let Some(http) = &ctx.http else {
+        return single_alert("/pause-entries — engine client unavailable; live pause not posted.");
+    };
+    match http.post_live_pause().await {
+        Ok(reply) => DispatchOutput {
+            lines: render_live_control("/pause-entries", "live entries pause", &reply),
+            ..Default::default()
+        },
+        Err(e) => single_alert(format!("/pause-entries — engine refused: {e}")),
     }
+}
+
+fn render_live_control(
+    command: &str,
+    action: &str,
+    reply: &LiveControlResponse,
+) -> Vec<OutputLine> {
+    let reason = reply.reason.as_deref().unwrap_or("no reason supplied");
+    if !reply.ok {
+        return vec![OutputLine::alert(format!("{command} — refused: {reason}"))];
+    }
+    let mut parts = vec![format!("{command} — {action} accepted")];
+    if let Some(state) = reply.state.as_deref() {
+        parts.push(format!("state={state}"));
+    }
+    if !reply.orders.is_empty() {
+        parts.push(format!("orders={}", reply.orders.len()));
+    }
+    vec![OutputLine::alert(parts.join(" "))]
 }
 
 fn execute_stub() -> DispatchOutput {

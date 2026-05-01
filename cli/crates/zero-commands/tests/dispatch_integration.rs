@@ -120,6 +120,39 @@ async fn quote_without_coin_emits_usage_hint() {
 }
 
 #[tokio::test]
+async fn risk_reducers_post_live_control_endpoints() {
+    let (mock, ctx) = ctx_with_mock().await;
+
+    let kill = dispatch(&ctx, "/kill").await.unwrap().unwrap();
+    assert!(
+        matches!(&kill.lines[0], OutputLine::Alert(s) if s.contains("live kill accepted")),
+        "kill line: {:?}",
+        kill.lines,
+    );
+
+    let pause = dispatch(&ctx, "/pause-entries").await.unwrap().unwrap();
+    assert!(
+        matches!(&pause.lines[0], OutputLine::Alert(s) if s.contains("live entries pause accepted")),
+        "pause line: {:?}",
+        pause.lines,
+    );
+
+    let flatten = dispatch(&ctx, "/flatten-all").await.unwrap().unwrap();
+    assert!(
+        matches!(&flatten.lines[0], OutputLine::Alert(s) if s.contains("live flatten accepted") && s.contains("orders=1")),
+        "flatten line: {:?}",
+        flatten.lines,
+    );
+
+    assert_eq!(
+        mock.received_live_controls(),
+        vec!["/live/kill", "/live/pause", "/live/flatten"],
+    );
+
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn risk_flags_equity_above_peak_inconsistency() {
     // Production drift: the engine wrote `risk.json` with
     // account_value=638 and peak_equity=577. Equity above peak is

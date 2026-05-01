@@ -10,6 +10,8 @@ This deployment is still paper-only:
 - no signing;
 - no order placement;
 - `POST /execute` records simulated fills only;
+- `X-Zero-Mode: live` and `POST /live/*` fail closed because no live executor
+  is configured;
 - live Hyperliquid mids are read-only when enabled.
 
 ## What The Repo Provides
@@ -99,10 +101,12 @@ curl -fsS "$ZERO_RAILWAY_URL/live/preflight"
 Every HTTP response carries `X-Zero-Trace-Id`. Paper decisions created through
 `POST /execute` write that trace ID into the journal and audit export.
 
-`/live/preflight` is intentionally non-secret. It reports whether a future
+`/live/preflight` is intentionally non-secret. It reports whether a
 self-custodial Hyperliquid live mode would be allowed to start, but this Railway
-paper deployment should keep `ready=false` and `live_mode=refused`; do not put
-private exchange keys into the public paper service.
+paper deployment should keep `ready=false` and `live_mode=refused`. `POST
+/live/kill`, `/live/pause`, and `/live/flatten` should return
+`ok=false, reason="live executor not configured"` on public paper services; do
+not put private exchange keys into the public paper service.
 
 If a deployment starts without a volume, the API still runs, but the journal is
 ephemeral and will be lost on restart. Do not use an ephemeral journal for

@@ -8,6 +8,7 @@ from typing import Any
 from zero_engine.api import PaperApi, PaperApiState, websocket_accept_key, websocket_text_frame
 from zero_engine.hyperliquid import HyperliquidInfoClient
 from zero_engine.journal import DecisionJournal
+from zero_engine.live import LiveExecutor, RecordingExchangeAdapter
 from zero_engine.paper import PaperEngine
 
 
@@ -277,6 +278,87 @@ def test_live_preflight_verifies_controls_without_leaking_private_key(tmp_path) 
     assert checks["account_read"]["status"] == "ok"
     assert checks["journal"]["status"] == "ok"
     assert checks["emergency_controls"]["status"] == "ok"
+
+
+def test_live_preflight_can_pass_when_executor_and_controls_are_ready(tmp_path) -> None:
+    def transport(_endpoint: str, payload: dict[str, Any], _timeout_s: float) -> dict[str, Any]:
+        if payload["type"] == "clearinghouseState":
+            return {"assetPositions": []}
+        return {"BTC": "40500"}
+
+    kill = tmp_path / "kill-switch"
+    kill.write_text("armed\n")
+    executor = LiveExecutor(adapter=RecordingExchangeAdapter(), enabled=True)
+    executor.heartbeat()
+    api = PaperApi(
+        PaperApiState(
+            engine=PaperEngine(clock=lambda: FIXED_TS, journal=DecisionJournal(tmp_path / "d.jsonl")),
+            hyperliquid=HyperliquidInfoClient(transport=transport),
+            live_wallet_address="0x0000000000000000000000000000000000000000",
+            live_api_private_key="0x" + ("1" * 64),
+            live_kill_switch_path=str(kill),
+            live_executor=executor,
+            clock=lambda: FIXED_DT,
+            started_at=FIXED_DT,
+        )
+    )
+
+    status, payload = api.get("/live/preflight", {})
+
+    assert status == 200
+    assert payload["ready"] is True
+    assert payload["live_mode"] == "ready"
+
+
+def test_live_execute_uses_live_executor_and_preserves_idempotency() -> None:
+    adapter = RecordingExchangeAdapter()
+    executor = LiveExecutor(adapter=adapter, enabled=True, clock=lambda: FIXED_TS)
+    executor.heartbeat()
+    api = PaperApi(
+        PaperApiState(
+            live_executor=executor,
+            clock=lambda: FIXED_DT,
+            started_at=FIXED_DT,
+        )
+    )
+    body = {"coin": "BTC", "side": "buy", "size": 0.01, "idempotency_key": "live-fill"}
+
+    first_status, first = api.post("/execute", body, trace_id="trace-live", expose_trace=True, mode="live")
+    second_status, second = api.post(
+        "/execute",
+        {**body, "size": 0.02},
+        trace_id="trace-live-dup",
+        expose_trace=True,
+        mode="live",
+    )
+
+    assert first_status == 200
+    assert second_status == 200
+    assert first["accepted"] is True
+    assert first["simulated"] is False
+    assert first["trace_id"] == "trace-live"
+    assert second == first
+    assert len(adapter.placed) == 1
+
+
+def test_live_kill_blocks_later_live_execute() -> None:
+    adapter = RecordingExchangeAdapter()
+    executor = LiveExecutor(adapter=adapter, enabled=True, clock=lambda: FIXED_TS)
+    executor.heartbeat()
+    api = PaperApi(PaperApiState(live_executor=executor, clock=lambda: FIXED_DT))
+
+    kill_status, kill = api.post("/live/kill", {}, mode="live")
+    execute_status, execute = api.post(
+        "/execute",
+        {"coin": "BTC", "side": "buy", "size": 0.01, "idempotency_key": "after-kill"},
+        mode="live",
+    )
+
+    assert kill_status == 200
+    assert kill["state"] == "killed"
+    assert execute_status == 200
+    assert execute["accepted"] is False
+    assert execute["reason"] == "kill switch active"
 
 
 def test_paper_api_market_quote_uses_fixture_prices_by_default() -> None:

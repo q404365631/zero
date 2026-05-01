@@ -180,6 +180,33 @@ async fn post_execute_honors_live_mode_header() {
 }
 
 #[tokio::test]
+async fn live_control_endpoints_post_without_retry_surface() {
+    let mock = MockEngine::spawn().await.expect("spawn mock");
+    let client = HttpClient::new(mock.base_url(), None)
+        .expect("client")
+        .with_mode(Mode::Live);
+
+    let kill = client.post_live_kill().await.expect("kill accepted");
+    assert!(kill.ok);
+    assert_eq!(kill.state.as_deref(), Some("killed"));
+
+    let pause = client.post_live_pause().await.expect("pause accepted");
+    assert!(pause.ok);
+    assert_eq!(pause.state.as_deref(), Some("paused"));
+
+    let flatten = client.post_live_flatten().await.expect("flatten accepted");
+    assert!(flatten.ok);
+    assert_eq!(flatten.orders.len(), 1);
+
+    assert_eq!(
+        mock.received_live_controls(),
+        vec!["/live/kill", "/live/pause", "/live/flatten"],
+    );
+
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn post_auto_toggle_honors_paper_mode_header() {
     let mock = MockEngine::spawn().await.expect("spawn mock");
     let client = HttpClient::new(mock.base_url(), None)

@@ -120,6 +120,27 @@ pub struct LivePreflightCheck {
     pub extra: BTreeMap<String, Value>,
 }
 
+// ─── /live/* control POSTs ─────────────────────────────────────────
+
+/// Response body for live risk-reduction controls.
+///
+/// The live control endpoints intentionally use a broad response envelope:
+/// `/live/kill`, `/live/pause`, `/live/resume`, `/live/heartbeat`, and
+/// `/live/flatten` share `ok` / `reason`, while endpoint-specific details
+/// such as `exchange_cancel`, `exchange_dead_man`, and flatten `orders` stay
+/// in `extra`. This keeps the CLI honest without forcing it to mirror every
+/// exchange adapter field.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveControlResponse {
+    pub ok: bool,
+    pub state: Option<String>,
+    pub reason: Option<String>,
+    pub orders: Vec<Value>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ComponentHealth {
     pub status: String,

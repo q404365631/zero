@@ -129,6 +129,17 @@ stay in the OS keychain or local process environment. `zero doctor` reads the
 engine `/live/preflight` gate and warns until the runtime proves custody,
 journal, risk, and emergency controls are ready.
 
+Risk-reducing live controls are wired to the engine when an API client is
+attached:
+
+- `/kill` posts `POST /live/kill` and also tears down the local headless
+  supervisor when present.
+- `/flatten-all` posts `POST /live/flatten` for reduce-only close orders.
+- `/pause-entries` posts `POST /live/pause` to stop new risk-increasing entries.
+
+If the connected engine is paper-only, these commands surface the engine's
+`live executor not configured` refusal instead of pretending live risk changed.
+
 ---
 
 ## For contributors

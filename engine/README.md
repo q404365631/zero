@@ -2,7 +2,9 @@
 
 Paper-first trading engine runtime for ZERO.
 
-This package is the public seed of the open-core engine. It intentionally starts with a small, testable safety contract before live exchange adapters are added.
+This package is the public seed of the open-core engine. It starts with a
+small, testable safety contract and now includes an optional, local-only
+Hyperliquid live executor behind explicit custody and kill-switch gates.
 
 ## Install
 
@@ -29,8 +31,8 @@ exposes the paper-mode subset of the engine contract used by the Rust CLI:
 `/`, `/health`, `/v2/status`, `/positions`, `/risk`, `/brief`,
 `/regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`,
 `/journal`, `/metrics`, `/audit/export`, `/hl/status`, `/market/quote`,
-`/live/preflight`, `/operator/state`, `POST /execute`, `POST /auto/toggle`, and
-`POST /operator/events`.
+`/live/preflight`, `/operator/state`, `POST /execute`, `POST /auto/toggle`,
+`POST /operator/events`, and the live-control endpoints under `POST /live/*`.
 
 For a replayable local audit log, pass a JSONL journal path:
 
@@ -48,9 +50,26 @@ counters through `/metrics` and export a structured audit packet through
 `/audit/export?limit=100`.
 
 Live custody preflight is visible through `/live/preflight`. It is a non-secret
-readiness gate for the future Hyperliquid live executor: private keys are never
-accepted over HTTP, diagnostics are redacted, and the public runtime still
-returns `live_mode=refused` until live execution ships.
+readiness gate for the Hyperliquid live executor: private keys are never
+accepted over HTTP, diagnostics are redacted, and public paper deployments
+return `live_mode=refused` unless local live credentials and controls are
+configured.
+
+Live execution is optional and self-custodial:
+
+```bash
+pip install -e ".[live]"
+ZERO_LIVE_EXECUTION_ENABLED=true \
+ZERO_HYPERLIQUID_WALLET_ADDRESS=0x... \
+ZERO_HYPERLIQUID_API_PRIVATE_KEY=0x... \
+zero-paper-api --journal .zero/decisions.jsonl --hyperliquid-live-prices
+```
+
+With `X-Zero-Mode: live`, `POST /execute` routes through the live executor.
+Without a configured executor it fails closed with `accepted=false` and
+`reason="live executor not configured"`. `/live/heartbeat`, `/live/pause`,
+`/live/resume`, `/live/kill`, and `/live/flatten` provide the operator controls
+the CLI calls.
 
 To enable read-only Hyperliquid market metadata and mids:
 
@@ -98,6 +117,7 @@ ruff check .
 - Risk-increasing orders are evaluated before fill.
 - Reduce-only orders bypass risk-increasing friction.
 - Rejections are recorded explicitly.
-- No real exchange private key is required.
+- No real exchange private key is required for paper mode or contribution work.
+- Live mode is local opt-in and must fail closed when preflight is not ready.
 
 The private ZERO engine will be ported into this package behind stable public contracts, not copied wholesale.

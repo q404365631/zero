@@ -62,10 +62,10 @@ The public paper runtime also exposes:
 curl -fsS 'http://127.0.0.1:8765/live/preflight'
 ```
 
-This is a non-secret readiness gate for future live mode. It never accepts a
-private key over HTTP. Local deployments can set wallet and key material through
-local process configuration or the CLI keychain helpers, and the endpoint
-reports only redacted diagnostics. Until live execution ships, the endpoint must
+This is a non-secret readiness gate for optional local live mode. It never
+accepts a private key over HTTP. Local deployments can set wallet and key
+material through local process configuration or the CLI keychain helpers, and
+the endpoint reports only redacted diagnostics. Public paper deployments should
 return `ready=false` and `live_mode=refused`.
 
 ## Safety Boundary
@@ -87,7 +87,9 @@ operator-state verification.
 
 ## Production Path
 
-Read-only Hyperliquid support is Cycle 2 in the production-readiness plan.
+Read-only Hyperliquid support is Cycle 2 in the production-readiness plan. The
+optional live executor is documented in [API Contract](api.md), and it must stay
+outside this read-only adapter boundary.
 Live custody preflight is Cycle 7.
 
 It unlocks:

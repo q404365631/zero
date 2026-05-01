@@ -21,8 +21,8 @@ use zero_operator_state::{Event as OperatorEvent, Snapshot as OperatorSnapshot};
 
 use crate::models::{
     ApproachingFeed, AutoToggleRequest, AutoToggleResponse, Brief, Evaluation, ExecuteRequest,
-    ExecuteResponse, Health, HyperliquidStatus, LivePreflight, MarketQuote, OperatorEventsAccepted,
-    Positions, Pulse, Regime, RejectionsFeed, Risk, Root, V2Status,
+    ExecuteResponse, Health, HyperliquidStatus, LiveControlResponse, LivePreflight, MarketQuote,
+    OperatorEventsAccepted, Positions, Pulse, Regime, RejectionsFeed, Risk, Root, V2Status,
 };
 use crate::rate_budget::{self, RateBudget};
 
@@ -500,11 +500,12 @@ impl HttpClient {
     /// > change is the single worst failure mode a trading CLI can
     /// > have). Tests pin the no-retry rule against 5xx + timeout.
     ///
-    /// Used by [`Self::post_execute`] and [`Self::post_auto_toggle`]
-    /// — the two surfaces that flip live composition. The contrast
-    /// with [`Self::post_json`] (idempotent `POST /operator/events`,
-    /// retry-once is safe) is deliberate: any future POST surface
-    /// must pick its bucket explicitly.
+    /// Used by [`Self::post_execute`], [`Self::post_auto_toggle`],
+    /// and the `/live/*` control endpoints — every surface where a
+    /// silent duplicate would change operator or exchange state.
+    /// The contrast with [`Self::post_json`] (idempotent `POST
+    /// /operator/events`, retry-once is safe) is deliberate: any
+    /// future POST surface must pick its bucket explicitly.
     ///
     /// `idempotency_key`, when `Some`, lands as an
     /// `X-Idempotency-Key: <value>` header **in addition to**
@@ -581,6 +582,56 @@ impl HttpClient {
     /// `GET /live/preflight` — non-secret live readiness gate.
     pub async fn live_preflight(&self) -> Result<LivePreflight, HttpError> {
         self.get_json("/live/preflight").await
+    }
+
+    /// `POST /live/heartbeat` — refresh the exchange-side dead-man switch.
+    pub async fn post_live_heartbeat(&self) -> Result<LiveControlResponse, HttpError> {
+        self.post_json_no_retry::<serde_json::Value, LiveControlResponse>(
+            "/live/heartbeat",
+            &serde_json::json!({}),
+            None,
+        )
+        .await
+    }
+
+    /// `POST /live/pause` — stop new risk-increasing live entries.
+    pub async fn post_live_pause(&self) -> Result<LiveControlResponse, HttpError> {
+        self.post_json_no_retry::<serde_json::Value, LiveControlResponse>(
+            "/live/pause",
+            &serde_json::json!({}),
+            None,
+        )
+        .await
+    }
+
+    /// `POST /live/resume` — resume risk-increasing live entries.
+    pub async fn post_live_resume(&self) -> Result<LiveControlResponse, HttpError> {
+        self.post_json_no_retry::<serde_json::Value, LiveControlResponse>(
+            "/live/resume",
+            &serde_json::json!({}),
+            None,
+        )
+        .await
+    }
+
+    /// `POST /live/kill` — activate kill switch and cancel open exchange orders.
+    pub async fn post_live_kill(&self) -> Result<LiveControlResponse, HttpError> {
+        self.post_json_no_retry::<serde_json::Value, LiveControlResponse>(
+            "/live/kill",
+            &serde_json::json!({}),
+            None,
+        )
+        .await
+    }
+
+    /// `POST /live/flatten` — submit reduce-only close orders for open positions.
+    pub async fn post_live_flatten(&self) -> Result<LiveControlResponse, HttpError> {
+        self.post_json_no_retry::<serde_json::Value, LiveControlResponse>(
+            "/live/flatten",
+            &serde_json::json!({}),
+            None,
+        )
+        .await
     }
 
     /// `GET /v2/status` — condensed engine summary for the status bar.

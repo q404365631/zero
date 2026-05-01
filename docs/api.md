@@ -105,11 +105,15 @@ contract:
 - `POST /execute`
 - `POST /auto/toggle`
 - `POST /operator/events`
+- `POST /live/heartbeat`, `/live/pause`, `/live/resume`, `/live/kill`, `/live/flatten`
 
-`POST /execute` always runs through `PaperEngine.submit`, records a decision
-with source `api:/execute`, and returns `simulated=true`. It honors the request
-idempotency key so repeated submissions with the same key do not create
-duplicate paper fills.
+`POST /execute` runs through `PaperEngine.submit`, records a decision with
+source `api:/execute`, and returns `simulated=true` by default. When the caller
+sends `X-Zero-Mode: live`, the same endpoint routes to the optional live
+executor instead. If no live executor is configured, the engine returns
+`accepted=false`, `simulated=false`, and `reason="live executor not configured"`.
+It honors the request idempotency key so repeated submissions with the same key
+do not create duplicate paper fills or duplicate live order submissions.
 
 Every HTTP response carries `X-Zero-Trace-Id`. When an HTTP `POST /execute`
 creates a paper decision, that trace ID is written into the decision journal
@@ -137,13 +141,40 @@ runtime summary, retention/redaction metadata, metrics, recovery state, and the
 most recent decisions. The public paper runtime records no secrets.
 
 `GET /live/preflight` returns a structured `zero.live_preflight.v1` readiness
-packet for the future Hyperliquid live executor. It never accepts private keys
-over HTTP. The paper runtime reads local process configuration only, redacts key
+packet for the Hyperliquid live executor. It never accepts private keys over
+HTTP. The runtime reads local process configuration only, redacts key
 diagnostics, verifies account-read access when a wallet address and read adapter
 are present, validates a dry-run order locally, and refuses live mode unless
-custody, journal, risk limits, and emergency controls are all present. Until the
-Cycle 8 live executor ships, `ready=false` and `live_mode=refused` even when
-local controls are otherwise configured.
+custody, journal, risk limits, and emergency controls are all present.
+
+Live execution is local opt-in. Install the optional dependency group and start
+the API with process-local credentials:
+
+```bash
+pip install -e "engine[live]"
+ZERO_LIVE_EXECUTION_ENABLED=true \
+ZERO_HYPERLIQUID_WALLET_ADDRESS=0x... \
+ZERO_HYPERLIQUID_API_PRIVATE_KEY=0x... \
+ZERO_LIVE_MAX_NOTIONAL_USD=1000 \
+ZERO_LIVE_MAX_DAILY_LOSS_USD=250 \
+ZERO_LIVE_MAX_ORDERS_PER_MINUTE=6 \
+ZERO_LIVE_DEAD_MAN_TIMEOUT_S=30 \
+zero-paper-api --journal .zero/decisions.jsonl --hyperliquid-live-prices
+```
+
+The live executor enforces:
+
+- deterministic idempotency keys and exchange client order IDs;
+- no automatic retry on order-submission POSTs;
+- exchange dead-man heartbeats through `POST /live/heartbeat`;
+- `POST /live/pause` and `/live/resume` for entry control;
+- `POST /live/kill` for kill switch plus open-order cancellation;
+- `POST /live/flatten` for reduce-only close orders;
+- max notional, max daily loss, and max orders per minute.
+
+Public Railway paper deployments should not set live credentials. Their
+expected behavior is `ready=false`, `live_mode=refused`, and `POST /live/*`
+returning `ok=false` with `reason="live executor not configured"`.
 
 `GET /hl/status` returns disabled metadata by default. When `zero-paper-api
 --hyperliquid` is used, it queries Hyperliquid's public info endpoint for

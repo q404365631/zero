@@ -443,21 +443,29 @@ async fn kill_with_running_supervisor_tears_down_socket_and_tags_line() {
     assert_eq!(out.risk, Some(RiskDirection::Reduces));
     assert!(matches!(out.friction, Some(FrictionDecision::Proceed)));
 
-    let OutputLine::Alert(line) = &out.lines[0] else {
-        panic!("expected Alert, got {:?}", out.lines);
-    };
-    // Legacy wording preserved so scripts pinning on it keep
-    // working; the compound tag is appended, not replaced.
-    assert!(line.contains("risk kill is staged"), "line = {line:?}");
-    assert!(line.contains("headless supervisor"), "line = {line:?}");
-    assert!(line.contains("~/.zero/sock"), "line = {line:?}");
+    assert!(
+        out.lines.iter().any(|line| matches!(
+            line,
+            OutputLine::Alert(s) if s.contains("engine client unavailable")
+        )),
+        "live kill honesty line missing: {:?}",
+        out.lines,
+    );
+    assert!(
+        out.lines.iter().any(|line| matches!(
+            line,
+            OutputLine::Alert(s) if s.contains("headless supervisor") && s.contains("~/.zero/sock")
+        )),
+        "headless tear-down line missing: {:?}",
+        out.lines,
+    );
 
     assert!(!src.is_running(), "daemon must be stopped");
     assert!(src.socket_torn_down(), "socket must have been torn down");
 }
 
 #[tokio::test]
-async fn kill_without_supervisor_emits_exact_pre_m2_wording() {
+async fn kill_without_supervisor_surfaces_missing_engine_client() {
     // Regression lock — an invocation with no daemon adapter
     // attached must emit the *exact* pre-M2 wording so
     // scripts / snapshots that grep on the phrase keep
@@ -467,10 +475,11 @@ async fn kill_without_supervisor_emits_exact_pre_m2_wording() {
     let OutputLine::Alert(line) = &out.lines[0] else {
         panic!("expected Alert, got {:?}", out.lines);
     };
-    assert_eq!(
-        line,
-        "/kill — risk kill is staged. Live wiring to POST /kill lands with the risk pack.",
+    assert!(
+        line.contains("engine client unavailable"),
+        "line = {line:?}"
     );
+    assert!(line.contains("live kill not posted"), "line = {line:?}");
 }
 
 #[tokio::test]
@@ -489,7 +498,10 @@ async fn kill_with_stopped_supervisor_does_not_tag_line() {
         !line.contains("headless"),
         "line must not tag when daemon was already stopped, got: {line:?}"
     );
-    assert!(line.contains("risk kill is staged"), "line = {line:?}");
+    assert!(
+        line.contains("engine client unavailable"),
+        "line = {line:?}"
+    );
 }
 
 // ---- misc contract pins ----------------------------------------------------

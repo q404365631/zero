@@ -188,6 +188,8 @@ pub struct AppState {
     /// Every `(headers-snapshot, body)` pair the mock has received on
     /// `POST /auto/toggle`. Same shape as [`Self::received_executes`].
     pub received_auto_toggles: Arc<Mutex<Vec<CapturedPost>>>,
+    /// Every live control endpoint path the mock has received, in order.
+    pub received_live_controls: Arc<Mutex<Vec<String>>>,
 }
 
 /// A snapshot of one POST the mock captured — headers (lowercased
@@ -214,6 +216,7 @@ impl AppState {
             received_events: Arc::new(Mutex::new(Vec::new())),
             received_executes: Arc::new(Mutex::new(Vec::new())),
             received_auto_toggles: Arc::new(Mutex::new(Vec::new())),
+            received_live_controls: Arc::new(Mutex::new(Vec::new())),
         }
     }
 }
@@ -330,6 +333,11 @@ fn router(shared: AppState) -> Router<AppState> {
         .route("/operator/events", post(operator_events))
         .route("/execute", post(execute))
         .route("/auto/toggle", post(auto_toggle))
+        .route("/live/heartbeat", post(live_heartbeat))
+        .route("/live/pause", post(live_pause))
+        .route("/live/resume", post(live_resume))
+        .route("/live/kill", post(live_kill))
+        .route("/live/flatten", post(live_flatten))
         .layer(middleware::from_fn_with_state(shared, inject_failures));
 
     Router::new()
@@ -912,6 +920,56 @@ impl MockEngine {
     pub fn received_auto_toggles(&self) -> Vec<CapturedPost> {
         self.state.received_auto_toggles.lock().clone()
     }
+
+    /// Snapshot of every live control endpoint path the mock has received.
+    #[must_use]
+    pub fn received_live_controls(&self) -> Vec<String> {
+        self.state.received_live_controls.lock().clone()
+    }
+}
+
+fn capture_live_control(s: &AppState, path: &str) {
+    s.received_live_controls.lock().push(path.to_string());
+}
+
+async fn live_heartbeat(State(s): State<AppState>) -> Json<serde_json::Value> {
+    capture_live_control(&s, "/live/heartbeat");
+    Json(json!({
+        "ok": true,
+        "as_of": chrono_utc_now_iso(),
+        "dead_man_timeout_s": 30,
+        "exchange_dead_man": {"ok": true}
+    }))
+}
+
+async fn live_pause(State(s): State<AppState>) -> Json<serde_json::Value> {
+    capture_live_control(&s, "/live/pause");
+    Json(json!({"ok": true, "state": "paused", "as_of": chrono_utc_now_iso()}))
+}
+
+async fn live_resume(State(s): State<AppState>) -> Json<serde_json::Value> {
+    capture_live_control(&s, "/live/resume");
+    Json(json!({"ok": true, "state": "running", "as_of": chrono_utc_now_iso()}))
+}
+
+async fn live_kill(State(s): State<AppState>) -> Json<serde_json::Value> {
+    capture_live_control(&s, "/live/kill");
+    Json(json!({
+        "ok": true,
+        "state": "killed",
+        "as_of": chrono_utc_now_iso(),
+        "exchange_cancel": {"ok": true, "cancelled": 2}
+    }))
+}
+
+async fn live_flatten(State(s): State<AppState>) -> Json<serde_json::Value> {
+    capture_live_control(&s, "/live/flatten");
+    Json(json!({
+        "ok": true,
+        "orders": [
+            {"accepted": true, "coin": "BTC", "side": "sell", "size": 0.42, "reason": "submitted"}
+        ]
+    }))
 }
 
 // ─── /execute (POST) ───────────────────────────────────────────────

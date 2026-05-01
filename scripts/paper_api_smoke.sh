@@ -48,6 +48,12 @@ curl -fsS \
   -d '{"coin":"BTC","side":"buy","size":0.01,"idempotency_key":"smoke-1"}' \
   "${API}/execute" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["accepted"] is True; assert p["simulated"] is True; assert p["trace_id"].startswith("trace-")'
+curl -fsS \
+  -H "content-type: application/json" \
+  -H "x-zero-mode: live" \
+  -d '{"coin":"BTC","side":"buy","size":0.01,"idempotency_key":"smoke-live-refused"}' \
+  "${API}/execute" \
+  | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["accepted"] is False; assert p["simulated"] is False; assert p["reason"] == "live executor not configured"'
 
 curl -fsS "${API}/metrics" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.metrics.v1"; assert p["api"]["execute_count"] >= 1'
@@ -55,6 +61,11 @@ curl -fsS "${API}/audit/export?limit=5" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.audit.v1"; assert p["decisions"][0]["trace_id"].startswith("trace-")'
 curl -fsS "${API}/live/preflight" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.live_preflight.v1"; assert p["ready"] is False; assert p["live_mode"] == "refused"; assert "private" not in json.dumps(p).lower() or "never commit" in json.dumps(p).lower()'
+curl -fsS \
+  -H "content-type: application/json" \
+  -d '{}' \
+  "${API}/live/kill" \
+  | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["ok"] is False; assert p["reason"] == "live executor not configured"'
 
 (
   cd "${ROOT}/cli"
