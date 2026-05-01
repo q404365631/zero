@@ -1,0 +1,28 @@
+---
+source: crates/zero-tui/tests/snapshots.rs
+expression: snap
+---
+ decisions                                                                      
+                                                                                
+ (decisions stream lands with `/decisions` command dispatch)                    
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+>                                                                               
+ [DEC] engine:DOWN  feed:--  rate:?  hl:?  dd:--  ops:?

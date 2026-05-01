@@ -1,0 +1,27 @@
+name: Safety review
+description: Request review for execution, risk, credential, or safety behavior
+title: "safety: "
+labels: ["safety", "needs triage"]
+body:
+  - type: textarea
+    id: change
+    attributes:
+      label: Change
+      description: What safety-relevant behavior is changing?
+    validations:
+      required: true
+  - type: textarea
+    id: risk
+    attributes:
+      label: Risk
+      description: What could go wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation Plan
+      description: Paper-mode, unit, integration, or manual validation.
+    validations:
+      required: true
+

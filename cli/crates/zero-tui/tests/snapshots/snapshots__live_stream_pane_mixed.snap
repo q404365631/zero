@@ -1,0 +1,28 @@
+---
+source: crates/zero-tui/tests/snapshots.rs
+expression: snap
+---
+18:30:00 zero — deterministic test harness                                      
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ live stream · 4 buffered                                                       
+ 18:29:55  [heartbeat]  engine alive                                            
+ 18:29:57  [risk     ]  dd=1.25%  daily-loss=0.50%  daily-pnl=—                 
+ 18:29:58  [!! lag   ]  broadcast channel dropped 3 events                      
+ 18:30:00  [heartbeat]  engine alive                                            
+                                                                                
+                                                                                
+                                                                                
+>                                                                               
+ [CONV] engine:DOWN  feed:--  rate:?  hl:?  dd:--  ops:?

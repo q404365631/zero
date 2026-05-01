@@ -1,0 +1,201 @@
+# zero — operator terminal
+
+A CLI for running a ZERO trading engine. The engine is the
+source of truth; this binary is a renderer and a dispatcher,
+with a friction ladder that refuses to let a tilted operator
+rush a risk-increasing command.
+
+Intelligence, not automation.
+
+---
+
+## For operators
+
+### Install
+
+**From source (the only install path that exists today):**
+
+```bash
+git clone https://github.com/zero-intel/zero.git
+cd zero/cli
+cargo install --path crates/zero --profile release-small
+```
+
+This builds the size-optimised binary (~4.2 MB on
+darwin-arm64) and puts it on your `PATH` at
+`~/.cargo/bin/zero`. Homebrew tap and prebuilt release
+binaries are not yet published; they will land with M2.
+
+Rust toolchain: `rustc` 1.88+ (pinned in `rust-toolchain.toml`).
+
+### First run
+
+```bash
+zero init         # one-time setup wizard — picks your handle, engine URL, defaults
+zero doctor       # smoke-test: config, engine reachability, session DB
+zero              # launch the TUI
+```
+
+`zero init` is interactive by default. Supply `--yes` with
+`--non-interactive` for CI pipelines that want to write a
+config from flags; `--dry-run` rehearses the plan without
+writing. Full flag list: [`docs/commands.md`](docs/commands.md#zero-init).
+
+`zero doctor` runs before the first launch so that a bad
+config fails fast on a clear error instead of silently on a
+confusing one. It exits non-zero on any failed check and
+emits JSON with `--format json` for script consumption.
+
+On the first real launch, the TUI shows a one-time welcome
+block:
+
+```
+── welcome ──────────────────────────────────────
+zero is your operator terminal.
+intelligence, not automation.
+
+the engine is the source of truth; this CLI is a renderer + dispatcher.
+the operator-state segment on the status bar is always visible — never hidden.
+risk-reducing commands (/kill, /flatten-all, /close, /pause-entries, /break) are friction-exempt. always.
+
+two commands to get started:
+  /help  — the full surface, grouped by risk direction.
+  /status — what the engine sees right now.
+
+this welcome shows once. re-read it any time with /help.
+─────────────────────────────────────────────────
+```
+
+This is exactly what the operator sees — not marketing copy,
+the literal lines. The canonical source is `WELCOME_LINES`
+in `crates/zero/src/main.rs`; any edit there is reflected
+here on the next doc pass.
+
+### The three surfaces you'll use every day
+
+- **`zero`** — the bare invocation launches the TUI. This is
+  where real operator work happens: the conversation pane,
+  the modes (conversation / positions / heat), the status bar
+  with always-visible operator-state.
+- **`zero doctor`** — your sanity check. Run it when
+  something feels off: a slash-command fails, the status bar
+  says `ops:?`, the engine looks unreachable. Output is
+  terse and actionable; pair with `--format json | jq` for
+  scripting.
+- **`zero run <slash-cmd>`** — runs a single slash-command
+  non-interactively and exits. `zero run status`,
+  `zero run risk`, `zero run pulse 20`. Risk-increasing
+  commands (`/execute` and friends) are refused here because
+  they require a typed-confirm overlay that doesn't exist
+  without a TTY — running them through a pipe would bypass
+  the friction ladder on purpose, which the CLI will not do.
+
+Full reference: [`docs/commands.md`](docs/commands.md)
+(auto-generated from `--help` — stale docs fail CI).
+
+### Exit codes for scripts
+
+`0` success · `1` usage error · `2` engine unreachable ·
+`3` auth invalid (reserved) · `4` internal error.
+Full table: [`docs/commands.md`](docs/commands.md#exit-codes).
+
+### Where the CLI stores things
+
+| Path | What |
+|---|---|
+| `~/.zero/config.toml` | operator config (handle, defaults, guardrails) |
+| `~/.zero/state.db` | session log — conversations, slash-command history, journey milestones |
+| `~/.zero/zero.log` | TUI tracing output (WS/poller WARN records live here, not on the status bar) |
+| OS keychain | engine bearer token (`dev.getzero.zero` on macOS/Linux) |
+
+The `--no-persist` global flag disables session persistence
+for a single invocation — nothing goes to `state.db`, useful
+for one-off scripted runs. `--api` and `--token` override the
+config per invocation; set the corresponding env vars
+(`ZERO_API_URL`, `ZERO_API_TOKEN`) for shell use.
+
+---
+
+## For contributors
+
+### Build & test
+
+```bash
+cargo build --workspace
+cargo test  --workspace
+cargo clippy --workspace --all-targets -- -D warnings
+cargo fmt    --all --check
+```
+
+All four must pass. Additional perf and doc gates
+(all `#[ignore]`-by-default or env-gated):
+
+```bash
+# Perf tripwires — release-mode regression guards.
+cargo test -p zero-operator-state --release classifier_tick_under_budget -- --include-ignored
+cargo test -p zero --test version_startup --release -- --include-ignored
+
+# Full criterion distribution.
+cargo bench -p zero-operator-state
+
+# Idle TUI RSS check (requires a controlling TTY).
+./scripts/idle_rss_check.sh --profile release-small
+
+# Command-reference regeneration (CI lane enforces freshness).
+ZERO_REGENERATE_DOCS=1 cargo test -p zero --test commands_doc
+```
+
+### Honesty discipline
+
+Three layers catch three different failure modes:
+
+1. `Stat<T>` — every number carries `as_of` + `source`; no
+   bare numerics cross the engine/TUI boundary.
+2. Widget rules — staleness is visible (`ops:*`, `feed:<age>`
+   with colour bands). The status-bar fault matrix
+   (`crates/zero-tui/tests/statusbar_fault_matrix.rs`)
+   pins the render contract in 16 snapshots.
+3. Friction gates — risk direction is a sealed type.
+   `FrictionGate<Reduces>` does not compile. Risk-reducing
+   commands (`/kill`, `/flatten-all`, `/close`,
+   `/pause-entries`, `/break`) are structurally
+   friction-exempt.
+
+Full explanation and cross-references:
+[`docs/honesty.md`](docs/honesty.md).
+
+### Crate layout
+
+| Crate | Purpose |
+|---|---|
+| `zero` | binary entrypoint; argv parsing; dispatch; launches the TUI |
+| `zero-tui` | ratatui app — shell, status bar, prompt, conversation, modes, widgets |
+| `zero-engine-client` | unified HTTP + WS + MCP client mirroring engine state |
+| `zero-session` | SQLite-backed session persistence (replay, resume, fork, daily wrap) |
+| `zero-config` | `~/.zero/config.toml` + OS keychain secrets |
+| `zero-commands` | slash-command framework + built-ins, with the RiskDirection invariant |
+| `zero-operator-state` | pure state-vector + label + friction classifier (runs on engine & CLI) |
+| `zero-onboarding` | first-run wizard per spec §11 |
+| `zero-doctor` | self-diagnostic per spec §18 |
+| `zero-testkit` | mock engine + fixtures + perf harness (dev-only) |
+
+### Planning and spec
+
+| File | What it is |
+|---|---|
+| [`M1_PLAN.md`](M1_PLAN.md) | Definition of Done for milestone 1 — what ships and what doesn't |
+| [`M0_ADR.md`](M0_ADR.md) | Architecture Decision Records (ADR-001 … ADR-020) |
+| [`ADDENDUM_A_RESPONSE.md`](ADDENDUM_A_RESPONSE.md) | How Addendum A (operator-state honesty) was absorbed into M1 |
+| [`SPEC_v2.1_PATCHES.md`](SPEC_v2.1_PATCHES.md) | Red-team resolutions: security, cloud coupling, Heat-mode, `zero web` |
+| [`SECURITY_THREAT_MODEL.md`](SECURITY_THREAT_MODEL.md) | Threat actors, trust boundaries, per-asset mitigations, recovery |
+| [`CLOUD_COUPLING.md`](CLOUD_COUPLING.md) | Every cloud surface + offline-tolerance matrix |
+| [`.lints/README.md`](.lints/README.md) | Custom anti-pattern lint gates |
+
+### Status
+
+M1 in progress. TUI shell, four-mode layout, command
+dispatcher with the risk-asymmetry invariant, SQLite session
+persistence with replay, operator-state classifier, doctor,
+onboarding, daily-wrap. Remaining: auto-overlay of `/risk`
+at friction level 3+ (stubbed at L2 today), CI glue to bind
+every gate together.

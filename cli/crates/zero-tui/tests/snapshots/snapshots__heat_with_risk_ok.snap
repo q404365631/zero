@@ -1,0 +1,28 @@
+---
+source: crates/zero-tui/tests/snapshots.rs
+expression: snap
+---
+ heat                                                                           
+                                                                                
+ risk: OK  dd:0.8%  daily-loss:0.2%  open:1                                     
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+>                                                                               
+ [HEAT] engine:DOWN  feed:0s  rate:?  hl:?  dd:0.8%  ops:?

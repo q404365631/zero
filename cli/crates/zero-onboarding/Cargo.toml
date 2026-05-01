@@ -1,0 +1,28 @@
+[package]
+name = "zero-onboarding"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+zero-config.workspace = true
+zero-engine-client.workspace = true
+zero-session.workspace = true
+serde.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+tokio.workspace = true
+chrono.workspace = true
+url.workspace = true
+
+[features]
+testing = []
+
+[dev-dependencies]
+zero-testkit.workspace = true

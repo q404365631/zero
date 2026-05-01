@@ -1,0 +1,29 @@
+---
+source: crates/zero-tui/tests/snapshots.rs
+assertion_line: 650
+expression: snap
+---
+18:30:00 deterministic test                                                     
+                                                                                
+                                                                                
+          ┌ approaching guardrail — risk context ────────────────────┐          
+          │L3 FRICTION  tilt + drawdown close to guardrail           │          
+          │                                                          │          
+          │risk                                                      │          
+          │  drawdown   4.60%   alert-at 5.00%   Δ +0.40pp           │          
+          │  equity     $9700   peak $10000                          │          
+          │  halt       ok                                           │          
+          │                                                          │          
+          │state                                                     │          
+          │  label    TILT   friction L3   as-of 0s ago              │          
+          │  velocity   1h=0 4h=0 24h=0                              │          
+          │  re-entry   15m=0 30m=0 2h=0                             │          
+          │  sleep      hours-since-rest=—                           │          
+          │                                                          │          
+          │press any key to close                                    │          
+          └──────────────────────────────────────────────────────────┘          
+                                                                                
+                                                                                
+                                                                                
+>                                                                               
+ [CONV] engine:DOWN  feed:0s  rate:?  hl:?  dd:4.6%  ops:TILT

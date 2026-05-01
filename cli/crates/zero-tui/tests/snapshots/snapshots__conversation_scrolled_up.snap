@@ -1,0 +1,28 @@
+---
+source: crates/zero-tui/tests/snapshots.rs
+expression: snap
+---
+18:30:00 entry 03                                                              ↑
+18:30:00 entry 04                                                               
+18:30:00 entry 05                                                               
+18:30:00 entry 06                                                               
+18:30:00 entry 07                                                               
+18:30:00 entry 08                                                               
+18:30:00 entry 09                                                               
+18:30:00 entry 10                                                               
+18:30:00 entry 11                                                               
+18:30:00 entry 12                                                               
+18:30:00 entry 13                                                               
+18:30:00 entry 14                                                               
+18:30:00 entry 15                                                               
+18:30:00 entry 16                                                               
+18:30:00 entry 17                                                               
+18:30:00 entry 18                                                               
+18:30:00 entry 19                                                               
+18:30:00 entry 20                                                               
+18:30:00 entry 21                                                               
+18:30:00 entry 22                                                               
+18:30:00 entry 23                                                               
+18:30:00 entry 24                                                               
+>                                                                               
+ [CONV] engine:DOWN  feed:--  rate:?  hl:?  dd:--  ops:?

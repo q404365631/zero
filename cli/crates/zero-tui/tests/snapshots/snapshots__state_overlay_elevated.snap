@@ -1,0 +1,28 @@
+---
+source: crates/zero-tui/tests/snapshots.rs
+expression: snap
+---
+18:30:00 deterministic test                                                     
+                                                                                
+        ┌ operator state ──────────────────────────────────────────────┐        
+        │label  ELEVATED    friction L1    as-of 0s ago                │        
+        │                                                              │        
+        │state vector                                                  │        
+        │  velocity   1h=0  4h=0  24h=0   baseline=—                   │        
+        │  deviation  last-10=—   last-50=0/0                          │        
+        │  session    active=0s  longest-focus=0s  since-break=0s      │        
+        │  loss-reac  median-10=0s  fastest-session=0s  baseline=—     │        
+        │  re-entry   15m=0  30m=0  2h=0                               │        
+        │  sleep      hours-since-rest=—   on-break=no                 │        
+        │                                                              │        
+        │                                                              │        
+        │                                                              │        
+        │                                                              │        
+        │                                                              │        
+        │                                                              │        
+        │press any key to close                                        │        
+        └──────────────────────────────────────────────────────────────┘        
+                                                                                
+                                                                                
+>                                                                               
+ [CONV] engine:DOWN  feed:--  rate:?  hl:?  dd:--  ops:ELEVATED

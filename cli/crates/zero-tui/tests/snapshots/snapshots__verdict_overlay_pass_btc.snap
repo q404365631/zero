@@ -1,0 +1,28 @@
+---
+source: crates/zero-tui/tests/snapshots.rs
+expression: snap
+---
+18:30:00 zero — deterministic test harness                                      
+                                                                                
+                                                                                
+                                                                                
+    ┌ verdict · BTC ───────────────────────────────────────────────────────┐    
+    │ PASS  BTC conf 72%                                                   │    
+    │ ├─ layer_0    : PASS                                                 │    
+    │ ├─ layer_1    : PASS                                                 │    
+    │ └─ layer_2    : PASS                                                 │    
+    │ rationale: direction LONG · regime trending · consensus 8            │    
+    │                                                                      │    
+    │                                                                      │    
+    │                                                                      │    
+    │                                                                      │    
+    │                                                                      │    
+    │                                                                      │    
+    │press any key to close                                                │    
+    └──────────────────────────────────────────────────────────────────────┘    
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+>                                                                               
+ [CONV] engine:DOWN  feed:--  rate:?  hl:?  dd:--  ops:?

@@ -1,0 +1,5 @@
+---
+source: crates/zero-tui/tests/snapshots.rs
+expression: snap
+---
+ (no verdict — `/evaluate <coin>` to request one)

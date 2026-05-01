@@ -1,0 +1,39 @@
+{
+  "label": "elevated",
+  "friction": "l1",
+  "vector": {
+    "velocity": {
+      "last_1h": 2,
+      "last_4h": 2,
+      "last_24h": 2,
+      "baseline_1h": null
+    },
+    "deviation": {
+      "overrides_last_10": 1,
+      "verdicts_last_10": 1,
+      "overrides_last_50": 1,
+      "verdicts_last_50": 1
+    },
+    "session": {
+      "active_duration_ms": 7200000,
+      "longest_focus_ms": 7200000,
+      "since_last_break_ms": 0
+    },
+    "loss_reaction": {
+      "median_last_10_ms": 600000,
+      "fastest_session_ms": 600000,
+      "baseline_ms": null
+    },
+    "re_entry": {
+      "within_15m": 0,
+      "within_30m": 0,
+      "within_2h": 0
+    },
+    "sleep_proxy": {
+      "hours_since_rest_ended": null
+    },
+    "on_break": false
+  },
+  "as_of": "2026-04-21T20:00:00Z",
+  "version": 9
+}

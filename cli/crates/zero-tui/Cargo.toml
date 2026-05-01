@@ -1,0 +1,30 @@
+[package]
+name = "zero-tui"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+zero-commands.workspace = true
+zero-engine-client.workspace = true
+zero-operator-state.workspace = true
+zero-session.workspace = true
+ratatui.workspace = true
+crossterm.workspace = true
+tokio.workspace = true
+futures.workspace = true
+chrono.workspace = true
+serde.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+parking_lot.workspace = true
+
+[dev-dependencies]
+insta.workspace = true
+serde_json.workspace = true

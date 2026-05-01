@@ -1,0 +1,28 @@
+---
+source: crates/zero-tui/tests/snapshots.rs
+expression: snap
+---
+ positions                                                                      
+                                                                                
+ BTC    long  size=0.4200   entry=64120.50   mark=64480.00   pnl=+151.13    +0.8
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+>                                                                               
+ [POS] engine:DOWN  feed:0s  rate:?  hl:?  dd:--  ops:?

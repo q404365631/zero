@@ -1,0 +1,5 @@
+---
+source: crates/zero-tui/tests/snapshots.rs
+expression: snap
+---
+ calib  [■■■■■■■■■■■■■■□□□□□□]  pred 72% / obs 68%  n=134

@@ -1,0 +1,5 @@
+---
+source: crates/zero-tui/tests/statusbar_fault_matrix.rs
+expression: snap
+---
+ [CONV] engine:OK  feed:0s  rate:EXH  hl:?  dd:1.2%  ops:STEADY

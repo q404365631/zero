@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  launchd unit for zero-headlessd.
+  Install to: ~/Library/LaunchAgents/dev.getzero.headless.plist
+  Load with:  launchctl load -w ~/Library/LaunchAgents/dev.getzero.headless.plist
+  Unload with: launchctl unload -w ~/Library/LaunchAgents/dev.getzero.headless.plist
+
+  Path-substitution: replace `REPLACE_HOME` with the operator's
+  absolute $HOME and `REPLACE_BIN` with the absolute path to
+  the installed `zero-headlessd` binary (typically
+  `$HOME/.cargo/bin/zero-headlessd`). The `zero headless install`
+  subcommand (M2 §8) does this substitution on the operator's
+  behalf; this file ships as the canonical template.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>dev.getzero.headless</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>REPLACE_BIN</string>
+    </array>
+
+    <!--
+      Background-only: the supervisor does not render a UI and
+      should not be treated as a foreground app by launchd.
+      Matches the M2 spec's `ProcessType=Interactive=false`.
+    -->
+    <key>ProcessType</key>
+    <string>Background</string>
+
+    <!--
+      Relaunch on crash but not faster than every 10 s. Kept
+      identical to the systemd `RestartSec=10` so operators
+      can reason about restart cadence without a platform
+      switch. Faster restart risks tight-looping on a broken
+      config and burning the operator's log budget.
+    -->
+    <key>KeepAlive</key>
+    <true/>
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+
+    <!--
+      Run at user login. The supervisor's domain is
+      "operator-local" (M2 spec ADR-006), not system-global;
+      installing under `LaunchAgents` rather than
+      `LaunchDaemons` is the correct scope.
+    -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!--
+      Clamp file-descriptor + process limits. The daemon serves
+      one accept loop and spawns a handful of short-lived
+      handler tasks; these ceilings are 10x what the hot path
+      needs, which is the engineering sweet spot for "surprise
+      when exceeded but not a starvation risk".
+    -->
+    <key>SoftResourceLimits</key>
+    <dict>
+        <key>NumberOfFiles</key>
+        <integer>1024</integer>
+        <key>NumberOfProcesses</key>
+        <integer>128</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>REPLACE_HOME/.zero/logs/headless.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>REPLACE_HOME/.zero/logs/headless.err.log</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>ZERO_LOG</key>
+        <string>info</string>
+    </dict>
+</dict>
+</plist>

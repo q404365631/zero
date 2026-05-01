@@ -1,0 +1,5 @@
+---
+source: crates/zero-tui/tests/snapshots.rs
+expression: snap
+---
+ BTC    long  size=0.4200   entry=64120.50   mark=64480.00   pnl=+151.13    +0.82R  stop=63500.00 tgt=66000.00

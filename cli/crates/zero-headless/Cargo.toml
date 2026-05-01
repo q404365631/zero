@@ -1,0 +1,48 @@
+[package]
+name = "zero-headless"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+# Library target — the IPC protocol + client surface is reused by
+# `zero-commands` (the real `SupervisorSource` adapter talks to
+# the daemon through this module's `Client`). The binary target
+# below is the daemon itself.
+[lib]
+path = "src/lib.rs"
+
+# The daemon binary. Installed alongside `zero` via
+# `cargo install --path crates/zero-headless --profile release-small`.
+# Kept narrow: the binary depends on the library for the IPC +
+# state primitives, so the real code under test and the shipped
+# binary are one artifact.
+[[bin]]
+name = "zero-headlessd"
+path = "src/bin/zero-headlessd.rs"
+
+[dependencies]
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+chrono = { workspace = true }
+parking_lot = { workspace = true }
+clap = { workspace = true }
+directories = { workspace = true }
+
+# Engine reachability probe — the `/headless status` answer for
+# "can the daemon see the engine?" reuses the same HTTP client
+# the TUI uses, so auth + retry stays uniform.
+zero-engine-client = { workspace = true }
+zero-config = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3"

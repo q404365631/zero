@@ -1,0 +1,5 @@
+---
+source: crates/zero-tui/tests/snapshots.rs
+expression: snap
+---
+ calib  (insufficient data — need ≥30 graded decisions, have 12)

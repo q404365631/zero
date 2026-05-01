@@ -1,0 +1,61 @@
+# systemd unit for zero-headlessd.
+# Install to: ~/.config/systemd/user/zero-headlessd.service
+# Enable:    systemctl --user enable --now zero-headlessd.service
+# Stop:      systemctl --user stop zero-headlessd.service
+#
+# Path-substitution: replace `REPLACE_BIN` with the absolute
+# path to the installed `zero-headlessd` binary. The
+# `zero headless install` subcommand (M2 §8) performs the
+# substitution for the operator; this file ships as the
+# canonical template.
+#
+# Scope note: the supervisor is per-operator, not per-host. We
+# ship a `--user` systemd unit rather than a system-wide unit
+# so the daemon's socket path (`~/.zero/sock`) and its config
+# (`~/.zero/config.toml`) stay under the operator's HOME.
+
+[Unit]
+Description=Zero operator-local supervisor daemon
+Documentation=https://getzero.dev/docs/headless
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=REPLACE_BIN
+
+# Restart on crash but no faster than every 10 s. Matches the
+# launchd `ThrottleInterval=10`; keeps restart cadence
+# platform-invariant so operator muscle memory transfers.
+Restart=on-failure
+RestartSec=10
+
+# Graceful drain on SIGTERM: the daemon listens for SIGTERM
+# and closes its accept loop before exiting. 15 s is generous
+# for the worst-case round-trip on a single in-flight request.
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=15
+
+# Hardening — the daemon does not need to write outside
+# `~/.zero/`, so we lock the rest of the filesystem down.
+# `ProtectSystem=strict` is the spec-mandated ceiling; the
+# allow-listed paths below are just enough to let the
+# supervisor do its job.
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.zero
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+
+# Default logging to journald; operators can still follow via
+# `journalctl --user -u zero-headlessd.service`.
+Environment=ZERO_LOG=info
+
+[Install]
+WantedBy=default.target

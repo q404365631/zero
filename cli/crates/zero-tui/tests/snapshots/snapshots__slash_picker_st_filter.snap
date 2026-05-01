@@ -1,0 +1,28 @@
+---
+source: crates/zero-tui/tests/snapshots.rs
+expression: snap
+---
+18:30:00 zero — deterministic test harness                                      
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+› /status [read] operator + engine snapshot                                     
+  /state [read] operator-state overlay                                          
+  /state-override [trade] declare operator-state label (gated)                  
+  /pause-entries [reduce] block new positions                                   
+  /coaching reset [read] clear coaching notice buffer                           
+> /st                                                                           
+ [CONV] engine:DOWN  feed:--  rate:?  hl:?  dd:--  ops:?

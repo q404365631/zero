@@ -1,0 +1,34 @@
+[package]
+name = "zero-config"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+serde.workspace = true
+toml.workspace = true
+directories.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+
+# `keyring` is gated per-target so a macOS build does not link
+# the Linux secret-service backend (and vice-versa). This keeps
+# the release binary small while still giving every platform a
+# real credential store.
+[target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
+keyring = { workspace = true, features = ["apple-native"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+keyring = { workspace = true, features = ["windows-native"] }
+
+[target.'cfg(any(target_os = "linux", target_os = "freebsd", target_os = "openbsd"))'.dependencies]
+keyring = { workspace = true, features = [
+    "sync-secret-service",
+    "crypto-rust",
+    "vendored",
+] }
