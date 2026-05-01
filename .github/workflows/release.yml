@@ -12,8 +12,8 @@ jobs:
   python-package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-python@v6.2.0
         with:
           python-version: "3.12"
           cache: pip
@@ -24,7 +24,7 @@ jobs:
           python -m build
       - name: Generate checksums
         run: python3 scripts/write_sha256s.py engine/dist/SHA256SUMS engine/dist/*
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.1
         with:
           name: zero-engine-python
           path: engine/dist/*
@@ -40,7 +40,7 @@ jobs:
             artifact: zero-macos
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
       - name: Build CLI
         working-directory: cli
         run: cargo build -p zero --profile release-small
@@ -49,7 +49,7 @@ jobs:
           mkdir -p dist
           cp cli/target/release-small/zero dist/${{ matrix.artifact }}
           python3 scripts/write_sha256s.py dist/SHA256SUMS dist/${{ matrix.artifact }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.1
         with:
           name: ${{ matrix.artifact }}
           path: dist/*
@@ -57,7 +57,7 @@ jobs:
   container-smoke:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
       - name: Build paper image
         run: docker build -t zero-public:${{ github.ref_name }} .
       - name: Run paper demo
@@ -69,7 +69,7 @@ jobs:
           mkdir -p dist
           docker save zero-public:${{ github.ref_name }} -o dist/zero-paper-image.tar
           python3 scripts/write_sha256s.py dist/SHA256SUMS dist/zero-paper-image.tar
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.1
         with:
           name: zero-paper-image
           path: dist/*
@@ -84,7 +84,7 @@ jobs:
       attestations: write
       artifact-metadata: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
       - uses: actions/download-artifact@v4
         with:
           path: release-artifacts
