@@ -32,6 +32,7 @@ docs-check:
     test -f docs/backlog.md
     test -f examples/paper-trading/run.py
     test -f examples/paper-trading/scenario.json
+    test -f examples/paper-trading/candles.jsonl
     test -f Dockerfile
     test -f compose.yaml
 

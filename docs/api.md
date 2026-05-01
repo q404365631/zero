@@ -87,6 +87,38 @@ Required behavior:
 The public examples use this path so contributor demos are data-driven and easy
 to extend without touching engine code.
 
+## Market Data Adapters
+
+### `Candle`
+
+Immutable OHLCV candle:
+
+- `symbol`
+- `ts`
+- `open`
+- `high`
+- `low`
+- `close`
+- `volume`
+
+Validation keeps public fixtures honest: prices must be positive, high/low must
+bound open and close, and volume must be non-negative.
+
+### `MarketDataAdapter`
+
+Protocol for deterministic market data:
+
+- `candles(symbol, limit=None)`
+- `latest(symbol)`
+
+Adapters must return candles in chronological order and must not require secrets
+for paper examples.
+
+### `JsonlCandleAdapter`
+
+Loads newline-delimited JSON candles from disk. This is the public template for
+future adapters because it is deterministic, reviewable, and CI-friendly.
+
 ## Compatibility Rules
 
 - Additive fields are preferred over breaking changes.

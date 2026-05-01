@@ -19,3 +19,4 @@ def test_paper_trading_example_runs_from_repo_root() -> None:
     assert payload["scenario"] == "paper-launch-smoke"
     assert payload["fills"] == 2
     assert payload["rejections"] == 2
+    assert payload["market"]["BTC"]["last"] == 40500

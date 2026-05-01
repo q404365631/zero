@@ -3,11 +3,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from zero_engine import PaperEngine, load_scenario
+from zero_engine import JsonlCandleAdapter, PaperEngine, load_scenario
 
 
 def main() -> None:
-    scenario = load_scenario(Path(__file__).with_name("scenario.json"))
+    base_dir = Path(__file__).parent
+    scenario = load_scenario(base_dir / "scenario.json")
+    market = JsonlCandleAdapter(base_dir / "candles.jsonl")
     engine = PaperEngine(limits=scenario.limits)
 
     decisions = []
@@ -28,6 +30,13 @@ def main() -> None:
             {
                 "scenario": scenario.name,
                 "mode": scenario.mode,
+                "market": {
+                    symbol: {
+                        "as_of": market.latest(symbol).ts,
+                        "last": market.latest(symbol).close,
+                    }
+                    for symbol in sorted({order.symbol for order in scenario.orders})
+                },
                 "fills": len(engine.fills),
                 "rejections": len(engine.rejections),
                 "positions": {

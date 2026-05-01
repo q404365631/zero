@@ -28,6 +28,7 @@ Expected behavior:
 - The demo runs in paper mode.
 - At least one paper order is filled.
 - At least one unsafe or over-limit order is rejected.
+- The local candle fixture is read from disk.
 - No real exchange private key is requested.
 
 ## Daily Commands

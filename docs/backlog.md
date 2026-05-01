@@ -44,18 +44,6 @@ Acceptance:
 - The first implementation is paper-only.
 - Tests cover at least one accepted and one rejected order.
 
-### Market data adapter template
-
-Labels: `help wanted`, `engine`, `examples`
-
-Create a local adapter example that reads deterministic candles from disk.
-
-Acceptance:
-
-- No external API key.
-- Adapter is documented in `docs/api.md` or a dedicated adapter doc.
-- CI covers the example.
-
 ### Container smoke test in CI
 
 Labels: `help wanted`, `ci`, `release`
