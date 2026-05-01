@@ -21,6 +21,9 @@ paper-api-smoke:
 package-dry-run:
     scripts/package_dry_run.sh
 
+railway-smoke:
+    scripts/railway_smoke.sh
+
 checksum output *artifacts:
     python3 scripts/write_sha256s.py "{{output}}" {{artifacts}}
 
@@ -62,8 +65,12 @@ docs-check:
     test -x scripts/assemble_release_assets.sh
     test -x scripts/install.sh
     test -x scripts/package_dry_run.sh
+    test -x scripts/railway_start.sh
+    test -x scripts/railway_smoke.sh
     test -f Dockerfile
     test -f compose.yaml
+    test -f railway.toml
+    test -f docs/railway-deploy.md
 
 container-build:
     docker build -t zero-public:local .

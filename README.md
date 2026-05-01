@@ -119,6 +119,7 @@ Read [docs/safety-model.md](docs/safety-model.md) before adding execution or ris
 - [Open-core boundary](docs/open-core-boundary.md)
 - [ZERO Intelligence](docs/zero-intelligence.md)
 - [Hyperliquid read-only runtime](docs/hyperliquid-readonly.md)
+- [Railway paper deployment](docs/railway-deploy.md)
 - [Production readiness](docs/production-readiness.md)
 - [Release process](docs/release.md)
 - [Launch scorecard](docs/launch-scorecard.md)

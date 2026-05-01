@@ -17,15 +17,15 @@ end.
 | Engine runtime | 48 | Deterministic paper runtime, append-only decision journal, read-only Hyperliquid info adapter, and live-mid paper execution exist. No OODA loop, runners, durable bus, or live executor. |
 | Safety and risk | 58 | Good local contracts and CLI risk asymmetry. Missing live kill-switch drills, dead-man enforcement, custody flow, and exchange-failure tests. |
 | API contracts | 57 | Paper fixtures are pinned across Python and Rust, `/hl/status` exposes read-only market status, and `/market/quote` names the active price source. Missing OpenAPI, versioned live contracts, auth scopes, and compatibility policy for production. |
-| Deployment | 42 | Docker path exists. Railway template, persistent volume layout, env validation, health checks, and rollback docs are missing. |
+| Deployment | 58 | Docker path, Railway config, healthcheck, restart policy, `PORT`-aware start script, and Railway smoke test exist. Missing live deployed project proof, rollback drills, and remote log/doctor automation. |
 | Observability and audit | 50 | Paper decision logs and optional JSONL journal exist. Missing production audit journal, metrics, trace IDs, retention policy, and operator export format. |
 | Security and custody | 55 | No secrets needed for first run. Missing live key handling, redaction tests, permission model, and threat-model coverage for Railway deploys. |
 | ZERO Network | 15 | Product boundary is defined. Profiles, leaderboards, verification, and opt-in publishing do not exist yet. |
 | ZERO Intelligence | 12 | Commercial boundary is defined. API, billing, datasets, rate limits, and terms do not exist yet. |
 | Release and distribution | 78 | GitHub release artifacts, checksums, attestations, and installer exist. Package registries and Homebrew are not yet shipped. |
-| Documentation for operators | 68 | Good local docs, Hyperliquid read-only boundary docs, and live-paper quote docs. Missing real production runbook, Railway deploy guide, live-mode warnings, and incident recovery playbooks. |
+| Documentation for operators | 72 | Good local docs, Hyperliquid read-only boundary docs, live-paper quote docs, and Railway paper deploy docs. Missing live-mode warnings and incident recovery playbooks. |
 
-**Overall production product readiness: 58/100.**
+**Overall production product readiness: 62/100.**
 
 This is acceptable for an open-source foundation release. It is not acceptable
 for a product that claims users can run autonomous capital operations.
@@ -67,6 +67,19 @@ ZERO is 100/100 when a new serious operator can:
   commercial rights matter.
 
 ## Execution Cycles
+
+Forecast from here: **8 more major cycles** to credible 100/100.
+
+| Cycle | Target | Expected Score |
+|---|---|---:|
+| 4 | Railway-first paper deployment | 62 |
+| 5 | Durable runtime state and restart recovery | 70 |
+| 6 | Production audit journal, metrics, and trace IDs | 76 |
+| 7 | Live custody preflight and local key handling | 84 |
+| 8 | Self-custodial Hyperliquid live execution with kill switches | 90 |
+| 9 | ZERO Network verified public profiles and leaderboards | 94 |
+| 10 | ZERO Intelligence API, billing boundary, and delayed public data | 97 |
+| 11 | External hardening: security review, package registries, Homebrew, release drills | 100 |
 
 ### Cycle 1: Runtime Skeleton
 
@@ -151,24 +164,75 @@ Exit gate:
 - A new operator can deploy paper mode to Railway, inspect it from the CLI, and
   view logs without private context.
 
-### Cycle 5: Self-Custodial Live Execution
+Current progress:
 
-Target score: 88/100.
+- `railway.toml` defines Dockerfile deployment, `/health`, timeout, and restart
+  policy.
+- `/app/scripts/railway_start.sh` binds `0.0.0.0:${PORT}` and writes the paper
+  decision journal to `/data/decisions.jsonl` by default.
+- `docs/railway-deploy.md` documents the volume, variables, CLI connection, and
+  failure modes.
+- GitHub CI runs `scripts/railway_smoke.sh`, which boots the Docker image with
+  Railway-style variables, checks `/health`, records a paper fill, and verifies
+  journal recovery through `/journal`.
 
-- Add local-only Hyperliquid API wallet flow.
-- Add live executor with idempotency, no-retry-on-order-submit, kill switch,
-  dead-man switch, reduce-only flatten, max notional, max loss, and max order
-  rate.
-- Add redaction and custody tests.
+### Cycle 5: Durable Runtime State And Restart Recovery
+
+Target score: 70/100.
+
+- Persist runtime state needed to recover after process or host restart.
+- Rehydrate positions, recent decisions, and paper session metadata from disk.
+- Add explicit recovery status to `/health`, `/v2/status`, and CLI output.
 
 Exit gate:
 
-- Live mode remains off until doctor confirms custody, risk, exchange, journal,
-  and emergency controls.
+- A Railway or local deployment can restart and keep enough state to explain
+  the active paper session without relying only on process memory.
 
-### Cycle 6: ZERO Network
+### Cycle 6: Production Audit And Observability
 
-Target score: 93/100.
+Target score: 76/100.
+
+- Add trace IDs across decisions, fills, API requests, and CLI commands.
+- Add metrics endpoints and operator export format.
+- Define journal retention, redaction, and integrity checks.
+
+Exit gate:
+
+- An operator can export a complete paper-session audit trail and correlate CLI
+  actions with engine decisions.
+
+### Cycle 7: Live Custody Preflight
+
+Target score: 84/100.
+
+- Add local-only Hyperliquid API wallet setup.
+- Add key redaction, permission checks, account-read verification, and dry-run
+  order validation.
+- Add `zero doctor` checks that refuse live mode until custody, exchange, risk,
+  journal, and emergency controls are all present.
+
+Exit gate:
+
+- Live mode cannot start without a passing custody and safety preflight.
+
+### Cycle 8: Self-Custodial Live Execution
+
+Target score: 90/100.
+
+- Add live executor with idempotency, no-retry-on-order-submit, kill switch,
+  dead-man switch, reduce-only flatten, max notional, max loss, and max order
+  rate.
+- Add exchange outage drills, kill-switch drills, and flatten drills.
+
+Exit gate:
+
+- Operators can start live mode only after preflight and can immediately pause,
+  kill, or flatten exposure from the CLI.
+
+### Cycle 9: ZERO Network
+
+Target score: 94/100.
 
 - Add opt-in public profile publishing contract.
 - Add verified paper/live badge protocol.
@@ -180,7 +244,7 @@ Exit gate:
 - Operators can publish verified public behavior without leaking credentials,
   private notes, or non-consented strategy details.
 
-### Cycle 7: ZERO Intelligence
+### Cycle 10: ZERO Intelligence
 
 Target score: 97/100.
 
@@ -193,7 +257,7 @@ Exit gate:
 - Commercial users can pay for speed, history, scale, webhooks, exports, and
   redistribution while the runtime stays open.
 
-### Cycle 8: Production Hardening
+### Cycle 11: Production Hardening
 
 Target score: 100/100.
 

@@ -54,6 +54,10 @@ jobs:
           test -x scripts/assemble_release_assets.sh
           test -x scripts/install.sh
           test -x scripts/package_dry_run.sh
+          test -x scripts/railway_start.sh
+          test -x scripts/railway_smoke.sh
+          test -f railway.toml
+          test -f docs/railway-deploy.md
           test -f .github/RELEASE_TEMPLATE.md
 
   cli:
@@ -118,6 +122,13 @@ jobs:
         run: rustup show
       - name: Build package artifacts without publishing
         run: scripts/package_dry_run.sh
+
+  railway-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - name: Smoke Railway-style paper deployment
+        run: scripts/railway_smoke.sh
 
   container-smoke:
     runs-on: ubuntu-latest
