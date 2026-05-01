@@ -15,11 +15,17 @@
 
 - Strategy plugin template
 - Market data adapter template
+- Railway deployment template
 - Docker Compose local demo
 - OpenAPI spec
 - Public examples
+- Public profile and leaderboard contracts
 - Good-first-issue backlog
 
-## Commercial Boundary
+## Product Boundary
 
-ZERO Cloud will add hosted teams, managed deployment, premium connectors, model gateway, audit exports, and support.
+ZERO Runtime and ZERO Network stay public. Railway is the preferred hosted
+deployment substrate. ZERO Intelligence is the commercial API and subscription
+layer for realtime intelligence, historical datasets, advanced cohorts,
+commercial intelligence connectors, webhooks, exports, commercial
+redistribution, support, and reliability commitments.

@@ -2,7 +2,7 @@
 
 This scorecard keeps the public repo honest before launch. It separates what is
 ready for open-source contributors from what is paper-only or intentionally
-reserved for ZERO Cloud.
+reserved for ZERO Intelligence.
 
 ## Current Score
 
@@ -37,11 +37,12 @@ reserved for ZERO Cloud.
 ## Intentionally Not Shipped
 
 - Live exchange execution
-- Hosted team control plane
-- Managed deployments and fleet monitoring
-- Model/key gateway
-- Premium connectors
-- Enterprise audit exports and SLAs
+- Railway deployment template
+- Public profiles and leaderboards
+- Realtime ZERO Intelligence API
+- Historical intelligence datasets
+- Commercial intelligence connectors
+- Enterprise support and SLAs
 
 ## Remaining To Keep 100
 

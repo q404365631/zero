@@ -105,8 +105,8 @@ pub mod env {
 pub mod keychain {
     /// Engine token — issued by the operator's engine, used by the CLI.
     pub const ENGINE_SERVICE: &str = "dev.getzero.zero";
-    /// Cloud token — issued by `api.getzero.dev` (future crate).
-    pub const CLOUD_SERVICE: &str = "dev.getzero.zero-cloud";
+    /// ZERO Intelligence token — issued by `api.getzero.dev` (future crate).
+    pub const INTELLIGENCE_SERVICE: &str = "dev.getzero.zero-intelligence";
     /// Account name under which we store the engine token. A
     /// single logical operator slot per CLI machine; operators with
     /// multiple engines switch via `zero pair --target`.

@@ -4,11 +4,11 @@
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/zero-intel/zero/badge)](https://securityscorecards.dev/viewer/?uri=github.com/zero-intel/zero)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-Self-hosted autonomous trading engine and operator terminal.
+Self-hosted Autonomous Risk Operations runtime and operator terminal.
 
-ZERO is for engineers who want to build, test, and supervise AI-assisted trading systems without handing execution to a black box. The public repo starts with paper mode, local operation, explicit safety gates, inspectable decisions, and extension points for market data, strategies, and operator workflows.
+ZERO is for engineers who want to build, test, and supervise AI-assisted trading systems without handing execution to a black box. The public repo starts with paper mode, local operation, explicit safety gates, inspectable decisions, and extension points for market data, strategies, operator workflows, and deployment targets.
 
-> This repository is the open-core runtime. Hosted team workflows, managed deployments, private data services, and enterprise integrations live in ZERO Cloud.
+> This repository is the open runtime. Railway-first deployment and public profiles belong in the public product surface. ZERO Intelligence is the commercial API and subscription layer built from verified autonomous behavior.
 
 ## What Is Open Source
 
@@ -18,16 +18,19 @@ ZERO is for engineers who want to build, test, and supervise AI-assisted trading
 - Operator CLI
 - API contracts
 - Strategy/plugin examples
+- Railway and Docker deployment paths
+- Public profile and leaderboard contracts
 - Tests and reproducible local demo
 
 ## What Is Commercial
 
-- Hosted control plane
-- Managed operator teams
-- Fleet deployment and monitoring
-- Model/key gateway
-- Premium connectors
-- Enterprise audit exports, support, and SLAs
+- Realtime ZERO Intelligence API
+- Historical intelligence datasets
+- Advanced cohort and benchmark analytics
+- Commercial intelligence connectors and enrichment feeds
+- Higher API limits, webhooks, and exports
+- Commercial redistribution rights
+- Enterprise support, reliability commitments, and SLAs
 
 ## Quickstart
 
@@ -114,6 +117,7 @@ Read [docs/safety-model.md](docs/safety-model.md) before adding execution or ris
 - [CLI quickstart capture](docs/cli-quickstart.md)
 - [API contract](docs/api.md)
 - [Open-core boundary](docs/open-core-boundary.md)
+- [ZERO Intelligence](docs/zero-intelligence.md)
 - [Release process](docs/release.md)
 - [Launch scorecard](docs/launch-scorecard.md)
 - [Launch backlog](docs/backlog.md)

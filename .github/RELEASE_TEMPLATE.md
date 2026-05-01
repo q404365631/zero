@@ -31,8 +31,8 @@ just paper-api-smoke
 ## Known Limitations
 
 - Live exchange execution is not included in this repository.
-- Hosted control plane, managed deployments, model/key gateway, premium connectors,
-  and enterprise audit exports are commercial ZERO Cloud surfaces.
+- Railway deployment, public profiles, leaderboards, realtime ZERO Intelligence,
+  historical datasets, and enterprise support are not included in this release.
 
 ## Migration Notes
 

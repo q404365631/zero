@@ -44,6 +44,7 @@ docs-check:
     test -f docs/cli-quickstart.md
     test -f docs/api.md
     test -f docs/open-core-boundary.md
+    test -f docs/zero-intelligence.md
     test -f docs/release.md
     test -f docs/launch-scorecard.md
     test -f docs/backlog.md
