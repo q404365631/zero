@@ -7,6 +7,16 @@ from typing import Any, Protocol
 
 
 @dataclass(frozen=True)
+class MarketDataAdapterMetadata:
+    name: str
+    version: str
+    description: str
+    source: str
+    deterministic: bool = True
+    requires_secrets: bool = False
+
+
+@dataclass(frozen=True)
 class Candle:
     symbol: str
     ts: str
@@ -32,6 +42,8 @@ class Candle:
 
 
 class MarketDataAdapter(Protocol):
+    metadata: MarketDataAdapterMetadata
+
     def candles(self, symbol: str, limit: int | None = None) -> tuple[Candle, ...]:
         """Return candles in chronological order."""
 
@@ -40,6 +52,13 @@ class MarketDataAdapter(Protocol):
 
 
 class JsonlCandleAdapter:
+    metadata = MarketDataAdapterMetadata(
+        name="jsonl-candles",
+        version="0.1.0",
+        description="Deterministic OHLCV candles loaded from a local JSONL file.",
+        source="local-jsonl",
+    )
+
     def __init__(self, path: str | Path):
         self.path = Path(path)
         self._candles = _load_candles(self.path)
@@ -84,3 +103,18 @@ def _parse_candle(raw: dict[str, Any]) -> Candle:
         close=float(raw["close"]),
         volume=float(raw.get("volume", 0)),
     )
+
+
+def validate_market_data_adapter(adapter: MarketDataAdapter) -> None:
+    metadata = adapter.metadata
+    if not metadata.name.strip():
+        raise ValueError("market data adapter metadata.name is required")
+    if not metadata.version.strip():
+        raise ValueError("market data adapter metadata.version is required")
+    if metadata.requires_secrets:
+        raise ValueError("public market data adapters must not require secrets")
+
+
+def latest_close(adapter: MarketDataAdapter, symbol: str) -> float:
+    validate_market_data_adapter(adapter)
+    return adapter.latest(symbol).close

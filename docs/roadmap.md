@@ -15,7 +15,7 @@
 ## Near Term
 
 - Strategy plugin template with paper-first contributor example
-- Market data adapter template
+- Market data adapter template with deterministic contributor example
 - Railway deployment template
 - Docker Compose local demo
 - OpenAPI contract hardening and compatibility checks

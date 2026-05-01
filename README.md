@@ -243,6 +243,7 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and
 - [OpenAPI Contract](openapi/zero-paper-api.v1.yaml)
 - [API Compatibility](docs/api-compatibility.md)
 - [Strategy Plugins](docs/strategy-plugins.md)
+- [Market Data Adapters](docs/market-data-adapters.md)
 - [Hyperliquid Read-only](docs/hyperliquid-readonly.md)
 - [ZERO Network](docs/zero-network.md)
 - [ZERO Intelligence](docs/zero-intelligence.md)

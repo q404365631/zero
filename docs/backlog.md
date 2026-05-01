@@ -20,6 +20,20 @@ Acceptance:
 - The example runs without network access or exchange credentials.
 - Tests prove accepted and rejected paths still go through `PaperEngine.submit`.
 
+### Add a deterministic market data adapter
+
+Labels: `good first issue`, `market-data`, `examples`
+
+Add a market data adapter example that follows
+[market data adapter docs](market-data-adapters.md).
+
+Acceptance:
+
+- The adapter declares `MarketDataAdapterMetadata`.
+- The adapter returns chronological `Candle` objects and implements `latest`.
+- The example requires no secrets, network access, or live exchange account.
+- Tests cover missing symbols, positive limits, and paper strategy integration.
+
 ### Add paper example output summary
 
 Labels: `good first issue`, `docs`, `examples`

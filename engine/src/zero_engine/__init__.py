@@ -8,7 +8,14 @@ from zero_engine.intelligence import (
     intelligence_snapshot,
 )
 from zero_engine.live import LiveExecutionPolicy, LiveExecutionRecord, LiveExecutor
-from zero_engine.market import Candle, JsonlCandleAdapter, MarketDataAdapter
+from zero_engine.market import (
+    Candle,
+    JsonlCandleAdapter,
+    MarketDataAdapter,
+    MarketDataAdapterMetadata,
+    latest_close,
+    validate_market_data_adapter,
+)
 from zero_engine.models import OrderIntent, Position, RiskLimits, Side
 from zero_engine.network import PublicProfileConfig, public_profile, publish_profile
 from zero_engine.paper import DecisionRecord, PaperEngine, RecoveryState
@@ -33,6 +40,7 @@ __all__ = [
     "LiveExecutionRecord",
     "LiveExecutor",
     "MarketDataAdapter",
+    "MarketDataAdapterMetadata",
     "MomentumStrategy",
     "OrderIntent",
     "PaperEngine",
@@ -51,6 +59,7 @@ __all__ = [
     "export_intelligence_snapshot",
     "intelligence_catalog",
     "intelligence_snapshot",
+    "latest_close",
     "load_scenario",
     "parse_scenario",
     "propose_plugin_order",
@@ -58,4 +67,5 @@ __all__ = [
     "public_profile",
     "publish_profile",
     "validate_strategy_plugin",
+    "validate_market_data_adapter",
 ]
