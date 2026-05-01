@@ -25,6 +25,7 @@ from zero_engine.hyperliquid import (
 from zero_engine.journal import DecisionJournal
 from zero_engine.live import HyperliquidSdkAdapter, LiveExecutionPolicy, LiveExecutor
 from zero_engine.models import OrderIntent, Position, Side
+from zero_engine.network import PublicProfileConfig, public_profile, publish_profile
 from zero_engine.paper import DecisionRecord, PaperEngine
 from zero_engine.safety import evaluate_order
 
@@ -136,6 +137,10 @@ class PaperApiState:
     live_kill_switch_path: str | None = None
     live_dead_man_timeout_s: float = 30.0
     live_executor: LiveExecutor | None = None
+    network_handle: str = "local-operator"
+    network_display_name: str | None = None
+    network_publish_enabled: bool = False
+    network_publish_path: str | None = None
 
     def __post_init__(self) -> None:
         if self.execution_cache:
@@ -265,6 +270,8 @@ class PaperApi:
             "/live/preflight": self.live_preflight,
             "/market/quote": lambda: self.market_quote(query),
             "/metrics": self.metrics,
+            "/network/profile": self.network_profile,
+            "/network/leaderboard": self.network_leaderboard,
             "/operator/state": self.operator_state,
         }
         if path.startswith("/evaluate/"):
@@ -345,6 +352,11 @@ class PaperApi:
                 "snapshot": self.operator_state(),
                 **({"trace_id": trace_id} if expose_trace else {}),
             }
+        if path == "/network/publish":
+            try:
+                return HTTPStatus.OK, self.network_publish(payload)
+            except ValueError as exc:
+                return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
         if path == "/live/heartbeat":
             return HTTPStatus.OK, self.live_heartbeat()
         if path == "/live/pause":
@@ -719,6 +731,63 @@ class PaperApi:
             "recovery": self.recovery(),
             "decisions": decisions,
         }
+
+    def network_profile(self) -> dict[str, Any]:
+        return public_profile(
+            self.state.engine,
+            config=self.network_config(),
+            generated_at=self.state.now_iso(),
+            mode=self.network_mode(),
+            live_execution_count=self.live_execution_count(),
+        )
+
+    def network_leaderboard(self) -> dict[str, Any]:
+        profile = self.network_profile()
+        return {
+            "schema_version": "zero.network.leaderboard.v1",
+            "generated_at": self.state.now_iso(),
+            "mode": profile["mode"],
+            "rows": [profile["leaderboard_row"]],
+            "privacy": profile["privacy"],
+        }
+
+    def network_publish(self, payload: dict[str, Any]) -> dict[str, Any]:
+        handle = str(payload.get("handle") or self.state.network_handle)
+        display_name = payload.get("display_name", self.state.network_display_name)
+        if display_name is not None:
+            display_name = str(display_name)
+        config = PublicProfileConfig(
+            handle=handle,
+            display_name=display_name,
+            publish_enabled=True,
+        )
+        profile = public_profile(
+            self.state.engine,
+            config=config,
+            generated_at=self.state.now_iso(),
+            mode=self.network_mode(),
+            live_execution_count=self.live_execution_count(),
+        )
+        return publish_profile(
+            profile,
+            consent=bool(payload.get("consent")),
+            publish_path=self.state.network_publish_path,
+        )
+
+    def network_config(self) -> PublicProfileConfig:
+        return PublicProfileConfig(
+            handle=self.state.network_handle,
+            display_name=self.state.network_display_name,
+            publish_enabled=self.state.network_publish_enabled,
+        )
+
+    def network_mode(self) -> str:
+        return "live" if self.live_execution_count() else "paper"
+
+    def live_execution_count(self) -> int:
+        if self.state.live_executor is None:
+            return 0
+        return len([record for record in self.state.live_executor.records if record.accepted])
 
     def hl_status(self, query: dict[str, list[str]]) -> dict[str, Any]:
         if self.state.hyperliquid is None:
@@ -1114,6 +1183,10 @@ def serve(
                     live_kill_switch_path=os.environ.get("ZERO_LIVE_KILL_SWITCH_PATH"),
                     live_dead_man_timeout_s=dead_man_timeout_s,
                     live_executor=live_executor,
+                    network_handle=os.environ.get("ZERO_NETWORK_HANDLE", "local-operator"),
+                    network_display_name=os.environ.get("ZERO_NETWORK_DISPLAY_NAME"),
+                    network_publish_enabled=parse_bool_env("ZERO_NETWORK_PUBLISH_ENABLED", False),
+                    network_publish_path=os.environ.get("ZERO_NETWORK_PUBLISH_PATH"),
                 )
             )
         ),
@@ -1131,6 +1204,13 @@ def parse_float_env(name: str, default: float) -> float:
     except ValueError:
         return default
     return parsed if parsed > 0 else default
+
+
+def parse_bool_env(name: str, default: bool) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.lower() in {"1", "true", "yes", "on"}
 
 
 def build_live_executor(dead_man_timeout_s: float) -> LiveExecutor | None:

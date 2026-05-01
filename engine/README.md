@@ -31,8 +31,9 @@ exposes the paper-mode subset of the engine contract used by the Rust CLI:
 `/`, `/health`, `/v2/status`, `/positions`, `/risk`, `/brief`,
 `/regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`,
 `/journal`, `/metrics`, `/audit/export`, `/hl/status`, `/market/quote`,
-`/live/preflight`, `/operator/state`, `POST /execute`, `POST /auto/toggle`,
-`POST /operator/events`, and the live-control endpoints under `POST /live/*`.
+`/network/profile`, `/network/leaderboard`, `/live/preflight`,
+`/operator/state`, `POST /execute`, `POST /auto/toggle`, `POST /operator/events`,
+`POST /network/publish`, and the live-control endpoints under `POST /live/*`.
 
 For a replayable local audit log, pass a JSONL journal path:
 
@@ -48,6 +49,12 @@ Every HTTP response includes `X-Zero-Trace-Id`. Paper decisions created through
 HTTP execution write that trace into the journal. Operators can inspect runtime
 counters through `/metrics` and export a structured audit packet through
 `/audit/export?limit=100`.
+
+ZERO Network profile and leaderboard contracts are exposed through
+`/network/profile` and `/network/leaderboard`. They are aggregate and redacted
+by default. To write an opt-in local publish packet, set
+`ZERO_NETWORK_PUBLISH_PATH` and call `POST /network/publish` with
+`{"consent":true}`.
 
 Live custody preflight is visible through `/live/preflight`. It is a non-secret
 readiness gate for the Hyperliquid live executor: private keys are never

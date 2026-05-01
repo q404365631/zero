@@ -64,6 +64,15 @@ curl -fsS "${API}/metrics" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.metrics.v1"; assert p["api"]["execute_count"] >= 2; assert p["api"]["execute_rejected"] >= 1'
 curl -fsS "${API}/live/preflight" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.live_preflight.v1"; assert p["ready"] is False; assert p["live_mode"] == "refused"'
+curl -fsS "${API}/network/profile" \
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.network.profile.v1"; assert p["profile"]["publish_enabled"] is False; assert "railway-smoke" not in body; assert "trace-" not in body'
+curl -fsS "${API}/network/leaderboard" \
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.network.leaderboard.v1"; assert len(p["rows"]) == 1; assert p["rows"][0]["proof_hash"].startswith("sha256:")'
+curl -fsS \
+  -H "content-type: application/json" \
+  -d '{"consent":false}' \
+  "${API}/network/publish" \
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["ok"] is False; assert p["reason"] == "explicit consent required"'
 curl -fsS \
   -H "content-type: application/json" \
   -d '{}' \

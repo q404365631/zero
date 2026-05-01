@@ -100,11 +100,13 @@ contract:
 - `GET /positions`, `/risk`, `/brief`
 - `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
 - `GET /metrics`, `/audit/export`
+- `GET /network/profile`, `/network/leaderboard`
 - `GET /hl/status`, `/market/quote`, `/live/preflight`
 - `GET /operator/state`
 - `POST /execute`
 - `POST /auto/toggle`
 - `POST /operator/events`
+- `POST /network/publish`
 - `POST /live/heartbeat`, `/live/pause`, `/live/resume`, `/live/kill`, `/live/flatten`
 
 `POST /execute` runs through `PaperEngine.submit`, records a decision with
@@ -139,6 +141,22 @@ counts, and recovery state.
 `GET /audit/export?limit=100` returns a structured `zero.audit.v1` export with
 runtime summary, retention/redaction metadata, metrics, recovery state, and the
 most recent decisions. The public paper runtime records no secrets.
+
+`GET /network/profile` returns a `zero.network.profile.v1` public-safe profile
+packet with aggregate behavior, verification badges, a proof hash, and privacy
+metadata. It excludes raw decisions, trace IDs, idempotency keys, wallet
+addresses, exchange order IDs, private notes, strategy source labels, and
+per-trade symbols. Publication is disabled by default.
+
+`GET /network/leaderboard` returns a `zero.network.leaderboard.v1` local row
+derived from the same redacted profile. The first leaderboard model ranks
+verified process data such as decision count and rejection rate, not PnL
+screenshots.
+
+`POST /network/publish` requires `{"consent": true}` and
+`ZERO_NETWORK_PUBLISH_PATH`. When both are present, the runtime appends the
+redacted profile packet to a local JSONL proof log. It does not upload to a
+ZERO-hosted service from the public runtime.
 
 `GET /live/preflight` returns a structured `zero.live_preflight.v1` readiness
 packet for the Hyperliquid live executor. It never accepts private keys over

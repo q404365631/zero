@@ -117,6 +117,7 @@ Read [docs/safety-model.md](docs/safety-model.md) before adding execution or ris
 - [CLI quickstart capture](docs/cli-quickstart.md)
 - [API contract](docs/api.md)
 - [Open-core boundary](docs/open-core-boundary.md)
+- [ZERO Network](docs/zero-network.md)
 - [ZERO Intelligence](docs/zero-intelligence.md)
 - [Hyperliquid read-only runtime](docs/hyperliquid-readonly.md)
 - [Railway paper deployment](docs/railway-deploy.md)

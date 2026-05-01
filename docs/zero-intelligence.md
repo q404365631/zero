@@ -49,6 +49,8 @@ databases, logs, and billing relationship.
 - Local runtime use is private by default.
 - Telemetry is opt-in.
 - Public profile publishing is opt-in.
+- Public profile packets must use the `zero.network.profile.v1` redaction
+  contract.
 - Verified live badges require proof without custody.
 - Aggregated intelligence must not expose raw private operator secrets,
   exchange credentials, private notes, or non-consented strategy details.

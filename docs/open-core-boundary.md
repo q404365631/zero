@@ -43,6 +43,8 @@ webhooks, benchmarks, and enterprise support.
 - Railway deployment must be optional, reproducible, and self-custodial.
 - Runtime telemetry and profile publication must be opt-in.
 - Public profiles and leaderboards are part of the public product surface.
+- ZERO Network publication must use redacted proof packets and must not require
+  a ZERO-hosted control plane.
 - Core runtime and venue adapters should be public; commercial connectors should
   enrich, distribute, or integrate ZERO Intelligence rather than gate basic
   runtime operation.

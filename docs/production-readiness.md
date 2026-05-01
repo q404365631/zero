@@ -20,12 +20,12 @@ end.
 | Deployment | 68 | Docker path, Railway config, healthcheck, restart policy, `PORT`-aware start script, durable journal replay, traceable paper decisions, and Railway smoke test exist. Smoke tests now prove public paper deploys refuse live mode. Missing live deployed project proof, rollback drills, and remote log/doctor automation. |
 | Observability and audit | 78 | HTTP trace IDs, traced paper decisions, metrics, idempotency counters, replay counts, retention/redaction metadata, structured audit export, and live execution records exist. Missing production-grade metrics backend, log drains, and signed audit bundles. |
 | Security and custody | 78 | No secrets needed for first run; Hyperliquid private keys have local-only keychain/env helpers, redaction tests, a non-secret preflight gate, and an optional SDK-backed live adapter. Missing full threat model and external security review. |
-| ZERO Network | 15 | Product boundary is defined. Profiles, leaderboards, verification, and opt-in publishing do not exist yet. |
+| ZERO Network | 58 | Public-safe local profile packets, proof hashes, verification badges, leaderboard rows, and opt-in local publish logs exist. Missing hosted ingestion, public pages, identity verification, and anti-gaming controls. |
 | ZERO Intelligence | 12 | Commercial boundary is defined. API, billing, datasets, rate limits, and terms do not exist yet. |
 | Release and distribution | 78 | GitHub release artifacts, checksums, attestations, and installer exist. Package registries and Homebrew are not yet shipped. |
 | Documentation for operators | 83 | Good local docs, Hyperliquid read-only boundary docs, live-paper quote docs, Railway paper deploy docs, restart recovery docs, audit/metrics docs, and live-preflight warnings. Missing incident recovery playbooks. |
 
-**Overall production product readiness: 90/100.**
+**Overall production product readiness: 94/100.**
 
 This is acceptable for an open-source foundation release. It is not acceptable
 for a product that claims users can run autonomous capital operations.
@@ -68,7 +68,7 @@ ZERO is 100/100 when a new serious operator can:
 
 ## Execution Cycles
 
-Forecast after Cycle 8: **3 more major cycles** to credible 100/100.
+Forecast after Cycle 9: **2 more major cycles** to credible 100/100.
 
 | Cycle | Target | Expected Score |
 |---|---|---:|
@@ -296,6 +296,19 @@ Exit gate:
 
 - Operators can publish verified public behavior without leaking credentials,
   private notes, or non-consented strategy details.
+
+Current progress:
+
+- Added `zero.network.profile.v1` public-safe profile packets with aggregate
+  behavior metrics, proof hashes, privacy metadata, and verification badges.
+- Added `zero.network.leaderboard.v1` rows derived from the same redacted
+  profile packet.
+- Added `POST /network/publish` with explicit consent plus
+  `ZERO_NETWORK_PUBLISH_PATH`; the public runtime writes a local JSONL proof log
+  and does not upload to a hosted ZERO service.
+- Added tests and smoke checks proving public profiles exclude raw decisions,
+  trace IDs, idempotency keys, per-trade symbols, wallet material, exchange
+  order details, and strategy source labels.
 
 ### Cycle 10: ZERO Intelligence
 

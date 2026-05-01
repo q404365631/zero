@@ -14,6 +14,10 @@ reserved for ZERO Intelligence.
 - Deterministic paper scenarios and strategy example
 - Inspectable paper decision log
 - Local paper HTTP API with CLI-compatible endpoints
+- Railway deployment template and smoke test
+- Hyperliquid read-only market data path
+- Optional self-custodial live-executor boundary with fail-closed paper deploys
+- Public-safe ZERO Network profile, leaderboard, and local publish contracts
 - Rust operator CLI with doctor, TUI, command tests, and safety invariants
 - Redacted CLI quickstart capture for doctor, status, and risk inspection
 - Public CI for engine, CLI, docs, paper example, paper API smoke, and container smoke
@@ -30,15 +34,15 @@ reserved for ZERO Intelligence.
 ## Paper-Only
 
 - `POST /execute` in the public engine returns `simulated=true`
-- Local market prices are deterministic fixtures, not exchange data
-- The public API is for local development and CLI inspection
+- Local market prices are deterministic fixtures unless read-only Hyperliquid
+  mids are explicitly enabled
+- Public hosted deployments should keep live execution disabled unless the
+  operator self-custodially configures local credentials and controls
 - Container image is a paper runtime, not a production trading service
 
 ## Intentionally Not Shipped
 
-- Live exchange execution
-- Railway deployment template
-- Public profiles and leaderboards
+- Hosted ZERO Network profile pages and anti-gaming controls
 - Realtime ZERO Intelligence API
 - Historical intelligence datasets
 - Commercial intelligence connectors

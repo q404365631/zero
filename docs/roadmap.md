@@ -19,7 +19,7 @@
 - Docker Compose local demo
 - OpenAPI spec
 - Public examples
-- Public profile and leaderboard contracts
+- Hosted public profile and leaderboard pages
 - Good-first-issue backlog
 
 ## Product Boundary

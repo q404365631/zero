@@ -95,11 +95,19 @@ Audit and runtime counters are available without secrets:
 ```bash
 curl -fsS "$ZERO_RAILWAY_URL/metrics"
 curl -fsS "$ZERO_RAILWAY_URL/audit/export?limit=100"
+curl -fsS "$ZERO_RAILWAY_URL/network/profile"
+curl -fsS "$ZERO_RAILWAY_URL/network/leaderboard"
 curl -fsS "$ZERO_RAILWAY_URL/live/preflight"
 ```
 
 Every HTTP response carries `X-Zero-Trace-Id`. Paper decisions created through
 `POST /execute` write that trace ID into the journal and audit export.
+
+ZERO Network profile and leaderboard endpoints are public-safe aggregate proof
+surfaces. They exclude raw decisions, trace IDs, idempotency keys, wallet
+addresses, exchange order IDs, private notes, strategy source labels, and
+per-trade symbols. Publishing remains opt-in and local unless you configure a
+publish path.
 
 `/live/preflight` is intentionally non-secret. It reports whether a
 self-custodial Hyperliquid live mode would be allowed to start, but this Railway

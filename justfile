@@ -47,6 +47,7 @@ docs-check:
     test -f docs/cli-quickstart.md
     test -f docs/api.md
     test -f docs/open-core-boundary.md
+    test -f docs/zero-network.md
     test -f docs/zero-intelligence.md
     test -f docs/hyperliquid-readonly.md
     test -f docs/production-readiness.md
