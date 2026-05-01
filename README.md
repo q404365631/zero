@@ -1,5 +1,9 @@
 # ZERO
 
+[![CI](https://github.com/zero-intel/zero/actions/workflows/ci.yml/badge.svg)](https://github.com/zero-intel/zero/actions/workflows/ci.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/zero-intel/zero/badge)](https://securityscorecards.dev/viewer/?uri=github.com/zero-intel/zero)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
 Self-hosted autonomous trading engine and operator terminal.
 
 ZERO is for engineers who want to build, test, and supervise AI-assisted trading systems without handing execution to a black box. The public repo starts with paper mode, local operation, explicit safety gates, inspectable decisions, and extension points for market data, strategies, and operator workflows.
@@ -32,6 +36,7 @@ git clone https://github.com/zero-intel/zero.git
 cd zero
 just bootstrap
 just demo
+just example
 ```
 
 The first public demo runs in paper mode and requires no exchange private key.
@@ -58,6 +63,8 @@ just test
 just ci
 ```
 
+For full setup, see [docs/local-development.md](docs/local-development.md).
+
 ## Safety
 
 ZERO must be safe by default:
@@ -69,6 +76,16 @@ ZERO must be safe by default:
 - No secrets are required for first-run contribution work.
 
 Read [docs/safety-model.md](docs/safety-model.md) before adding execution or risk logic.
+
+## Docs
+
+- [Architecture](docs/architecture.md)
+- [Safety model](docs/safety-model.md)
+- [Local development](docs/local-development.md)
+- [API contract](docs/api.md)
+- [Open-core boundary](docs/open-core-boundary.md)
+- [Release process](docs/release.md)
+- [Roadmap](docs/roadmap.md)
 
 ## Contributing
 

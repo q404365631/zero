@@ -2,6 +2,13 @@
 
 This example is the public first-run path.
 
+Run it from a bootstrapped checkout:
+
+```bash
+just bootstrap
+just example
+```
+
 It must:
 
 - require no real exchange private key
@@ -10,3 +17,4 @@ It must:
 - show engine decisions, rejected trades, risk state, and operator CLI inspection
 - be covered by CI smoke tests
 
+The output is deterministic JSON so it can be copied into issues and tests.
