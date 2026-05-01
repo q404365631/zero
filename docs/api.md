@@ -115,6 +115,13 @@ shape as `DecisionRecord.to_dict()`. When `zero-paper-api --journal PATH` is
 used, records are read from the append-only JSONL journal at `PATH`; otherwise
 the endpoint returns the in-memory decision log for the current process.
 
+On startup with `--journal PATH`, `zero-paper-api` replays the journal before it
+serves traffic. The replay restores paper decisions, fills, open positions,
+rejections, and idempotency keys, so a repeated `POST /execute` with an already
+journaled key returns the original simulated response instead of creating a
+duplicate fill. `/health` and `/v2/status` include a `recovery` object with the
+journal mode, recovered counts, and current runtime counts.
+
 `GET /hl/status` returns disabled metadata by default. When `zero-paper-api
 --hyperliquid` is used, it queries Hyperliquid's public info endpoint for
 read-only mids and returns `secrets_required=false`. This endpoint must not

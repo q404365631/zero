@@ -105,6 +105,45 @@ def test_paper_api_journal_reads_persisted_decisions(tmp_path) -> None:
     assert payload["decisions"][0]["symbol"] == "BTC"
     assert payload["decisions"][0]["source"] == "api:/execute"
     assert payload["decisions"][0]["allowed"] is True
+    assert payload["decisions"][0]["idempotency_key"] == "journal-fill"
+
+
+def test_paper_api_recovers_runtime_state_and_idempotency_from_journal(tmp_path) -> None:
+    journal = DecisionJournal(tmp_path / "decisions.jsonl")
+    first = PaperApi(PaperApiState(engine=PaperEngine(clock=lambda: FIXED_TS, journal=journal)))
+
+    execute_status, first_payload = first.post(
+        "/execute",
+        {"coin": "BTC", "side": "buy", "size": 0.01, "idempotency_key": "recover-fill"},
+    )
+    recovered_engine = PaperEngine.recover_from_journal(journal, clock=lambda: FIXED_TS)
+    recovered = PaperApi(
+        PaperApiState(
+            engine=recovered_engine,
+            clock=lambda: FIXED_DT,
+            started_at=FIXED_DT,
+        )
+    )
+    replay_status, replay_payload = recovered.post(
+        "/execute",
+        {"coin": "BTC", "side": "buy", "size": 0.01, "idempotency_key": "recover-fill"},
+    )
+    health_status, health = recovered.get("/health", {})
+    status_status, status = recovered.get("/v2/status", {})
+
+    assert execute_status == 200
+    assert replay_status == 200
+    assert first_payload == replay_payload
+    assert len(recovered.state.engine.fills) == 1
+    assert recovered.state.engine.positions["BTC"].quantity == 0.01
+    assert health_status == 200
+    assert health["dependencies"]["journal"] == "durable"
+    assert health["recovery"]["status"] == "recovered"
+    assert health["recovery"]["current_decisions"] == 1
+    assert health["recovery"]["current_positions"] == 1
+    assert status_status == 200
+    assert status["recovery"]["durable"] is True
+    assert status["recovery"]["decisions_recovered"] == 1
 
 
 def test_paper_api_hl_status_is_disabled_by_default() -> None:

@@ -37,6 +37,10 @@ For a replayable local audit log, pass a JSONL journal path:
 zero-paper-api --journal .zero/decisions.jsonl
 ```
 
+On restart, the API replays that journal before serving traffic. Recovered
+state includes decisions, simulated fills, open positions, rejections, and
+idempotency keys; `/health` and `/v2/status` expose the recovery summary.
+
 To enable read-only Hyperliquid market metadata and mids:
 
 ```bash

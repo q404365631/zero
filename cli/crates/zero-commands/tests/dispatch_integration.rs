@@ -30,6 +30,13 @@ async fn status_renders_engine_summary() {
     };
     assert!(s.contains("regime="));
     assert!(s.contains("equity="));
+    assert!(
+        out.lines
+            .iter()
+            .any(|line| matches!(line, OutputLine::System(s) if s.contains("recovery: recovered") && s.contains("journal=durable"))),
+        "recovery row missing: {:?}",
+        out.lines
+    );
     mock.shutdown().await;
 }
 

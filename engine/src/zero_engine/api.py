@@ -61,6 +61,13 @@ class PaperApiState:
     price_cache_at: datetime | None = None
     last_market_error: str | None = None
 
+    def __post_init__(self) -> None:
+        if self.execution_cache:
+            return
+        for record in self.engine.decisions:
+            if record.idempotency_key:
+                self.execution_cache[record.idempotency_key] = execute_response_from_record(record)
+
     def now(self) -> datetime:
         return self.clock()
 
@@ -178,15 +185,23 @@ class PaperApi:
         ts = self.state.now_iso()
         exchange = "hyperliquid" if self.state.hyperliquid is not None else "paper"
         market_data = "live" if self.state.use_live_hyperliquid_prices else "fixture"
+        recovery = self.recovery()
         return {
             "status": "ok",
             "components": {
                 "paper_engine": {"status": "healthy", "last_seen": ts, "age_s": 0.0},
                 "risk": {"status": "healthy", "last_seen": ts, "age_s": 0.0},
+                "recovery": {
+                    "status": "healthy",
+                    "last_seen": ts,
+                    "age_s": 0.0,
+                    "mode": "durable" if recovery["durable"] else "ephemeral",
+                },
             },
             "dependencies": {
                 "exchange": exchange,
                 "market_data": market_data,
+                "journal": "durable" if recovery["durable"] else "ephemeral",
                 "secrets": "not_required",
             },
             "circuit_breakers": {
@@ -194,6 +209,7 @@ class PaperApi:
                 "hl_info": "closed" if self.state.hyperliquid is not None else "n/a",
             },
             "risk": {"equity": 10_000.0, "drawdown_pct": 0.0, "kill_all": False},
+            "recovery": recovery,
             "ws_connections": 0,
         }
 
@@ -226,8 +242,21 @@ class PaperApi:
             "approaching": [],
             "blind_spots": [],
             "alert": None,
+            "recovery": self.recovery(),
             "ts": self.state.now_iso(),
         }
+
+    def recovery(self) -> dict[str, Any]:
+        payload = self.state.engine.recovery.to_dict()
+        last_ts = payload.pop("last_decision_ts")
+        payload["last_decision_at"] = epoch_to_iso(last_ts) if last_ts is not None else None
+        payload["current_decisions"] = len(self.state.engine.decisions)
+        payload["current_fills"] = len(self.state.engine.fills)
+        payload["current_rejections"] = len(self.state.engine.rejections)
+        payload["current_positions"] = len(
+            [p for p in self.state.engine.positions.values() if p.quantity != 0]
+        )
+        return payload
 
     def positions(self) -> dict[str, Any]:
         items = [
@@ -424,16 +453,8 @@ class PaperApi:
             if quote.source == "paper:static"
             else f"api:/execute:{quote.source}"
         )
-        decision = self.state.engine.submit(intent, source=source)
-        response = {
-            "accepted": decision.allowed,
-            "simulated": True,
-            "fill_id": f"paper-{key[:8]}" if decision.allowed and key else None,
-            "coin": symbol,
-            "side": side.value,
-            "size": quantity,
-            "reason": decision.reason,
-        }
+        self.state.engine.submit(intent, source=source, idempotency_key=key or None)
+        response = execute_response_from_record(self.state.engine.decisions[-1])
         if key:
             self.state.execution_cache[key] = response
         return response
@@ -467,6 +488,19 @@ def rejection_to_wire(record: DecisionRecord) -> dict[str, Any]:
         "stage": "risk",
         "reason": record.decision.reason,
         "ts": epoch_to_iso(record.as_of),
+    }
+
+
+def execute_response_from_record(record: DecisionRecord) -> dict[str, Any]:
+    key = record.idempotency_key or ""
+    return {
+        "accepted": record.decision.allowed,
+        "simulated": True,
+        "fill_id": f"paper-{key[:8]}" if record.decision.allowed and key else None,
+        "coin": record.intent.symbol,
+        "side": record.intent.side.value,
+        "size": record.intent.quantity,
+        "reason": record.decision.reason,
     }
 
 
@@ -560,7 +594,11 @@ def serve(
     hyperliquid: bool = False,
     hyperliquid_live_prices: bool = False,
 ) -> None:
-    engine = PaperEngine(journal=DecisionJournal(journal_path)) if journal_path else PaperEngine()
+    engine = (
+        PaperEngine.recover_from_journal(DecisionJournal(journal_path))
+        if journal_path
+        else PaperEngine()
+    )
     hl_client = HyperliquidInfoClient() if hyperliquid or hyperliquid_live_prices else None
     server = ThreadingHTTPServer(
         (host, port),

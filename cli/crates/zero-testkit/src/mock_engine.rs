@@ -477,6 +477,21 @@ async fn v2_status() -> Json<serde_json::Value> {
         "approaching": [],
         "blind_spots": [],
         "alert": null,
+        "recovery": {
+            "status": "recovered",
+            "source": "journal",
+            "durable": true,
+            "journal_path": "/data/decisions.jsonl",
+            "decisions_recovered": 24,
+            "fills_recovered": 17,
+            "rejections_recovered": 7,
+            "positions_recovered": 2,
+            "last_decision_at": "2026-05-01T00:00:00Z",
+            "current_decisions": 24,
+            "current_fills": 17,
+            "current_rejections": 7,
+            "current_positions": 2
+        },
         "ts": chrono_utc_now_iso(),
     }))
 }

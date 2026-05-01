@@ -25,7 +25,11 @@ class DecisionJournal:
     def tail(self, limit: int = 50) -> list[dict[str, Any]]:
         if limit <= 0:
             raise ValueError("limit must be positive")
+        records = self.read_all()
+        return records[-limit:]
+
+    def read_all(self) -> list[dict[str, Any]]:
         if not self.path.exists():
             return []
         lines = self.path.read_text(encoding="utf-8").splitlines()
-        return [json.loads(line) for line in lines[-limit:] if line.strip()]
+        return [json.loads(line) for line in lines if line.strip()]

@@ -19,6 +19,21 @@
     "open": 1,
     "unrealized_pnl": 0.0
   },
+  "recovery": {
+    "current_decisions": 2,
+    "current_fills": 1,
+    "current_positions": 1,
+    "current_rejections": 1,
+    "decisions_recovered": 0,
+    "durable": false,
+    "fills_recovered": 0,
+    "journal_path": null,
+    "last_decision_at": null,
+    "positions_recovered": 0,
+    "rejections_recovered": 0,
+    "source": "memory",
+    "status": "ephemeral"
+  },
   "today": {
     "pnl": 0.0,
     "sizing_mult": 1.0,

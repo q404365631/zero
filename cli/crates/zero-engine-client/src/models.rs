@@ -37,7 +37,30 @@ pub struct Health {
     #[serde(default)]
     pub risk: RiskSummary,
     #[serde(default)]
+    pub recovery: Option<RecoveryStatus>,
+    #[serde(default)]
     pub ws_connections: u64,
+}
+
+/// Runtime recovery state emitted by the paper engine after journal replay.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct RecoveryStatus {
+    pub status: Option<String>,
+    pub source: Option<String>,
+    pub durable: bool,
+    pub journal_path: Option<String>,
+    pub decisions_recovered: Option<u32>,
+    pub fills_recovered: Option<u32>,
+    pub rejections_recovered: Option<u32>,
+    pub positions_recovered: Option<u32>,
+    pub last_decision_at: Option<String>,
+    pub current_decisions: Option<u32>,
+    pub current_fills: Option<u32>,
+    pub current_rejections: Option<u32>,
+    pub current_positions: Option<u32>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
 }
 
 // ─── /hl/status  ───────────────────────────────────────────────────
@@ -515,6 +538,7 @@ pub struct V2Status {
     pub approaching: Vec<Value>,
     pub blind_spots: Vec<Value>,
     pub alert: Option<Value>,
+    pub recovery: Option<RecoveryStatus>,
     pub ts: Option<String>,
     /// Hyperliquid per-minute API rate the engine is seeing, as
     /// reported alongside `/v2/status`. `None` when the engine

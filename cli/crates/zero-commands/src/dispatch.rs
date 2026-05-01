@@ -827,6 +827,30 @@ async fn status(ctx: &DispatchContext) -> DispatchOutput {
                     "  market: fear_greed={fg}  health={health}  coins_tradeable={coins}"
                 )));
             }
+            if let Some(recovery) = &s.recovery {
+                let status = recovery.status.as_deref().unwrap_or("unknown");
+                let source = recovery.source.as_deref().unwrap_or("unknown");
+                let durable = if recovery.durable {
+                    "durable"
+                } else {
+                    "ephemeral"
+                };
+                let decisions = recovery
+                    .current_decisions
+                    .or(recovery.decisions_recovered)
+                    .map_or("—".into(), |n| n.to_string());
+                let fills = recovery
+                    .current_fills
+                    .or(recovery.fills_recovered)
+                    .map_or("—".into(), |n| n.to_string());
+                let positions = recovery
+                    .current_positions
+                    .or(recovery.positions_recovered)
+                    .map_or("—".into(), |n| n.to_string());
+                out.lines.push(OutputLine::system(format!(
+                    "  recovery: {status}  source={source}  journal={durable}  decisions={decisions}  fills={fills}  positions={positions}"
+                )));
+            }
         }
         Err(e) => out.lines.push(OutputLine::alert(format!("status: {e}"))),
     }

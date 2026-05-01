@@ -73,7 +73,16 @@ runtime still treats execution as paper simulation.
 ## Journal Recovery
 
 The paper journal is append-only JSONL. With the volume mounted at `/data`, a
-restart keeps prior decisions available through:
+restart replays prior paper decisions before the API serves traffic. Replayed
+state restores decisions, fills, open positions, rejections, and idempotency
+keys. Inspect the replay status through:
+
+```bash
+curl -fsS "$ZERO_RAILWAY_URL/health"
+zero --api "$ZERO_RAILWAY_URL" run status
+```
+
+The journal itself remains available through:
 
 ```bash
 curl -fsS "$ZERO_RAILWAY_URL/journal?limit=50"
