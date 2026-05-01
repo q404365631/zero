@@ -54,6 +54,7 @@ docs-check:
     test -f docs/demo-terminal.md
     test -f docs/cli-quickstart.md
     test -f docs/api.md
+    test -f docs/api-compatibility.md
     test -f docs/positioning.md
     test -f docs/open-core-boundary.md
     test -f docs/zero-network.md
@@ -78,9 +79,11 @@ docs-check:
     test -f contracts/paper-api/execute_rejected.json
     test -f contracts/intelligence/snapshot.json
     test -f contracts/intelligence/catalog.json
+    test -f openapi/zero-paper-api.v1.yaml
     test -x scripts/assemble_release_assets.sh
     test -x scripts/install.sh
     test -x scripts/demo_capture.sh
+    test -x scripts/openapi_contract_check.py
     test -x scripts/package_dry_run.sh
     test -x scripts/hardening_gate.sh
     test -x scripts/railway_start.sh
@@ -89,6 +92,7 @@ docs-check:
     test -f compose.yaml
     test -f railway.toml
     test -f docs/railway-deploy.md
+    python3 scripts/openapi_contract_check.py
 
 container-build:
     docker build -t zero-public:local .

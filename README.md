@@ -238,6 +238,8 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and
 - [Demo Terminal](docs/demo-terminal.md)
 - [CLI Quickstart](docs/cli-quickstart.md)
 - [API](docs/api.md)
+- [OpenAPI Contract](openapi/zero-paper-api.v1.yaml)
+- [API Compatibility](docs/api-compatibility.md)
 - [Hyperliquid Read-only](docs/hyperliquid-readonly.md)
 - [ZERO Network](docs/zero-network.md)
 - [ZERO Intelligence](docs/zero-intelligence.md)

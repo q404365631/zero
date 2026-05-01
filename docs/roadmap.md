@@ -18,7 +18,7 @@
 - Market data adapter template
 - Railway deployment template
 - Docker Compose local demo
-- OpenAPI spec
+- OpenAPI contract hardening and compatibility checks
 - Public examples
 - Hosted public profile and leaderboard pages
 - Hosted ZERO Intelligence ingestion and billing

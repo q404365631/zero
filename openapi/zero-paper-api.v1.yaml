@@ -1,0 +1,971 @@
+openapi: 3.1.0
+info:
+  title: ZERO Paper API
+  version: 0.1.1
+  summary: Local paper runtime and operator API for ZERO.
+  description: |
+    ZERO Paper API is the public local runtime contract for paper-first,
+    self-custodial onchain operations. It requires no exchange credentials by
+    default. Live execution is local opt-in and is refused unless local custody,
+    journal, risk, and emergency preflight checks pass.
+  license:
+    name: Apache-2.0
+    identifier: Apache-2.0
+servers:
+  - url: http://127.0.0.1:8765
+    description: Local paper runtime
+tags:
+  - name: runtime
+  - name: operator
+  - name: paper
+  - name: audit
+  - name: network
+  - name: intelligence
+  - name: live
+  - name: market
+paths:
+  /:
+    get:
+      tags: [runtime]
+      operationId: getRoot
+      summary: Runtime version probe.
+      responses:
+        "200":
+          description: Runtime identity and status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RootResponse"
+  /health:
+    get:
+      tags: [runtime]
+      operationId: getHealth
+      summary: Health, dependency, circuit breaker, and recovery state.
+      responses:
+        "200":
+          description: Runtime health packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /v2/status:
+    get:
+      tags: [operator]
+      operationId: getV2Status
+      summary: Operator status summary consumed by the CLI.
+      responses:
+        "200":
+          description: Operator status packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/V2StatusResponse"
+  /positions:
+    get:
+      tags: [operator]
+      operationId: getPositions
+      summary: Current paper positions.
+      responses:
+        "200":
+          description: Position list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PositionsResponse"
+  /risk:
+    get:
+      tags: [operator]
+      operationId: getRisk
+      summary: Current risk state.
+      responses:
+        "200":
+          description: Risk state.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskResponse"
+  /brief:
+    get:
+      tags: [operator]
+      operationId: getBrief
+      summary: Compact operator brief.
+      responses:
+        "200":
+          description: Brief packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BriefResponse"
+  /regime:
+    get:
+      tags: [operator]
+      operationId: getRegime
+      summary: Paper regime readout.
+      parameters:
+        - $ref: "#/components/parameters/CoinQuery"
+      responses:
+        "200":
+          description: Regime packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegimeResponse"
+  /evaluate/{coin}:
+    get:
+      tags: [paper]
+      operationId: evaluateCoin
+      summary: Evaluate a paper setup for one coin.
+      parameters:
+        - name: coin
+          in: path
+          required: true
+          schema:
+            type: string
+            example: BTC
+      responses:
+        "200":
+          description: Evaluation packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluateResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /pulse:
+    get:
+      tags: [operator]
+      operationId: getPulse
+      summary: Recent decision events.
+      parameters:
+        - $ref: "#/components/parameters/LimitQuery"
+      responses:
+        "200":
+          description: Recent event packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PulseResponse"
+  /approaching:
+    get:
+      tags: [operator]
+      operationId: getApproaching
+      summary: Gates or limits the operator is approaching.
+      responses:
+        "200":
+          description: Approaching packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApproachingResponse"
+  /rejections:
+    get:
+      tags: [paper]
+      operationId: getRejections
+      summary: Recent rejected paper decisions.
+      parameters:
+        - $ref: "#/components/parameters/CoinQuery"
+        - $ref: "#/components/parameters/LimitQuery"
+      responses:
+        "200":
+          description: Rejection list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RejectionsResponse"
+  /journal:
+    get:
+      tags: [audit]
+      operationId: getJournal
+      summary: Recent paper decision journal records.
+      parameters:
+        - $ref: "#/components/parameters/LimitQuery"
+      responses:
+        "200":
+          description: Journal tail.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JournalResponse"
+  /metrics:
+    get:
+      tags: [audit]
+      operationId: getMetrics
+      summary: Runtime counters and recovery metrics.
+      responses:
+        "200":
+          description: Metrics packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MetricsResponse"
+  /audit/export:
+    get:
+      tags: [audit]
+      operationId: getAuditExport
+      summary: Structured audit export for a paper session.
+      parameters:
+        - $ref: "#/components/parameters/LimitQuery"
+      responses:
+        "200":
+          description: Audit export.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditExportResponse"
+  /network/profile:
+    get:
+      tags: [network]
+      operationId: getNetworkProfile
+      summary: Public-safe local ZERO Network profile packet.
+      responses:
+        "200":
+          description: Public profile packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NetworkProfileResponse"
+  /network/leaderboard:
+    get:
+      tags: [network]
+      operationId: getNetworkLeaderboard
+      summary: Public-safe local leaderboard row.
+      responses:
+        "200":
+          description: Local leaderboard packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NetworkLeaderboardResponse"
+  /network/publish:
+    post:
+      tags: [network]
+      operationId: publishNetworkProfile
+      summary: Append a redacted profile packet to a local proof log.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NetworkPublishRequest"
+      responses:
+        "200":
+          description: Publish result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LocalExportResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /intelligence/snapshot:
+    get:
+      tags: [intelligence]
+      operationId: getIntelligenceSnapshot
+      summary: Delayed public ZERO Intelligence snapshot.
+      responses:
+        "200":
+          description: Delayed aggregate intelligence packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntelligenceSnapshotResponse"
+  /intelligence/catalog:
+    get:
+      tags: [intelligence]
+      operationId: getIntelligenceCatalog
+      summary: Public catalog for commercial ZERO Intelligence surfaces.
+      responses:
+        "200":
+          description: Intelligence catalog.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntelligenceCatalogResponse"
+  /intelligence/export:
+    post:
+      tags: [intelligence]
+      operationId: exportIntelligenceSnapshot
+      summary: Append a delayed intelligence snapshot to a local export log.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsentRequest"
+      responses:
+        "200":
+          description: Export result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LocalExportResponse"
+  /hl/status:
+    get:
+      tags: [market]
+      operationId: getHyperliquidStatus
+      summary: Hyperliquid read-only market status.
+      parameters:
+        - name: symbol
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+      responses:
+        "200":
+          description: Disabled metadata or read-only Hyperliquid status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HyperliquidStatusResponse"
+  /market/quote:
+    get:
+      tags: [market]
+      operationId: getMarketQuote
+      summary: Active quote source used by paper execution.
+      parameters:
+        - name: symbol
+          in: query
+          required: true
+          schema:
+            type: string
+            example: BTC
+      responses:
+        "200":
+          description: Quote packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketQuoteResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /operator/state:
+    get:
+      tags: [operator]
+      operationId: getOperatorState
+      summary: Operator friction state consumed by the terminal.
+      responses:
+        "200":
+          description: Operator state packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperatorStateResponse"
+  /operator/events:
+    post:
+      tags: [operator]
+      operationId: postOperatorEvents
+      summary: Submit local operator events.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Accepted event count and current operator snapshot.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperatorEventsResponse"
+  /execute:
+    post:
+      tags: [paper, live]
+      operationId: postExecute
+      summary: Submit a paper order, or live order when X-Zero-Mode is live.
+      parameters:
+        - name: X-Zero-Mode
+          in: header
+          required: false
+          schema:
+            type: string
+            enum: [paper, live]
+            default: paper
+        - name: X-Zero-Expose-Trace
+          in: header
+          required: false
+          schema:
+            type: string
+            enum: ["true", "false"]
+            default: "false"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExecuteRequest"
+      responses:
+        "200":
+          description: Paper fill/refusal or live submission/refusal.
+          headers:
+            X-Zero-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExecuteResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /auto/toggle:
+    post:
+      tags: [operator]
+      operationId: postAutoToggle
+      summary: Toggle local simulated automation state.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [enabled]
+              properties:
+                enabled:
+                  type: boolean
+              additionalProperties: false
+      responses:
+        "200":
+          description: Toggle result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutoToggleResponse"
+  /live/preflight:
+    get:
+      tags: [live]
+      operationId: getLivePreflight
+      summary: Non-secret local live-readiness gate.
+      responses:
+        "200":
+          description: Live preflight packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LivePreflightResponse"
+  /live/heartbeat:
+    post:
+      tags: [live]
+      operationId: postLiveHeartbeat
+      summary: Refresh local live dead-man heartbeat.
+      responses:
+        "200":
+          $ref: "#/components/responses/LiveControl"
+  /live/pause:
+    post:
+      tags: [live]
+      operationId: postLivePause
+      summary: Pause local live entry control.
+      responses:
+        "200":
+          $ref: "#/components/responses/LiveControl"
+  /live/resume:
+    post:
+      tags: [live]
+      operationId: postLiveResume
+      summary: Resume local live entry control.
+      responses:
+        "200":
+          $ref: "#/components/responses/LiveControl"
+  /live/kill:
+    post:
+      tags: [live]
+      operationId: postLiveKill
+      summary: Engage local live kill switch and cancel open orders.
+      responses:
+        "200":
+          $ref: "#/components/responses/LiveControl"
+  /live/flatten:
+    post:
+      tags: [live]
+      operationId: postLiveFlatten
+      summary: Submit reduce-only flatten orders for local live positions.
+      responses:
+        "200":
+          description: Flatten result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveFlattenResponse"
+components:
+  parameters:
+    CoinQuery:
+      name: coin
+      in: query
+      required: false
+      schema:
+        type: string
+        example: BTC
+    LimitQuery:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 50
+  headers:
+    TraceId:
+      description: Per-request trace ID generated by the local runtime.
+      schema:
+        type: string
+        pattern: "^trace-[a-f0-9]{16}$"
+  responses:
+    BadRequest:
+      description: Invalid request.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unavailable:
+      description: Runtime dependency unavailable.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    LiveControl:
+      description: Live control result.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/LiveControlResponse"
+  schemas:
+    RootResponse:
+      type: object
+      required: [name, version, status, ts]
+      properties:
+        name:
+          type: string
+          const: zero-paper-engine
+        version:
+          type: string
+        status:
+          type: string
+          const: ok
+        ts:
+          type: string
+          format: date-time
+      additionalProperties: false
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+        path:
+          type: string
+      additionalProperties: false
+    HealthResponse:
+      type: object
+      required: [status, components, dependencies, circuit_breakers, risk, recovery, ws_connections]
+      properties:
+        status:
+          type: string
+          const: ok
+        components:
+          type: object
+          additionalProperties: true
+        dependencies:
+          type: object
+          additionalProperties: true
+        circuit_breakers:
+          type: object
+          additionalProperties: true
+        risk:
+          type: object
+          additionalProperties: true
+        recovery:
+          $ref: "#/components/schemas/Recovery"
+        ws_connections:
+          type: integer
+          minimum: 0
+      additionalProperties: false
+    V2StatusResponse:
+      type: object
+      required: [confidence, market, positions, today, approaching, blind_spots, alert, recovery, ts]
+      properties:
+        confidence:
+          type: object
+          required: [score, level]
+          properties:
+            score:
+              type: integer
+            level:
+              type: string
+          additionalProperties: false
+        market:
+          type: object
+          required: [regime, health, signal, prediction, fear_greed, coins_tradeable]
+          additionalProperties: true
+        positions:
+          type: object
+          required: [open, unrealized_pnl, equity]
+          additionalProperties: false
+        today:
+          type: object
+          required: [trades, wins, pnl, streak, sizing_mult]
+          additionalProperties: false
+        approaching:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        blind_spots:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        alert:
+          type: [string, "null"]
+        recovery:
+          $ref: "#/components/schemas/Recovery"
+        ts:
+          type: string
+          format: date-time
+      additionalProperties: false
+    Recovery:
+      type: object
+      required:
+        - status
+        - source
+        - durable
+        - journal_path
+        - decisions_recovered
+        - fills_recovered
+        - rejections_recovered
+        - positions_recovered
+        - last_decision_at
+        - current_decisions
+        - current_fills
+        - current_rejections
+        - current_positions
+      properties:
+        status:
+          type: string
+        source:
+          type: string
+        durable:
+          type: boolean
+        journal_path:
+          type: [string, "null"]
+        decisions_recovered:
+          type: integer
+        fills_recovered:
+          type: integer
+        rejections_recovered:
+          type: integer
+        positions_recovered:
+          type: integer
+        last_decision_at:
+          type: [string, "null"]
+          format: date-time
+        current_decisions:
+          type: integer
+        current_fills:
+          type: integer
+        current_rejections:
+          type: integer
+        current_positions:
+          type: integer
+      additionalProperties: false
+    Position:
+      type: object
+      required: [symbol, side, size, entry, mark, unrealized_pnl, unrealized_r, age_s]
+      properties:
+        symbol:
+          type: string
+        side:
+          type: string
+          enum: [long, short]
+        size:
+          type: number
+        entry:
+          type: number
+        mark:
+          type: number
+        unrealized_pnl:
+          type: number
+        unrealized_r:
+          type: number
+        age_s:
+          type: number
+      additionalProperties: false
+    PositionsResponse:
+      type: object
+      required: [positions, count, account_value, total_unrealized_pnl]
+      properties:
+        positions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Position"
+        count:
+          type: integer
+        account_value:
+          type: number
+        total_unrealized_pnl:
+          type: number
+      additionalProperties: false
+    RiskResponse:
+      type: object
+      required:
+        - account_value
+        - updated_at
+        - daily_pnl_usd
+        - daily_loss_usd
+        - per_runner
+        - global_halt
+        - daily_loss_since
+        - halted
+        - halt_reason
+        - halt_until
+        - stop_failure_halt
+        - open_count
+        - drawdown_pct
+        - peak_equity
+        - last_drawdown_alert_pct
+        - peak_equity_30d
+        - capital_floor_hit
+      additionalProperties: true
+    BriefResponse:
+      type: object
+      required: [timestamp, fear_greed, open_positions, positions, recent_signals, approaching, last_cycle]
+      additionalProperties: true
+    RegimeResponse:
+      type: object
+      required: [coin, regime, confidence, source]
+      additionalProperties: true
+    EvaluateResponse:
+      type: object
+      required: [coin, price, price_source, consensus, conviction, direction, regime, layers, data_fresh, timestamp]
+      additionalProperties: true
+    PulseResponse:
+      type: object
+      required: [events]
+      properties:
+        events:
+          type: array
+          items:
+            type: object
+            required: [kind, coin, message, severity, ts]
+            additionalProperties: true
+      additionalProperties: false
+    ApproachingResponse:
+      type: object
+      required: [approaching]
+      properties:
+        approaching:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      additionalProperties: false
+    Rejection:
+      type: object
+      required: [coin, direction, stage, reason, ts]
+      properties:
+        coin:
+          type: string
+        direction:
+          type: string
+          enum: [buy, sell]
+        stage:
+          type: string
+        reason:
+          type: string
+        ts:
+          type: string
+          format: date-time
+        trace_id:
+          type: string
+      additionalProperties: false
+    RejectionsResponse:
+      type: object
+      required: [rejections]
+      properties:
+        rejections:
+          type: array
+          items:
+            $ref: "#/components/schemas/Rejection"
+      additionalProperties: false
+    JournalResponse:
+      type: object
+      required: [decisions, count]
+      properties:
+        decisions:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        count:
+          type: integer
+      additionalProperties: false
+    MetricsResponse:
+      type: object
+      required: [schema_version, generated_at, mode, runtime, api, engine, recovery]
+      properties:
+        schema_version:
+          type: string
+          const: zero.metrics.v1
+        generated_at:
+          type: string
+          format: date-time
+        mode:
+          type: string
+          const: paper
+        runtime:
+          type: object
+          additionalProperties: true
+        api:
+          type: object
+          additionalProperties: true
+        engine:
+          type: object
+          additionalProperties: true
+        recovery:
+          $ref: "#/components/schemas/Recovery"
+      additionalProperties: false
+    AuditExportResponse:
+      type: object
+      required: [schema_version, exported_at, mode, source, limit, summary, retention, metrics, recovery, decisions]
+      additionalProperties: true
+    ExecuteRequest:
+      type: object
+      required: [coin, side, size]
+      properties:
+        coin:
+          type: string
+          example: BTC
+        side:
+          type: string
+          enum: [buy, sell]
+        size:
+          type: number
+          exclusiveMinimum: 0
+        idempotency_key:
+          type: string
+      additionalProperties: false
+    ExecuteResponse:
+      type: object
+      required: [accepted, simulated, fill_id, coin, side, size, reason]
+      properties:
+        accepted:
+          type: boolean
+        simulated:
+          type: boolean
+        fill_id:
+          type: [string, "null"]
+        coin:
+          type: string
+        side:
+          type: string
+          enum: [buy, sell]
+        size:
+          type: number
+        reason:
+          type: string
+        trace_id:
+          type: string
+        idempotency_key:
+          type: string
+        status:
+          type: string
+      additionalProperties: false
+    NetworkProfileResponse:
+      type: object
+      required: [schema_version, generated_at, mode, profile, metrics, verification, leaderboard_row, privacy]
+      additionalProperties: true
+    NetworkLeaderboardResponse:
+      type: object
+      required: [schema_version, generated_at, mode, rows, privacy]
+      additionalProperties: true
+    NetworkPublishRequest:
+      type: object
+      required: [consent]
+      properties:
+        consent:
+          type: boolean
+        handle:
+          type: string
+        display_name:
+          type: string
+      additionalProperties: false
+    ConsentRequest:
+      type: object
+      required: [consent]
+      properties:
+        consent:
+          type: boolean
+      additionalProperties: false
+    LocalExportResponse:
+      type: object
+      required: [ok]
+      properties:
+        ok:
+          type: boolean
+        path:
+          type: string
+        reason:
+          type: string
+      additionalProperties: true
+    IntelligenceSnapshotResponse:
+      type: object
+      required: [schema_version, generated_at, access, source, signals, aggregates, commercial_unlocks, privacy]
+      additionalProperties: true
+    IntelligenceCatalogResponse:
+      type: object
+      required: [schema_version, generated_at, positioning, public, commercial, hosted_api_contract, data_rules]
+      additionalProperties: true
+    HyperliquidStatusResponse:
+      type: object
+      required: [enabled, exchange]
+      additionalProperties: true
+    MarketQuoteResponse:
+      type: object
+      required: [symbol, price, source, as_of, mode, live]
+      additionalProperties: false
+    OperatorStateResponse:
+      type: object
+      required: [label, friction, vector, as_of, version]
+      additionalProperties: true
+    OperatorEventsResponse:
+      type: object
+      required: [accepted, snapshot]
+      additionalProperties: true
+    AutoToggleResponse:
+      type: object
+      required: [state, simulated, reason]
+      additionalProperties: true
+    LivePreflightResponse:
+      type: object
+      required: [schema_version, generated_at, exchange, mode, ready, live_mode, controls_ready, checks]
+      additionalProperties: true
+    LiveControlResponse:
+      type: object
+      required: [ok]
+      properties:
+        ok:
+          type: boolean
+        reason:
+          type: string
+      additionalProperties: true
+    LiveFlattenResponse:
+      type: object
+      required: [ok, orders]
+      properties:
+        ok:
+          type: boolean
+        reason:
+          type: string
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExecuteResponse"
+      additionalProperties: true

@@ -1,5 +1,9 @@
 # API Contract
 
+The machine-readable contract lives in
+[openapi/zero-paper-api.v1.yaml](../openapi/zero-paper-api.v1.yaml). Compatibility
+rules live in [docs/api-compatibility.md](api-compatibility.md).
+
 The first public API contract is deliberately small. It describes the behavior
 that must remain stable while the private engine is ported into the public
 runtime.
