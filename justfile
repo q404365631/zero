@@ -7,10 +7,10 @@ demo:
     cd engine && python3 -m zero_engine.demo
 
 example:
-    cd examples/paper-trading && python3 run.py
+    PYTHONPATH="$PWD/engine/src" python3 examples/paper-trading/run.py
 
 strategy-example:
-    cd examples/paper-trading && python3 strategy_demo.py
+    PYTHONPATH="$PWD/engine/src" python3 examples/paper-trading/strategy_demo.py
 
 paper-api:
     cd engine && python3 -m zero_engine.api
@@ -31,7 +31,7 @@ engine-format:
     cd engine && ruff format .
 
 engine-test:
-    cd engine && pytest
+    cd engine && PYTHONPATH="$PWD/src" pytest
 
 cli-lint:
     cd cli && cargo fmt --all --check && cargo clippy --workspace --all-targets -- -D warnings

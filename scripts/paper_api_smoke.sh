@@ -5,6 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PORT="${ZERO_PAPER_API_PORT:-8765}"
 API="http://127.0.0.1:${PORT}"
 LOG="${TMPDIR:-/tmp}/zero-paper-api-smoke.log"
+PYTHON_BIN="${PYTHON:-python3}"
 
 cleanup() {
   if [[ -n "${SERVER_PID:-}" ]]; then
@@ -15,7 +16,8 @@ trap cleanup EXIT
 
 cd "${ROOT}"
 
-python -m zero_engine.api --port "${PORT}" >"${LOG}" 2>&1 &
+PYTHONPATH="${ROOT}/engine/src${PYTHONPATH:+:${PYTHONPATH}}" \
+  "${PYTHON_BIN}" -m zero_engine.api --port "${PORT}" >"${LOG}" 2>&1 &
 SERVER_PID="$!"
 
 READY=0
@@ -33,7 +35,7 @@ if [[ "${READY}" != "1" ]]; then
   exit 1
 fi
 
-curl -fsS "${API}/v2/status" | python -m json.tool >/dev/null
+curl -fsS "${API}/v2/status" | "${PYTHON_BIN}" -m json.tool >/dev/null
 
 (
   cd "${ROOT}/cli"
@@ -45,7 +47,7 @@ curl -fsS \
   -H "content-type: application/json" \
   -d '{"coin":"BTC","side":"buy","size":0.01,"idempotency_key":"smoke-1"}' \
   "${API}/execute" \
-  | python -c 'import json,sys; p=json.load(sys.stdin); assert p["accepted"] is True; assert p["simulated"] is True'
+  | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["accepted"] is True; assert p["simulated"] is True'
 
 (
   cd "${ROOT}/cli"
