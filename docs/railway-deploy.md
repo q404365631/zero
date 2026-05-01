@@ -137,3 +137,7 @@ operator demos or public behavior verification.
 - If zero-downtime deploys show brief downtime, check whether the service has an
   attached volume. Railway does not run two active deployments against the same
   mounted volume.
+
+For incident handling, use [incident-runbooks.md](incident-runbooks.md). The
+Railway-specific P1 runbook requires `/health`, `/v2/status`, `/metrics`,
+`/network/profile`, and `/intelligence/snapshot` to recover before promotion.

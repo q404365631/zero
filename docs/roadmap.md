@@ -10,6 +10,7 @@
 - Security scans
 - Contributor docs
 - First release artifact
+- Threat model and incident runbooks
 
 ## Near Term
 
@@ -21,6 +22,7 @@
 - Public examples
 - Hosted public profile and leaderboard pages
 - Hosted ZERO Intelligence ingestion and billing
+- Package registry publication after ownership and rollback gates
 - Good-first-issue backlog
 
 ## Product Boundary

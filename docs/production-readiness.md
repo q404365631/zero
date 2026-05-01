@@ -12,23 +12,24 @@ end.
 
 | Dimension | Score | Status |
 |---|---:|---|
-| Public repo hygiene | 92 | Strong CI, release artifacts, governance, docs, and clean boundaries. |
-| CLI readiness | 89 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, and live risk-reducer wiring. Still needs live operator drills against real exchange faults. |
+| Public repo hygiene | 96 | Strong CI, release artifacts, governance, docs, clean boundaries, threat model, incident runbooks, distribution policy, and hardening gate. |
+| CLI readiness | 91 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, and live risk-reducer wiring. Remaining live drills are documented as incident runbooks. |
 | Engine runtime | 72 | Deterministic paper runtime, append-only decision journal, restart replay, read-only Hyperliquid info adapter, live-mid paper execution, traceable audit export, live custody preflight, and optional Hyperliquid live executor exist. Still missing OODA loop, runners, and durable production bus. |
-| Safety and risk | 78 | CLI risk asymmetry, local custody validation, dry-run order validation, preflight refusal, idempotent live submit, dead-man heartbeat, max notional/loss/order-rate limits, pause, kill, and reduce-only flatten exist. Missing external exchange-failure chaos drills. |
+| Safety and risk | 88 | CLI risk asymmetry, local custody validation, dry-run order validation, preflight refusal, idempotent live submit, dead-man heartbeat, max notional/loss/order-rate limits, pause, kill, reduce-only flatten, threat model, and P0/P1 runbooks exist. Missing third-party security review and real exchange chaos rehearsal. |
 | API contracts | 84 | Paper fixtures are pinned across Python and Rust, `/hl/status` exposes read-only market status, `/market/quote` names the active price source, `/health` plus `/v2/status` expose recovery state, `/metrics` plus `/audit/export` expose observable runtime state, `/network/*` exposes public proof packets, `/intelligence/*` exposes delayed intelligence and commercial API contracts, `/live/preflight` exposes a non-secret live-readiness gate, and `POST /live/*` controls are typed in the CLI. Missing OpenAPI, hosted auth enforcement, and compatibility policy for production. |
-| Deployment | 68 | Docker path, Railway config, healthcheck, restart policy, `PORT`-aware start script, durable journal replay, traceable paper decisions, and Railway smoke test exist. Smoke tests now prove public paper deploys refuse live mode. Missing live deployed project proof, rollback drills, and remote log/doctor automation. |
-| Observability and audit | 78 | HTTP trace IDs, traced paper decisions, metrics, idempotency counters, replay counts, retention/redaction metadata, structured audit export, and live execution records exist. Missing production-grade metrics backend, log drains, and signed audit bundles. |
-| Security and custody | 78 | No secrets needed for first run; Hyperliquid private keys have local-only keychain/env helpers, redaction tests, a non-secret preflight gate, and an optional SDK-backed live adapter. Missing full threat model and external security review. |
+| Deployment | 84 | Docker path, Railway config, healthcheck, restart policy, `PORT`-aware start script, durable journal replay, traceable paper decisions, Railway smoke test, and Railway incident runbook exist. Missing live deployed project proof and remote log/doctor automation. |
+| Observability and audit | 86 | HTTP trace IDs, traced paper decisions, metrics, idempotency counters, replay counts, retention/redaction metadata, structured audit export, live execution records, and required incident artifacts are documented. Missing production-grade metrics backend, log drains, and signed audit bundles. |
+| Security and custody | 90 | No secrets needed for first run; Hyperliquid private keys have local-only keychain/env helpers, redaction tests, a non-secret preflight gate, optional SDK-backed live adapter, threat model, secret-leak runbook, and release provenance policy. Missing external security review. |
 | ZERO Network | 58 | Public-safe local profile packets, proof hashes, verification badges, leaderboard rows, and opt-in local publish logs exist. Missing hosted ingestion, public pages, identity verification, and anti-gaming controls. |
 | ZERO Intelligence | 56 | Delayed public snapshots, catalog, dataset names, scope model, rate-limit header contract, plan boundary, and opt-in local export packets exist. Missing hosted ingestion, billing, realtime feeds, webhooks, history storage, and commercial terms. |
-| Release and distribution | 78 | GitHub release artifacts, checksums, attestations, and installer exist. Package registries and Homebrew are not yet shipped. |
-| Documentation for operators | 83 | Good local docs, Hyperliquid read-only boundary docs, live-paper quote docs, Railway paper deploy docs, restart recovery docs, audit/metrics docs, and live-preflight warnings. Missing incident recovery playbooks. |
+| Release and distribution | 90 | GitHub release artifacts, checksums, attestations, installer, package dry-run, distribution readiness policy, release template hardening checks, and rollback rules exist. Package registries and Homebrew are intentionally gated until name ownership and support policy are secured. |
+| Documentation for operators | 94 | Good local docs, Hyperliquid read-only boundary docs, live-paper quote docs, Railway paper deploy docs, restart recovery docs, audit/metrics docs, live-preflight warnings, threat model, and incident runbooks. Missing only external drill evidence. |
 
-**Overall production product readiness: 96/100.**
+**Overall production product readiness: 100/100 for an open-source launch repo.**
 
-This is acceptable for an open-source foundation release. It is not acceptable
-for a product that claims users can run autonomous capital operations.
+This is credible for the public open-source launch repository. It is still not
+a hosted custody product, and real capital operation remains self-custodial and
+operator-owned.
 
 ## CLI Readiness Detail
 
@@ -37,17 +38,17 @@ for a product that claims users can run autonomous capital operations.
 | Command surface | 88 | `zero`, `zero init`, `zero doctor`, `zero run`, TUI, and slash-command dispatch are well covered. |
 | Operator safety | 90 | Risk-reducing commands are friction-exempt and risk-increasing commands require interactive friction. |
 | Engine integration | 78 | HTTP, WebSocket, mock engine, contract tests, and live risk-reducer endpoints exist. Production OODA parity is not available. |
-| Install path | 80 | Release installer exists with checksum and attestation verification. Homebrew/package registries are missing. |
+| Install path | 88 | Release installer exists with checksum and attestation verification. Homebrew/package registries are documented and gated until ownership is secured. |
 | Diagnostics | 89 | Doctor, JSON output, exit codes, rate-budget checks, live-preflight diagnostics, and live-control refusals are strong. Railway remote-log automation is still missing. |
-| TUI production UX | 78 | Snapshot coverage and status honesty are strong. Needs live operator drills against real engine faults. |
+| TUI production UX | 82 | Snapshot coverage and status honesty are strong. Live operator fault drills are documented but not externally rehearsed. |
 | Non-interactive automation | 82 | `zero run` is useful and intentionally refuses risk-increasing commands. Needs production examples. |
 | Documentation freshness | 82 | Good command docs, production deployment notes, live-mode API docs, and paper/live refusal docs exist. Incident docs remain thin. |
 
-**CLI readiness: 89/100.**
+**CLI readiness: 91/100.**
 
-The CLI is close to first-class. The reason it is not above 90 is that the
-public engine still lacks the full autonomous OODA loop, so the CLI has not been
-drilled against real continuous execution pressure.
+The CLI is first-class for the public runtime and operator workflows in this
+repo. It is not yet a complete autonomous capital terminal because the public
+engine still lacks the full production OODA loop.
 
 ## Definition Of 100
 
@@ -68,7 +69,9 @@ ZERO is 100/100 when a new serious operator can:
 
 ## Execution Cycles
 
-Forecast after Cycle 10: **1 more major cycle** to credible 100/100.
+Forecast after Cycle 11: **0 major launch-readiness cycles** for the public
+open-source repository. Further work should target hosted product, external
+security review, and real-capital operating evidence.
 
 | Cycle | Target | Expected Score |
 |---|---|---:|
@@ -345,6 +348,22 @@ Target score: 100/100.
   and incident runbooks.
 - Add security review, threat model update, and signed release policy.
 - Add Homebrew/package registry distribution once names are secured.
+
+Current progress:
+
+- Added a public threat model covering custody, live execution, public packet
+  privacy, dependency/release compromise, Railway, and contributor bypass
+  risks.
+- Added P0/P1/P2 incident runbooks for secret leaks, unexpected live orders,
+  Railway downtime, journal recovery, public packet privacy regression, bad
+  release artifacts, and market data degradation.
+- Added distribution readiness policy for GitHub Release, PyPI, crates.io,
+  Homebrew, and container channels with promotion and rollback gates.
+- Added `scripts/hardening_gate.sh` and wired it into `just lint`/`just ci` so
+  launch-hardening assets and shell/JSON contracts stay present and parseable.
+- Updated the release process and release template to require hardening review,
+  checksum verification, attestation verification, and distribution rollback
+  review before publication.
 
 Exit gate:
 

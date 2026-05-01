@@ -18,6 +18,9 @@ paper-api:
 paper-api-smoke:
     scripts/paper_api_smoke.sh
 
+hardening-gate:
+    scripts/hardening_gate.sh
+
 package-dry-run:
     scripts/package_dry_run.sh
 
@@ -49,6 +52,9 @@ docs-check:
     test -f docs/open-core-boundary.md
     test -f docs/zero-network.md
     test -f docs/zero-intelligence.md
+    test -f docs/threat-model.md
+    test -f docs/incident-runbooks.md
+    test -f docs/distribution.md
     test -f docs/hyperliquid-readonly.md
     test -f docs/production-readiness.md
     test -f docs/release.md
@@ -68,6 +74,7 @@ docs-check:
     test -x scripts/assemble_release_assets.sh
     test -x scripts/install.sh
     test -x scripts/package_dry_run.sh
+    test -x scripts/hardening_gate.sh
     test -x scripts/railway_start.sh
     test -x scripts/railway_smoke.sh
     test -f Dockerfile
@@ -84,7 +91,7 @@ container-demo: container-build
 container-example: container-build
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-lint: engine-lint cli-lint docs-check
+lint: engine-lint cli-lint docs-check hardening-gate
 
 test: engine-test cli-test
 

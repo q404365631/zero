@@ -25,6 +25,7 @@ reserved for ZERO Intelligence.
 - Release workflow for Python package, CLI binaries, container image artifact, and checksums
 - Draft GitHub Release assembly with combined release checksums
 - GitHub artifact attestations for release asset provenance
+- Threat model, incident runbooks, distribution policy, and hardening gate
 - One-line CLI install path with checksum and attestation verification
 - Package dry-run gate for Python artifacts and the Rust crate graph
 - Shared paper API contract fixtures pinned by Python API tests and Rust client tests
@@ -54,7 +55,8 @@ reserved for ZERO Intelligence.
 
 - Keep the public GitHub Actions matrix green after every push
 - Publish the first release only after checksum and attestation verification pass
-- Add Homebrew or package-registry distribution after public name ownership is secured
+- Add Homebrew or package-registry publication only after public name ownership
+  and rollback procedure are secured
 
 ## Definition Of 100
 

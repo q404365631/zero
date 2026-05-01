@@ -23,16 +23,18 @@ just paper-api-smoke
 ## Verification
 
 - [ ] `just ci`
+- [ ] `scripts/hardening_gate.sh`
 - [ ] Draft GitHub Release contains the Python package, CLI binaries, paper image tarball, and `SHA256SUMS`.
 - [ ] `shasum -a 256 -c SHA256SUMS` passes after downloading all attached release assets.
 - [ ] `gh attestation verify zero-linux -R zero-intel/zero` passes.
 - [ ] `gh attestation verify zero-macos -R zero-intel/zero` passes.
+- [ ] `docs/threat-model.md`, `docs/incident-runbooks.md`, and `docs/distribution.md` are reviewed for this release.
 
 ## Known Limitations
 
-- Live exchange execution is not included in this repository.
-- Railway deployment, public profiles, leaderboards, realtime ZERO Intelligence,
-  historical datasets, and enterprise support are not included in this release.
+- Live exchange execution is self-custodial and must pass local preflight.
+- Realtime ZERO Intelligence, hosted historical datasets, and enterprise
+  support are not included in this release.
 
 ## Migration Notes
 

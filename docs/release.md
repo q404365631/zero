@@ -17,6 +17,8 @@ Required checks:
 - Python engine lint and tests
 - Rust CLI formatting, clippy, and tests
 - Local paper API smoke through the Rust CLI
+- Hardening gate for threat model, runbooks, distribution policy, release
+  verification, and public packet contracts
 - Paper example smoke test
 - Package dry run for Python artifacts and Rust crates
 - Container smoke test in GitHub Actions
@@ -81,6 +83,19 @@ gh attestation verify zero-linux -R zero-intel/zero
 
 Use `zero-macos` for the macOS binary.
 
+## Hardening Gate
+
+Run the local hardening gate before tagging or publishing:
+
+```bash
+scripts/hardening_gate.sh
+```
+
+The gate verifies that the threat model, incident runbooks, distribution policy,
+release verification template, intelligence contracts, and shell scripts are
+present and parseable. It is intentionally lightweight so it can run inside
+`just ci` on every pull request.
+
 ## CLI Install Path
 
 After the first GitHub Release is published, install the latest CLI binary with:
@@ -139,3 +154,7 @@ For public repositories, GitHub signs the attestation with Sigstore-backed
 provenance. Maintainers should leave releases in draft until checksum and
 attestation verification both pass from a fresh checkout or clean download
 directory.
+
+Do not publish package-registry artifacts until the registry channel has an
+owner, rollback path, least-privilege token plan, and documented support
+expectation in [distribution.md](distribution.md).
