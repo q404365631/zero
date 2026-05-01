@@ -63,6 +63,7 @@ jobs:
           test -f contracts/network/leaderboard.json
           test -f contracts/network/profile.html
           test -f contracts/network/leaderboard.html
+          test -f contracts/network/index.html
           test -f contracts/intelligence/snapshot.json
           test -f contracts/intelligence/catalog.json
           test -f examples/strategy-plugin/README.md
@@ -78,6 +79,8 @@ jobs:
           test -f examples/network-profile-page/build.py
           test -f examples/network-leaderboard-page/README.md
           test -f examples/network-leaderboard-page/build.py
+          test -f examples/network-index-page/README.md
+          test -f examples/network-index-page/build.py
           test -f openapi/zero-paper-api.v1.yaml
           test -x scripts/assemble_release_assets.sh
           test -x scripts/install.sh
@@ -164,6 +167,20 @@ jobs:
         run: python -m pip install -e ".[dev]"
       - name: Build network leaderboard page example
         run: PYTHONPATH="$PWD/engine/src" python3 examples/network-leaderboard-page/build.py
+
+  network-index-page-example:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install engine
+        working-directory: engine
+        run: python -m pip install -e ".[dev]"
+      - name: Build network index page example
+        run: PYTHONPATH="$PWD/engine/src" python3 examples/network-index-page/build.py
 
   cli:
     runs-on: ubuntu-latest

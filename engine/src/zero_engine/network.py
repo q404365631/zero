@@ -372,6 +372,154 @@ def public_leaderboard_page(leaderboard: dict[str, Any], *, generated_at: str) -
     return page
 
 
+def public_network_index_page(
+    *,
+    generated_at: str,
+    profile_href: str = "profile.html",
+    leaderboard_href: str = "leaderboard.html",
+) -> str:
+    profile_link = _safe_contract_href(profile_href)
+    leaderboard_link = _safe_contract_href(leaderboard_href)
+    timestamp = _escape(generated_at)
+
+    page = f"""<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ZERO Network</title>
+    <style>
+      :root {{
+        color-scheme: light;
+        --bg: #f7f8f8;
+        --ink: #111614;
+        --muted: #5d6864;
+        --line: #d9dfdc;
+        --panel: #ffffff;
+        --accent: #0b6b53;
+        --accent-soft: #dff2eb;
+      }}
+      * {{ box-sizing: border-box; }}
+      body {{
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }}
+      main {{
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 56px 24px;
+      }}
+      header {{
+        display: grid;
+        gap: 12px;
+        padding-bottom: 28px;
+        border-bottom: 1px solid var(--line);
+      }}
+      h1 {{
+        margin: 0;
+        font-size: clamp(2.5rem, 6vw, 5rem);
+        line-height: 0.98;
+        letter-spacing: 0;
+      }}
+      h2 {{
+        margin: 0 0 10px;
+        font-size: 1.05rem;
+      }}
+      p {{
+        margin: 0;
+        color: var(--muted);
+      }}
+      .eyebrow {{
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }}
+      .grid {{
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        margin: 28px 0;
+      }}
+      .panel {{
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+      }}
+      .panel a {{
+        color: var(--accent);
+        font-weight: 700;
+        text-decoration: none;
+      }}
+      .panel a:hover {{
+        text-decoration: underline;
+      }}
+      .rules {{
+        display: grid;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }}
+      .rules li {{
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 10px;
+      }}
+      .rules li:last-child {{ border-bottom: 0; padding-bottom: 0; }}
+      footer {{
+        margin-top: 28px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }}
+      @media (max-width: 720px) {{
+        main {{ padding: 36px 16px; }}
+        .grid {{ grid-template-columns: 1fr; }}
+      }}
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="eyebrow">ZERO Network</div>
+        <h1>Public Proof Surface</h1>
+        <p>Opt-in aggregate behavior for autonomous onchain operations. Proof-of-process, not financial advice.</p>
+      </header>
+      <section class="grid" aria-label="Network contract pages">
+        <div class="panel">
+          <h2>Operator Profile</h2>
+          <p>One redacted profile with aggregate behavior, verification badges, and proof hash.</p>
+          <p><a href="{profile_link}">Open profile page</a></p>
+        </div>
+        <div class="panel">
+          <h2>Public Leaderboard</h2>
+          <p>Ranked aggregate rows generated from the same public-safe profile contracts.</p>
+          <p><a href="{leaderboard_link}">Open leaderboard page</a></p>
+        </div>
+      </section>
+      <section class="panel">
+        <h2>Publication Rules</h2>
+        <ul class="rules">
+          <li>Private by default; publication is explicit operator opt-in.</li>
+          <li>Aggregate-only contracts; no journals or private execution details.</li>
+          <li>Self-custodial runtime; ZERO Network is a verification surface, not a hosted control plane.</li>
+        </ul>
+      </section>
+      <footer>
+        Generated {timestamp}. Public contracts are deterministic artifacts for review, contribution, and integration.
+      </footer>
+    </main>
+  </body>
+</html>
+"""
+    assert_public_profile_safe({"html": page})
+    return page
+
+
 def public_profile_page(profile: dict[str, Any], *, generated_at: str) -> str:
     row = _public_leaderboard_row(profile)
     assert_public_profile_safe(profile)
@@ -723,6 +871,16 @@ def _leaderboard_page_row(row: dict[str, Any]) -> str:
             <td data-label="Score">{score}</td>
             <td data-label="Proof"><code>{proof_hash}</code></td>
           </tr>"""
+
+
+def _safe_contract_href(value: str) -> str:
+    stripped = str(value).strip()
+    if not stripped:
+        raise ValueError("public network page href must not be empty")
+    lowered = stripped.lower()
+    if lowered.startswith(("http://", "https://", "//", "javascript:", "data:")):
+        raise ValueError("public network page href must be a local contract path")
+    return _escape(stripped)
 
 
 def _escape(value: str) -> str:

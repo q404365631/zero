@@ -63,7 +63,7 @@ flowchart LR
 - Query Hyperliquid read-only market data without exposing funds.
 - Package release assets with checksums.
 - Deploy the paper runtime on Railway or Docker.
-- Generate public-safe Network profile pages, leaderboard pages, and
+- Generate public-safe Network index, profile pages, leaderboard pages, and
   Intelligence contract artifacts.
 
 ## See It Run
@@ -219,7 +219,8 @@ Good first contribution areas:
 - Strategy plugins that return signals but leave execution and risk checks to
   ZERO.
 - Market data adapters with deterministic tests.
-- ZERO Network profile and leaderboard pages over redacted public contracts.
+- ZERO Network index, profile, and leaderboard pages over redacted public
+  contracts.
 - CLI diagnostics and replay views.
 - Safety gate tests.
 - Documentation and runbook improvements.

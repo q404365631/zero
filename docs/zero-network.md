@@ -56,6 +56,23 @@ The public runtime writes a JSONL proof packet to the configured local path. It
 does not upload to a ZERO-hosted service. A future hosted Network ingestion API
 can consume the same packet without changing the local privacy contract.
 
+## Public Index Page Builder
+
+The public repository includes a deterministic static index for checked Network
+contract pages:
+
+```bash
+just network-index-page-example
+```
+
+The index links the public-safe profile and leaderboard pages, explains the
+opt-in aggregate publication model, and refuses remote or script-style links.
+It uses no JavaScript, remote assets, journals, private execution details, or
+external links.
+
+See [examples/network-index-page](../examples/network-index-page) and
+[contracts/network/index.html](../contracts/network/index.html).
+
 ## Public Profile Page Builder
 
 The public repository includes a deterministic static page builder for one

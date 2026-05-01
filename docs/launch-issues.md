@@ -30,22 +30,21 @@ Acceptance:
 - The note keeps the container path paper-only.
 - The note does not weaken CI expectations.
 
-## Good First Issue: Add Static ZERO Network Index Page
+## Good First Issue: Add Static ZERO Network Visual Smoke Test
 
 Labels: `good first issue`, `network`, `frontend`, `docs`
 
-Add a deterministic static index page that links the checked ZERO Network
-profile and leaderboard contract pages.
+Add a deterministic visual smoke script for the checked ZERO Network index,
+profile, and leaderboard pages.
 
 Acceptance:
 
-- The page links `contracts/network/profile.html` and
-  `contracts/network/leaderboard.html`.
-- The page explains that ZERO Network is opt-in, aggregate-only, and
-  proof-of-process rather than financial advice.
-- The page does not render raw decisions, symbols, trace IDs, idempotency keys,
-  wallet addresses, exchange order IDs, strategy labels, or private notes.
-- The generator runs without network access.
+- The script opens `contracts/network/index.html`,
+  `contracts/network/profile.html`, and `contracts/network/leaderboard.html`.
+- The script verifies each page title and primary heading.
+- The script fails on remote asset requests, JavaScript execution, missing
+  local links, or private execution detail tokens.
+- The check runs without network access.
 
 ## Help Wanted: Homebrew Tap
 

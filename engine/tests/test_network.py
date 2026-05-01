@@ -12,6 +12,7 @@ from zero_engine.network import (
     load_public_profiles,
     public_leaderboard,
     public_leaderboard_page,
+    public_network_index_page,
     public_profile,
     public_profile_page,
 )
@@ -216,6 +217,28 @@ def test_public_leaderboard_page_escapes_row_text() -> None:
     assert "&lt;script&gt;alert(1)&lt;/script&gt;" in page
 
 
+def test_public_network_index_page_links_contract_pages_only() -> None:
+    page = public_network_index_page(generated_at=FIXED_DT.isoformat())
+
+    assert "<!doctype html>" in page
+    assert "<title>ZERO Network</title>" in page
+    assert 'href="profile.html"' in page
+    assert 'href="leaderboard.html"' in page
+    assert "Opt-in aggregate behavior" in page
+    assert "network-fill" not in page
+    assert "trace-network" not in page
+    assert "BTC" not in page
+    assert "ETH" not in page
+
+
+def test_public_network_index_page_rejects_remote_links() -> None:
+    with pytest.raises(ValueError, match="local contract path"):
+        public_network_index_page(
+            generated_at=FIXED_DT.isoformat(),
+            profile_href="https://example.com/profile.html",
+        )
+
+
 def test_public_profile_page_renders_aggregate_html_only(tmp_path) -> None:
     profile = seed_api(tmp_path).network_profile()
 
@@ -258,5 +281,14 @@ def test_network_leaderboard_page_contract_is_fresh() -> None:
     expected = (repo_root / "contracts/network/leaderboard.html").read_text()
 
     page = public_leaderboard_page(leaderboard, generated_at=FIXED_DT.isoformat())
+
+    assert page == expected
+
+
+def test_network_index_page_contract_is_fresh() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    expected = (repo_root / "contracts/network/index.html").read_text()
+
+    page = public_network_index_page(generated_at=FIXED_DT.isoformat())
 
     assert page == expected

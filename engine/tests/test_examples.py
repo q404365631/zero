@@ -96,3 +96,21 @@ def test_network_leaderboard_page_example_runs_from_repo_root() -> None:
     assert "@zero_local" in page
     assert "91.67%" in page
     assert "sha256:1111111111111111111111111111111111111111111111111111111111111111" in page
+
+
+def test_network_index_page_example_runs_from_repo_root() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    result = subprocess.run(
+        [sys.executable, "examples/network-index-page/build.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    page = result.stdout
+    assert "<!doctype html>" in page
+    assert "<title>ZERO Network</title>" in page
+    assert 'href="profile.html"' in page
+    assert 'href="leaderboard.html"' in page
+    assert "Public Proof Surface" in page

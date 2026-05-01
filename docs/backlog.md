@@ -47,22 +47,21 @@ Acceptance:
 - The example command remains `just example`.
 - The output summary stays deterministic and paper-only.
 
-### Add a static ZERO Network index page
+### Add a static ZERO Network visual smoke test
 
 Labels: `good first issue`, `network`, `frontend`, `docs`
 
-Add a deterministic static index page that links the checked ZERO Network
-profile and leaderboard contract pages and explains the public proof surface.
+Add a deterministic visual smoke script for the checked ZERO Network index,
+profile, and leaderboard pages.
 
 Acceptance:
 
-- The page links `contracts/network/profile.html` and
-  `contracts/network/leaderboard.html`.
-- The page explains that ZERO Network is opt-in, aggregate-only, and
-  proof-of-process rather than financial advice.
-- The page does not render raw decisions, symbols, trace IDs, idempotency keys,
-  wallet addresses, exchange order IDs, strategy labels, or private notes.
-- The generator is deterministic and runs without network access.
+- The script opens `contracts/network/index.html`,
+  `contracts/network/profile.html`, and `contracts/network/leaderboard.html`.
+- The script verifies each page title and primary heading.
+- The script fails on remote asset requests, JavaScript execution, missing
+  local links, or private execution detail tokens.
+- The check is deterministic and runs without network access.
 
 ### Add Docker daemon troubleshooting note
 
