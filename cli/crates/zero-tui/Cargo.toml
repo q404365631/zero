@@ -5,6 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
+description = "Terminal UI widgets and app state for supervising ZERO."
 
 [lints]
 workspace = true

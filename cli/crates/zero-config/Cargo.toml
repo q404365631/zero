@@ -5,6 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
+description = "Configuration and credential-store helpers for the ZERO operator CLI."
 
 [lints]
 workspace = true

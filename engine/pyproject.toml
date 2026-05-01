@@ -13,6 +13,7 @@ zero-paper-api = "zero_engine.api:main"
 
 [project.optional-dependencies]
 dev = [
+  "build>=1.2",
   "pytest>=8.0",
   "ruff>=0.8",
 ]

@@ -30,18 +30,19 @@ Acceptance:
 - The note keeps the container path paper-only.
 - The note does not weaken CI expectations.
 
-## Help Wanted: Package Publishing Dry Runs
+## Help Wanted: One-Line CLI Install Path
 
-Labels: `help wanted`, `release`, `packaging`
+Labels: `help wanted`, `release`, `cli`, `packaging`
 
-Add non-publishing checks for the first public package paths.
+Add a documented one-line install path for the Rust CLI once public release
+artifacts are available.
 
 Acceptance:
 
-- The Python engine package can build an sdist and wheel locally.
-- The Rust CLI crates pass `cargo package --no-verify` or documented equivalent.
-- The check does not require publishing tokens.
-- Any name-ownership assumptions are documented in `docs/release.md`.
+- `README.md` shows the install command near the quickstart.
+- `docs/release.md` names the supported install path and artifact source.
+- The command verifies checksums before placing a binary on `PATH`.
+- The path works without private package registry access.
 
 ## Help Wanted: CLI Quickstart Terminal Capture
 

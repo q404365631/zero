@@ -18,6 +18,9 @@ paper-api:
 paper-api-smoke:
     scripts/paper_api_smoke.sh
 
+package-dry-run:
+    scripts/package_dry_run.sh
+
 checksum output *artifacts:
     python3 scripts/write_sha256s.py "{{output}}" {{artifacts}}
 
@@ -52,6 +55,7 @@ docs-check:
     test -f contracts/paper-api/v2_status.json
     test -f contracts/paper-api/execute_accepted.json
     test -f contracts/paper-api/execute_rejected.json
+    test -x scripts/package_dry_run.sh
     test -f Dockerfile
     test -f compose.yaml
 
@@ -73,4 +77,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke example strategy-example
+ci: lint test paper-api-smoke example strategy-example package-dry-run

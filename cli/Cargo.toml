@@ -86,16 +86,16 @@ proptest = "1"
 criterion = { version = "0.5", features = ["html_reports"] }
 
 # internal crates (workspace refs)
-zero-tui = { path = "crates/zero-tui" }
-zero-engine-client = { path = "crates/zero-engine-client" }
-zero-session = { path = "crates/zero-session" }
-zero-config = { path = "crates/zero-config" }
-zero-commands = { path = "crates/zero-commands" }
-zero-onboarding = { path = "crates/zero-onboarding" }
-zero-doctor = { path = "crates/zero-doctor" }
-zero-operator-state = { path = "crates/zero-operator-state" }
-zero-testkit = { path = "crates/zero-testkit" }
-zero-headless = { path = "crates/zero-headless" }
+zero-tui = { path = "crates/zero-tui", version = "0.3.0-dev" }
+zero-engine-client = { path = "crates/zero-engine-client", version = "0.3.0-dev" }
+zero-session = { path = "crates/zero-session", version = "0.3.0-dev" }
+zero-config = { path = "crates/zero-config", version = "0.3.0-dev" }
+zero-commands = { path = "crates/zero-commands", version = "0.3.0-dev" }
+zero-onboarding = { path = "crates/zero-onboarding", version = "0.3.0-dev" }
+zero-doctor = { path = "crates/zero-doctor", version = "0.3.0-dev" }
+zero-operator-state = { path = "crates/zero-operator-state", version = "0.3.0-dev" }
+zero-testkit = { path = "crates/zero-testkit", version = "0.3.0-dev" }
+zero-headless = { path = "crates/zero-headless", version = "0.3.0-dev" }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

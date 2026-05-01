@@ -5,6 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
+description = "Headless daemon and IPC client for supervised ZERO operator workflows."
 
 [lints]
 workspace = true

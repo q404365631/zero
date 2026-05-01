@@ -6,7 +6,7 @@ reserved for ZERO Cloud.
 
 ## Current Score
 
-**94/100**
+**96/100**
 
 ## Ready
 
@@ -17,6 +17,7 @@ reserved for ZERO Cloud.
 - Rust operator CLI with doctor, TUI, command tests, and safety invariants
 - Public CI for engine, CLI, docs, paper example, paper API smoke, and container smoke
 - Release workflow for Python package, CLI binaries, container image artifact, and checksums
+- Package dry-run gate for Python artifacts and the Rust crate graph
 - Shared paper API contract fixtures pinned by Python API tests and Rust client tests
 - Public contribution, security, governance, support, and issue templates
 - First-release notes template and ready-to-create contributor issue set
@@ -44,7 +45,6 @@ reserved for ZERO Cloud.
 - Add signed GitHub Releases after ownership and token permissions are finalized
 - Add Homebrew tap or one-line binary install path
 - Add screenshots or richer terminal captures for the full TUI quickstart
-- Add package publishing dry-run checks for PyPI/crates/Homebrew names
 
 ## Definition Of 100
 

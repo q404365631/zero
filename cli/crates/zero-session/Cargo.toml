@@ -5,6 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
+description = "Local session history, replay, and wrap-up storage for ZERO."
 
 [lints]
 workspace = true

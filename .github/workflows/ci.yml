@@ -47,6 +47,7 @@ jobs:
           test -f contracts/paper-api/v2_status.json
           test -f contracts/paper-api/execute_accepted.json
           test -f contracts/paper-api/execute_rejected.json
+          test -x scripts/package_dry_run.sh
           test -f .github/RELEASE_TEMPLATE.md
 
   cli:
@@ -95,6 +96,22 @@ jobs:
         run: rustup show
       - name: Smoke local paper API through CLI
         run: scripts/paper_api_smoke.sh
+
+  package-dry-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install packaging tools
+        working-directory: engine
+        run: python -m pip install -e ".[dev]"
+      - name: Rust toolchain
+        run: rustup show
+      - name: Build package artifacts without publishing
+        run: scripts/package_dry_run.sh
 
   container-smoke:
     runs-on: ubuntu-latest

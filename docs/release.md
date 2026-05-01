@@ -18,6 +18,7 @@ Required checks:
 - Rust CLI formatting, clippy, and tests
 - Local paper API smoke through the Rust CLI
 - Paper example smoke test
+- Package dry run for Python artifacts and Rust crates
 - Container smoke test in GitHub Actions
 - Required docs check
 - Secret scan in GitHub Actions
@@ -64,6 +65,25 @@ shasum -a 256 -c SHA256SUMS
 
 The checksum file uses the standard two-column `sha256  filename` format. A
 failed checksum means the artifact should not be used.
+
+## Package Dry Run
+
+Run the non-publishing package check before opening a release PR or tagging:
+
+```bash
+just package-dry-run
+```
+
+The check builds the Python engine wheel and source distribution into a
+temporary directory, then runs `cargo package --workspace --no-verify` for the
+Rust crate graph using a temporary Cargo target directory. It does not require
+PyPI, crates.io, Homebrew, Docker, or GitHub publishing tokens.
+
+Current package-name assumptions:
+
+- PyPI candidate: `zero-engine`
+- crates.io candidates: the `zero-*` workspace crates plus the `zero` binary crate
+- Homebrew candidate: a future `zero-intel/zero` tap or equivalent one-line installer
 
 ## Current Automation
 

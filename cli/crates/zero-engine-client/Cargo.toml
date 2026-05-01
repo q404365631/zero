@@ -5,6 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
+description = "Typed HTTP and WebSocket client for the ZERO paper engine."
 
 [lints]
 workspace = true
