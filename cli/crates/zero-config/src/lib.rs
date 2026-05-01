@@ -36,6 +36,8 @@ pub struct Config {
     pub identity: Identity,
     pub mode: Mode,
     pub guardrails: Guardrails,
+    pub custody: Custody,
+    pub emergency: EmergencyControls,
     pub display: Display,
     pub session: Session,
 }
@@ -64,6 +66,50 @@ pub struct Guardrails {
     pub drawdown_pct: f64,
     pub blocked_symbols: Vec<String>,
     pub blocked_directions: Vec<String>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct Custody {
+    pub hyperliquid: HyperliquidCustody,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct HyperliquidCustody {
+    pub allow_live: bool,
+    pub wallet_address: Option<String>,
+    pub api_wallet_address: Option<String>,
+    pub key_source: String,
+}
+
+impl Default for HyperliquidCustody {
+    fn default() -> Self {
+        Self {
+            allow_live: false,
+            wallet_address: None,
+            api_wallet_address: None,
+            key_source: "os_keychain".to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct EmergencyControls {
+    pub require_journal: bool,
+    pub kill_switch_path: Option<PathBuf>,
+    pub dead_man_timeout_s: u64,
+}
+
+impl Default for EmergencyControls {
+    fn default() -> Self {
+        Self {
+            require_journal: true,
+            kill_switch_path: None,
+            dead_man_timeout_s: 30,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -99,6 +145,8 @@ pub const DEFAULT_API_URL: &str = "https://api.getzero.dev";
 pub mod env {
     pub const API_URL: &str = "ZERO_API_URL";
     pub const API_TOKEN: &str = "ZERO_API_TOKEN";
+    pub const HYPERLIQUID_WALLET_ADDRESS: &str = "ZERO_HYPERLIQUID_WALLET_ADDRESS";
+    pub const HYPERLIQUID_API_PRIVATE_KEY: &str = "ZERO_HYPERLIQUID_API_PRIVATE_KEY";
 }
 
 /// Keychain service identifiers. See `SECURITY_THREAT_MODEL.md` §4.2.
@@ -111,6 +159,9 @@ pub mod keychain {
     /// single logical operator slot per CLI machine; operators with
     /// multiple engines switch via `zero pair --target`.
     pub const DEFAULT_ACCOUNT: &str = "default";
+    /// Hyperliquid API-wallet private key. This is local-only and
+    /// never belongs in `config.toml`.
+    pub const HYPERLIQUID_SERVICE: &str = "dev.getzero.hyperliquid";
 }
 
 /// Resolve the engine API URL from explicit override → env → default.
@@ -177,6 +228,33 @@ pub fn resolve_token(explicit: Option<&str>) -> Option<String> {
     keyring_read_engine_token().ok().flatten()
 }
 
+/// Resolve the configured Hyperliquid private key without ever
+/// reading from `config.toml`. Precedence: explicit → env → OS
+/// keychain. Non-interactive no-keychain behavior mirrors
+/// [`resolve_token`] so scripts do not block on a GUI keychain
+/// prompt.
+#[must_use]
+pub fn resolve_hyperliquid_private_key(explicit: Option<&str>) -> Option<String> {
+    if let Some(t) = explicit.filter(|s| !s.is_empty()) {
+        return Some(t.to_owned());
+    }
+    if let Ok(t) = std::env::var(env::HYPERLIQUID_API_PRIVATE_KEY)
+        && !t.is_empty()
+    {
+        return Some(t);
+    }
+    if std::env::var_os("ZERO_NO_KEYCHAIN").is_some_and(|v| !v.is_empty()) {
+        return None;
+    }
+    {
+        use std::io::IsTerminal as _;
+        if !std::io::stdin().is_terminal() && !std::io::stdout().is_terminal() {
+            return None;
+        }
+    }
+    keyring_read_hyperliquid_private_key().ok().flatten()
+}
+
 /// Write the engine token to the OS keychain. Overwrites any
 /// existing entry.
 ///
@@ -211,6 +289,51 @@ pub fn keyring_read_engine_token() -> Result<Option<String>, ConfigError> {
 /// successful outcome.
 pub fn keyring_clear_engine_token() -> Result<(), ConfigError> {
     let entry = keyring::Entry::new(keychain::ENGINE_SERVICE, keychain::DEFAULT_ACCOUNT)?;
+    match entry.delete_credential() {
+        Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
+        Err(e) => Err(e.into()),
+    }
+}
+
+/// Write the Hyperliquid API-wallet private key to the OS keychain.
+/// The key must be a 32-byte hex value with or without a `0x`
+/// prefix.
+///
+/// # Errors
+/// Returns validation errors for malformed keys or keychain errors
+/// from the platform credential store.
+pub fn keyring_store_hyperliquid_private_key(private_key: &str) -> Result<(), ConfigError> {
+    if !is_private_key(private_key) {
+        return Err(ConfigError::Validation(
+            "hyperliquid api private key must be a 32-byte hex value".to_string(),
+        ));
+    }
+    let entry = keyring::Entry::new(keychain::HYPERLIQUID_SERVICE, keychain::DEFAULT_ACCOUNT)?;
+    entry.set_password(private_key)?;
+    Ok(())
+}
+
+/// Read the Hyperliquid API-wallet private key from the keychain.
+///
+/// # Errors
+/// Returns keychain platform errors; missing entry resolves to
+/// `Ok(None)`.
+pub fn keyring_read_hyperliquid_private_key() -> Result<Option<String>, ConfigError> {
+    let entry = keyring::Entry::new(keychain::HYPERLIQUID_SERVICE, keychain::DEFAULT_ACCOUNT)?;
+    match entry.get_password() {
+        Ok(t) => Ok(Some(t)),
+        Err(keyring::Error::NoEntry) => Ok(None),
+        Err(e) => Err(e.into()),
+    }
+}
+
+/// Delete the Hyperliquid API-wallet private key from the keychain.
+///
+/// # Errors
+/// Only returns an error on keychain I/O; a missing entry is a
+/// successful outcome.
+pub fn keyring_clear_hyperliquid_private_key() -> Result<(), ConfigError> {
+    let entry = keyring::Entry::new(keychain::HYPERLIQUID_SERVICE, keychain::DEFAULT_ACCOUNT)?;
     match entry.delete_credential() {
         Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
         Err(e) => Err(e.into()),
@@ -284,6 +407,8 @@ impl Config {
                 blocked_symbols: vec![],
                 blocked_directions: vec![],
             },
+            custody: Custody::default(),
+            emergency: EmergencyControls::default(),
             display: Display {
                 theme: "phosphor".to_string(),
                 live_stream_default: false,
@@ -294,5 +419,86 @@ impl Config {
                 storage_path: None,
             },
         }
+    }
+}
+
+/// True for Ethereum-style `0x` addresses used by Hyperliquid.
+#[must_use]
+pub fn is_hex_address(value: &str) -> bool {
+    let value = value.trim();
+    value.len() == 42
+        && value.starts_with("0x")
+        && value[2..].chars().all(|c| c.is_ascii_hexdigit())
+}
+
+/// True for a 32-byte private key encoded as 64 hex characters,
+/// with or without a `0x` prefix.
+#[must_use]
+pub fn is_private_key(value: &str) -> bool {
+    let value = value.trim();
+    let hex = value.strip_prefix("0x").unwrap_or(value);
+    hex.len() == 64 && hex.chars().all(|c| c.is_ascii_hexdigit())
+}
+
+/// Redact a secret or address while keeping enough prefix/suffix
+/// to correlate diagnostics. Never use this for authorization.
+#[must_use]
+pub fn redact(value: &str) -> String {
+    let value = value.trim();
+    if value.is_empty() {
+        return "<unset>".to_string();
+    }
+    let chars: Vec<char> = value.chars().collect();
+    if chars.len() <= 10 {
+        return "<redacted>".to_string();
+    }
+    let prefix: String = chars.iter().take(6).collect();
+    let suffix: String = chars
+        .iter()
+        .rev()
+        .take(4)
+        .collect::<Vec<_>>()
+        .into_iter()
+        .rev()
+        .collect();
+    format!("{prefix}...{suffix}")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn starter_config_keeps_live_custody_disabled() {
+        let cfg = Config::starter("operator");
+
+        assert!(!cfg.custody.hyperliquid.allow_live);
+        assert_eq!(cfg.custody.hyperliquid.key_source, "os_keychain");
+        assert!(cfg.custody.hyperliquid.wallet_address.is_none());
+        assert!(cfg.emergency.require_journal);
+        assert_eq!(cfg.emergency.dead_man_timeout_s, 30);
+    }
+
+    #[test]
+    fn hyperliquid_identifier_validation_is_strict() {
+        assert!(is_hex_address("0x0000000000000000000000000000000000000000"));
+        assert!(!is_hex_address("0x000000000000000000000000000000000000000"));
+        assert!(is_private_key(
+            "0x0000000000000000000000000000000000000000000000000000000000000000"
+        ));
+        assert!(is_private_key(
+            "0000000000000000000000000000000000000000000000000000000000000000"
+        ));
+        assert!(!is_private_key("0xnot-a-private-key"));
+    }
+
+    #[test]
+    fn redaction_preserves_only_diagnostic_edges() {
+        assert_eq!(
+            redact("0x1234567890abcdef1234567890abcdef12345678"),
+            "0x1234...5678"
+        );
+        assert_eq!(redact("short"), "<redacted>");
+        assert_eq!(redact(""), "<unset>");
     }
 }

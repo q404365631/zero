@@ -180,6 +180,10 @@ pub struct Doctor {
     /// Currently limited to `config_dir` (create on miss). Rate-
     /// budget + auth refresh land with their respective subsystems.
     fix: bool,
+    /// When true, missing live custody controls are fatal. Default
+    /// doctor runs only warn because paper/read-only operation is
+    /// still valid without live custody.
+    live_required: bool,
 }
 
 impl Doctor {
@@ -247,6 +251,7 @@ impl Doctor {
             if let Some(row) = self.check_rate_budget(client) {
                 checks.push(row);
             }
+            checks.push(check_live_preflight(client, self.live_required).await);
         } else {
             checks.push(CheckResult::fail(
                 "engine_reachable",
@@ -438,6 +443,7 @@ pub struct DoctorBuilder {
     ws_url: Option<String>,
     ws_token: Option<String>,
     fix: bool,
+    live_required: bool,
 }
 
 impl DoctorBuilder {
@@ -486,6 +492,15 @@ impl DoctorBuilder {
         self
     }
 
+    /// Require live custody preflight to pass. Used by future
+    /// live-mode start paths; ordinary doctor runs keep this false
+    /// so paper/read-only operators can still get a useful report.
+    #[must_use]
+    pub const fn live_required(mut self, enabled: bool) -> Self {
+        self.live_required = enabled;
+        self
+    }
+
     /// Build the runner. Missing `config_dir` defaults to the
     /// system temp directory — a check against it will `Warn` at
     /// worst, which is the correct "misconfigured caller" signal.
@@ -500,6 +515,7 @@ impl DoctorBuilder {
             ws_url: self.ws_url,
             ws_token: self.ws_token,
             fix: self.fix,
+            live_required: self.live_required,
         }
     }
 }
@@ -584,6 +600,46 @@ async fn check_engine_reachable(client: &HttpClient) -> CheckResult {
             elapsed(started),
         ),
         Err(e) => CheckResult::fail("engine_reachable", e.to_string(), elapsed(started)),
+    }
+}
+
+async fn check_live_preflight(client: &HttpClient, live_required: bool) -> CheckResult {
+    let started = std::time::Instant::now();
+    match client.live_preflight().await {
+        Ok(preflight) if preflight.ready => CheckResult::ok(
+            "live_preflight",
+            "live custody and safety preflight ready",
+            elapsed(started),
+        ),
+        Ok(preflight) if preflight.controls_ready => CheckResult::ok(
+            "live_preflight",
+            "custody controls pass; live executor is still refused",
+            elapsed(started),
+        ),
+        Ok(preflight) => {
+            let failed: Vec<&str> = preflight
+                .checks
+                .iter()
+                .filter(|check| check.status != "ok")
+                .map(|check| check.name.as_str())
+                .collect();
+            let note = if failed.is_empty() {
+                "not ready".to_string()
+            } else {
+                format!("not ready: {}", failed.join(", "))
+            };
+            if live_required {
+                CheckResult::fail("live_preflight", note, elapsed(started))
+            } else {
+                CheckResult::warn("live_preflight", note, elapsed(started))
+            }
+        }
+        Err(HttpError::NotFound { .. }) => CheckResult::warn(
+            "live_preflight",
+            "engine does not expose /live/preflight",
+            elapsed(started),
+        ),
+        Err(e) => CheckResult::warn("live_preflight", format!("skipped: {e}"), elapsed(started)),
     }
 }
 

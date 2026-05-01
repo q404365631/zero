@@ -4,6 +4,7 @@ import argparse
 import base64
 import hashlib
 import json
+import os
 import time
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -12,7 +13,14 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Callable
 from urllib.parse import parse_qs, urlparse
 
-from zero_engine.hyperliquid import HyperliquidInfoClient, HyperliquidMarketStatus
+from zero_engine.hyperliquid import (
+    HyperliquidInfoClient,
+    HyperliquidMarketStatus,
+    is_hex_address,
+    is_private_key,
+    redact_secret,
+    validate_dry_run_order,
+)
 from zero_engine.journal import DecisionJournal
 from zero_engine.models import OrderIntent, Position, Side
 from zero_engine.paper import DecisionRecord, PaperEngine
@@ -121,6 +129,10 @@ class PaperApiState:
     last_market_error: str | None = None
     metrics: ApiMetrics = field(default_factory=ApiMetrics)
     trace_sequence: int = 0
+    live_wallet_address: str | None = None
+    live_api_private_key: str | None = None
+    live_kill_switch_path: str | None = None
+    live_dead_man_timeout_s: float = 30.0
 
     def __post_init__(self) -> None:
         if self.execution_cache:
@@ -247,6 +259,7 @@ class PaperApi:
             "/journal": lambda: self.journal(query),
             "/audit/export": lambda: self.audit_export(query),
             "/hl/status": lambda: self.hl_status(query),
+            "/live/preflight": self.live_preflight,
             "/market/quote": lambda: self.market_quote(query),
             "/metrics": self.metrics,
             "/operator/state": self.operator_state,
@@ -348,6 +361,7 @@ class PaperApi:
                 "market_data": market_data,
                 "journal": "durable" if recovery["durable"] else "ephemeral",
                 "secrets": "not_required",
+                "live_preflight": "available",
             },
             "circuit_breakers": {
                 "paper": "closed",
@@ -356,6 +370,98 @@ class PaperApi:
             "risk": {"equity": 10_000.0, "drawdown_pct": 0.0, "kill_all": False},
             "recovery": recovery,
             "ws_connections": 0,
+        }
+
+    def live_preflight(self) -> dict[str, Any]:
+        checks: list[dict[str, Any]] = []
+
+        def add(name: str, status: str, note: str, **extra: Any) -> None:
+            checks.append({"name": name, "status": status, "note": note, **extra})
+
+        wallet = self.state.live_wallet_address
+        private_key = self.state.live_api_private_key
+        wallet_ok = bool(wallet and is_hex_address(wallet))
+        key_ok = is_private_key(private_key)
+
+        add(
+            "live_executor",
+            "fail",
+            "public runtime is paper-only until Cycle 8 live execution ships",
+        )
+        add(
+            "wallet_address",
+            "ok" if wallet_ok else "fail",
+            redact_secret(wallet) if wallet_ok else "set ZERO_HYPERLIQUID_WALLET_ADDRESS",
+        )
+        add(
+            "api_private_key",
+            "ok" if key_ok else "fail",
+            redact_secret(private_key) if key_ok else "store key locally; never commit it",
+            source="env_or_keychain",
+        )
+
+        if self.state.hyperliquid is None:
+            add("account_read", "fail", "start with --hyperliquid to verify account state")
+        elif not wallet_ok:
+            add("account_read", "fail", "valid wallet address required before account read")
+        else:
+            try:
+                state = self.state.hyperliquid.clearinghouse_state(wallet or "")
+                positions = state.get("assetPositions", []) if isinstance(state, dict) else []
+                add("account_read", "ok", f"clearinghouseState read ok · positions={len(positions)}")
+            except Exception as exc:
+                add("account_read", "fail", f"Hyperliquid account read failed: {exc}")
+
+        try:
+            validated = validate_dry_run_order({"coin": "BTC", "side": "buy", "size": 0.001})
+            add(
+                "dry_run_order",
+                "ok",
+                f"{validated['side']} {validated['size']} {validated['coin']} validates locally",
+            )
+        except ValueError as exc:
+            add("dry_run_order", "fail", str(exc))
+
+        durable = self.state.engine.journal is not None
+        add(
+            "journal",
+            "ok" if durable else "fail",
+            "append-only decision journal configured" if durable else "start with --journal",
+        )
+
+        limits = self.state.engine.limits
+        risk_ok = limits.max_notional_usd > 0 and limits.max_position_notional_usd > 0
+        add(
+            "risk_limits",
+            "ok" if risk_ok else "fail",
+            f"max_notional_usd={limits.max_notional_usd:g} "
+            f"max_position_notional_usd={limits.max_position_notional_usd:g}"
+            if risk_ok
+            else "risk limits must be positive",
+        )
+
+        kill_path = self.state.live_kill_switch_path
+        kill_ok = bool(kill_path and os.path.exists(kill_path))
+        dead_man_ok = self.state.live_dead_man_timeout_s > 0
+        add(
+            "emergency_controls",
+            "ok" if kill_ok and dead_man_ok else "fail",
+            f"kill switch armed at {kill_path}; dead_man_timeout_s={self.state.live_dead_man_timeout_s:g}"
+            if kill_ok and dead_man_ok
+            else "set ZERO_LIVE_KILL_SWITCH_PATH to an existing local file",
+        )
+
+        controls_ready = all(check["status"] == "ok" for check in checks if check["name"] != "live_executor")
+        ready = controls_ready and all(check["status"] == "ok" for check in checks)
+        return {
+            "schema_version": "zero.live_preflight.v1",
+            "generated_at": self.state.now_iso(),
+            "exchange": "hyperliquid",
+            "mode": "paper",
+            "ready": ready,
+            "live_mode": "ready" if ready else "refused",
+            "controls_ready": controls_ready,
+            "checks": checks,
         }
 
     def v2_status(self) -> dict[str, Any]:
@@ -866,6 +972,7 @@ def serve(
         else PaperEngine()
     )
     hl_client = HyperliquidInfoClient() if hyperliquid or hyperliquid_live_prices else None
+    dead_man_timeout_s = parse_float_env("ZERO_LIVE_DEAD_MAN_TIMEOUT_S", 30.0)
     server = ThreadingHTTPServer(
         (host, port),
         make_handler(
@@ -874,12 +981,27 @@ def serve(
                     engine=engine,
                     hyperliquid=hl_client,
                     use_live_hyperliquid_prices=hyperliquid_live_prices,
+                    live_wallet_address=os.environ.get("ZERO_HYPERLIQUID_WALLET_ADDRESS"),
+                    live_api_private_key=os.environ.get("ZERO_HYPERLIQUID_API_PRIVATE_KEY"),
+                    live_kill_switch_path=os.environ.get("ZERO_LIVE_KILL_SWITCH_PATH"),
+                    live_dead_man_timeout_s=dead_man_timeout_s,
                 )
             )
         ),
     )
     print(f"zero paper API listening on http://{host}:{port}", flush=True)
     server.serve_forever()
+
+
+def parse_float_env(name: str, default: float) -> float:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    try:
+        parsed = float(raw)
+    except ValueError:
+        return default
+    return parsed if parsed > 0 else default
 
 
 def main() -> None:

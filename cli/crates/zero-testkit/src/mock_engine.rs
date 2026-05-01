@@ -324,6 +324,7 @@ fn router(shared: AppState) -> Router<AppState> {
         .route("/approaching", get(approaching))
         .route("/rejections", get(rejections))
         .route("/hl/status", get(hl_status))
+        .route("/live/preflight", get(live_preflight))
         .route("/market/quote", get(market_quote))
         .route("/operator/state", get(operator_state))
         .route("/operator/events", post(operator_events))
@@ -744,6 +745,28 @@ async fn hl_status(
         "coins": 2,
         "mids": mids,
         "secrets_required": false
+    }))
+}
+
+async fn live_preflight() -> Json<serde_json::Value> {
+    Json(json!({
+        "schema_version": "zero.live_preflight.v1",
+        "generated_at": chrono_utc_now_iso(),
+        "exchange": "hyperliquid",
+        "mode": "paper",
+        "ready": false,
+        "live_mode": "refused",
+        "controls_ready": true,
+        "checks": [
+            {"name": "live_executor", "status": "fail", "note": "mock has no live executor"},
+            {"name": "wallet_address", "status": "ok", "note": "0x0000...0000"},
+            {"name": "api_private_key", "status": "ok", "note": "0x0000...0000"},
+            {"name": "account_read", "status": "ok", "note": "clearinghouseState read ok"},
+            {"name": "dry_run_order", "status": "ok", "note": "buy 0.001 BTC validates locally"},
+            {"name": "journal", "status": "ok", "note": "append-only decision journal configured"},
+            {"name": "risk_limits", "status": "ok", "note": "max_notional_usd=1000 max_position_usd=5000"},
+            {"name": "emergency_controls", "status": "ok", "note": "kill switch armed"}
+        ]
     }))
 }
 

@@ -94,6 +94,32 @@ pub struct MarketQuote {
     pub extra: BTreeMap<String, Value>,
 }
 
+// ─── /live/preflight ───────────────────────────────────────────────
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LivePreflight {
+    pub schema_version: String,
+    pub exchange: String,
+    pub mode: String,
+    pub ready: bool,
+    pub live_mode: String,
+    pub controls_ready: bool,
+    pub checks: Vec<LivePreflightCheck>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LivePreflightCheck {
+    pub name: String,
+    pub status: String,
+    pub note: String,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ComponentHealth {
     pub status: String,

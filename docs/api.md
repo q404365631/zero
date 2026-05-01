@@ -100,7 +100,7 @@ contract:
 - `GET /positions`, `/risk`, `/brief`
 - `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
 - `GET /metrics`, `/audit/export`
-- `GET /hl/status`, `/market/quote`
+- `GET /hl/status`, `/market/quote`, `/live/preflight`
 - `GET /operator/state`
 - `POST /execute`
 - `POST /auto/toggle`
@@ -135,6 +135,15 @@ counts, and recovery state.
 `GET /audit/export?limit=100` returns a structured `zero.audit.v1` export with
 runtime summary, retention/redaction metadata, metrics, recovery state, and the
 most recent decisions. The public paper runtime records no secrets.
+
+`GET /live/preflight` returns a structured `zero.live_preflight.v1` readiness
+packet for the future Hyperliquid live executor. It never accepts private keys
+over HTTP. The paper runtime reads local process configuration only, redacts key
+diagnostics, verifies account-read access when a wallet address and read adapter
+are present, validates a dry-run order locally, and refuses live mode unless
+custody, journal, risk limits, and emergency controls are all present. Until the
+Cycle 8 live executor ships, `ready=false` and `live_mode=refused` even when
+local controls are otherwise configured.
 
 `GET /hl/status` returns disabled metadata by default. When `zero-paper-api
 --hyperliquid` is used, it queries Hyperliquid's public info endpoint for

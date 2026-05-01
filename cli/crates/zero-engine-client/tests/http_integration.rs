@@ -40,6 +40,25 @@ async fn health_degraded_surfaces() {
 }
 
 #[tokio::test]
+async fn live_preflight_decodes_readiness_gate() {
+    let mock = MockEngine::spawn().await.expect("spawn mock");
+    let client = HttpClient::new(mock.base_url(), None).expect("client");
+    let preflight = client.live_preflight().await.expect("live preflight");
+
+    assert_eq!(preflight.schema_version, "zero.live_preflight.v1");
+    assert_eq!(preflight.exchange, "hyperliquid");
+    assert!(!preflight.ready);
+    assert!(preflight.controls_ready);
+    assert!(
+        preflight
+            .checks
+            .iter()
+            .any(|check| check.name == "live_executor" && check.status == "fail")
+    );
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn unreachable_host_is_typed() {
     // port 1 is virtually guaranteed to reject.
     let client = HttpClient::new("http://127.0.0.1:1", None).expect("client");

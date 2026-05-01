@@ -229,6 +229,56 @@ def test_paper_api_hl_status_uses_read_only_adapter() -> None:
     assert health["dependencies"]["exchange"] == "hyperliquid"
 
 
+def test_live_preflight_refuses_without_local_custody_controls() -> None:
+    api = PaperApi(PaperApiState(clock=lambda: FIXED_DT, started_at=FIXED_DT))
+
+    status, payload = api.get("/live/preflight", {})
+
+    assert status == 200
+    assert payload["schema_version"] == "zero.live_preflight.v1"
+    assert payload["ready"] is False
+    assert payload["live_mode"] == "refused"
+    checks = {check["name"]: check for check in payload["checks"]}
+    assert checks["live_executor"]["status"] == "fail"
+    assert checks["wallet_address"]["status"] == "fail"
+    assert checks["api_private_key"]["note"] == "store key locally; never commit it"
+
+
+def test_live_preflight_verifies_controls_without_leaking_private_key(tmp_path) -> None:
+    def transport(_endpoint: str, payload: dict[str, Any], _timeout_s: float) -> dict[str, Any]:
+        if payload["type"] == "clearinghouseState":
+            return {"assetPositions": []}
+        return {"BTC": "40500"}
+
+    kill = tmp_path / "kill-switch"
+    kill.write_text("armed\n")
+    journal = DecisionJournal(tmp_path / "decisions.jsonl")
+    api = PaperApi(
+        PaperApiState(
+            engine=PaperEngine(clock=lambda: FIXED_TS, journal=journal),
+            hyperliquid=HyperliquidInfoClient(transport=transport),
+            live_wallet_address="0x0000000000000000000000000000000000000000",
+            live_api_private_key="0x" + ("1" * 64),
+            live_kill_switch_path=str(kill),
+            clock=lambda: FIXED_DT,
+            started_at=FIXED_DT,
+        )
+    )
+
+    status, payload = api.get("/live/preflight", {})
+
+    assert status == 200
+    assert payload["ready"] is False
+    assert payload["controls_ready"] is True
+    body = json.dumps(payload)
+    assert "1111111111111111111111111111111111111111111111111111111111111111" not in body
+    checks = {check["name"]: check for check in payload["checks"]}
+    assert checks["api_private_key"]["status"] == "ok"
+    assert checks["account_read"]["status"] == "ok"
+    assert checks["journal"]["status"] == "ok"
+    assert checks["emergency_controls"]["status"] == "ok"
+
+
 def test_paper_api_market_quote_uses_fixture_prices_by_default() -> None:
     status, payload = PaperApi(PaperApiState(clock=lambda: FIXED_DT)).get(
         "/market/quote",

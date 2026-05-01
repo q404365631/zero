@@ -29,7 +29,7 @@ exposes the paper-mode subset of the engine contract used by the Rust CLI:
 `/`, `/health`, `/v2/status`, `/positions`, `/risk`, `/brief`,
 `/regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`,
 `/journal`, `/metrics`, `/audit/export`, `/hl/status`, `/market/quote`,
-`/operator/state`, `POST /execute`, `POST /auto/toggle`, and
+`/live/preflight`, `/operator/state`, `POST /execute`, `POST /auto/toggle`, and
 `POST /operator/events`.
 
 For a replayable local audit log, pass a JSONL journal path:
@@ -46,6 +46,11 @@ Every HTTP response includes `X-Zero-Trace-Id`. Paper decisions created through
 HTTP execution write that trace into the journal. Operators can inspect runtime
 counters through `/metrics` and export a structured audit packet through
 `/audit/export?limit=100`.
+
+Live custody preflight is visible through `/live/preflight`. It is a non-secret
+readiness gate for the future Hyperliquid live executor: private keys are never
+accepted over HTTP, diagnostics are redacted, and the public runtime still
+returns `live_mode=refused` until live execution ships.
 
 To enable read-only Hyperliquid market metadata and mids:
 

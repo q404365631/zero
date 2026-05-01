@@ -93,10 +93,16 @@ Audit and runtime counters are available without secrets:
 ```bash
 curl -fsS "$ZERO_RAILWAY_URL/metrics"
 curl -fsS "$ZERO_RAILWAY_URL/audit/export?limit=100"
+curl -fsS "$ZERO_RAILWAY_URL/live/preflight"
 ```
 
 Every HTTP response carries `X-Zero-Trace-Id`. Paper decisions created through
 `POST /execute` write that trace ID into the journal and audit export.
+
+`/live/preflight` is intentionally non-secret. It reports whether a future
+self-custodial Hyperliquid live mode would be allowed to start, but this Railway
+paper deployment should keep `ready=false` and `live_mode=refused`; do not put
+private exchange keys into the public paper service.
 
 If a deployment starts without a volume, the API still runs, but the journal is
 ephemeral and will be lost on restart. Do not use an ephemeral journal for

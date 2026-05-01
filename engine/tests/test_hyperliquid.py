@@ -2,7 +2,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from zero_engine.hyperliquid import HyperliquidInfoClient, is_hex_address
+from zero_engine.hyperliquid import (
+    HyperliquidInfoClient,
+    is_hex_address,
+    is_private_key,
+    redact_secret,
+    validate_dry_run_order,
+)
 
 
 def test_all_mids_normalizes_numeric_string_prices() -> None:
@@ -66,3 +72,17 @@ def test_clearinghouse_state_posts_read_only_info_request() -> None:
 def test_is_hex_address() -> None:
     assert is_hex_address("0x0000000000000000000000000000000000000000")
     assert not is_hex_address("0x000000000000000000000000000000000000000")
+
+
+def test_live_custody_helpers_validate_without_leaking_secrets() -> None:
+    key = "0x" + ("1" * 64)
+
+    assert is_private_key(key)
+    assert not is_private_key("0xnot-a-key")
+    assert redact_secret(key) == "0x1111...1111"
+    assert validate_dry_run_order({"coin": "btc", "side": "buy", "size": "0.01"}) == {
+        "coin": "BTC",
+        "side": "buy",
+        "size": 0.01,
+        "dry_run": True,
+    }

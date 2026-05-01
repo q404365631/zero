@@ -113,16 +113,21 @@ Full table: [`docs/commands.md`](docs/commands.md#exit-codes).
 
 | Path | What |
 |---|---|
-| `~/.zero/config.toml` | operator config (handle, defaults, guardrails) |
+| `~/.zero/config.toml` | operator config (handle, defaults, guardrails, custody metadata) |
 | `~/.zero/state.db` | session log — conversations, slash-command history, journey milestones |
 | `~/.zero/zero.log` | TUI tracing output (WS/poller WARN records live here, not on the status bar) |
-| OS keychain | engine bearer token (`dev.getzero.zero` on macOS/Linux) |
+| OS keychain | engine bearer token (`dev.getzero.zero`) and future Hyperliquid API key (`dev.getzero.hyperliquid`) |
 
 The `--no-persist` global flag disables session persistence
 for a single invocation — nothing goes to `state.db`, useful
 for one-off scripted runs. `--api` and `--token` override the
 config per invocation; set the corresponding env vars
 (`ZERO_API_URL`, `ZERO_API_TOKEN`) for shell use.
+
+Live Hyperliquid custody metadata can live in config, but the private key must
+stay in the OS keychain or local process environment. `zero doctor` reads the
+engine `/live/preflight` gate and warns until the runtime proves custody,
+journal, risk, and emergency controls are ready.
 
 ---
 

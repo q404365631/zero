@@ -54,6 +54,20 @@ orders. If Hyperliquid market data is unavailable or a requested symbol is not
 present in `allMids`, paper execution fails closed instead of falling back to
 fixture prices.
 
+## Live Custody Preflight
+
+The public paper runtime also exposes:
+
+```bash
+curl -fsS 'http://127.0.0.1:8765/live/preflight'
+```
+
+This is a non-secret readiness gate for future live mode. It never accepts a
+private key over HTTP. Local deployments can set wallet and key material through
+local process configuration or the CLI keychain helpers, and the endpoint
+reports only redacted diagnostics. Until live execution ships, the endpoint must
+return `ready=false` and `live_mode=refused`.
+
 ## Safety Boundary
 
 The read-only adapter may call Hyperliquid `info` methods such as `allMids` and
@@ -74,6 +88,7 @@ operator-state verification.
 ## Production Path
 
 Read-only Hyperliquid support is Cycle 2 in the production-readiness plan.
+Live custody preflight is Cycle 7.
 
 It unlocks:
 

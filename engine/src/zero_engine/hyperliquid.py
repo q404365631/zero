@@ -72,6 +72,15 @@ class HyperliquidInfoClient:
         return self.transport(self.endpoint, payload, self.timeout_s)
 
 
+def redact_secret(value: str | None) -> str:
+    if not value:
+        return "<unset>"
+    value = value.strip()
+    if len(value) <= 10:
+        return "<redacted>"
+    return f"{value[:6]}...{value[-4:]}"
+
+
 def post_json(endpoint: str, payload: Mapping[str, Any], timeout_s: float) -> Any:
     body = json.dumps(payload, separators=(",", ":")).encode("utf-8")
     req = request.Request(
@@ -98,3 +107,26 @@ def is_hex_address(value: str) -> bool:
     if len(value) != 42 or not value.startswith("0x"):
         return False
     return all(char in "0123456789abcdefABCDEF" for char in value[2:])
+
+
+def is_private_key(value: str | None) -> bool:
+    if value is None:
+        return False
+    normalized = value.removeprefix("0x")
+    return len(normalized) == 64 and all(char in "0123456789abcdefABCDEF" for char in normalized)
+
+
+def validate_dry_run_order(payload: Mapping[str, Any]) -> dict[str, Any]:
+    symbol = str(payload.get("coin") or payload.get("symbol") or "").upper()
+    side = str(payload.get("side") or "").lower()
+    try:
+        size = float(payload.get("size") or payload.get("quantity") or 0)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("dry-run order size must be numeric") from exc
+    if not symbol:
+        raise ValueError("dry-run order requires a symbol")
+    if side not in {"buy", "sell"}:
+        raise ValueError("dry-run order side must be buy or sell")
+    if size <= 0:
+        raise ValueError("dry-run order size must be positive")
+    return {"coin": symbol, "side": side, "size": size, "dry_run": True}

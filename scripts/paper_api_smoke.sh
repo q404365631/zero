@@ -53,6 +53,8 @@ curl -fsS "${API}/metrics" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.metrics.v1"; assert p["api"]["execute_count"] >= 1'
 curl -fsS "${API}/audit/export?limit=5" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.audit.v1"; assert p["decisions"][0]["trace_id"].startswith("trace-")'
+curl -fsS "${API}/live/preflight" \
+  | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.live_preflight.v1"; assert p["ready"] is False; assert p["live_mode"] == "refused"; assert "private" not in json.dumps(p).lower() or "never commit" in json.dumps(p).lower()'
 
 (
   cd "${ROOT}/cli"

@@ -64,6 +64,7 @@ async fn healthy_engine_passes_all_rows() {
         "engine_components",
         "auth",
         "auth_verified",
+        "live_preflight",
         "ws_reachable",
     ] {
         assert!(names.contains(&expected), "missing row: {expected}");
