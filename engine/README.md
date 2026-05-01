@@ -31,6 +31,19 @@ exposes the paper-mode subset of the engine contract used by the Rust CLI:
 `/operator/state`, `POST /execute`, `POST /auto/toggle`, and
 `POST /operator/events`.
 
+Paper execution example:
+
+```bash
+curl -fsS \
+  -H "content-type: application/json" \
+  -d '{"coin":"BTC","side":"buy","size":0.01,"idempotency_key":"readme-smoke"}' \
+  http://127.0.0.1:8765/execute
+```
+
+The response is expected to include `"simulated": true`. Public `/execute`
+orders are paper fills and still pass through the same safety evaluation path as
+the Python `PaperEngine`.
+
 ## Test
 
 ```bash

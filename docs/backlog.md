@@ -1,49 +1,50 @@
 # Launch Backlog
 
-This is the public launch backlog seed. Convert these into GitHub issues before
-opening the repository.
+This is the public launch backlog seed. Use [launch issues](launch-issues.md)
+for ready-to-create issue bodies before opening the repository.
 
 ## Good First Issues
 
-### Improve local paper API output docs
-
-Labels: `good first issue`, `docs`, `api`
-
-Add a short "Expected output" section for `just paper-api-smoke` to
-`docs/local-development.md`. Use abbreviated terminal output, not a long
-transcript.
-
-Acceptance:
-
-- The docs show a healthy `zero doctor` row.
-- The docs show `run status` reading from `http://127.0.0.1:8765`.
-- The docs mention that the auth warning is expected without a token.
-
-### Add paper API examples for `/execute`
+### Add paper example output summary
 
 Labels: `good first issue`, `docs`, `examples`
 
-Add a small `curl` example for `POST /execute` to the engine README.
+Add a short "Expected output" section to `examples/paper-trading/README.md`.
+Use abbreviated JSON, not a long transcript.
 
 Acceptance:
 
-- The example uses paper mode only.
-- The example includes an idempotency key.
-- The example explains that `simulated=true` is the expected result.
+- The README explains fills, rejections, and reduce-only behavior.
+- The example command remains `just example`.
+- The output summary stays deterministic and paper-only.
+
+### Add Docker daemon troubleshooting note
+
+Labels: `good first issue`, `docs`, `containers`
+
+Add a short troubleshooting note to `docs/local-development.md` for
+`just container-smoke` when Docker is installed but the daemon is not running.
+
+Acceptance:
+
+- The note explains the daemon requirement without assuming Docker Desktop.
+- The note keeps the container path paper-only.
+- The note does not weaken CI expectations.
 
 ## Help Wanted
 
-### Release artifact checksums
+### Add API compatibility fixture tests
 
-Labels: `help wanted`, `release`, `security`
+Labels: `help wanted`, `api`, `cli`, `tests`
 
-Generate SHA-256 checksum files for release workflow artifacts.
+Pin Python paper API responses against the Rust client's expected wire shapes.
 
 Acceptance:
 
-- Python package, CLI binary, and container artifact outputs have checksums.
-- Checksums are uploaded beside the artifacts.
-- Release docs explain how to verify them.
+- Fixtures cover `/v2/status`, `/positions`, `/risk`, `/brief`, `/rejections`,
+  and `POST /execute`.
+- Tests fail if the Python paper API drops a field required by the Rust CLI.
+- Tests remain paper-only and require no network beyond localhost.
 
 ## Maintainer Tasks
 

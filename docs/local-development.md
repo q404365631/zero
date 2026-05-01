@@ -77,6 +77,20 @@ The same integration check is available as:
 just paper-api-smoke
 ```
 
+Expected abbreviated output from the manual CLI path:
+
+```text
+[ ok ] engine_reachable  zero-paper-engine v0.1.0 (http://127.0.0.1:8765/)
+[ ok ] engine_healthy    ok
+[warn] auth              no token set - read-only endpoints only
+[ ok ] ws_reachable      ws://127.0.0.1:8765/ws
+
+engine: regime=PAPER MARKET. Local deterministic demo.  confidence=90 (paper)
+today: trades=0  wins=0  pnl=+0.00
+```
+
+The auth warning is expected for the local paper API when no token is set.
+
 ## Rust CLI
 
 ```bash

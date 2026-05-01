@@ -6,7 +6,7 @@ reserved for ZERO Cloud.
 
 ## Current Score
 
-**90/100**
+**92/100**
 
 ## Ready
 
@@ -18,6 +18,7 @@ reserved for ZERO Cloud.
 - Public CI for engine, CLI, docs, paper example, paper API smoke, and container smoke
 - Release workflow for Python package, CLI binaries, container image artifact, and checksums
 - Public contribution, security, governance, support, and issue templates
+- First-release notes template and ready-to-create contributor issue set
 - Public boundary audit from the private repo
 
 ## Paper-Only
@@ -41,10 +42,9 @@ reserved for ZERO Cloud.
 - Publish repository and confirm all GitHub Actions pass on GitHub-hosted runners
 - Add signed GitHub Releases after ownership and token permissions are finalized
 - Add Homebrew tap or one-line binary install path
-- Add contributor issue set from `docs/backlog.md`
-- Add release artifact checksum verification to the first release notes
-- Add screenshots or terminal captures for the CLI quickstart
 - Add API compatibility tests that pin Rust client fixtures against the Python paper API
+- Add screenshots or richer terminal captures for the full TUI quickstart
+- Add package publishing dry-run checks for PyPI/crates/Homebrew names
 
 ## Definition Of 100
 

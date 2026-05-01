@@ -103,6 +103,7 @@ Read [docs/safety-model.md](docs/safety-model.md) before adding execution or ris
 - [Release process](docs/release.md)
 - [Launch scorecard](docs/launch-scorecard.md)
 - [Launch backlog](docs/backlog.md)
+- [Launch issue set](docs/launch-issues.md)
 - [Roadmap](docs/roadmap.md)
 
 ## Contributing

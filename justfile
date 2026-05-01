@@ -43,6 +43,8 @@ docs-check:
     test -f docs/release.md
     test -f docs/launch-scorecard.md
     test -f docs/backlog.md
+    test -f docs/launch-issues.md
+    test -f .github/RELEASE_TEMPLATE.md
     test -f examples/paper-trading/run.py
     test -f examples/paper-trading/strategy_demo.py
     test -f examples/paper-trading/scenario.json
