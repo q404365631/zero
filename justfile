@@ -18,6 +18,9 @@ paper-api:
 paper-api-smoke:
     scripts/paper_api_smoke.sh
 
+checksum output *artifacts:
+    python3 scripts/write_sha256s.py "{{output}}" {{artifacts}}
+
 engine-lint:
     cd engine && ruff check .
 
@@ -38,6 +41,7 @@ docs-check:
     test -f docs/api.md
     test -f docs/open-core-boundary.md
     test -f docs/release.md
+    test -f docs/launch-scorecard.md
     test -f docs/backlog.md
     test -f examples/paper-trading/run.py
     test -f examples/paper-trading/strategy_demo.py
