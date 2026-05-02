@@ -102,6 +102,7 @@ jobs:
           test -x scripts/homebrew_formula.py
           test -x scripts/release_provenance.py
           test -x scripts/release_verify.py
+          test -x scripts/release_evidence.py
           test -x scripts/release_rehearsal.sh
           test -x scripts/draft_release_rehearsal.sh
           test -x scripts/railway_start.sh

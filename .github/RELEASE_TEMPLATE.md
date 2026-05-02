@@ -34,6 +34,7 @@ just paper-api-smoke
 - [ ] `shasum -a 256 -c SHA256SUMS` passes after downloading all attached release assets.
 - [ ] `gh attestation verify zero-linux -R zero-intel/zero` passes.
 - [ ] `gh attestation verify zero-macos -R zero-intel/zero` passes.
+- [ ] After publication, `scripts/release_evidence.py <tag>` passes from a clean download.
 - [ ] PyPI, crates.io, Homebrew, Docker Hub, and GHCR package registry publication remains disabled unless this release explicitly includes an ownership-proof section.
 - [ ] `docs/threat-model.md`, `docs/incident-runbooks.md`, `docs/dependency-policy.md`, and `docs/distribution.md` are reviewed for this release.
 

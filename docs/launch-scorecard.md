@@ -67,7 +67,7 @@ reserved for ZERO Intelligence.
 ## Remaining To Keep 100
 
 - Keep the public GitHub Actions matrix green after every push
-- Publish the first release only after checksum and attestation verification pass
+- Keep published release evidence green with `just release-evidence v0.1.1`
 - Keep Homebrew and package-registry publication disabled until public name
   ownership, Trusted Publishing, owner lists, and rollback procedure are secured
 

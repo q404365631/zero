@@ -95,6 +95,19 @@ gh attestation verify zero-linux -R zero-intel/zero
 
 Use `zero-macos` for the macOS binary.
 
+## Published Release Evidence
+
+Verify a published GitHub Release from a clean download directory:
+
+```bash
+just release-evidence v0.1.1
+```
+
+The evidence command downloads the release, verifies `SHA256SUMS`, runs
+`scripts/release_verify.py`, verifies executable artifact attestations, and
+renders the Homebrew formula from the downloaded checksum manifest. It does not
+publish package registries or mutate release assets.
+
 ## Hardening Gate
 
 Run the local hardening gate before tagging or publishing:

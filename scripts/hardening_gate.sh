@@ -28,6 +28,7 @@ rg -q "cargo owner" docs/distribution.md
 rg -q "GitHub artifact attestations" docs/release.md
 rg -q "SBOM.spdx.json" docs/release.md
 rg -q "PROVENANCE.json" docs/release.md
+rg -q "just release-evidence v0.1.1" docs/release.md
 rg -q "just registry-readiness" docs/release.md
 rg -q "release rehearsal" docs/release.md
 rg -q "draft release rehearsal" docs/release.md
@@ -36,6 +37,7 @@ rg -q "incident runbooks" docs/production-readiness.md
 rg -q "shasum -a 256 -c SHA256SUMS" .github/RELEASE_TEMPLATE.md
 rg -q "package registry publication remains disabled" .github/RELEASE_TEMPLATE.md
 rg -q "gh attestation verify zero-linux" .github/RELEASE_TEMPLATE.md
+rg -q "scripts/release_evidence.py <tag>" .github/RELEASE_TEMPLATE.md
 
 python3 -m json.tool contracts/intelligence/snapshot.json >/dev/null
 python3 -m json.tool contracts/intelligence/catalog.json >/dev/null
@@ -56,6 +58,7 @@ bash -n scripts/deployment_evidence.sh
 python3 -m py_compile scripts/railway_doctor.py
 python3 -m py_compile scripts/deployment_evidence.py
 python3 -m py_compile scripts/release_verify.py
+python3 -m py_compile scripts/release_evidence.py
 python3 -m py_compile scripts/registry_readiness.py
 python3 -m py_compile scripts/release_provenance.py
 python3 -m py_compile scripts/homebrew_formula.py

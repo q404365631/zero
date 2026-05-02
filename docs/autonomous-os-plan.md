@@ -63,7 +63,7 @@ speed, scale, history, and reliability.
 
 | Dimension | Current | 100/100 Gap |
 |---|---:|---|
-| Public repo hygiene | 99 | registry ownership, external release drill |
+| Public repo hygiene | 100 | registry ownership evidence and external review remain business/process tasks |
 | Product narrative | 98 | keep narrative aligned as runtime becomes real |
 | CLI readiness | 97 | richer TUI cockpit layout, operator automation examples |
 | Engine runtime | 90 | live canary evidence, richer exchange history reconciliation |
@@ -74,7 +74,7 @@ speed, scale, history, and reliability.
 | Security and custody | 91 | external review, key-handling drill evidence |
 | ZERO Network | 70 | hosted identity verification, public pages, production ingestion service |
 | ZERO Intelligence | 70 | production hosted service persistence, billing provider, history storage, terms |
-| Release and distribution | 98 | external registry ownership evidence and public Homebrew tap publication |
+| Release and distribution | 99 | external registry ownership evidence and public Homebrew tap publication |
 | Operator docs | 98 | real exchange drill evidence |
 
 ## Execution Cycles
@@ -582,9 +582,12 @@ Current progress:
   Homebrew formula rendering, and rollback.
 - Added `scripts/homebrew_formula.py` to render a tap-ready formula from
   `SHA256SUMS` without publishing a tap.
+- Backfilled `v0.1.1` with `SBOM.spdx.json` and `PROVENANCE.json`, verified the
+  published release from a clean download, and added `scripts/release_evidence.py`
+  so maintainers can rerun checksum, metadata, attestation, and formula evidence.
 
 Remaining scope before Cycle 26: external package-registry ownership evidence,
-public Homebrew tap publication, and first real release evidence.
+public Homebrew tap publication, and external review evidence.
 
 ### Cycle 26: External Review And Real-World Evidence
 

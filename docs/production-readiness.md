@@ -23,7 +23,7 @@ end.
 | Security and custody | 92 | No secrets needed for first run; Hyperliquid private keys have operator-scoped keychain/env helpers, redaction tests, a non-secret preflight gate, optional SDK-backed live adapter, threat model, secret-leak runbook, dependency policy, SBOM/provenance metadata, and release provenance policy. Missing external security review. |
 | ZERO Network | 70 | Public-safe local profile packets, proof hashes, deployment claim hashes, deployment heartbeat hashes, verification badges, leaderboard rows, opt-in local publish logs, hosted-compatible ingestion, proof validation, duplicate refusal, metric-consistency checks, and accepted-only leaderboard output exist. Missing production hosted service persistence, public hosted pages, stale-publication windows, sybil policy, and signed identity verification. |
 | ZERO Intelligence | 78 | Delayed public snapshots, catalog, billing-ready commercial contract, hosted-compatible `/v1/intelligence/*` reads/writes, token-gated paid scopes, actual rate-limit headers, usage events, HMAC-SHA256 webhook signature fixtures, aggregate export jobs, plan/scope model, dataset names, fail-closed model gateway status, model gateway health probes, model gateway audit bundles, mock/local provider conformance, real external model adapters, bounded retry/cost policy, hosted key-management rules, plan boundary, and opt-in local export packets exist. Missing production hosted persistence, billing provider integration, warehouse-backed realtime/history feeds, production webhook delivery, commercial terms, live hosted key-management implementation, and hosted audit retention. |
-| Release and distribution | 98 | GitHub release artifacts, checksums, SBOM/provenance bundle, release verifier, tamper-detection rehearsal, draft-release rollback rehearsal, Homebrew formula renderer, attestations, installer, registry-readiness gate, package dry-run, distribution readiness policy, release template hardening checks, dependency policy, and rollback rules exist. Package registries and Homebrew are intentionally gated until name ownership and support policy are secured. |
+| Release and distribution | 99 | GitHub release artifacts, checksums, SBOM/provenance bundle, published-release evidence command, release verifier, tamper-detection rehearsal, draft-release rollback rehearsal, Homebrew formula renderer, attestations, installer, registry-readiness gate, package dry-run, distribution readiness policy, release template hardening checks, dependency policy, and rollback rules exist. Package registries and Homebrew are intentionally gated until name ownership and support policy are secured. |
 | Documentation for operators | 99 | Good local docs, operator isolation docs, Hyperliquid read-only boundary docs, live-paper quote docs, immune-system docs, live cockpit docs, live certification docs, Railway paper deploy, remote-doctor, and evidence-pack docs, restart recovery docs, audit/metrics docs, live-preflight warnings, threat model, and incident runbooks. Missing real exchange drill evidence. |
 
 **Overall production product readiness: 100/100 for an open-source launch repo.**
@@ -47,7 +47,7 @@ Intelligence API, deployment evidence, distribution, and external review.
 | Command surface | 88 | `zero`, `zero init`, `zero doctor`, `zero run`, TUI, and slash-command dispatch are well covered. |
 | Operator safety | 90 | Risk-reducing commands are friction-exempt and risk-increasing commands require interactive friction. |
 | Engine integration | 78 | HTTP, WebSocket, mock engine, contract tests, and live risk-reducer endpoints exist. Production OODA parity is not available. |
-| Install path | 92 | Release installer exists with checksum and attestation verification. Homebrew formula rendering exists from release checksums, while Homebrew/package registries remain blocked until ownership is secured. |
+| Install path | 94 | Release installer exists with checksum and attestation verification, and `v0.1.1` was installed from the public GitHub Release into a temporary bin directory. Homebrew formula rendering exists from release checksums, while Homebrew/package registries remain blocked until ownership is secured. |
 | Diagnostics | 96 | Doctor, JSON output, exit codes, rate-budget checks, operator/credential partition checks, live-preflight diagnostics, live-cockpit next-action/operator rendering, Railway remote doctor, paid-scope fail-closed checks, and live-control refusals are strong. Railway remote-log automation is still missing. |
 | TUI production UX | 82 | Snapshot coverage and status honesty are strong. Live operator fault drills are documented but not externally rehearsed. |
 | Non-interactive automation | 86 | `zero run` covers cockpit, breaker, certification, account truth, and risk-reducer workflows while intentionally gating risk-increasing commands. Needs production examples. |
@@ -388,6 +388,9 @@ Current progress:
   `PROVENANCE.json` alongside GitHub artifact attestations.
 - Added draft-release rollback rehearsal and Homebrew formula rendering from
   `SHA256SUMS`, keeping the tap publication step gated behind ownership proof.
+- Backfilled the public `v0.1.1` GitHub Release with checksummed
+  `SBOM.spdx.json` and `PROVENANCE.json`, verified executable attestations, and
+  added `scripts/release_evidence.py` for clean-download release evidence.
 
 Exit gate:
 

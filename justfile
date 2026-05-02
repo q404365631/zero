@@ -66,6 +66,9 @@ release-verify dir:
 release-provenance dir:
     scripts/release_provenance.py "{{dir}}"
 
+release-evidence tag:
+    scripts/release_evidence.py "{{tag}}"
+
 draft-release-rehearsal:
     scripts/draft_release_rehearsal.sh
 
@@ -184,6 +187,7 @@ docs-check:
     test -x scripts/homebrew_formula.py
     test -x scripts/release_provenance.py
     test -x scripts/release_verify.py
+    test -x scripts/release_evidence.py
     test -x scripts/release_rehearsal.sh
     test -x scripts/draft_release_rehearsal.sh
     test -x scripts/hardening_gate.sh
