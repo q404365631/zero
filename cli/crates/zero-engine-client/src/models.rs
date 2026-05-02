@@ -179,6 +179,33 @@ pub struct LivePreflightCheck {
     pub extra: BTreeMap<String, Value>,
 }
 
+// ─── /live/certification ──────────────────────────────────────────
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveCertification {
+    pub schema_version: String,
+    pub mode: String,
+    pub passed: bool,
+    pub live_start_certified: bool,
+    pub summary: BTreeMap<String, Value>,
+    pub drills: Vec<LiveCertificationDrill>,
+    pub evidence_requirements: Vec<String>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveCertificationDrill {
+    pub name: String,
+    pub status: String,
+    pub note: String,
+    pub evidence: BTreeMap<String, Value>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
 // ─── /live/* control POSTs ─────────────────────────────────────────
 
 /// Response body for live risk-reduction controls.

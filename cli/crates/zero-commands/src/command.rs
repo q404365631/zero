@@ -87,6 +87,8 @@ pub enum Command {
     HyperliquidAccount,
     /// `/hl-reconcile` — local runtime versus Hyperliquid account reconciliation.
     HyperliquidReconcile,
+    /// `/live-certify` — dry-run live execution certification harness.
+    LiveCertify,
     /// `/quote <coin>` — active paper quote source for a symbol.
     /// This is read-only and cannot sign payloads or place orders.
     Quote {
@@ -505,6 +507,7 @@ impl Command {
             | Self::HyperliquidStatus { .. }
             | Self::HyperliquidAccount
             | Self::HyperliquidReconcile
+            | Self::LiveCertify
             | Self::Quote { .. }
             | Self::Regime { .. }
             | Self::Evaluate { .. }
@@ -590,6 +593,7 @@ impl Command {
             Self::HyperliquidStatus { .. } => "/hl-status",
             Self::HyperliquidAccount => "/hl-account",
             Self::HyperliquidReconcile => "/hl-reconcile",
+            Self::LiveCertify => "/live-certify",
             Self::Quote { .. } => "/quote",
             Self::Regime { .. } => "/regime",
             Self::Evaluate { .. } => "/evaluate",
@@ -703,6 +707,11 @@ pub const COMMAND_CATALOG: &[CommandInfo] = &[
     CommandInfo {
         name: "/hl-reconcile",
         summary: "Hyperliquid account reconciliation",
+        risk: RiskDirection::Neutral,
+    },
+    CommandInfo {
+        name: "/live-certify",
+        summary: "dry-run live certification harness",
         risk: RiskDirection::Neutral,
     },
     CommandInfo {
@@ -934,6 +943,7 @@ pub fn resolve(line: &ParsedLine) -> Option<Command> {
         },
         "hl-account" | "hyperliquid-account" => Command::HyperliquidAccount,
         "hl-reconcile" | "reconcile" | "hyperliquid-reconcile" => Command::HyperliquidReconcile,
+        "live-certify" | "certify-live" | "live-certification" => Command::LiveCertify,
         "quote" | "price" => Command::Quote {
             symbol: line.args.first().cloned(),
         },
@@ -1338,6 +1348,9 @@ mod tests {
             Command::HyperliquidStatus { symbol: None }.risk(),
             RiskDirection::Neutral
         );
+        assert_eq!(Command::HyperliquidAccount.risk(), RiskDirection::Neutral);
+        assert_eq!(Command::HyperliquidReconcile.risk(), RiskDirection::Neutral);
+        assert_eq!(Command::LiveCertify.risk(), RiskDirection::Neutral);
         assert_eq!(
             Command::Quote { symbol: None }.risk(),
             RiskDirection::Neutral
@@ -1382,6 +1395,8 @@ mod tests {
         assert_eq!(r("/hl-account"), Some(Command::HyperliquidAccount));
         assert_eq!(r("/hl-reconcile"), Some(Command::HyperliquidReconcile));
         assert_eq!(r("/reconcile"), Some(Command::HyperliquidReconcile));
+        assert_eq!(r("/live-certify"), Some(Command::LiveCertify));
+        assert_eq!(r("/certify-live"), Some(Command::LiveCertify));
     }
 
     #[test]

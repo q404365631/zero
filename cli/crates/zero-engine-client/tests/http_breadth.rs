@@ -96,6 +96,19 @@ async fn market_quote_decodes_active_quote_source() {
 }
 
 #[tokio::test]
+async fn live_certification_decodes_dry_run_harness() {
+    let (mock, http) = client().await;
+    let report = http.live_certification().await.expect("live certification");
+
+    assert_eq!(report.schema_version, "zero.live_certification.v1");
+    assert!(report.passed);
+    assert!(report.live_start_certified);
+    assert_eq!(report.drills.len(), 2);
+    assert_eq!(report.evidence_requirements[0], "live_preflight packet");
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn regime_decodes_without_coin() {
     let (mock, http) = client().await;
     let r = http.regime(None).await.expect("regime");

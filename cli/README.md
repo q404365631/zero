@@ -129,7 +129,9 @@ stay in the OS keychain or local process environment. `zero doctor` reads the
 engine `/live/preflight` gate and warns until the runtime proves custody,
 journal, account reconciliation, risk, and emergency controls are ready.
 Operators can inspect the same read-only account truth with `/hl-account` and
-the live risk gate with `/hl-reconcile`.
+the live risk gate with `/hl-reconcile`. `/live-certify` runs the dry-run
+fake-exchange certification harness and prints the drill pass count before any
+real canary is considered.
 
 Risk-reducing live controls are wired to the engine when an API client is
 attached:

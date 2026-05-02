@@ -123,6 +123,24 @@ async fn hl_reconcile_renders_reconciliation_status() {
 }
 
 #[tokio::test]
+async fn live_certify_renders_dry_run_certification_status() {
+    let (mock, ctx) = ctx_with_mock().await;
+    let out = dispatch(&ctx, "/live-certify").await.unwrap().unwrap();
+
+    assert_eq!(out.risk, Some(RiskDirection::Neutral));
+    let OutputLine::Command(s) = &out.lines[0] else {
+        panic!("expected Command, got {:?}", out.lines);
+    };
+    assert!(s.contains("live-certify: passed=true"), "certify row: {s}");
+    assert!(
+        s.contains("live_start_certified=true"),
+        "certification field: {s}"
+    );
+    assert!(s.contains("drills=10/10"), "drill count: {s}");
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn quote_renders_active_quote_source() {
     let (mock, ctx) = ctx_with_mock().await;
     let out = dispatch(&ctx, "/quote BTC").await.unwrap().unwrap();

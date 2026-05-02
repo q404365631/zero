@@ -64,6 +64,8 @@ curl -fsS "${API}/metrics" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.metrics.v1"; assert p["api"]["execute_count"] >= 2; assert p["api"]["execute_rejected"] >= 1'
 curl -fsS "${API}/live/preflight" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.live_preflight.v1"; assert p["ready"] is False; assert p["live_mode"] == "refused"'
+curl -fsS "${API}/live/certification" \
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.live_certification.v1"; assert p["mode"] == "dry_run"; assert p["passed"] is True; assert p["summary"]["orders_placed_live"] == 0'
 curl -fsS "${API}/network/profile" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.network.profile.v1"; assert p["profile"]["publish_enabled"] is False; assert "railway-smoke" not in body; assert "trace-" not in body'
 curl -fsS "${API}/network/leaderboard" \

@@ -9,6 +9,11 @@ from zero_engine.intelligence import (
     intelligence_snapshot,
 )
 from zero_engine.live import LiveExecutionPolicy, LiveExecutionRecord, LiveExecutor
+from zero_engine.live_certification import (
+    CertificationDrill,
+    LiveCertificationReport,
+    run_live_certification,
+)
 from zero_engine.market import (
     Candle,
     JsonlCandleAdapter,
@@ -68,8 +73,10 @@ __all__ = [
     "HyperliquidMarketStatus",
     "IntelligenceConfig",
     "JsonlCandleAdapter",
+    "CertificationDrill",
     "LiveExecutionPolicy",
     "LiveExecutionRecord",
+    "LiveCertificationReport",
     "LiveExecutor",
     "MarketDataAdapter",
     "MarketDataAdapterMetadata",
@@ -117,6 +124,7 @@ __all__ = [
     "public_profile_page",
     "public_profile",
     "publish_profile",
+    "run_live_certification",
     "reconcile_positions",
     "validate_strategy_plugin",
     "validate_market_data_adapter",

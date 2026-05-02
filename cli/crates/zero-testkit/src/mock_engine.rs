@@ -329,6 +329,7 @@ fn router(shared: AppState) -> Router<AppState> {
         .route("/hl/status", get(hl_status))
         .route("/hl/account", get(hl_account))
         .route("/hl/reconcile", get(hl_reconcile))
+        .route("/live/certification", get(live_certification))
         .route("/live/preflight", get(live_preflight))
         .route("/market/quote", get(market_quote))
         .route("/operator/state", get(operator_state))
@@ -795,6 +796,38 @@ async fn hl_reconcile() -> Json<serde_json::Value> {
         "local": {"positions": [], "open_positions": 0},
         "exchange_state": {"positions": [], "open_positions": 0},
         "drifts": []
+    }))
+}
+
+async fn live_certification() -> Json<serde_json::Value> {
+    Json(json!({
+        "schema_version": "zero.live_certification.v1",
+        "mode": "dry_run",
+        "passed": true,
+        "live_start_certified": true,
+        "summary": {
+            "total": 10,
+            "passed": 10,
+            "failed": 0,
+            "exchange": "fake",
+            "secrets_required": false,
+            "orders_placed_live": 0
+        },
+        "drills": [
+            {
+                "name": "heartbeat_arms_dead_man",
+                "status": "pass",
+                "note": "exchange dead-man heartbeat must be accepted before risk can increase",
+                "evidence": {"heartbeat_ok": true}
+            },
+            {
+                "name": "exchange_submit_outage_fails_closed_without_retry",
+                "status": "pass",
+                "note": "exchange submit failures must become auditable refused records and must not retry",
+                "evidence": {"exchange_attempts": 1}
+            }
+        ],
+        "evidence_requirements": ["live_preflight packet", "hl_reconcile packet"]
     }))
 }
 

@@ -123,6 +123,10 @@ paper deployment should keep `ready=false` and `live_mode=refused`. `POST
 `ok=false, reason="live executor not configured"` on public paper services; do
 not put private exchange keys into the public paper service.
 
+`/live/certification` is also safe on Railway. It runs a dry-run fake-exchange
+harness and should report `mode=dry_run`, `passed=true`, and
+`summary.orders_placed_live=0`.
+
 If a deployment starts without a volume, the API still runs, but the journal is
 ephemeral and will be lost on restart. Do not use an ephemeral journal for
 operator demos or public behavior verification.

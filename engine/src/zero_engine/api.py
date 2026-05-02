@@ -30,6 +30,7 @@ from zero_engine.intelligence import (
 )
 from zero_engine.journal import DecisionJournal
 from zero_engine.live import HyperliquidSdkAdapter, LiveExecutionPolicy, LiveExecutor
+from zero_engine.live_certification import run_live_certification
 from zero_engine.models import OrderIntent, Position, Side
 from zero_engine.network import (
     PublicProfileConfig,
@@ -314,6 +315,7 @@ class PaperApi:
             "/hl/status": lambda: self.hl_status(query),
             "/intelligence/catalog": self.intelligence_catalog,
             "/intelligence/snapshot": self.intelligence_snapshot,
+            "/live/certification": self.live_certification,
             "/live/preflight": self.live_preflight,
             "/market/quote": lambda: self.market_quote(query),
             "/metrics": self.metrics,
@@ -570,6 +572,9 @@ class PaperApi:
             "controls_ready": controls_ready,
             "checks": checks,
         }
+
+    def live_certification(self) -> dict[str, Any]:
+        return run_live_certification().to_dict()
 
     def v2_status(self) -> dict[str, Any]:
         positions = list(self.state.engine.positions.values())

@@ -150,7 +150,27 @@ class LiveExecutor:
             self.record(idempotency_key, record)
             return record
 
-        response = self.adapter.place_order(intent, cloid=hyperliquid_cloid(idempotency_key))
+        try:
+            response = self.adapter.place_order(intent, cloid=hyperliquid_cloid(idempotency_key))
+        except Exception as exc:
+            record = LiveExecutionRecord(
+                accepted=False,
+                status="exchange_error",
+                reason=f"exchange order submit failed: {exc}",
+                idempotency_key=idempotency_key,
+                symbol=intent.symbol,
+                side=intent.side.value,
+                quantity=intent.quantity,
+                price=intent.price,
+                notional_usd=intent.notional_usd,
+                reduce_only=intent.reduce_only,
+                as_of=now,
+                exchange_response={"ok": False, "error": str(exc)},
+                trace_id=trace_id,
+            )
+            self.record(idempotency_key, record)
+            return record
+
         record = LiveExecutionRecord(
             accepted=True,
             status="submitted",

@@ -477,6 +477,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/LivePreflightResponse"
+  /live/certification:
+    get:
+      tags: [live]
+      operationId: getLiveCertification
+      summary: Dry-run live execution certification harness.
+      responses:
+        "200":
+          description: Certification drills and evidence requirements.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveCertificationResponse"
   /live/heartbeat:
     post:
       tags: [live]
@@ -980,6 +992,10 @@ components:
     LivePreflightResponse:
       type: object
       required: [schema_version, generated_at, exchange, mode, ready, live_mode, controls_ready, checks]
+      additionalProperties: true
+    LiveCertificationResponse:
+      type: object
+      required: [schema_version, mode, passed, live_start_certified, summary, drills, evidence_requirements]
       additionalProperties: true
     LiveControlResponse:
       type: object

@@ -106,7 +106,8 @@ contract:
 - `GET /metrics`, `/audit/export`
 - `GET /network/profile`, `/network/leaderboard`
 - `GET /intelligence/snapshot`, `/intelligence/catalog`
-- `GET /hl/status`, `/hl/account`, `/hl/reconcile`, `/market/quote`, `/live/preflight`
+- `GET /hl/status`, `/hl/account`, `/hl/reconcile`, `/market/quote`
+- `GET /live/preflight`, `/live/certification`
 - `GET /operator/state`
 - `POST /execute`
 - `POST /auto/toggle`
@@ -218,6 +219,12 @@ The live executor enforces:
 - `POST /live/kill` for kill switch plus open-order cancellation;
 - `POST /live/flatten` for reduce-only close orders;
 - max notional, max daily loss, and max orders per minute.
+
+`GET /live/certification` returns a dry-run `zero.live_certification.v1`
+evidence packet. It runs fake-exchange drills for heartbeat, idempotency,
+exchange outage, pause, reduce-only flatten, kill, rejected dead-man scheduling,
+rate limit, and daily-loss behavior. It never needs secrets and must report
+`orders_placed_live=0`.
 
 Public Railway paper deployments should not set live credentials. Their
 expected behavior is `ready=false`, `live_mode=refused`, and `POST /live/*`

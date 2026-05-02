@@ -65,17 +65,17 @@ speed, scale, history, and reliability.
 |---|---:|---|
 | Public repo hygiene | 99 | registry ownership, external release drill |
 | Product narrative | 98 | keep narrative aligned as runtime becomes real |
-| CLI readiness | 91 | live cockpit drills, operator automation examples |
-| Engine runtime | 86 | certified live controller, richer exchange history reconciliation |
-| Safety and risk | 90 | exchange chaos drills, external review |
-| API contracts | 92 | hosted auth/rate contracts, live runtime contracts |
+| CLI readiness | 92 | live cockpit drills, operator automation examples |
+| Engine runtime | 89 | live canary evidence, richer exchange history reconciliation |
+| Safety and risk | 92 | real exchange chaos drills, external review |
+| API contracts | 93 | hosted auth/rate contracts, live runtime contracts |
 | Deployment | 84 | live Railway proof, remote logs, doctor automation |
 | Observability and audit | 89 | signed bundles, metrics backend, log drains |
 | Security and custody | 90 | external review, key-handling drill evidence |
 | ZERO Network | 58 | hosted ingestion, anti-gaming, identity, public pages |
 | ZERO Intelligence | 56 | hosted API, billing, history, webhooks, terms |
 | Release and distribution | 90 | registries, Homebrew, release rollback rehearsal |
-| Operator docs | 94 | live drill evidence and real exchange runbooks |
+| Operator docs | 95 | real exchange drill evidence |
 
 ## Execution Cycles
 
@@ -221,8 +221,22 @@ Promote live primitives into a certified operating path:
 Exit gate:
 
 - no live start without passing preflight, reconciliation, durable journal, and
-  dead-man checks;
+  certification checks;
 - a dry-run or tiny-live report can prove each emergency path worked.
+
+Current status:
+
+- `LiveExecutor` turns exchange submit outages into auditable `exchange_error`
+  records and does not retry order submissions.
+- `GET /live/certification` returns `zero.live_certification.v1` dry-run
+  evidence for heartbeat, idempotency, exchange outage, pause, reduce-only
+  flatten, kill, dead-man rejection, order-rate, and daily-loss drills.
+- The Rust CLI exposes `/live-certify` with typed client coverage and mock
+  engine contract coverage.
+- [Live Certification](live-certification.md) documents the evidence bundle and
+  tiny-capital canary procedure.
+- Remaining scope before Cycle 17: execute the tiny-capital canary only after
+  explicit operator approval and preserve real exchange-side evidence.
 
 ### Cycle 17: Immune System And Circuit Breakers
 

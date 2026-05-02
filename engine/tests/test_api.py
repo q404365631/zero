@@ -315,6 +315,18 @@ def test_live_preflight_can_pass_when_executor_and_controls_are_ready(tmp_path) 
     assert payload["live_mode"] == "ready"
 
 
+def test_live_certification_endpoint_returns_dry_run_evidence() -> None:
+    status, payload = PaperApi(PaperApiState(clock=lambda: FIXED_DT)).get("/live/certification", {})
+
+    assert status == 200
+    assert payload["schema_version"] == "zero.live_certification.v1"
+    assert payload["passed"] is True
+    assert payload["summary"]["orders_placed_live"] == 0
+    drills = {drill["name"]: drill for drill in payload["drills"]}
+    assert drills["risk_increase_requires_heartbeat"]["status"] == "pass"
+    assert drills["exchange_submit_outage_fails_closed_without_retry"]["status"] == "pass"
+
+
 def test_hl_account_and_reconciliation_expose_read_only_account_truth() -> None:
     def transport(_endpoint: str, payload: dict[str, Any], _timeout_s: float) -> Any:
         if payload["type"] == "clearinghouseState":

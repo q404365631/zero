@@ -33,7 +33,7 @@ exposes the paper-mode subset of the engine contract used by the Rust CLI:
 `/journal`, `/metrics`, `/audit/export`, `/hl/status`, `/hl/account`,
 `/hl/reconcile`, `/market/quote`,
 `/network/profile`, `/network/leaderboard`, `/intelligence/snapshot`,
-`/intelligence/catalog`, `/live/preflight`,
+`/intelligence/catalog`, `/live/preflight`, `/live/certification`,
 `/operator/state`, `POST /execute`, `POST /auto/toggle`, `POST /operator/events`,
 `POST /network/publish`, `POST /intelligence/export`, and the live-control
 endpoints under `POST /live/*`.
@@ -70,6 +70,11 @@ readiness gate for the Hyperliquid live executor: private keys are never
 accepted over HTTP, diagnostics are redacted, account reconciliation is checked,
 and public paper deployments return `live_mode=refused` unless local live
 credentials and controls are configured.
+
+Live certification is visible through `/live/certification`. It runs dry-run
+fake-exchange drills for heartbeat, idempotency, exchange outages, pause,
+reduce-only flatten, kill, rate limits, and loss limits without placing live
+orders.
 
 Live execution is optional and self-custodial:
 

@@ -75,6 +75,8 @@ operator-owned configuration.
 Compatibility guarantees for live-facing endpoints are conservative:
 
 - `GET /live/preflight` must stay non-secret and safe to expose in diagnostics;
+- `GET /live/certification` must stay dry-run by default and report zero live
+  orders placed;
 - `POST /live/pause`, `/live/kill`, and `/live/flatten` must remain
   risk-reducing controls;
 - when live execution is not configured, `POST /live/*` endpoints must refuse

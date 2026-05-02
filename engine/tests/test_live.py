@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from zero_engine.live import LiveExecutionPolicy, LiveExecutor, RecordingExchangeAdapter
+from zero_engine.live_certification import run_live_certification
 from zero_engine.models import OrderIntent, Position, Side
 
 
@@ -8,6 +9,14 @@ class FailingDeadManAdapter(RecordingExchangeAdapter):
     def schedule_cancel(self, timeout_s: float) -> dict[str, object]:
         super().schedule_cancel(timeout_s)
         return {"ok": False, "error": "exchange rejected scheduleCancel"}
+
+
+class FailingPlaceOrderAdapter(RecordingExchangeAdapter):
+    attempts = 0
+
+    def place_order(self, intent: OrderIntent, *, cloid: str) -> dict[str, object]:
+        self.attempts += 1
+        raise RuntimeError("exchange unavailable")
 
 
 def intent(*, size: float = 0.01, reduce_only: bool = False) -> OrderIntent:
@@ -61,6 +70,22 @@ def test_live_executor_submits_once_per_idempotency_key() -> None:
     assert len(adapter.placed[0]["cloid"]) == 34
 
 
+def test_live_executor_exchange_submit_failure_is_auditable_and_not_retried() -> None:
+    adapter = FailingPlaceOrderAdapter()
+    executor = LiveExecutor(adapter=adapter, enabled=True)
+    executor.heartbeat()
+
+    record = executor.submit(intent(), idempotency_key="exchange-down")
+    duplicate = executor.submit(intent(size=0.02), idempotency_key="exchange-down")
+
+    assert record.accepted is False
+    assert record.status == "exchange_error"
+    assert record.reason == "exchange order submit failed: exchange unavailable"
+    assert record.exchange_response == {"ok": False, "error": "exchange unavailable"}
+    assert duplicate is record
+    assert adapter.attempts == 1
+
+
 def test_live_executor_kill_switch_blocks_new_risk_and_cancels_orders() -> None:
     adapter = RecordingExchangeAdapter()
     executor = LiveExecutor(adapter=adapter, enabled=True)
@@ -111,3 +136,18 @@ def test_flatten_uses_reduce_only_orders_even_when_paused() -> None:
     assert records[0].accepted is True
     assert adapter.placed[0]["reduce_only"] is True
     assert adapter.placed[0]["side"] == "sell"
+
+
+def test_live_certification_harness_proves_all_required_drills() -> None:
+    report = run_live_certification()
+    payload = report.to_dict()
+
+    assert payload["schema_version"] == "zero.live_certification.v1"
+    assert payload["mode"] == "dry_run"
+    assert payload["passed"] is True
+    assert payload["live_start_certified"] is True
+    assert payload["summary"]["orders_placed_live"] == 0
+    drills = {drill["name"]: drill for drill in payload["drills"]}
+    assert drills["exchange_submit_outage_fails_closed_without_retry"]["status"] == "pass"
+    assert drills["kill_cancels_and_blocks_new_risk"]["status"] == "pass"
+    assert drills["reduce_only_flatten_works_while_paused"]["status"] == "pass"
