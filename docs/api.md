@@ -204,6 +204,18 @@ execution safety. Provider status also reports bounded retry and timeout policy;
 usage counters include attempts, token counts when available, and public-safe
 cost-estimate source.
 
+`GET /intelligence/model-gateway/health` returns
+`zero.model_gateway.health.v1`. By default it is a config-only health probe and
+does not make network calls. Passing `?network=true` runs an explicit structured
+provider probe through the selected model boundary and returns only provider,
+attempt, token-count, and status metadata.
+
+`GET /intelligence/model-gateway/audit` returns
+`zero.model_gateway.audit.v1`, a production-readiness bundle for model
+operations. It includes status, config-only health, usage totals, fail-closed
+controls, evidence requirements, and privacy assertions without prompts, raw
+outputs, headers, request IDs, or secret values.
+
 `POST /intelligence/export` requires `{"consent": true}` and
 `ZERO_INTELLIGENCE_EXPORT_PATH`. When both are present, the runtime appends the
 redacted delayed snapshot to a local JSONL packet log for future hosted

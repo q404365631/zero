@@ -91,6 +91,10 @@ curl -fsS "${API}/intelligence/catalog" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.intelligence.catalog.v1"; assert p["public"]["model_gateway_status"]["schema_version"] == "zero.model_gateway.status.v1"; assert "local runtime use" in p["commercial"]["not_metered_by"]; assert "freshness" in p["commercial"]["metered_by"]'
 curl -fsS "${API}/intelligence/model-gateway" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.model_gateway.status.v1"; assert p["mode"] == "fail_closed"; assert p["routing"]["structured_output"] is None; assert p["privacy"]["prompts_included"] is False; assert "sk-" not in body; assert "private_key" not in body; assert "railway-smoke" not in body; assert "trace-" not in body'
+curl -fsS "${API}/intelligence/model-gateway/health" \
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.model_gateway.health.v1"; assert p["status"] == "failed_closed"; assert p["network_probe"]["requested"] is False; assert p["safety"]["network_probe_requires_explicit_query"] is True; assert "sk-" not in body; assert "private_key" not in body; assert "railway-smoke" not in body; assert "trace-" not in body'
+curl -fsS "${API}/intelligence/model-gateway/audit" \
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.model_gateway.audit.v1"; assert p["health"]["schema_version"] == "zero.model_gateway.health.v1"; assert p["controls"]["advisory_only"] is True; assert p["privacy"]["provider_request_ids_included"] is False; assert "sk-" not in body; assert "private_key" not in body; assert "railway-smoke" not in body; assert "trace-" not in body'
 curl -fsS \
   -H "content-type: application/json" \
   -d '{"consent":false}' \

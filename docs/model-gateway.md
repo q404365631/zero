@@ -31,6 +31,39 @@ Default local behavior is fail-closed:
 The pinned fixture lives at
 [`contracts/intelligence/model_gateway.json`](../contracts/intelligence/model_gateway.json).
 
+## Health And Audit
+
+```bash
+curl -fsS http://127.0.0.1:8765/intelligence/model-gateway/health | jq .
+curl -fsS http://127.0.0.1:8765/intelligence/model-gateway/audit | jq .
+```
+
+`GET /intelligence/model-gateway/health` returns
+`zero.model_gateway.health.v1`. The default probe is config-only: it reports
+selected provider, configuration gaps, retry budgets, and whether a provider is
+ready for an explicit network probe. It does not call a hosted provider.
+
+To run a real provider probe, call:
+
+```bash
+curl -fsS 'http://127.0.0.1:8765/intelligence/model-gateway/health?network=true' | jq .
+```
+
+The explicit network probe sends a minimal structured-readiness request through
+the selected provider and reports only public metadata: provider, status,
+attempts, token counts when available, and a public reason. It never returns the
+prompt, raw model output, headers, provider request IDs, or secret values.
+
+`GET /intelligence/model-gateway/audit` returns
+`zero.model_gateway.audit.v1`. It is the production model-operations bundle:
+status, config-only health, usage totals, control assertions, evidence
+requirements, and privacy guarantees in one packet.
+
+Pinned fixtures:
+
+- [`contracts/intelligence/model_gateway_health.json`](../contracts/intelligence/model_gateway_health.json)
+- [`contracts/intelligence/model_gateway_audit.json`](../contracts/intelligence/model_gateway_audit.json)
+
 ## Providers
 
 The open runtime registers these provider families:

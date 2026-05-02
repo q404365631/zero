@@ -1,0 +1,175 @@
+{
+  "controls": {
+    "advisory_only": true,
+    "bounded_retry_policy": true,
+    "fail_closed_default": true,
+    "network_disabled_by_default": true,
+    "operator_configured_pricing_only": true,
+    "prompts_persisted": false,
+    "provider_request_ids_persisted": false,
+    "raw_outputs_persisted": false,
+    "structured_output_validation": true
+  },
+  "evidence_requirements": [
+    "status packet captured before production enablement",
+    "health packet captured with network=false",
+    "explicit network=true probe captured only in a controlled canary",
+    "provider usage counters reviewed without prompts or raw outputs",
+    "operator confirms model output remains advisory-only"
+  ],
+  "generated_at": "2026-05-01T00:00:00+00:00",
+  "health": {
+    "checks": [
+      {
+        "capabilities": [],
+        "configured": false,
+        "credential_configured": false,
+        "model_configured": true,
+        "network_allowed": false,
+        "provider": "none",
+        "reasons": [
+          "null provider is the fail-closed fallback"
+        ],
+        "retry_policy": {
+          "max_attempts": 0,
+          "timeout_s": 0
+        },
+        "selected": false,
+        "status": "unavailable"
+      },
+      {
+        "capabilities": [
+          "hard_reasoning",
+          "fast_reasoning",
+          "chat",
+          "embeddings",
+          "structured_output"
+        ],
+        "configured": false,
+        "credential_configured": false,
+        "model_configured": false,
+        "network_allowed": false,
+        "provider": "openai",
+        "reasons": [
+          "required provider environment is missing"
+        ],
+        "retry_policy": {
+          "max_attempts": 1,
+          "timeout_s": 30.0
+        },
+        "selected": false,
+        "status": "unavailable"
+      },
+      {
+        "capabilities": [
+          "hard_reasoning",
+          "fast_reasoning",
+          "chat",
+          "structured_output"
+        ],
+        "configured": false,
+        "credential_configured": false,
+        "model_configured": false,
+        "network_allowed": false,
+        "provider": "anthropic",
+        "reasons": [
+          "required provider environment is missing"
+        ],
+        "retry_policy": {
+          "max_attempts": 1,
+          "timeout_s": 30.0
+        },
+        "selected": false,
+        "status": "unavailable"
+      },
+      {
+        "capabilities": [
+          "fast_reasoning",
+          "chat",
+          "embeddings",
+          "structured_output"
+        ],
+        "configured": false,
+        "credential_configured": false,
+        "model_configured": false,
+        "network_allowed": false,
+        "provider": "ollama",
+        "reasons": [
+          "required provider environment is missing"
+        ],
+        "retry_policy": {
+          "max_attempts": 1,
+          "timeout_s": 30.0
+        },
+        "selected": false,
+        "status": "unavailable"
+      },
+      {
+        "capabilities": [
+          "hard_reasoning",
+          "fast_reasoning",
+          "chat",
+          "structured_output"
+        ],
+        "configured": false,
+        "credential_configured": false,
+        "model_configured": false,
+        "network_allowed": false,
+        "provider": "openrouter",
+        "reasons": [
+          "required provider environment is missing"
+        ],
+        "retry_policy": {
+          "max_attempts": 1,
+          "timeout_s": 30.0
+        },
+        "selected": false,
+        "status": "unavailable"
+      }
+    ],
+    "generated_at": "2026-05-01T00:00:00+00:00",
+    "network_probe": {
+      "attempts": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "performed": false,
+      "provider": null,
+      "reason": "set network=true to run an explicit provider probe",
+      "requested": false,
+      "status": "not_requested"
+    },
+    "safety": {
+      "advisory_only": true,
+      "fail_closed": true,
+      "network_probe_requires_explicit_query": true,
+      "prompts_included": false,
+      "raw_model_outputs_included": false
+    },
+    "schema_version": "zero.model_gateway.health.v1",
+    "selected_provider": null,
+    "status": "failed_closed"
+  },
+  "privacy": {
+    "contains_api_keys": false,
+    "contains_exchange_credentials": false,
+    "contains_wallet_material": false,
+    "headers_included": false,
+    "prompts_included": false,
+    "provider_request_ids_included": false,
+    "raw_model_outputs_included": false
+  },
+  "schema_version": "zero.model_gateway.audit.v1",
+  "status": {
+    "default_provider": "none",
+    "mode": "fail_closed",
+    "selected_provider": null
+  },
+  "usage": {
+    "cost_policy": {
+      "price_values_included": false,
+      "pricing_source": "unpriced"
+    },
+    "events": 0,
+    "total_estimated_cost_usd": 0
+  }
+}

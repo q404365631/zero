@@ -1,0 +1,131 @@
+{
+  "checks": [
+    {
+      "capabilities": [],
+      "configured": false,
+      "credential_configured": false,
+      "model_configured": true,
+      "network_allowed": false,
+      "provider": "none",
+      "reasons": [
+        "null provider is the fail-closed fallback"
+      ],
+      "retry_policy": {
+        "max_attempts": 0,
+        "timeout_s": 0
+      },
+      "selected": false,
+      "status": "unavailable"
+    },
+    {
+      "capabilities": [
+        "hard_reasoning",
+        "fast_reasoning",
+        "chat",
+        "embeddings",
+        "structured_output"
+      ],
+      "configured": false,
+      "credential_configured": false,
+      "model_configured": false,
+      "network_allowed": false,
+      "provider": "openai",
+      "reasons": [
+        "required provider environment is missing"
+      ],
+      "retry_policy": {
+        "max_attempts": 1,
+        "timeout_s": 30.0
+      },
+      "selected": false,
+      "status": "unavailable"
+    },
+    {
+      "capabilities": [
+        "hard_reasoning",
+        "fast_reasoning",
+        "chat",
+        "structured_output"
+      ],
+      "configured": false,
+      "credential_configured": false,
+      "model_configured": false,
+      "network_allowed": false,
+      "provider": "anthropic",
+      "reasons": [
+        "required provider environment is missing"
+      ],
+      "retry_policy": {
+        "max_attempts": 1,
+        "timeout_s": 30.0
+      },
+      "selected": false,
+      "status": "unavailable"
+    },
+    {
+      "capabilities": [
+        "fast_reasoning",
+        "chat",
+        "embeddings",
+        "structured_output"
+      ],
+      "configured": false,
+      "credential_configured": false,
+      "model_configured": false,
+      "network_allowed": false,
+      "provider": "ollama",
+      "reasons": [
+        "required provider environment is missing"
+      ],
+      "retry_policy": {
+        "max_attempts": 1,
+        "timeout_s": 30.0
+      },
+      "selected": false,
+      "status": "unavailable"
+    },
+    {
+      "capabilities": [
+        "hard_reasoning",
+        "fast_reasoning",
+        "chat",
+        "structured_output"
+      ],
+      "configured": false,
+      "credential_configured": false,
+      "model_configured": false,
+      "network_allowed": false,
+      "provider": "openrouter",
+      "reasons": [
+        "required provider environment is missing"
+      ],
+      "retry_policy": {
+        "max_attempts": 1,
+        "timeout_s": 30.0
+      },
+      "selected": false,
+      "status": "unavailable"
+    }
+  ],
+  "generated_at": "2026-05-01T00:00:00+00:00",
+  "network_probe": {
+    "attempts": 0,
+    "input_tokens": null,
+    "output_tokens": null,
+    "performed": false,
+    "provider": null,
+    "reason": "set network=true to run an explicit provider probe",
+    "requested": false,
+    "status": "not_requested"
+  },
+  "safety": {
+    "advisory_only": true,
+    "fail_closed": true,
+    "network_probe_requires_explicit_query": true,
+    "prompts_included": false,
+    "raw_model_outputs_included": false
+  },
+  "schema_version": "zero.model_gateway.health.v1",
+  "selected_provider": null,
+  "status": "failed_closed"
+}

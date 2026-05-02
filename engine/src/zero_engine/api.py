@@ -467,6 +467,10 @@ class PaperApi:
             "/live/cockpit": lambda: self.live_cockpit(operator_context),
             "/intelligence/catalog": self.intelligence_catalog,
             "/intelligence/model-gateway": self.intelligence_model_gateway,
+            "/intelligence/model-gateway/health": lambda: self.intelligence_model_gateway_health(
+                query
+            ),
+            "/intelligence/model-gateway/audit": self.intelligence_model_gateway_audit,
             "/intelligence/snapshot": self.intelligence_snapshot,
             "/live/certification": self.live_certification,
             "/live/preflight": self.live_preflight,
@@ -1329,6 +1333,15 @@ class PaperApi:
     def intelligence_model_gateway(self) -> dict[str, Any]:
         return self.model_gateway().status(generated_at=self.state.now_iso())
 
+    def intelligence_model_gateway_health(self, query: dict[str, list[str]]) -> dict[str, Any]:
+        return self.model_gateway().health(
+            generated_at=self.state.now_iso(),
+            run_network_probe=query_bool(query, "network", default=False),
+        )
+
+    def intelligence_model_gateway_audit(self) -> dict[str, Any]:
+        return self.model_gateway().audit_bundle(generated_at=self.state.now_iso())
+
     def intelligence_export(self, payload: dict[str, Any]) -> dict[str, Any]:
         return export_intelligence_snapshot(
             self.intelligence_snapshot(),
@@ -1750,6 +1763,13 @@ def live_response_from_record(record: Any, *, include_trace: bool = False) -> di
 def first(query: dict[str, list[str]], name: str) -> str | None:
     values = query.get(name)
     return values[0] if values else None
+
+
+def query_bool(query: dict[str, list[str]], name: str, *, default: bool) -> bool:
+    value = first(query, name)
+    if value is None:
+        return default
+    return value.lower() in {"1", "true", "yes", "on"}
 
 
 def request_headers(headers: Any) -> dict[str, str]:

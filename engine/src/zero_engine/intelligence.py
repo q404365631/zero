@@ -99,6 +99,16 @@ def intelligence_catalog(*, generated_at: str, public_delay_s: int = 900) -> dic
                 "endpoint": "GET /intelligence/model-gateway",
                 "default": "fail_closed unless an operator configures a provider",
             },
+            "model_gateway_health": {
+                "schema_version": "zero.model_gateway.health.v1",
+                "endpoint": "GET /intelligence/model-gateway/health",
+                "default": "config-only; explicit network=true required for provider probe",
+            },
+            "model_gateway_audit": {
+                "schema_version": "zero.model_gateway.audit.v1",
+                "endpoint": "GET /intelligence/model-gateway/audit",
+                "default": "production model operations bundle without prompts or raw outputs",
+            },
             "delayed_snapshots": {
                 "schema_version": "zero.intelligence.snapshot.v1",
                 "delay_s": public_delay_s,

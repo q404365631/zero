@@ -330,6 +330,38 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ModelGatewayStatusResponse"
+  /intelligence/model-gateway/health:
+    get:
+      tags: [intelligence]
+      operationId: getIntelligenceModelGatewayHealth
+      summary: Public-safe model gateway health probe.
+      parameters:
+        - name: network
+          in: query
+          required: false
+          description: Run an explicit provider network probe when true.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Model gateway health packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelGatewayHealthResponse"
+  /intelligence/model-gateway/audit:
+    get:
+      tags: [intelligence]
+      operationId: getIntelligenceModelGatewayAudit
+      summary: Public-safe model gateway audit bundle.
+      responses:
+        "200":
+          description: Model gateway audit bundle.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelGatewayAuditResponse"
   /intelligence/export:
     post:
       tags: [intelligence]
@@ -1260,6 +1292,67 @@ components:
         privacy:
           type: object
           required: [prompts_included, raw_model_outputs_included, contains_api_keys, contains_exchange_credentials, contains_wallet_material]
+          additionalProperties: true
+      additionalProperties: true
+    ModelGatewayHealthResponse:
+      type: object
+      required: [schema_version, generated_at, status, selected_provider, network_probe, checks, safety]
+      properties:
+        schema_version:
+          const: zero.model_gateway.health.v1
+        generated_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [failed_closed, degraded, ready, healthy]
+        selected_provider:
+          type: [string, "null"]
+        network_probe:
+          type: object
+          required: [requested, performed, status, provider, attempts, reason]
+          additionalProperties: true
+        checks:
+          type: array
+          items:
+            type: object
+            required: [provider, status, selected, configured, network_allowed, capabilities, retry_policy, reasons]
+            additionalProperties: true
+        safety:
+          type: object
+          required: [fail_closed, advisory_only, network_probe_requires_explicit_query, prompts_included, raw_model_outputs_included]
+          additionalProperties: true
+      additionalProperties: true
+    ModelGatewayAuditResponse:
+      type: object
+      required: [schema_version, generated_at, status, health, usage, controls, evidence_requirements, privacy]
+      properties:
+        schema_version:
+          const: zero.model_gateway.audit.v1
+        generated_at:
+          type: string
+          format: date-time
+        status:
+          type: object
+          required: [mode, default_provider, selected_provider]
+          additionalProperties: true
+        health:
+          $ref: "#/components/schemas/ModelGatewayHealthResponse"
+        usage:
+          type: object
+          required: [events, total_estimated_cost_usd, cost_policy]
+          additionalProperties: true
+        controls:
+          type: object
+          required: [fail_closed_default, advisory_only, structured_output_validation, bounded_retry_policy, network_disabled_by_default, operator_configured_pricing_only]
+          additionalProperties: true
+        evidence_requirements:
+          type: array
+          items:
+            type: string
+        privacy:
+          type: object
+          required: [prompts_included, raw_model_outputs_included, contains_api_keys, contains_exchange_credentials, contains_wallet_material, provider_request_ids_included, headers_included]
           additionalProperties: true
       additionalProperties: true
     HyperliquidStatusResponse:

@@ -104,6 +104,12 @@ Primary datasets:
   exchange credentials, private notes, or non-consented strategy details.
 - Model gateway status must not expose prompts, raw model outputs, provider
   secret values, or hosted request metadata.
+- Model gateway health probes are config-only by default; explicit network
+  probes must return only public provider, attempt, token-count, and status
+  metadata.
+- Model gateway audit bundles must prove fail-closed controls and evidence
+  requirements without including prompts, raw outputs, headers, request IDs, or
+  secret values.
 - Model gateway costs must come from operator-configured prices or provider
   usage metadata; the public runtime must not bake stale vendor pricing into
   source code.

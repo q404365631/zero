@@ -147,6 +147,8 @@ docs-check:
     test -f contracts/intelligence/snapshot.json
     test -f contracts/intelligence/catalog.json
     test -f contracts/intelligence/model_gateway.json
+    test -f contracts/intelligence/model_gateway_health.json
+    test -f contracts/intelligence/model_gateway_audit.json
     test -f openapi/zero-paper-api.v1.yaml
     test -x scripts/assemble_release_assets.sh
     test -x scripts/install.sh

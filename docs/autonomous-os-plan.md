@@ -378,17 +378,24 @@ single model vendor:
   event recording.
 - Added `GET /intelligence/model-gateway` plus OpenAPI, fixture, smoke checks,
   and docs.
+- Added `GET /intelligence/model-gateway/health` for config-only provider
+  health by default and explicit `network=true` structured provider probes.
+- Added `GET /intelligence/model-gateway/audit` for production model-operation
+  bundles with controls, evidence requirements, usage totals, and privacy
+  assertions.
 
 Exit gate:
 
 - the runtime can evaluate through mock/local providers in CI;
 - live providers are optional, configured per operator, and never expose secret
   values in public status packets;
-- model failure degrades safely instead of inventing certainty.
+- model failure degrades safely instead of inventing certainty;
+- provider health and audit packets remain public-safe and omit prompts, raw
+  outputs, headers, request IDs, and secret values.
 
 Remaining scope before Cycle 21: add live hosted key-management implementation,
-provider health probes, and production model audit bundles behind the same
-fail-closed contract.
+hosted provider health evidence retention, and commercial model audit history
+behind the same fail-closed contract.
 
 ### Cycle 21: ZERO Network Ingestion And Anti-Gaming
 

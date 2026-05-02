@@ -12,6 +12,8 @@ from zero_engine.network import assert_public_profile_safe
 
 MODEL_GATEWAY_STATUS_SCHEMA_VERSION = "zero.model_gateway.status.v1"
 MODEL_GATEWAY_EVALUATION_SCHEMA_VERSION = "zero.model_gateway.evaluation.v1"
+MODEL_GATEWAY_HEALTH_SCHEMA_VERSION = "zero.model_gateway.health.v1"
+MODEL_GATEWAY_AUDIT_SCHEMA_VERSION = "zero.model_gateway.audit.v1"
 
 CAPABILITIES = {
     "hard_reasoning",
@@ -208,6 +210,103 @@ class ModelGateway:
         assert_model_gateway_safe(payload)
         return payload
 
+    def health(self, *, generated_at: str, run_network_probe: bool = False) -> dict[str, Any]:
+        selected = self._select_client("structured_output")
+        checks = [
+            provider_health_probe(
+                client,
+                self.config,
+                selected_provider=None if selected is None else selected.provider,
+            )
+            for client in self.clients()
+        ]
+        network_probe = {
+            "requested": run_network_probe,
+            "performed": False,
+            "status": "not_requested",
+            "provider": None,
+            "attempts": 0,
+            "input_tokens": None,
+            "output_tokens": None,
+            "reason": "set network=true to run an explicit provider probe",
+        }
+        if run_network_probe:
+            network_probe = self._network_health_probe(selected)
+
+        selected_check = next((check for check in checks if check["selected"]), None)
+        if selected_check is None:
+            summary_status = "failed_closed"
+        elif network_probe["performed"]:
+            summary_status = network_probe["status"]
+        elif selected_check["status"] in {"local_ready", "ready_for_probe"}:
+            summary_status = "ready"
+        else:
+            summary_status = "degraded"
+
+        payload = {
+            "schema_version": MODEL_GATEWAY_HEALTH_SCHEMA_VERSION,
+            "generated_at": generated_at,
+            "status": summary_status,
+            "selected_provider": None if selected is None else selected.provider,
+            "network_probe": network_probe,
+            "checks": checks,
+            "safety": {
+                "fail_closed": summary_status not in {"ready", "healthy"},
+                "advisory_only": True,
+                "network_probe_requires_explicit_query": True,
+                "prompts_included": False,
+                "raw_model_outputs_included": False,
+            },
+        }
+        assert_model_gateway_safe(payload)
+        return payload
+
+    def audit_bundle(self, *, generated_at: str) -> dict[str, Any]:
+        status = self.status(generated_at=generated_at)
+        health = self.health(generated_at=generated_at, run_network_probe=False)
+        usage = status["usage"]
+        controls = {
+            "fail_closed_default": True,
+            "advisory_only": True,
+            "structured_output_validation": True,
+            "bounded_retry_policy": True,
+            "network_disabled_by_default": True,
+            "operator_configured_pricing_only": True,
+            "prompts_persisted": False,
+            "raw_outputs_persisted": False,
+            "provider_request_ids_persisted": False,
+        }
+        payload = {
+            "schema_version": MODEL_GATEWAY_AUDIT_SCHEMA_VERSION,
+            "generated_at": generated_at,
+            "status": {
+                "mode": status["mode"],
+                "default_provider": status["default_provider"],
+                "selected_provider": health["selected_provider"],
+            },
+            "health": health,
+            "usage": {
+                "events": usage["events"],
+                "total_estimated_cost_usd": usage["total_estimated_cost_usd"],
+                "cost_policy": usage["cost_policy"],
+            },
+            "controls": controls,
+            "evidence_requirements": [
+                "status packet captured before production enablement",
+                "health packet captured with network=false",
+                "explicit network=true probe captured only in a controlled canary",
+                "provider usage counters reviewed without prompts or raw outputs",
+                "operator confirms model output remains advisory-only",
+            ],
+            "privacy": status["privacy"]
+            | {
+                "provider_request_ids_included": False,
+                "headers_included": False,
+            },
+        }
+        assert_model_gateway_safe(payload)
+        return payload
+
     def evaluate_json(
         self,
         *,
@@ -358,6 +457,55 @@ class ModelGateway:
         ):
             return "operator_configured_token_price"
         return "usage_only_unpriced"
+
+    def _network_health_probe(self, selected: ModelClient | None) -> dict[str, Any]:
+        if selected is None:
+            return {
+                "requested": True,
+                "performed": False,
+                "status": "failed_closed",
+                "provider": None,
+                "attempts": 0,
+                "input_tokens": None,
+                "output_tokens": None,
+                "reason": "no configured model provider for structured_output",
+            }
+        schema = {
+            "type": "object",
+            "required": ["ok", "confidence", "note"],
+            "properties": {
+                "ok": {"type": "boolean"},
+                "confidence": {"type": "number"},
+                "note": {"type": "string"},
+            },
+        }
+        try:
+            generation = selected.generate_json(
+                "ZERO model gateway health probe. Return only public readiness JSON.",
+                schema,
+            )
+            validate_structured_output(generation.output, schema)
+        except (RuntimeError, ValueError) as exc:
+            return {
+                "requested": True,
+                "performed": False,
+                "status": "failed_closed",
+                "provider": selected.provider,
+                "attempts": getattr(selected, "max_attempts", 1),
+                "input_tokens": None,
+                "output_tokens": None,
+                "reason": str(exc),
+            }
+        return {
+            "requested": True,
+            "performed": True,
+            "status": "healthy",
+            "provider": selected.provider,
+            "attempts": generation.attempts,
+            "input_tokens": generation.input_tokens,
+            "output_tokens": generation.output_tokens,
+            "reason": "structured health probe returned valid public JSON",
+        }
 
 
 @dataclass(frozen=True)
@@ -571,6 +719,50 @@ def provider_status(client: ModelClient, config: ModelGatewayConfig) -> dict[str
             "max_attempts": config.normalized_max_attempts() if client.live_network else 0,
             "timeout_s": config.normalized_timeout_s() if client.live_network else 0,
         },
+    }
+
+
+def provider_health_probe(
+    client: ModelClient,
+    config: ModelGatewayConfig,
+    *,
+    selected_provider: str | None,
+) -> dict[str, Any]:
+    provider = client.provider
+    status = provider_status(client, config)
+    reasons: list[str] = []
+    probe_status = "unavailable"
+    if provider == "none":
+        reasons.append("null provider is the fail-closed fallback")
+    elif provider == "mock":
+        if config.mock_enabled or config.normalized_provider() == "mock":
+            probe_status = "local_ready"
+            reasons.append("deterministic local provider is enabled")
+        else:
+            reasons.append("mock provider is not enabled")
+    elif provider in PROVIDER_DEFAULT_ENDPOINTS:
+        if not status["configured"]:
+            reasons.append("required provider environment is missing")
+        elif not config.allow_network:
+            probe_status = "network_disabled"
+            reasons.append("network boundary is configured but disabled")
+        elif client.model.endswith(":operator-configured"):
+            probe_status = "misconfigured"
+            reasons.append("model name is not configured")
+        else:
+            probe_status = "ready_for_probe"
+            reasons.append("provider can be probed with explicit network=true")
+    return {
+        "provider": provider,
+        "status": probe_status,
+        "selected": provider == selected_provider,
+        "configured": status["configured"],
+        "network_allowed": status["network_allowed"],
+        "credential_configured": bool(provider in config.configured_providers),
+        "model_configured": not client.model.endswith(":operator-configured"),
+        "capabilities": status["capabilities"],
+        "retry_policy": status["retry_policy"],
+        "reasons": reasons,
     }
 
 

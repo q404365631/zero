@@ -242,6 +242,100 @@ def test_external_provider_retries_are_bounded_and_public() -> None:
     assert status["providers"][1]["retry_policy"] == {"max_attempts": 2, "timeout_s": 7.0}
 
 
+def test_model_gateway_health_is_config_only_by_default() -> None:
+    transport = StubJsonTransport(RuntimeError("network should not run"))
+    gateway = ModelGateway(
+        ModelGatewayConfig(
+            provider="openai",
+            model="openai-test-model",
+            allow_network=True,
+            configured_providers=frozenset({"openai"}),
+            provider_credentials={"openai": "test-openai-key"},
+            transport=transport,
+        )
+    )
+
+    health = gateway.health(generated_at="2026-05-01T00:00:00+00:00")
+
+    assert health["schema_version"] == "zero.model_gateway.health.v1"
+    assert health["status"] == "ready"
+    assert health["selected_provider"] == "openai"
+    assert health["network_probe"]["requested"] is False
+    assert health["network_probe"]["performed"] is False
+    assert health["safety"]["network_probe_requires_explicit_query"] is True
+    assert transport.requests == []
+
+
+def test_model_gateway_health_degraded_is_fail_closed() -> None:
+    gateway = ModelGateway(
+        ModelGatewayConfig(
+            provider="openai",
+            model="openai-test-model",
+            configured_providers=frozenset({"openai"}),
+            allow_network=False,
+        )
+    )
+
+    health = gateway.health(generated_at="2026-05-01T00:00:00+00:00")
+
+    assert health["status"] == "degraded"
+    assert health["selected_provider"] == "openai"
+    assert health["safety"]["fail_closed"] is True
+
+
+def test_model_gateway_network_health_probe_is_explicit_and_public() -> None:
+    transport = StubJsonTransport(
+        {
+            "output_text": '{"ok":true,"confidence":1.0,"note":"ready"}',
+            "usage": {"input_tokens": 11, "output_tokens": 7},
+        }
+    )
+    gateway = ModelGateway(
+        ModelGatewayConfig(
+            provider="openai",
+            model="openai-test-model",
+            allow_network=True,
+            configured_providers=frozenset({"openai"}),
+            provider_credentials={"openai": "test-openai-key"},
+            transport=transport,
+        )
+    )
+
+    health = gateway.health(
+        generated_at="2026-05-01T00:00:00+00:00",
+        run_network_probe=True,
+    )
+
+    assert health["status"] == "healthy"
+    assert health["network_probe"] == {
+        "requested": True,
+        "performed": True,
+        "status": "healthy",
+        "provider": "openai",
+        "attempts": 1,
+        "input_tokens": 11,
+        "output_tokens": 7,
+        "reason": "structured health probe returned valid public JSON",
+    }
+    assert len(transport.requests) == 1
+    body = json.dumps(health)
+    assert "test-openai-key" not in body
+    assert "ZERO model gateway health probe" not in body
+
+
+def test_model_gateway_audit_bundle_is_public_and_control_oriented() -> None:
+    gateway = ModelGateway(ModelGatewayConfig(provider="mock", mock_enabled=True))
+
+    audit = gateway.audit_bundle(generated_at="2026-05-01T00:00:00+00:00")
+
+    assert audit["schema_version"] == "zero.model_gateway.audit.v1"
+    assert audit["status"]["mode"] == "local_ready"
+    assert audit["health"]["schema_version"] == "zero.model_gateway.health.v1"
+    assert audit["controls"]["advisory_only"] is True
+    assert audit["controls"]["prompts_persisted"] is False
+    assert audit["privacy"]["provider_request_ids_included"] is False
+
+
 def test_external_provider_transport_errors_fail_closed_without_secret_leak() -> None:
     transport = StubJsonTransport(RuntimeError("socket failure with key metadata"))
     gateway = ModelGateway(
@@ -304,3 +398,25 @@ def test_paper_api_exposes_public_model_gateway_status() -> None:
     assert payload["mode"] == "local_ready"
     assert payload["routing"]["structured_output"] == "mock"
     assert payload["privacy"]["prompts_included"] is False
+
+
+def test_paper_api_exposes_model_gateway_health_and_audit() -> None:
+    api = PaperApi(
+        PaperApiState(
+            clock=lambda: FIXED_DT,
+            started_at=FIXED_DT,
+            model_gateway_provider="mock",
+            model_gateway_mock_enabled=True,
+        )
+    )
+
+    health_status, health = api.get("/intelligence/model-gateway/health", {})
+    audit_status, audit = api.get("/intelligence/model-gateway/audit", {})
+
+    assert health_status == 200
+    assert health["schema_version"] == "zero.model_gateway.health.v1"
+    assert health["status"] == "ready"
+    assert health["network_probe"]["requested"] is False
+    assert audit_status == 200
+    assert audit["schema_version"] == "zero.model_gateway.audit.v1"
+    assert audit["health"]["selected_provider"] == "mock"
