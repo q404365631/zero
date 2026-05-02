@@ -135,6 +135,7 @@ def verify(release_dir: Path, *, source_only: bool) -> dict[str, Any]:
     required = ["zero-linux", "zero-macos", "zero-paper-image.tar"]
     if source_only:
         required = []
+    required.extend(["SBOM.spdx.json", "PROVENANCE.json"])
     missing_required = [name for name in required if name not in assets]
     if wheel_count == 0:
         missing_required.append("*.whl")
@@ -171,6 +172,9 @@ def verify(release_dir: Path, *, source_only: bool) -> dict[str, Any]:
     else:
         findings.append(ok("nonempty_assets", "release assets are nonempty", executable_sizes=executable_sizes))
 
+    metadata_findings = verify_metadata_files(release_dir)
+    findings.extend(metadata_findings)
+
     metadata = {
         "files": names,
         "assets": assets,
@@ -179,6 +183,75 @@ def verify(release_dir: Path, *, source_only: bool) -> dict[str, Any]:
         "source_only": source_only,
     }
     return build_report(release_dir, findings, metadata)
+
+
+def load_json(path: Path) -> tuple[dict[str, Any] | None, str | None]:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return None, f"{exc.msg} at line {exc.lineno} column {exc.colno}"
+    if not isinstance(data, dict):
+        return None, "top-level JSON value must be an object"
+    return data, None
+
+
+def verify_metadata_files(release_dir: Path) -> list[Finding]:
+    findings: list[Finding] = []
+    sbom_path = release_dir / "SBOM.spdx.json"
+    provenance_path = release_dir / "PROVENANCE.json"
+
+    if sbom_path.is_file():
+        sbom, error = load_json(sbom_path)
+        if error:
+            findings.append(fail("sbom_metadata", "SBOM.spdx.json is invalid JSON", error=error))
+        elif sbom.get("spdxVersion") != "SPDX-2.3" or not sbom.get("packages"):
+            findings.append(
+                fail(
+                    "sbom_metadata",
+                    "SBOM.spdx.json must be SPDX 2.3 and include packages",
+                    spdx_version=sbom.get("spdxVersion"),
+                    package_count=len(sbom.get("packages", [])) if isinstance(sbom.get("packages"), list) else 0,
+                )
+            )
+        else:
+            findings.append(
+                ok(
+                    "sbom_metadata",
+                    "SBOM.spdx.json is parseable SPDX metadata",
+                    packages=len(sbom.get("packages", [])),
+                )
+            )
+
+    if provenance_path.is_file():
+        provenance, error = load_json(provenance_path)
+        if error:
+            findings.append(fail("provenance_metadata", "PROVENANCE.json is invalid JSON", error=error))
+        elif provenance.get("schema_version") != "zero.release_provenance.v1":
+            findings.append(
+                fail(
+                    "provenance_metadata",
+                    "PROVENANCE.json has an unexpected schema version",
+                    schema_version=provenance.get("schema_version"),
+                )
+            )
+        elif provenance.get("policy", {}).get("live_execution_claimed") is not False:
+            findings.append(
+                fail(
+                    "provenance_metadata",
+                    "PROVENANCE.json must not claim live execution evidence",
+                    policy=provenance.get("policy", {}),
+                )
+            )
+        else:
+            findings.append(
+                ok(
+                    "provenance_metadata",
+                    "PROVENANCE.json is parseable and policy-safe",
+                    assets=len(provenance.get("release", {}).get("assets", [])),
+                )
+            )
+
+    return findings
 
 
 def build_report(release_dir: Path, findings: list[Finding], metadata: dict[str, Any]) -> dict[str, Any]:

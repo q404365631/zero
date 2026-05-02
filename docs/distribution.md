@@ -10,6 +10,8 @@ support commitments are stable.
 - Rust CLI binaries for Linux and macOS
 - Paper runtime container image tarball
 - Combined `SHA256SUMS`
+- `SBOM.spdx.json`
+- `PROVENANCE.json`
 - GitHub artifact attestations
 - Installer script that verifies checksum and attestation before installing
 
@@ -74,9 +76,12 @@ Before adding any package registry:
 5. `just release-rehearsal` proves tampered artifacts are rejected.
 6. GitHub artifact attestations verify from a clean download directory.
 7. `just registry-readiness` passes.
-8. `docs/threat-model.md` and `docs/incident-runbooks.md` are reviewed.
-9. Rollback steps for the channel are documented in the release PR.
-10. No channel token is stored in repository files or local examples.
+8. `SBOM.spdx.json` and `PROVENANCE.json` are present, checksummed, and parsed
+   by `scripts/release_verify.py`.
+9. `docs/threat-model.md`, `docs/incident-runbooks.md`, and
+   `docs/dependency-policy.md` are reviewed.
+10. Rollback steps for the channel are documented in the release PR.
+11. No channel token is stored in repository files or local examples.
 
 ## Homebrew Formula Requirements
 

@@ -56,6 +56,8 @@ Target launch artifacts:
 - Rust CLI binaries plus `SHA256SUMS`
 - Python wheel/source distribution plus `SHA256SUMS`
 - Container image tarball for the local paper runtime plus `SHA256SUMS`
+- `SBOM.spdx.json`
+- `PROVENANCE.json`
 
 The first public release may ship source-only if the quickstart is reliable and
 the limitation is called out clearly.
@@ -72,6 +74,10 @@ scripts/release_verify.py dist
 
 The checksum file uses the standard two-column `sha256  filename` format. A
 failed checksum means the artifact should not be used.
+
+`SBOM.spdx.json` and `PROVENANCE.json` must be present in the same directory as
+the release assets. They are included in `SHA256SUMS`, so checksum verification
+also detects tampering with dependency and provenance metadata.
 
 For GitHub Release assets, download all files attached to the release into one
 directory and verify the combined checksum manifest:
@@ -155,6 +161,10 @@ with `scripts/release_verify.py`, then tampers with the Linux binary and proves
 verification fails. This is a rollback and integrity drill: a maintainer should
 not publish a release unless the verifier catches the tampered-artifact case.
 
+The assembly step also runs `scripts/release_provenance.py` to generate
+`SBOM.spdx.json` and `PROVENANCE.json` before writing the combined checksum
+manifest.
+
 ## Current Automation
 
 `.github/workflows/release.yml` runs on tags shaped like `v*.*.*` and builds:
@@ -165,7 +175,8 @@ not publish a release unless the verifier catches the tampered-artifact case.
 - Paper-mode Docker image smoke tests and an exported image tarball
 - SHA-256 checksum files for each artifact group
 - A draft GitHub Release containing the wheel, source distribution, CLI
-  binaries, paper image tarball, and a combined `SHA256SUMS`
+  binaries, paper image tarball, `SBOM.spdx.json`, `PROVENANCE.json`, and a
+  combined `SHA256SUMS`
 - Release asset verification through `scripts/release_verify.py` before
   attestation and draft release upload
 - GitHub artifact attestations for release assets listed in the combined
@@ -184,6 +195,15 @@ For public repositories, GitHub signs the attestation with Sigstore-backed
 provenance. Maintainers should leave releases in draft until checksum and
 attestation verification both pass from a fresh checkout or clean download
 directory.
+
+ZERO also ships local provenance metadata:
+
+- `SBOM.spdx.json`: SPDX 2.3 package/component metadata generated from
+  `engine/pyproject.toml`, `cli/Cargo.lock`, workspace crate manifests, and
+  release assets.
+- `PROVENANCE.json`: source commit, branch/tag, dirty-state flag, asset hashes,
+  and policy assertions that paper mode is default, live execution evidence is
+  not claimed, and package-registry publication remains disabled.
 
 Do not publish package-registry artifacts until the registry channel has an
 owner, rollback path, least-privilege token plan, and documented support

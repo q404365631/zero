@@ -74,7 +74,7 @@ speed, scale, history, and reliability.
 | Security and custody | 91 | external review, key-handling drill evidence |
 | ZERO Network | 70 | hosted identity verification, public pages, production ingestion service |
 | ZERO Intelligence | 70 | production hosted service persistence, billing provider, history storage, terms |
-| Release and distribution | 95 | external registry ownership evidence, Homebrew tap, SBOM/provenance bundle |
+| Release and distribution | 97 | external registry ownership evidence, Homebrew tap, draft-release rollback drill |
 | Operator docs | 98 | real exchange drill evidence |
 
 ## Execution Cycles
@@ -572,11 +572,15 @@ Current progress:
   workflow as a preflight before building release artifacts.
 - Added explicit Trusted Publishing, `cargo owner`, Homebrew formula, and
   package publication disablement gates to release/distribution docs.
+- Added `scripts/release_provenance.py` to generate checksummed
+  `SBOM.spdx.json` and `PROVENANCE.json` from Python, Cargo, workspace, git, and
+  release-asset metadata.
+- Added `docs/dependency-policy.md` with update rules, release requirements,
+  and vulnerability-response steps.
 
 Remaining scope before Cycle 26: external package-registry ownership evidence,
-Homebrew tap, SBOM/provenance bundle beyond GitHub attestations,
-dependency-update policy, and real release rollback rehearsal against a draft
-GitHub Release.
+Homebrew tap, and real release rollback rehearsal against a draft GitHub
+Release.
 
 ### Cycle 26: External Review And Real-World Evidence
 

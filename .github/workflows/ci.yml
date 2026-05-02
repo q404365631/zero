@@ -52,6 +52,7 @@ jobs:
           test -f docs/open-core-boundary.md
           test -f docs/zero-network.md
           test -f docs/zero-intelligence.md
+          test -f docs/dependency-policy.md
           test -f docs/hyperliquid-readonly.md
           test -f docs/production-readiness.md
           test -f docs/autonomous-os-plan.md
@@ -98,6 +99,7 @@ jobs:
           test -x scripts/network_pages_smoke.py
           test -x scripts/package_dry_run.sh
           test -x scripts/registry_readiness.py
+          test -x scripts/release_provenance.py
           test -x scripts/release_verify.py
           test -x scripts/release_rehearsal.sh
           test -x scripts/railway_start.sh

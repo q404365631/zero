@@ -98,11 +98,29 @@ aggregate fields and proof hashes.
 1. Keep the GitHub Release in draft or pull it back to draft.
 2. Download artifacts to a clean directory.
 3. Run `shasum -a 256 -c SHA256SUMS`.
-4. Run `gh attestation verify zero-linux -R zero-intel/zero` and the macOS
+4. Run `scripts/release_verify.py <downloaded-release-dir>` and confirm
+   `SBOM.spdx.json` plus `PROVENANCE.json` parse cleanly.
+5. Run `gh attestation verify zero-linux -R zero-intel/zero` and the macOS
    equivalent for executable artifacts.
-5. Rebuild from the tag only after the local and GitHub gates pass.
+6. Rebuild from the tag only after the local and GitHub gates pass.
 
-Exit gate: fresh-download checksum and attestation verification both pass.
+Exit gate: fresh-download checksum, release verifier, SBOM/provenance, and
+attestation verification all pass.
+
+## P1: Vulnerable Dependency In Release
+
+1. Identify whether the dependency is runtime, dev-only, CI-only, or
+   live-optional.
+2. Check `SBOM.spdx.json`, `PROVENANCE.json`, `engine/pyproject.toml`, and
+   `cli/Cargo.lock` to confirm affected packages and release assets.
+3. Patch, pin, remove, or replace the dependency.
+4. Regenerate lockfiles through the package manager.
+5. Run `just ci`, `scripts/hardening_gate.sh`, and `just release-rehearsal`.
+6. If a public release is affected, mark it unsafe or pull it back to draft and
+   publish a patched release.
+
+Exit gate: patched release assets include regenerated SBOM/provenance files and
+all GitHub checks pass.
 
 ## P2: Market Data Degradation
 

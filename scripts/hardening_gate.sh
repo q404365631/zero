@@ -19,10 +19,14 @@ rg -q "Private key committed or logged" docs/threat-model.md
 rg -q "Public Packet Privacy Regression" docs/incident-runbooks.md
 rg -q "Unexpected Live Order" docs/incident-runbooks.md
 rg -q "Bad Release Artifact" docs/incident-runbooks.md
+rg -q "Dependency And Supply Chain Policy" docs/dependency-policy.md
+rg -q "Vulnerability Response" docs/dependency-policy.md
 rg -q "Homebrew Formula Requirements" docs/distribution.md
 rg -q "Trusted Publishing" docs/distribution.md
 rg -q "cargo owner" docs/distribution.md
 rg -q "GitHub artifact attestations" docs/release.md
+rg -q "SBOM.spdx.json" docs/release.md
+rg -q "PROVENANCE.json" docs/release.md
 rg -q "just registry-readiness" docs/release.md
 rg -q "release rehearsal" docs/release.md
 rg -q "threat model" docs/production-readiness.md
@@ -50,4 +54,5 @@ python3 -m py_compile scripts/railway_doctor.py
 python3 -m py_compile scripts/deployment_evidence.py
 python3 -m py_compile scripts/release_verify.py
 python3 -m py_compile scripts/registry_readiness.py
+python3 -m py_compile scripts/release_provenance.py
 scripts/registry_readiness.py >/dev/null

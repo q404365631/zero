@@ -35,8 +35,8 @@ ZERO Network proof packets, and ZERO Intelligence packet contracts.
 | Duplicate order submission | Over-exposure | Idempotency keys, no retry on live order submit, deterministic client order IDs | Kill live executor, reconcile exchange fills, resume only after audit |
 | Local state crosses operators | Privacy breach, wrong-context action, or stale recovery state | Operator-scoped filesystem partitions, operator-scoped keychain account names, `zero doctor` partition rows and legacy-artifact warning | Stop automation, archive/migrate shared artifacts, rerun doctor before live mode |
 | Dead-man or kill switch failure | Continued exposure | Dead-man heartbeat, pause, kill, reduce-only flatten controls | Trigger kill, manually flatten at venue, open P0 incident |
-| Release artifact tampering | Compromised installs | SHA256SUMS plus GitHub artifact attestations | Pull draft release, rotate affected tag, rebuild from clean runner |
-| Dependency compromise | Runtime compromise | Dependabot, CodeQL, OpenSSF Scorecard, lockfile review | Pin or remove dependency, cut patched release |
+| Release artifact tampering | Compromised installs | SHA256SUMS, `SBOM.spdx.json`, `PROVENANCE.json`, release verifier, and GitHub artifact attestations | Pull draft release, rotate affected tag, rebuild from clean runner |
+| Dependency compromise | Runtime compromise | Dependabot, CodeQL, OpenSSF Scorecard, lockfile review, dependency policy, release SBOM | Pin or remove dependency, regenerate lockfile/SBOM, cut patched release |
 | Contributor bypasses safety gates | Regression | CI, smoke tests, safety review issue template, branch protection | Revert via PR, add regression test, document bypass path |
 
 ## Non-Goals

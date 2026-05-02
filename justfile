@@ -63,6 +63,9 @@ release-rehearsal:
 release-verify dir:
     scripts/release_verify.py "{{dir}}"
 
+release-provenance dir:
+    scripts/release_provenance.py "{{dir}}"
+
 railway-smoke:
     scripts/railway_smoke.sh
 
@@ -104,6 +107,7 @@ docs-check:
     test -f docs/zero-intelligence.md
     test -f docs/threat-model.md
     test -f docs/incident-runbooks.md
+    test -f docs/dependency-policy.md
     test -f docs/distribution.md
     test -f docs/hyperliquid-readonly.md
     test -f docs/live-certification.md
@@ -171,6 +175,7 @@ docs-check:
     test -x scripts/network_pages_smoke.py
     test -x scripts/package_dry_run.sh
     test -x scripts/registry_readiness.py
+    test -x scripts/release_provenance.py
     test -x scripts/release_verify.py
     test -x scripts/release_rehearsal.sh
     test -x scripts/hardening_gate.sh

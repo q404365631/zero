@@ -27,8 +27,11 @@ reserved for ZERO Intelligence.
 - Release workflow for Python package, CLI binaries, container image artifact, and checksums
 - Draft GitHub Release assembly with combined release checksums
 - Release verifier and tamper-detection rehearsal
+- Release SBOM/provenance bundle with checksummed `SBOM.spdx.json` and
+  `PROVENANCE.json`
 - GitHub artifact attestations for release asset provenance
 - Threat model, incident runbooks, distribution policy, and hardening gate
+- Dependency and supply-chain policy with vulnerability response rules
 - One-line CLI install path with checksum and attestation verification
 - Registry-readiness gate for PyPI/Cargo metadata and package-channel guardrails
 - Package dry-run gate for Python artifacts and the Rust crate graph
