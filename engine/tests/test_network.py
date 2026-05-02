@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 from zero_engine.api import PaperApi, PaperApiState
+from zero_engine.deployment import DeploymentIdentityConfig, deployment_claim
 from zero_engine.journal import DecisionJournal
 from zero_engine.network import (
     PublicProfileConfig,
@@ -69,12 +70,62 @@ def test_public_profile_is_aggregate_and_private_by_default(tmp_path) -> None:
     assert profile["metrics"]["rejections"] == 1
     assert profile["metrics"]["journal_durable"] is True
     assert profile["verification"]["proof_hash"].startswith("sha256:")
+    assert profile["verification"]["deployment_claim_hash"].startswith("sha256:")
+    assert (
+        profile["deployment_claim"]["claim_hash"]
+        == profile["verification"]["deployment_claim_hash"]
+    )
+    assert profile["deployment_claim"]["signature"]["status"] == "unsigned_local"
     body = json.dumps(profile)
     assert "network-fill" not in body
     assert "trace-network" not in body
     assert "BTC" not in body
     assert "ETH" not in body
     assert "api:/execute" not in body
+
+
+def test_deployment_claim_is_public_safe_and_signature_ready(tmp_path) -> None:
+    api = seed_api(tmp_path)
+
+    status, claim = api.get("/deployment/claim", {})
+
+    assert status == 200
+    assert claim["schema_version"] == "zero.deployment.claim.v1"
+    assert claim["deployment"]["deployment_id"] == "local-paper"
+    assert claim["operator"]["handle"] == "local-operator"
+    assert claim["runtime"]["mode"] == "paper"
+    assert claim["evidence"]["decisions"] == 2
+    assert claim["claim_hash"].startswith("sha256:")
+    assert claim["signature"]["status"] == "unsigned_local"
+    assert claim["signature"]["signed_claim_hash"] == claim["claim_hash"]
+    body = json.dumps(claim)
+    assert "network-fill" not in body
+    assert "trace-network" not in body
+    assert "BTC" not in body
+    assert "ETH" not in body
+    assert "api:/execute" not in body
+
+
+def test_deployment_claim_accepts_external_signature_metadata() -> None:
+    claim = deployment_claim(
+        config=DeploymentIdentityConfig(
+            deployment_id="railway-paper-1",
+            deployment_kind="railway",
+            environment="paper",
+            owner="zero-team",
+            public_key="ed25519-public",
+            signature="ed25519-signature",
+            signer="ci",
+        ),
+        generated_at=FIXED_DT.isoformat(),
+        operator_context={"handle": "zero_team", "role": "owner", "scope": "paper"},
+        runtime={"mode": "paper", "market_source": "paper:static"},
+        evidence={"decisions": 0},
+    )
+
+    assert claim["claim_hash"].startswith("sha256:")
+    assert claim["signature"]["status"] == "signed_external"
+    assert claim["signature"]["signed_claim_hash"] == claim["claim_hash"]
 
 
 def test_network_leaderboard_uses_same_public_proof(tmp_path) -> None:
@@ -90,6 +141,10 @@ def test_network_leaderboard_uses_same_public_proof(tmp_path) -> None:
     assert leaderboard["rows"][0]["rank"] == 1
     assert leaderboard["rows"][0]["handle"] == "zero_test"
     assert leaderboard["rows"][0]["proof_hash"] == profile["verification"]["proof_hash"]
+    assert (
+        leaderboard["rows"][0]["deployment_claim_hash"]
+        == profile["verification"]["deployment_claim_hash"]
+    )
     assert leaderboard["rows"][0]["decisions"] == 2
 
 
@@ -123,6 +178,7 @@ def test_network_publish_writes_redacted_profile_packet(tmp_path) -> None:
     assert payload["proof_hash"].startswith("sha256:")
     written = publish_path.read_text()
     assert "public_zero" in written
+    assert "deployment_claim" in written
     assert "network-fill" not in written
     assert "trace-network" not in written
     assert "BTC" not in written
@@ -154,6 +210,8 @@ def test_public_leaderboard_ranks_redacted_profiles(tmp_path) -> None:
     second["leaderboard_row"]["verification_score"] = 24
     second["verification"]["proof_hash"] = "sha256:alpha"
     second["leaderboard_row"]["proof_hash"] = "sha256:alpha"
+    second["verification"]["deployment_claim_hash"] = "sha256:claim-alpha"
+    second["leaderboard_row"]["deployment_claim_hash"] = "sha256:claim-alpha"
 
     leaderboard = public_leaderboard(
         [first, second],

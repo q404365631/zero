@@ -42,9 +42,9 @@ just docs-check.
 ```
 
 When an agent touches live-control surfaces, capture `/operator/context`,
-`/live/cockpit`, and `/audit/export?limit=100` in the review notes. The context
-packet is audit identity, not permission; agents must not bypass CLI friction,
-preflight, immune breakers, or live execution policy.
+`/deployment/claim`, `/live/cockpit`, and `/audit/export?limit=100` in the
+review notes. The context packet is audit identity, not permission; agents must
+not bypass CLI friction, preflight, immune breakers, or live execution policy.
 
 ## Review Checklist
 

@@ -56,6 +56,7 @@ def test_intelligence_snapshot_is_delayed_aggregate_product(tmp_path) -> None:
     assert snapshot["access"]["delay_s"] == 600
     assert snapshot["access"]["commercial_realtime"] is True
     assert snapshot["source"]["proof_hash"].startswith("sha256:")
+    assert snapshot["source"]["deployment_claim_hash"].startswith("sha256:")
     assert snapshot["aggregates"]["decisions"] == 2
     assert snapshot["aggregates"]["rejections"] == 1
     assert snapshot["signals"]["journal_quality"] == "durable"

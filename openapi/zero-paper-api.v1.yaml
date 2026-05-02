@@ -226,6 +226,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AuditExportResponse"
+  /deployment/claim:
+    get:
+      tags: [network]
+      operationId: getDeploymentClaim
+      summary: Public-safe local deployment identity claim.
+      responses:
+        "200":
+          description: Signature-ready deployment claim packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentClaimResponse"
   /network/profile:
     get:
       tags: [network]
@@ -957,7 +969,76 @@ components:
       additionalProperties: false
     AuditExportResponse:
       type: object
-      required: [schema_version, exported_at, mode, source, limit, operator_context, summary, retention, metrics, recovery, operator_actions, decisions]
+      required: [schema_version, exported_at, mode, source, limit, operator_context, summary, retention, metrics, recovery, deployment_claim, operator_actions, decisions]
+      additionalProperties: true
+    DeploymentClaimResponse:
+      type: object
+      required: [schema_version, generated_at, deployment, operator, runtime, evidence, privacy, claim_hash, signature]
+      properties:
+        schema_version:
+          const: zero.deployment.claim.v1
+        generated_at:
+          type: string
+          format: date-time
+        deployment:
+          type: object
+          required: [deployment_id, kind, environment, owner, version]
+          properties:
+            deployment_id:
+              type: string
+            kind:
+              type: string
+            environment:
+              type: string
+            owner:
+              type: string
+            version:
+              type: string
+          additionalProperties: false
+        operator:
+          type: object
+          required: [handle, role, scope, source]
+          properties:
+            handle:
+              type: string
+            role:
+              type: string
+            scope:
+              type: string
+            source:
+              type: string
+          additionalProperties: true
+        runtime:
+          type: object
+          additionalProperties: true
+        evidence:
+          type: object
+          additionalProperties: true
+        privacy:
+          type: object
+          additionalProperties: true
+        claim_hash:
+          type: string
+          pattern: "^sha256:"
+        signature:
+          type: object
+          required: [status, algorithm, public_key, signature, signer, signed_claim_hash]
+          properties:
+            status:
+              type: string
+              enum: [unsigned_local, signed_external]
+            algorithm:
+              type: [string, "null"]
+            public_key:
+              type: [string, "null"]
+            signature:
+              type: [string, "null"]
+            signer:
+              type: string
+            signed_claim_hash:
+              type: string
+              pattern: "^sha256:"
+          additionalProperties: true
       additionalProperties: true
     ExecuteRequest:
       type: object
@@ -1003,7 +1084,7 @@ components:
       additionalProperties: false
     NetworkProfileResponse:
       type: object
-      required: [schema_version, generated_at, mode, profile, metrics, verification, leaderboard_row, privacy]
+      required: [schema_version, generated_at, mode, profile, metrics, verification, deployment_claim, leaderboard_row, privacy]
       additionalProperties: true
     NetworkLeaderboardResponse:
       type: object

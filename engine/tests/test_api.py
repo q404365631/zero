@@ -165,6 +165,8 @@ def test_paper_api_audit_export_includes_traceable_decisions(tmp_path) -> None:
     assert audit["source"] == "journal"
     assert audit["summary"]["decisions"] == 1
     assert audit["retention"]["format"] == "append-only-jsonl"
+    assert audit["deployment_claim"]["schema_version"] == "zero.deployment.claim.v1"
+    assert audit["deployment_claim"]["claim_hash"].startswith("sha256:")
     assert audit["decisions"][0]["symbol"] == "BTC"
     assert audit["decisions"][0]["trace_id"] == "trace-test-audit"
 
@@ -546,6 +548,7 @@ def test_live_kill_blocks_later_live_execute() -> None:
     assert execute["reason"] == "kill switch active"
     assert audit_status == 200
     assert audit["operator_context"]["operator_id"] == "ops-1"
+    assert audit["deployment_claim"]["operator"]["handle"] == "ops"
     assert audit["operator_actions"][0]["action"] == "kill"
     assert audit["operator_actions"][0]["risk_direction"] == "reduces"
     assert cockpit_status == 200

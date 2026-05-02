@@ -97,6 +97,7 @@ docs-check:
     test -f docs/live-certification.md
     test -f docs/live-cockpit.md
     test -f docs/operator-context.md
+    test -f docs/deployment-identity.md
     test -f docs/operator-isolation.md
     test -f docs/immune-system.md
     test -f docs/production-readiness.md
@@ -135,6 +136,7 @@ docs-check:
     test -f contracts/paper-api/v2_status.json
     test -f contracts/paper-api/execute_accepted.json
     test -f contracts/paper-api/execute_rejected.json
+    test -f contracts/deployment/claim.json
     test -f contracts/network/profile.json
     test -f contracts/network/leaderboard.json
     test -f contracts/network/profile.html

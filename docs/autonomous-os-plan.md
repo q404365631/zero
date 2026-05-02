@@ -346,8 +346,14 @@ Current status:
   compatibility.
 - `zero doctor` includes `operator_partition` and `credential_partition` rows,
   and warns when legacy shared state artifacts remain at the top level.
-- Remaining scope before Cycle 20: signed deployment identity and hosted
-  control-plane claim protocol.
+- Added `zero.deployment.claim.v1` with local deployment metadata, public-safe
+  operator identity, aggregate evidence counts, signature-ready claim hash, and
+  explicit `unsigned_local` status unless external signing metadata is supplied.
+- `GET /deployment/claim`, `/network/profile`, `/network/leaderboard`,
+  `/intelligence/snapshot`, and `/audit/export` now share the deployment claim
+  hash so a hosted Network or Intelligence API can verify packet lineage later.
+- Remaining scope before Cycle 20: heartbeat protocol and real hosted
+  verification service design.
 
 ### Cycle 20: LLM Gateway
 

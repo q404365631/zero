@@ -15,6 +15,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Callable
 from urllib.parse import parse_qs, urlparse
 
+from zero_engine.deployment import DeploymentIdentityConfig, deployment_claim
 from zero_engine.hyperliquid import (
     HyperliquidInfoClient,
     HyperliquidMarketStatus,
@@ -216,6 +217,14 @@ class PaperApiState:
     network_display_name: str | None = None
     network_publish_enabled: bool = False
     network_publish_path: str | None = None
+    deployment_id: str = "local-paper"
+    deployment_kind: str = "local"
+    deployment_environment: str = "paper"
+    deployment_owner: str = "local-operator"
+    deployment_version: str = "0.1.1"
+    deployment_public_key: str | None = None
+    deployment_signature: str | None = None
+    deployment_signer: str | None = None
     intelligence_public_delay_s: int = 900
     intelligence_export_path: str | None = None
     default_operator_id: str = "local-operator"
@@ -446,6 +455,7 @@ class PaperApi:
             "/live/preflight": self.live_preflight,
             "/market/quote": lambda: self.market_quote(query),
             "/metrics": self.metrics,
+            "/deployment/claim": lambda: self.deployment_claim(operator_context),
             "/network/profile": self.network_profile,
             "/network/leaderboard": self.network_leaderboard,
             "/operator/state": self.operator_state,
@@ -1113,6 +1123,7 @@ class PaperApi:
             },
             "metrics": self.metrics(),
             "recovery": self.recovery(),
+            "deployment_claim": self.deployment_claim(operator_context),
             "operator_actions": [
                 record.to_dict()
                 for record in self.state.operator_action_log[-limit:]
@@ -1121,12 +1132,14 @@ class PaperApi:
         }
 
     def network_profile(self) -> dict[str, Any]:
+        generated_at = self.state.now_iso()
         return public_profile(
             self.state.engine,
             config=self.network_config(),
-            generated_at=self.state.now_iso(),
+            generated_at=generated_at,
             mode=self.network_mode(),
             live_execution_count=self.live_execution_count(),
+            deployment_claim=self.deployment_claim(generated_at=generated_at),
         )
 
     def network_leaderboard(self) -> dict[str, Any]:
@@ -1152,6 +1165,7 @@ class PaperApi:
             generated_at=self.state.now_iso(),
             mode=self.network_mode(),
             live_execution_count=self.live_execution_count(),
+            deployment_claim=self.deployment_claim(),
         )
         return publish_profile(
             profile,
@@ -1168,6 +1182,44 @@ class PaperApi:
 
     def network_mode(self) -> str:
         return "live" if self.live_execution_count() else "paper"
+
+    def deployment_config(self) -> DeploymentIdentityConfig:
+        return DeploymentIdentityConfig(
+            deployment_id=self.state.deployment_id,
+            deployment_kind=self.state.deployment_kind,
+            environment=self.state.deployment_environment,
+            owner=self.state.deployment_owner,
+            version=self.state.deployment_version,
+            public_key=self.state.deployment_public_key,
+            signature=self.state.deployment_signature,
+            signer=self.state.deployment_signer,
+        )
+
+    def deployment_claim(
+        self,
+        operator_context: OperatorContext | None = None,
+        *,
+        generated_at: str | None = None,
+    ) -> dict[str, Any]:
+        operator_context = operator_context or self.state.operator_context()
+        engine = self.state.engine
+        return deployment_claim(
+            config=self.deployment_config(),
+            generated_at=generated_at or self.state.now_iso(),
+            operator_context=operator_context.to_dict(),
+            runtime={
+                "mode": self.network_mode(),
+                "market_source": self.state.market_source(),
+                "journal_durable": engine.recovery.durable or engine.journal is not None,
+                "live_executor_configured": self.state.live_executor is not None,
+            },
+            evidence={
+                "decisions": len(engine.decisions),
+                "fills": len(engine.fills),
+                "rejections": len(engine.rejections),
+                "live_execution_count": self.live_execution_count(),
+            },
+        )
 
     def live_execution_count(self) -> int:
         if self.state.live_executor is None:
@@ -1749,6 +1801,14 @@ def serve(
                     network_display_name=os.environ.get("ZERO_NETWORK_DISPLAY_NAME"),
                     network_publish_enabled=parse_bool_env("ZERO_NETWORK_PUBLISH_ENABLED", False),
                     network_publish_path=os.environ.get("ZERO_NETWORK_PUBLISH_PATH"),
+                    deployment_id=os.environ.get("ZERO_DEPLOYMENT_ID", "local-paper"),
+                    deployment_kind=os.environ.get("ZERO_DEPLOYMENT_KIND", "local"),
+                    deployment_environment=os.environ.get("ZERO_DEPLOYMENT_ENVIRONMENT", "paper"),
+                    deployment_owner=os.environ.get("ZERO_DEPLOYMENT_OWNER", "local-operator"),
+                    deployment_version=os.environ.get("ZERO_DEPLOYMENT_VERSION", "0.1.1"),
+                    deployment_public_key=os.environ.get("ZERO_DEPLOYMENT_PUBLIC_KEY"),
+                    deployment_signature=os.environ.get("ZERO_DEPLOYMENT_SIGNATURE"),
+                    deployment_signer=os.environ.get("ZERO_DEPLOYMENT_SIGNER"),
                     intelligence_public_delay_s=parse_int_env(
                         "ZERO_INTELLIGENCE_PUBLIC_DELAY_S",
                         900,

@@ -73,16 +73,18 @@ curl -fsS "${API}/live/cockpit" \
 curl -fsS "${API}/live/certification" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.live_certification.v1"; assert p["mode"] == "dry_run"; assert p["passed"] is True; assert p["summary"]["orders_placed_live"] == 0'
 curl -fsS "${API}/network/profile" \
-  | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.network.profile.v1"; assert p["profile"]["publish_enabled"] is False; assert "railway-smoke" not in body; assert "trace-" not in body'
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.network.profile.v1"; assert p["profile"]["publish_enabled"] is False; assert p["verification"]["deployment_claim_hash"] == p["deployment_claim"]["claim_hash"]; assert "railway-smoke" not in body; assert "trace-" not in body'
+curl -fsS "${API}/deployment/claim" \
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.deployment.claim.v1"; assert p["claim_hash"].startswith("sha256:"); assert p["signature"]["status"] == "unsigned_local"; assert "railway-smoke" not in body; assert "trace-" not in body'
 curl -fsS "${API}/network/leaderboard" \
-  | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.network.leaderboard.v1"; assert len(p["rows"]) == 1; assert p["rows"][0]["proof_hash"].startswith("sha256:")'
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.network.leaderboard.v1"; assert len(p["rows"]) == 1; assert p["rows"][0]["proof_hash"].startswith("sha256:"); assert p["rows"][0]["deployment_claim_hash"].startswith("sha256:")'
 curl -fsS \
   -H "content-type: application/json" \
   -d '{"consent":false}' \
   "${API}/network/publish" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["ok"] is False; assert p["reason"] == "explicit consent required"'
 curl -fsS "${API}/intelligence/snapshot" \
-  | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.intelligence.snapshot.v1"; assert p["access"]["class"] == "public_delayed"; assert p["source"]["proof_hash"].startswith("sha256:"); assert "railway-smoke" not in body; assert "trace-" not in body'
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.intelligence.snapshot.v1"; assert p["access"]["class"] == "public_delayed"; assert p["source"]["proof_hash"].startswith("sha256:"); assert p["source"]["deployment_claim_hash"].startswith("sha256:"); assert "railway-smoke" not in body; assert "trace-" not in body'
 curl -fsS "${API}/intelligence/catalog" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.intelligence.catalog.v1"; assert "local runtime use" in p["commercial"]["not_metered_by"]; assert "freshness" in p["commercial"]["metered_by"]'
 curl -fsS \
@@ -102,7 +104,7 @@ start_container
 curl -fsS "${API}/health" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["recovery"]["status"] == "recovered"; assert p["recovery"]["current_positions"] == 1'
 curl -fsS "${API}/audit/export?limit=5" \
-  | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.audit.v1"; assert p["operator_context"]["handle"] == "local-operator"; assert p["decisions"][0]["trace_id"].startswith("trace-")'
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.audit.v1"; assert p["operator_context"]["handle"] == "local-operator"; assert p["deployment_claim"]["claim_hash"].startswith("sha256:"); assert p["decisions"][0]["trace_id"].startswith("trace-")'
 curl -fsS "${API}/positions" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["count"] == 1; assert p["positions"][0]["symbol"] == "BTC"'
 curl -fsS \

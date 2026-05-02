@@ -10,6 +10,8 @@ credentials to ZERO.
 - Profile publication is opt-in.
 - Public profiles contain aggregate behavior only.
 - Public leaderboard rows are derived from the same redacted profile packet.
+- Deployment identity is represented by a public-safe
+  `zero.deployment.claim.v1` claim hash, not by custody or hosted permission.
 - Raw decisions, trace IDs, idempotency keys, wallet addresses, exchange order
   IDs, strategy source labels, private notes, and per-trade symbols are excluded.
 
@@ -25,7 +27,8 @@ credentials to ZERO.
     "publish_enabled": false
   },
   "verification": {
-    "proof_hash": "sha256:..."
+    "proof_hash": "sha256:...",
+    "deployment_claim_hash": "sha256:..."
   },
   "metrics": {
     "decisions": 12,
@@ -35,6 +38,11 @@ credentials to ZERO.
   }
 }
 ```
+
+`GET /deployment/claim` returns the signature-ready deployment identity packet
+that the profile proof binds. Local deployments report
+`signature.status = unsigned_local` unless external signing metadata is provided
+through deployment environment variables.
 
 `GET /network/leaderboard` returns `zero.network.leaderboard.v1` with ranked
 rows derived from the same redacted profile format.
@@ -167,5 +175,6 @@ The leaderboard row includes:
 - open position count;
 - verification score;
 - proof hash.
+- deployment claim hash.
 
 It excludes raw trades and strategy details.

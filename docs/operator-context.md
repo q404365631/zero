@@ -35,6 +35,7 @@ curl -fsS http://127.0.0.1:8765/operator/context | jq .
 The engine includes the resolved `zero.operator_context.v1` packet in:
 
 - `/operator/context`
+- `/deployment/claim` as a public-safe handle/role/scope/source subset
 - `/live/cockpit`
 - `/audit/export`
 - live control responses for `/live/heartbeat`, `/live/pause`,

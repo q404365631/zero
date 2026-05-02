@@ -35,14 +35,19 @@ def public_profile(
     generated_at: str,
     mode: str = "paper",
     live_execution_count: int = 0,
+    deployment_claim: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     cfg = config or PublicProfileConfig()
     metrics = public_metrics(engine, live_execution_count=live_execution_count)
+    deployment_claim_hash = (
+        str(deployment_claim.get("claim_hash", "")) if isinstance(deployment_claim, dict) else None
+    )
     proof_payload = {
         "schema_version": "zero.network.proof.v1",
         "handle": cfg.handle,
         "mode": mode,
         "metrics": metrics,
+        "deployment_claim_hash": deployment_claim_hash,
     }
     proof_hash = sha256_json(proof_payload)
     profile = {
@@ -57,11 +62,19 @@ def public_profile(
         "verification": {
             "status": "verified" if metrics["decisions"] else "empty",
             "proof_hash": proof_hash,
+            "deployment_claim_hash": deployment_claim_hash,
             "badges": verification_badges(mode, metrics, proof_hash),
         },
         "metrics": metrics,
+        "deployment_claim": deployment_claim,
         "privacy": privacy_policy(),
-        "leaderboard_row": leaderboard_row(cfg.handle, mode, metrics, proof_hash),
+        "leaderboard_row": leaderboard_row(
+            cfg.handle,
+            mode,
+            metrics,
+            proof_hash,
+            deployment_claim_hash=deployment_claim_hash,
+        ),
     }
     assert_public_profile_safe(profile)
     return profile
@@ -119,6 +132,8 @@ def leaderboard_row(
     mode: str,
     metrics: dict[str, Any],
     proof_hash: str,
+    *,
+    deployment_claim_hash: str | None = None,
 ) -> dict[str, Any]:
     score = min(
         100.0,
@@ -134,6 +149,7 @@ def leaderboard_row(
         "open_positions": metrics["open_positions"],
         "verification_score": round(score, 2),
         "proof_hash": proof_hash,
+        "deployment_claim_hash": deployment_claim_hash,
     }
 
 
@@ -783,6 +799,7 @@ def privacy_policy() -> dict[str, Any]:
             "aggregate notional",
             "verification badge status",
             "proof hash",
+            "deployment claim hash",
         ],
         "excluded": [
             "raw decisions",
@@ -834,8 +851,11 @@ def _public_leaderboard_row(profile: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("leaderboard row handle must match profile handle")
     if row.get("proof_hash") != proof_hash:
         raise ValueError("leaderboard row proof_hash must match profile proof_hash")
+    deployment_claim_hash = profile.get("verification", {}).get("deployment_claim_hash")
+    if deployment_claim_hash and row.get("deployment_claim_hash") != deployment_claim_hash:
+        raise ValueError("leaderboard row deployment_claim_hash must match profile verification")
 
-    return {
+    public_row = {
         "handle": handle,
         "display_name": str(profile.get("profile", {}).get("display_name") or handle),
         "mode": str(row.get("mode", profile.get("mode", "paper"))),
@@ -845,6 +865,11 @@ def _public_leaderboard_row(profile: dict[str, Any]) -> dict[str, Any]:
         "verification_score": float(row.get("verification_score", 0.0)),
         "proof_hash": proof_hash,
     }
+    if deployment_claim_hash or row.get("deployment_claim_hash"):
+        public_row["deployment_claim_hash"] = str(
+            deployment_claim_hash or row.get("deployment_claim_hash")
+        )
+    return public_row
 
 
 def _metric(label: str, value: Any) -> str:

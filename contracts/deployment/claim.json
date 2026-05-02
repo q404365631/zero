@@ -1,0 +1,46 @@
+{
+  "claim_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+  "deployment": {
+    "deployment_id": "local-paper",
+    "environment": "paper",
+    "kind": "local",
+    "owner": "local-operator",
+    "version": "0.1.1"
+  },
+  "evidence": {
+    "decisions": 12,
+    "fills": 1,
+    "live_execution_count": 0,
+    "rejections": 11
+  },
+  "generated_at": "2026-05-01T00:00:00+00:00",
+  "operator": {
+    "handle": "local-operator",
+    "role": "owner",
+    "scope": "local-private",
+    "source": "runtime-default"
+  },
+  "privacy": {
+    "contains_exchange_credentials": false,
+    "contains_idempotency_tokens": false,
+    "contains_raw_decisions": false,
+    "contains_trace_tokens": false,
+    "contains_wallet_material": false,
+    "default": "public-safe-aggregate"
+  },
+  "runtime": {
+    "journal_durable": true,
+    "live_executor_configured": false,
+    "market_source": "paper:static",
+    "mode": "paper"
+  },
+  "schema_version": "zero.deployment.claim.v1",
+  "signature": {
+    "algorithm": null,
+    "public_key": null,
+    "signature": null,
+    "signed_claim_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+    "signer": "local-runtime",
+    "status": "unsigned_local"
+  }
+}

@@ -1,6 +1,11 @@
 """ZERO public engine runtime."""
 
 from zero_engine.bus import DurableRuntimeBus, RuntimeBusEvent, RuntimeBusIntegrity
+from zero_engine.deployment import (
+    DeploymentIdentityConfig,
+    assert_deployment_claim_safe,
+    deployment_claim,
+)
 from zero_engine.hyperliquid import HyperliquidInfoClient, HyperliquidMarketStatus
 from zero_engine.immune import ImmuneBreaker, ImmuneReport, build_immune_report
 from zero_engine.intelligence import (
@@ -68,6 +73,7 @@ __all__ = [
     "Candle",
     "AccountPosition",
     "DecisionRecord",
+    "DeploymentIdentityConfig",
     "DurableRuntimeBus",
     "HyperliquidAccountSnapshot",
     "HyperliquidInfoClient",
@@ -108,6 +114,8 @@ __all__ = [
     "StrategyPluginMetadata",
     "StrategySignal",
     "build_immune_report",
+    "assert_deployment_claim_safe",
+    "deployment_claim",
     "evaluate_order",
     "export_intelligence_snapshot",
     "intelligence_catalog",

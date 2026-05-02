@@ -279,6 +279,7 @@ invariants.
 - [OpenAPI Contract](openapi/zero-paper-api.v1.yaml)
 - [API Compatibility](docs/api-compatibility.md)
 - [Operator Context](docs/operator-context.md)
+- [Deployment Identity](docs/deployment-identity.md)
 - [Operator Isolation](docs/operator-isolation.md)
 - [Strategy Plugins](docs/strategy-plugins.md)
 - [Market Data Adapters](docs/market-data-adapters.md)
