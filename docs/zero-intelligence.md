@@ -46,6 +46,12 @@ product should ingest later:
 - `GET /intelligence/commercial` returns `zero.intelligence.commercial.v1`, the
   pinned hosted API boundary for plans, scopes, datasets, usage events,
   webhooks, exports, reliability tiers, and privacy.
+- `GET /v1/intelligence/snapshots`, `/history`, `/cohorts`, and `/benchmarks`
+  expose the hosted-compatible read API shape. Delayed snapshots are public;
+  realtime, history, cohort, and benchmark scopes require a bearer token when
+  `ZERO_INTELLIGENCE_API_TOKEN` is configured.
+- `POST /v1/intelligence/webhooks` and `/exports` expose the hosted-compatible
+  write API shape for signed webhook fixtures and aggregate export jobs.
 - `GET /intelligence/model-gateway` returns `zero.model_gateway.status.v1`, the
   provider-agnostic, fail-closed model routing status for advisory intelligence,
   including optional OpenAI, Anthropic, Ollama, and OpenRouter adapter readiness,
@@ -74,6 +80,11 @@ operation.
 The paid hosted API should use bearer API keys, explicit scopes, usage events,
 and standard rate-limit headers. The checked contract fixture lives at
 [contracts/intelligence/commercial.json](../contracts/intelligence/commercial.json).
+
+The public server now includes a reference implementation of the hosted API
+boundary under `/v1/intelligence/*`. It is not a production billing service;
+it is a contract harness for clients, docs, Railway smoke tests, and
+contributor work.
 
 - `x-zero-ratelimit-limit`
 - `x-zero-ratelimit-remaining`
@@ -107,6 +118,28 @@ Primary usage events:
 - `webhook.delivery`
 - `export.created`
 - `redistribution.reported`
+
+Reference auth and signing variables:
+
+```text
+ZERO_INTELLIGENCE_API_TOKEN=...
+ZERO_INTELLIGENCE_API_PLAN=team_fund
+ZERO_INTELLIGENCE_API_ACCOUNT_ID=acct_...
+ZERO_INTELLIGENCE_WEBHOOK_SIGNING_KEY=...
+```
+
+The reference implementation enforces paid scopes when a token is configured,
+emits real `x-zero-ratelimit-*` headers, and returns webhook signature fixtures
+with:
+
+```text
+x-zero-signature-timestamp
+x-zero-signature
+x-zero-signature-algorithm
+```
+
+The signature payload is `timestamp + "." + canonical_json_body` signed with
+HMAC-SHA256. The signing key is never returned.
 
 ## Data Rules
 

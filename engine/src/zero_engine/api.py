@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import base64
 import hashlib
+import hmac
 import json
 import os
 import sys
@@ -57,6 +58,42 @@ DEFAULT_PRICES = {
     "BTC": 40_500.0,
     "ETH": 2_850.0,
     "SOL": 150.0,
+}
+
+HOSTED_INTELLIGENCE_PLAN_SCOPES = {
+    "free": {"intelligence:read:delayed"},
+    "pro_operator": {
+        "intelligence:read:delayed",
+        "intelligence:read:realtime",
+        "intelligence:read:history",
+        "intelligence:webhooks",
+    },
+    "team_fund": {
+        "intelligence:read:delayed",
+        "intelligence:read:realtime",
+        "intelligence:read:history",
+        "intelligence:cohorts",
+        "intelligence:benchmarks",
+        "intelligence:exports",
+        "intelligence:webhooks",
+    },
+    "enterprise": {
+        "intelligence:read:delayed",
+        "intelligence:read:realtime",
+        "intelligence:read:history",
+        "intelligence:cohorts",
+        "intelligence:benchmarks",
+        "intelligence:exports",
+        "intelligence:webhooks",
+        "intelligence:redistribute",
+    },
+}
+
+HOSTED_INTELLIGENCE_LIMITS = {
+    "free": (60, 3600, "free;w=3600"),
+    "pro_operator": (600, 60, "pro_operator;w=60"),
+    "team_fund": (2400, 60, "team_fund;w=60"),
+    "enterprise": (10000, 60, "enterprise;w=60;slo=contract"),
 }
 
 
@@ -233,6 +270,10 @@ class PaperApiState:
     deployment_heartbeat_signer: str | None = None
     intelligence_public_delay_s: int = 900
     intelligence_export_path: str | None = None
+    intelligence_api_token: str | None = field(default=None, repr=False)
+    intelligence_api_plan: str = "team_fund"
+    intelligence_api_account_id: str = "local-reference"
+    intelligence_webhook_signing_key: str | None = field(default=None, repr=False)
     model_gateway_provider: str = "none"
     model_gateway_model: str | None = None
     model_gateway_mock_enabled: bool = False
@@ -428,11 +469,12 @@ class PaperApi:
         query: dict[str, list[str]],
         trace_id: str | None = None,
         operator_context: OperatorContext | None = None,
+        headers: Mapping[str, str] | None = None,
     ) -> tuple[int, dict[str, Any]]:
         trace_id = trace_id or self.state.next_trace_id("GET", path)
         operator_context = operator_context or self.state.operator_context()
         started = time.perf_counter()
-        status, payload = self._get(path, query, trace_id, operator_context)
+        status, payload = self._get(path, query, trace_id, operator_context, headers or {})
         self.state.record_request(
             method="GET",
             path=path,
@@ -448,7 +490,11 @@ class PaperApi:
         query: dict[str, list[str]],
         trace_id: str,
         operator_context: OperatorContext,
+        headers: Mapping[str, str] | None = None,
     ) -> tuple[int, dict[str, Any]]:
+        headers = headers or {}
+        if path.startswith("/v1/intelligence/"):
+            return self.hosted_intelligence_get(path, query, headers)
         routes = {
             "/": self.root,
             "/health": self.health,
@@ -511,6 +557,7 @@ class PaperApi:
         expose_trace: bool = False,
         mode: str | None = None,
         operator_context: OperatorContext | None = None,
+        headers: Mapping[str, str] | None = None,
     ) -> tuple[int, dict[str, Any]]:
         trace_id = trace_id or self.state.next_trace_id("POST", path)
         operator_context = operator_context or self.state.operator_context()
@@ -522,6 +569,7 @@ class PaperApi:
             expose_trace=expose_trace,
             mode=mode,
             operator_context=operator_context,
+            headers=headers or {},
         )
         self.state.record_request(
             method="POST",
@@ -541,7 +589,11 @@ class PaperApi:
         expose_trace: bool = False,
         mode: str | None = None,
         operator_context: OperatorContext,
+        headers: Mapping[str, str] | None = None,
     ) -> tuple[int, dict[str, Any]]:
+        headers = headers or {}
+        if path.startswith("/v1/intelligence/"):
+            return self.hosted_intelligence_post(path, payload, headers)
         if path == "/execute":
             try:
                 if mode == "live":
@@ -1374,6 +1426,341 @@ class PaperApi:
             export_path=self.state.intelligence_export_path,
         )
 
+    def hosted_intelligence_get(
+        self,
+        path: str,
+        query: dict[str, list[str]],
+        headers: Mapping[str, str],
+    ) -> tuple[int, dict[str, Any]]:
+        if path == "/v1/intelligence/snapshots":
+            freshness = (first(query, "freshness") or "delayed").lower()
+            required_scope = (
+                "intelligence:read:realtime"
+                if freshness == "realtime"
+                else "intelligence:read:delayed"
+            )
+            status, principal = self.hosted_intelligence_authorize(headers, required_scope)
+            if status != HTTPStatus.OK:
+                return status, principal
+            return HTTPStatus.OK, self.hosted_intelligence_snapshots(principal, freshness=freshness)
+        if path == "/v1/intelligence/history":
+            status, principal = self.hosted_intelligence_authorize(
+                headers,
+                "intelligence:read:history",
+            )
+            if status != HTTPStatus.OK:
+                return status, principal
+            return HTTPStatus.OK, self.hosted_intelligence_history(principal, query)
+        if path == "/v1/intelligence/cohorts":
+            status, principal = self.hosted_intelligence_authorize(headers, "intelligence:cohorts")
+            if status != HTTPStatus.OK:
+                return status, principal
+            return HTTPStatus.OK, self.hosted_intelligence_cohorts(principal)
+        if path == "/v1/intelligence/benchmarks":
+            status, principal = self.hosted_intelligence_authorize(headers, "intelligence:benchmarks")
+            if status != HTTPStatus.OK:
+                return status, principal
+            return HTTPStatus.OK, self.hosted_intelligence_benchmarks(principal)
+        return HTTPStatus.NOT_FOUND, {"error": "not found", "path": path}
+
+    def hosted_intelligence_post(
+        self,
+        path: str,
+        payload: dict[str, Any],
+        headers: Mapping[str, str],
+    ) -> tuple[int, dict[str, Any]]:
+        if path == "/v1/intelligence/webhooks":
+            status, principal = self.hosted_intelligence_authorize(headers, "intelligence:webhooks")
+            if status != HTTPStatus.OK:
+                return status, principal
+            return HTTPStatus.OK, self.hosted_intelligence_webhook(principal, payload)
+        if path == "/v1/intelligence/exports":
+            status, principal = self.hosted_intelligence_authorize(headers, "intelligence:exports")
+            if status != HTTPStatus.OK:
+                return status, principal
+            return HTTPStatus.OK, self.hosted_intelligence_export_job(principal, payload)
+        return HTTPStatus.NOT_FOUND, {"error": "not found", "path": path}
+
+    def hosted_intelligence_authorize(
+        self,
+        headers: Mapping[str, str],
+        required_scope: str,
+    ) -> tuple[int, dict[str, Any]]:
+        normalized = {key.lower(): value for key, value in headers.items()}
+        configured_token = self.state.intelligence_api_token
+        authorization = normalized.get("authorization", "")
+        bearer = "Bearer "
+        authenticated = False
+        if configured_token and authorization.startswith(bearer):
+            candidate = authorization[len(bearer) :]
+            authenticated = hmac.compare_digest(candidate, configured_token)
+        if configured_token and not authenticated and required_scope != "intelligence:read:delayed":
+            return HTTPStatus.UNAUTHORIZED, {
+                "schema_version": "zero.intelligence.hosted_error.v1",
+                "error": "missing_or_invalid_token",
+                "required_scope": required_scope,
+                "auth": {
+                    "scheme": "bearer",
+                    "token_required": True,
+                    "token_echoed": False,
+                },
+                **self.hosted_intelligence_rate_limit("free"),
+            }
+        plan = self.state.intelligence_api_plan if authenticated else "free"
+        if plan not in HOSTED_INTELLIGENCE_PLAN_SCOPES:
+            plan = "team_fund"
+        scopes = sorted(HOSTED_INTELLIGENCE_PLAN_SCOPES[plan])
+        if required_scope not in scopes:
+            return HTTPStatus.FORBIDDEN, {
+                "schema_version": "zero.intelligence.hosted_error.v1",
+                "error": "scope_not_allowed",
+                "required_scope": required_scope,
+                "granted_scopes": scopes,
+                "account": {
+                    "id": self.state.intelligence_api_account_id if authenticated else "public",
+                    "plan": plan,
+                    "authenticated": authenticated,
+                },
+                **self.hosted_intelligence_rate_limit(plan),
+            }
+        return HTTPStatus.OK, {
+            "id": self.state.intelligence_api_account_id if authenticated else "public",
+            "plan": plan,
+            "authenticated": authenticated,
+            "scopes": scopes,
+            "required_scope": required_scope,
+        }
+
+    def hosted_intelligence_snapshots(
+        self,
+        principal: dict[str, Any],
+        *,
+        freshness: str,
+    ) -> dict[str, Any]:
+        realtime = freshness == "realtime"
+        snapshot = self.intelligence_snapshot()
+        return {
+            "schema_version": "zero.intelligence.hosted.snapshots.v1",
+            "generated_at": self.state.now_iso(),
+            "account": self.hosted_intelligence_account(principal),
+            "access": {
+                "freshness": "realtime" if realtime else "delayed",
+                "scope": principal["required_scope"],
+                "public_delay_s": 0 if realtime else self.state.intelligence_public_delay_s,
+                "runtime_required": False,
+            },
+            "usage": self.hosted_usage_event(
+                "snapshot.realtime.read" if realtime else "snapshot.delayed.read",
+                principal,
+                billable=realtime,
+                extra={"freshness_ms": 0 if realtime else self.state.intelligence_public_delay_s * 1000},
+            ),
+            "data": [snapshot],
+            **self.hosted_intelligence_rate_limit(str(principal["plan"])),
+        }
+
+    def hosted_intelligence_history(
+        self,
+        principal: dict[str, Any],
+        query: dict[str, list[str]],
+    ) -> dict[str, Any]:
+        limit = min(int(first(query, "limit") or "100"), 1000)
+        snapshot = self.intelligence_snapshot()
+        return {
+            "schema_version": "zero.intelligence.hosted.history.v1",
+            "generated_at": self.state.now_iso(),
+            "account": self.hosted_intelligence_account(principal),
+            "query": {
+                "limit": limit,
+                "dataset": first(query, "dataset") or "verified_behavior_snapshots",
+            },
+            "storage": {
+                "status": "reference_current_runtime_only",
+                "production_requirement": "backed by hosted append-only intelligence warehouse",
+            },
+            "usage": self.hosted_usage_event(
+                "history.query",
+                principal,
+                billable=True,
+                extra={"rows_returned": 1},
+            ),
+            "data": [snapshot],
+            **self.hosted_intelligence_rate_limit(str(principal["plan"])),
+        }
+
+    def hosted_intelligence_cohorts(self, principal: dict[str, Any]) -> dict[str, Any]:
+        snapshot = self.intelligence_snapshot()
+        return {
+            "schema_version": "zero.intelligence.hosted.cohorts.v1",
+            "generated_at": self.state.now_iso(),
+            "account": self.hosted_intelligence_account(principal),
+            "cohorts": [
+                {
+                    "id": "rejection-first-operators",
+                    "members": 1,
+                    "rejection_rate": snapshot["aggregates"]["rejection_rate"],
+                    "journal_quality": snapshot["signals"]["journal_quality"],
+                }
+            ],
+            "usage": self.hosted_usage_event("cohort.query", principal, billable=True),
+            **self.hosted_intelligence_rate_limit(str(principal["plan"])),
+        }
+
+    def hosted_intelligence_benchmarks(self, principal: dict[str, Any]) -> dict[str, Any]:
+        snapshot = self.intelligence_snapshot()
+        return {
+            "schema_version": "zero.intelligence.hosted.benchmarks.v1",
+            "generated_at": self.state.now_iso(),
+            "account": self.hosted_intelligence_account(principal),
+            "benchmarks": [
+                {
+                    "id": "rejection_discipline",
+                    "operator_value": snapshot["signals"]["rejection_discipline"],
+                    "cohort": "rejection-first-operators",
+                    "percentile": 50,
+                }
+            ],
+            "usage": self.hosted_usage_event("benchmark.query", principal, billable=True),
+            **self.hosted_intelligence_rate_limit(str(principal["plan"])),
+        }
+
+    def hosted_intelligence_webhook(
+        self,
+        principal: dict[str, Any],
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        event_types = payload.get("event_types")
+        if not isinstance(event_types, list) or not event_types:
+            event_types = ["snapshot.accepted"]
+        event_types = [str(event) for event in event_types]
+        target_url = str(payload.get("url") or "https://example.invalid/zero/webhook")
+        timestamp = str(int(self.state.now().timestamp()))
+        fixture = {
+            "schema_version": "zero.intelligence.webhook.v1",
+            "event_type": event_types[0],
+            "generated_at": self.state.now_iso(),
+            "account": self.hosted_intelligence_account(principal),
+            "payload": self.intelligence_snapshot(),
+        }
+        encoded = json.dumps(fixture, sort_keys=True, separators=(",", ":"))
+        signing_key = self.state.intelligence_webhook_signing_key or "zero-reference-webhook-key"
+        signature = hmac.new(
+            signing_key.encode("utf-8"),
+            f"{timestamp}.{encoded}".encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
+        return {
+            "schema_version": "zero.intelligence.hosted.webhook_subscription.v1",
+            "generated_at": self.state.now_iso(),
+            "account": self.hosted_intelligence_account(principal),
+            "subscription": {
+                "id": "whsub_" + hashlib.sha256(target_url.encode("utf-8")).hexdigest()[:16],
+                "url": target_url,
+                "event_types": event_types,
+                "status": "reference_created",
+            },
+            "signing": {
+                "algorithm": "hmac-sha256",
+                "headers": [
+                    "x-zero-signature-timestamp",
+                    "x-zero-signature",
+                    "x-zero-signature-algorithm",
+                ],
+                "fixture_headers": {
+                    "x-zero-signature-timestamp": timestamp,
+                    "x-zero-signature": f"v1={signature}",
+                    "x-zero-signature-algorithm": "hmac-sha256",
+                },
+                "key_material_included": False,
+            },
+            "fixture_payload": fixture,
+            "usage": self.hosted_usage_event("webhook.delivery", principal, billable=True),
+            **self.hosted_intelligence_rate_limit(str(principal["plan"])),
+        }
+
+    def hosted_intelligence_export_job(
+        self,
+        principal: dict[str, Any],
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        export_format = str(payload.get("format") or "jsonl").lower()
+        if export_format not in {"jsonl", "csv"}:
+            return {
+                "schema_version": "zero.intelligence.hosted_error.v1",
+                "error": "unsupported_export_format",
+                "supported_formats": ["jsonl", "csv"],
+                **self.hosted_intelligence_rate_limit(str(principal["plan"])),
+            }
+        return {
+            "schema_version": "zero.intelligence.hosted.export.v1",
+            "generated_at": self.state.now_iso(),
+            "account": self.hosted_intelligence_account(principal),
+            "export": {
+                "id": "exp_" + hashlib.sha256(self.state.now_iso().encode("utf-8")).hexdigest()[:16],
+                "format": export_format,
+                "dataset": str(payload.get("dataset") or "verified_behavior_snapshots"),
+                "status": "reference_ready",
+                "rows": 1,
+                "raw_private_data": False,
+            },
+            "usage": self.hosted_usage_event(
+                "export.created",
+                principal,
+                billable=True,
+                extra={"rows_exported": 1},
+            ),
+            **self.hosted_intelligence_rate_limit(str(principal["plan"])),
+        }
+
+    def hosted_intelligence_account(self, principal: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "id": principal["id"],
+            "plan": principal["plan"],
+            "authenticated": principal["authenticated"],
+            "scopes": principal["scopes"],
+        }
+
+    def hosted_usage_event(
+        self,
+        name: str,
+        principal: dict[str, Any],
+        *,
+        billable: bool,
+        extra: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        return {
+            "name": name,
+            "account_id": principal["id"],
+            "scope": principal["required_scope"],
+            "dataset": "verified_behavior_snapshots",
+            "timestamp": self.state.now_iso(),
+            "metered": billable,
+            "billable": billable,
+            **(extra or {}),
+        }
+
+    def hosted_intelligence_rate_limit(self, plan: str) -> dict[str, Any]:
+        limit, window_s, policy = HOSTED_INTELLIGENCE_LIMITS.get(
+            plan,
+            HOSTED_INTELLIGENCE_LIMITS["team_fund"],
+        )
+        reset = int(self.state.now().timestamp()) + window_s
+        headers = {
+            "x-zero-ratelimit-limit": str(limit),
+            "x-zero-ratelimit-remaining": str(max(0, limit - 1)),
+            "x-zero-ratelimit-reset": str(reset),
+            "x-zero-ratelimit-policy": policy,
+        }
+        return {
+            "rate_limit": {
+                "limit": limit,
+                "remaining": max(0, limit - 1),
+                "reset": reset,
+                "policy": policy,
+            },
+            "_headers": headers,
+        }
+
     def intelligence_config(self) -> IntelligenceConfig:
         return IntelligenceConfig(
             public_delay_s=self.state.intelligence_public_delay_s,
@@ -1825,6 +2212,7 @@ def make_handler(api: PaperApi) -> type[BaseHTTPRequestHandler]:
                 parse_qs(parsed.query),
                 trace_id=trace_id,
                 operator_context=operator_context,
+                headers=request_headers(self.headers),
             )
             self.write_json(status, payload, trace_id=trace_id)
 
@@ -1843,6 +2231,7 @@ def make_handler(api: PaperApi) -> type[BaseHTTPRequestHandler]:
                     expose_trace=True,
                     mode=self.headers.get("x-zero-mode"),
                     operator_context=operator_context,
+                    headers=request_headers(self.headers),
                 )
             except (ValueError, TypeError, json.JSONDecodeError) as exc:
                 status, response = HTTPStatus.BAD_REQUEST, {"error": str(exc)}
@@ -1861,12 +2250,15 @@ def make_handler(api: PaperApi) -> type[BaseHTTPRequestHandler]:
             payload: dict[str, Any],
             trace_id: str | None = None,
         ) -> None:
+            extra_headers = payload.pop("_headers", {})
             body = json.dumps(payload, sort_keys=True).encode("utf-8")
             self.send_response(status)
             self.send_header("content-type", "application/json")
             self.send_header("content-length", str(len(body)))
             if trace_id:
                 self.send_header("x-zero-trace-id", trace_id)
+            for name, value in extra_headers.items():
+                self.send_header(str(name), str(value))
             self.end_headers()
             self.wfile.write(body)
 
@@ -1979,6 +2371,18 @@ def serve(
                         900,
                     ),
                     intelligence_export_path=os.environ.get("ZERO_INTELLIGENCE_EXPORT_PATH"),
+                    intelligence_api_token=os.environ.get("ZERO_INTELLIGENCE_API_TOKEN"),
+                    intelligence_api_plan=os.environ.get(
+                        "ZERO_INTELLIGENCE_API_PLAN",
+                        "team_fund",
+                    ),
+                    intelligence_api_account_id=os.environ.get(
+                        "ZERO_INTELLIGENCE_API_ACCOUNT_ID",
+                        "local-reference",
+                    ),
+                    intelligence_webhook_signing_key=os.environ.get(
+                        "ZERO_INTELLIGENCE_WEBHOOK_SIGNING_KEY"
+                    ),
                     model_gateway_provider=os.environ.get("ZERO_MODEL_PROVIDER", "none"),
                     model_gateway_model=os.environ.get("ZERO_MODEL_NAME"),
                     model_gateway_mock_enabled=parse_bool_env("ZERO_MODEL_MOCK_ENABLED", False),

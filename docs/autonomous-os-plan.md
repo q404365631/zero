@@ -68,12 +68,12 @@ speed, scale, history, and reliability.
 | CLI readiness | 97 | richer TUI cockpit layout, operator automation examples |
 | Engine runtime | 90 | live canary evidence, richer exchange history reconciliation |
 | Safety and risk | 94 | real exchange chaos drills, external review |
-| API contracts | 97 | hosted auth/rate contracts, signed live runtime packets |
+| API contracts | 98 | signed live runtime packets, production hosted compatibility policy |
 | Deployment | 84 | live Railway proof, remote logs, doctor automation |
 | Observability and audit | 95 | signed bundles, metrics backend, log drains |
 | Security and custody | 91 | external review, key-handling drill evidence |
 | ZERO Network | 70 | hosted identity verification, public pages, production ingestion service |
-| ZERO Intelligence | 63 | hosted service implementation, billing provider, history storage, terms |
+| ZERO Intelligence | 70 | production hosted service persistence, billing provider, history storage, terms |
 | Release and distribution | 90 | registries, Homebrew, release rollback rehearsal |
 | Operator docs | 98 | real exchange drill evidence |
 
@@ -462,11 +462,44 @@ Current progress:
 - Updated `zero.intelligence.catalog.v1` so its hosted API summary points to
   the commercial contract instead of carrying only prose.
 
-Remaining scope before Cycle 23: real hosted service persistence, API-key
-issuer, billing provider integration, webhook signing implementation, history
-storage, commercial terms, and retention policy.
+### Cycle 23: Hosted Intelligence Reference API
 
-### Cycle 23: Production Deployment And Remote Operations
+Target score: 98.
+
+Make the commercial API boundary runnable without pretending the public runtime
+is the production warehouse:
+
+- public delayed `/v1/intelligence/snapshots`;
+- token-gated realtime/history/cohort/benchmark scopes;
+- rate-limit headers on hosted-compatible responses;
+- signed webhook fixture;
+- aggregate export job contract;
+- Railway smoke coverage.
+
+Exit gate:
+
+- clients can build against `/v1/intelligence/*`;
+- paid scopes fail closed without a valid bearer token;
+- webhook signatures are verifiable;
+- no token, signing key, raw journal, exchange credential, or trace data leaks.
+
+Current progress:
+
+- Added `/v1/intelligence/snapshots`, `/history`, `/cohorts`, `/benchmarks`,
+  `/webhooks`, and `/exports` to the stdlib paper API.
+- Added `ZERO_INTELLIGENCE_API_TOKEN`, `ZERO_INTELLIGENCE_API_PLAN`,
+  `ZERO_INTELLIGENCE_API_ACCOUNT_ID`, and
+  `ZERO_INTELLIGENCE_WEBHOOK_SIGNING_KEY` reference env support.
+- Added actual `x-zero-ratelimit-*` HTTP headers, bearer-scope enforcement,
+  usage events, and HMAC-SHA256 webhook signature fixtures.
+- Added OpenAPI paths/schemas, unit tests, local smoke coverage, Railway smoke
+  coverage, and docs.
+
+Remaining scope before Cycle 24: production hosted service persistence,
+API-key issuer, billing provider integration, warehouse-backed history,
+commercial terms, retention policy, and signed hosted identity verification.
+
+### Cycle 24: Production Deployment And Remote Operations
 
 Target score: 98.
 

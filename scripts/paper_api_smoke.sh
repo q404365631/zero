@@ -17,6 +17,10 @@ trap cleanup EXIT
 cd "${ROOT}"
 
 PYTHONPATH="${ROOT}/engine/src${PYTHONPATH:+:${PYTHONPATH}}" \
+  ZERO_INTELLIGENCE_API_TOKEN=smoke-intelligence-token \
+  ZERO_INTELLIGENCE_API_PLAN=team_fund \
+  ZERO_INTELLIGENCE_API_ACCOUNT_ID=acct_smoke \
+  ZERO_INTELLIGENCE_WEBHOOK_SIGNING_KEY=smoke-webhook-signing-key \
   "${PYTHON_BIN}" -m zero_engine.api --port "${PORT}" >"${LOG}" 2>&1 &
 SERVER_PID="$!"
 
@@ -110,6 +114,45 @@ curl -fsS "${API}/intelligence/catalog" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.intelligence.catalog.v1"; assert p["public"]["model_gateway_status"]["schema_version"] == "zero.model_gateway.status.v1"; assert p["hosted_api_contract"]["schema_version"] == "zero.intelligence.commercial.v1"; assert "local runtime use" in p["commercial"]["not_metered_by"]; assert "freshness" in p["commercial"]["metered_by"]'
 curl -fsS "${API}/intelligence/commercial" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.intelligence.commercial.v1"; assert p["auth"]["runtime_required"] is False; assert p["plans"][0]["id"] == "free"; assert p["plans"][-1]["id"] == "enterprise"; assert "x-zero-ratelimit-policy" in p["rate_limits"]["headers"]; assert p["privacy"]["exchange_credentials_collected"] is False; assert "smoke-1" not in body; assert "trace-" not in body'
+HEADER_FILE="$(mktemp)"
+curl -fsS -D "${HEADER_FILE}" "${API}/v1/intelligence/snapshots" \
+  | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.intelligence.hosted.snapshots.v1"; assert p["account"]["plan"] == "free"; assert p["access"]["freshness"] == "delayed"; assert p["usage"]["name"] == "snapshot.delayed.read"; assert p["usage"]["billable"] is False; assert "smoke-1" not in body; assert "trace-" not in body; assert "smoke-intelligence-token" not in body'
+grep -qi '^x-zero-ratelimit-policy: free;w=3600' "${HEADER_FILE}"
+rm -f "${HEADER_FILE}"
+"${PYTHON_BIN}" - "${API}" <<'PY'
+import json
+import urllib.error
+import urllib.request
+import sys
+
+api = sys.argv[1]
+try:
+    urllib.request.urlopen(f"{api}/v1/intelligence/history", timeout=5)
+except urllib.error.HTTPError as exc:
+    assert exc.code == 401
+    payload = json.loads(exc.read().decode("utf-8"))
+    assert payload["schema_version"] == "zero.intelligence.hosted_error.v1"
+    assert payload["error"] == "missing_or_invalid_token"
+    assert "smoke-intelligence-token" not in json.dumps(payload)
+else:
+    raise AssertionError("history endpoint must require a bearer token")
+PY
+curl -fsS \
+  -H "authorization: Bearer smoke-intelligence-token" \
+  "${API}/v1/intelligence/history?limit=10" \
+  | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.intelligence.hosted.history.v1"; assert p["account"]["id"] == "acct_smoke"; assert p["account"]["plan"] == "team_fund"; assert p["usage"]["name"] == "history.query"; assert p["usage"]["billable"] is True; assert p["storage"]["status"] == "reference_current_runtime_only"; assert "smoke-intelligence-token" not in body'
+curl -fsS \
+  -H "content-type: application/json" \
+  -H "authorization: Bearer smoke-intelligence-token" \
+  -d '{"url":"https://example.com/zero","event_types":["snapshot.accepted"]}' \
+  "${API}/v1/intelligence/webhooks" \
+  | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.intelligence.hosted.webhook_subscription.v1"; assert p["signing"]["key_material_included"] is False; assert p["signing"]["fixture_headers"]["x-zero-signature"].startswith("v1="); assert p["fixture_payload"]["schema_version"] == "zero.intelligence.webhook.v1"; assert "smoke-intelligence-token" not in body; assert "smoke-webhook-signing-key" not in body'
+curl -fsS \
+  -H "content-type: application/json" \
+  -H "authorization: Bearer smoke-intelligence-token" \
+  -d '{"format":"jsonl","dataset":"verified_behavior_snapshots"}' \
+  "${API}/v1/intelligence/exports" \
+  | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.intelligence.hosted.export.v1"; assert p["export"]["status"] == "reference_ready"; assert p["export"]["raw_private_data"] is False; assert p["usage"]["name"] == "export.created"'
 curl -fsS "${API}/intelligence/model-gateway" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.model_gateway.status.v1"; assert p["mode"] == "fail_closed"; assert p["routing"]["structured_output"] is None; assert p["privacy"]["prompts_included"] is False; assert "sk-" not in body; assert "private_key" not in body; assert "smoke-1" not in body; assert "trace-" not in body'
 curl -fsS "${API}/intelligence/model-gateway/health" \

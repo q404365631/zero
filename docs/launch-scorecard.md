@@ -19,7 +19,8 @@ reserved for ZERO Intelligence.
 - Optional self-custodial live-executor boundary with fail-closed paper deploys
 - Public-safe ZERO Network profile, leaderboard, local publish, and hosted-compatible ingestion contracts
 - Delayed public ZERO Intelligence snapshot, catalog, commercial API boundary,
-  and local export contracts
+  hosted-compatible `/v1/intelligence/*` reference API, webhook signature
+  fixtures, rate-limit headers, and local export contracts
 - Rust operator CLI with doctor, TUI, command tests, and safety invariants
 - Redacted CLI quickstart capture for doctor, status, and risk inspection
 - Public CI for engine, CLI, docs, paper example, paper API smoke, and container smoke
@@ -50,9 +51,10 @@ reserved for ZERO Intelligence.
 ## Intentionally Not Shipped
 
 - Hosted ZERO Network profile pages, signed identity verification, and production ingestion persistence
-- Hosted realtime ZERO Intelligence API implementation
-- Hosted historical intelligence storage
-- Hosted intelligence ingestion, billing provider integration, and signed webhook delivery
+- Production hosted realtime ZERO Intelligence API service
+- Production hosted historical intelligence warehouse
+- Hosted intelligence ingestion persistence, billing provider integration, and
+  signed webhook delivery infrastructure
 - Commercial intelligence connectors
 - Enterprise support and SLAs
 

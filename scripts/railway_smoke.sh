@@ -22,6 +22,10 @@ start_container() {
     -e PORT="${HOST_PORT}" \
     -e ZERO_JOURNAL_PATH=/tmp/zero/decisions.jsonl \
     -e ZERO_HYPERLIQUID_LIVE_PRICES=false \
+    -e ZERO_INTELLIGENCE_API_TOKEN=railway-intelligence-token \
+    -e ZERO_INTELLIGENCE_API_PLAN=team_fund \
+    -e ZERO_INTELLIGENCE_API_ACCOUNT_ID=acct_railway \
+    -e ZERO_INTELLIGENCE_WEBHOOK_SIGNING_KEY=railway-webhook-signing-key \
     "${IMAGE}" \
     /app/scripts/railway_start.sh >/dev/null
 
@@ -119,6 +123,39 @@ curl -fsS "${API}/intelligence/catalog" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.intelligence.catalog.v1"; assert p["public"]["model_gateway_status"]["schema_version"] == "zero.model_gateway.status.v1"; assert p["hosted_api_contract"]["schema_version"] == "zero.intelligence.commercial.v1"; assert "local runtime use" in p["commercial"]["not_metered_by"]; assert "freshness" in p["commercial"]["metered_by"]'
 curl -fsS "${API}/intelligence/commercial" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.intelligence.commercial.v1"; assert p["auth"]["runtime_required"] is False; assert p["plans"][0]["id"] == "free"; assert p["plans"][-1]["id"] == "enterprise"; assert "x-zero-ratelimit-policy" in p["rate_limits"]["headers"]; assert p["privacy"]["exchange_credentials_collected"] is False; assert "railway-smoke" not in body; assert "trace-" not in body'
+HEADER_FILE="$(mktemp)"
+curl -fsS -D "${HEADER_FILE}" "${API}/v1/intelligence/snapshots" \
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.intelligence.hosted.snapshots.v1"; assert p["account"]["plan"] == "free"; assert p["access"]["freshness"] == "delayed"; assert p["usage"]["billable"] is False; assert "railway-intelligence-token" not in body; assert "trace-" not in body'
+grep -qi '^x-zero-ratelimit-policy: free;w=3600' "${HEADER_FILE}"
+rm -f "${HEADER_FILE}"
+python3 - "${API}" <<'PY'
+import json
+import urllib.error
+import urllib.request
+import sys
+
+api = sys.argv[1]
+try:
+    urllib.request.urlopen(f"{api}/v1/intelligence/history", timeout=5)
+except urllib.error.HTTPError as exc:
+    assert exc.code == 401
+    packet = json.loads(exc.read().decode("utf-8"))
+    assert packet["schema_version"] == "zero.intelligence.hosted_error.v1"
+    assert packet["error"] == "missing_or_invalid_token"
+    assert "railway-intelligence-token" not in json.dumps(packet)
+else:
+    raise AssertionError("history endpoint must require a bearer token")
+PY
+curl -fsS \
+  -H "authorization: Bearer railway-intelligence-token" \
+  "${API}/v1/intelligence/history?limit=10" \
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.intelligence.hosted.history.v1"; assert p["account"]["id"] == "acct_railway"; assert p["usage"]["name"] == "history.query"; assert p["storage"]["status"] == "reference_current_runtime_only"; assert "railway-intelligence-token" not in body'
+curl -fsS \
+  -H "content-type: application/json" \
+  -H "authorization: Bearer railway-intelligence-token" \
+  -d '{"url":"https://example.com/zero","event_types":["snapshot.accepted"]}' \
+  "${API}/v1/intelligence/webhooks" \
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.intelligence.hosted.webhook_subscription.v1"; assert p["signing"]["fixture_headers"]["x-zero-signature"].startswith("v1="); assert p["signing"]["key_material_included"] is False; assert "railway-intelligence-token" not in body; assert "railway-webhook-signing-key" not in body'
 curl -fsS "${API}/intelligence/model-gateway" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.model_gateway.status.v1"; assert p["mode"] == "fail_closed"; assert p["routing"]["structured_output"] is None; assert p["privacy"]["prompts_included"] is False; assert "sk-" not in body; assert "private_key" not in body; assert "railway-smoke" not in body; assert "trace-" not in body'
 curl -fsS "${API}/intelligence/model-gateway/health" \

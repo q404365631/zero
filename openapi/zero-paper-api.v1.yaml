@@ -412,6 +412,179 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/LocalExportResponse"
+  /v1/intelligence/snapshots:
+    get:
+      tags: [intelligence]
+      operationId: getHostedIntelligenceSnapshots
+      summary: Hosted-compatible snapshot feed with public delayed access and paid realtime scope.
+      parameters:
+        - name: freshness
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [delayed, realtime]
+            default: delayed
+      responses:
+        "200":
+          description: Hosted-compatible snapshot feed response.
+          headers:
+            x-zero-ratelimit-limit:
+              schema: { type: string }
+            x-zero-ratelimit-remaining:
+              schema: { type: string }
+            x-zero-ratelimit-reset:
+              schema: { type: string }
+            x-zero-ratelimit-policy:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceResponse"
+        "401":
+          description: Missing or invalid token for paid freshness.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceErrorResponse"
+        "403":
+          description: Token does not grant the requested scope.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceErrorResponse"
+  /v1/intelligence/history:
+    get:
+      tags: [intelligence]
+      operationId: getHostedIntelligenceHistory
+      summary: Hosted-compatible historical intelligence query.
+      responses:
+        "200":
+          description: Hosted-compatible history response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceResponse"
+        "401":
+          description: Missing or invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceErrorResponse"
+        "403":
+          description: Token does not grant the requested scope.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceErrorResponse"
+  /v1/intelligence/cohorts:
+    get:
+      tags: [intelligence]
+      operationId: getHostedIntelligenceCohorts
+      summary: Hosted-compatible cohort analytics query.
+      responses:
+        "200":
+          description: Hosted-compatible cohort response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceResponse"
+        "401":
+          description: Missing or invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceErrorResponse"
+        "403":
+          description: Token does not grant the requested scope.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceErrorResponse"
+  /v1/intelligence/benchmarks:
+    get:
+      tags: [intelligence]
+      operationId: getHostedIntelligenceBenchmarks
+      summary: Hosted-compatible benchmark analytics query.
+      responses:
+        "200":
+          description: Hosted-compatible benchmark response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceResponse"
+        "401":
+          description: Missing or invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceErrorResponse"
+        "403":
+          description: Token does not grant the requested scope.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceErrorResponse"
+  /v1/intelligence/webhooks:
+    post:
+      tags: [intelligence]
+      operationId: createHostedIntelligenceWebhook
+      summary: Hosted-compatible webhook subscription and signature fixture.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HostedIntelligenceWriteRequest"
+      responses:
+        "200":
+          description: Hosted-compatible webhook subscription response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceResponse"
+        "401":
+          description: Missing or invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceErrorResponse"
+        "403":
+          description: Token does not grant the requested scope.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceErrorResponse"
+  /v1/intelligence/exports:
+    post:
+      tags: [intelligence]
+      operationId: createHostedIntelligenceExport
+      summary: Hosted-compatible bulk export job.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HostedIntelligenceWriteRequest"
+      responses:
+        "200":
+          description: Hosted-compatible export job response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceResponse"
+        "401":
+          description: Missing or invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceErrorResponse"
+        "403":
+          description: Token does not grant the requested scope.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostedIntelligenceErrorResponse"
   /hl/status:
     get:
       tags: [market]
@@ -1389,6 +1562,59 @@ components:
         privacy:
           type: object
           required: [exchange_credentials_collected, custody_transferred, raw_journals_required, raw_model_prompts_included, operator_secrets_included, source_packets]
+          additionalProperties: true
+      additionalProperties: true
+    HostedIntelligenceResponse:
+      type: object
+      required: [schema_version, generated_at, account, usage, rate_limit]
+      properties:
+        schema_version:
+          type: string
+          pattern: "^zero\\.intelligence\\.hosted\\."
+        generated_at:
+          type: string
+          format: date-time
+        account:
+          type: object
+          required: [id, plan, authenticated, scopes]
+          additionalProperties: true
+        usage:
+          type: object
+          required: [name, account_id, scope, timestamp, metered, billable]
+          additionalProperties: true
+        rate_limit:
+          type: object
+          required: [limit, remaining, reset, policy]
+          additionalProperties: true
+      additionalProperties: true
+    HostedIntelligenceWriteRequest:
+      type: object
+      properties:
+        url:
+          type: string
+        event_types:
+          type: array
+          items:
+            type: string
+        format:
+          type: string
+          enum: [jsonl, csv]
+        dataset:
+          type: string
+      additionalProperties: true
+    HostedIntelligenceErrorResponse:
+      type: object
+      required: [schema_version, error, rate_limit]
+      properties:
+        schema_version:
+          const: zero.intelligence.hosted_error.v1
+        error:
+          type: string
+        required_scope:
+          type: string
+        rate_limit:
+          type: object
+          required: [limit, remaining, reset, policy]
           additionalProperties: true
       additionalProperties: true
     ModelGatewayStatusResponse:

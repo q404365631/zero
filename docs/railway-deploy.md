@@ -37,6 +37,18 @@ ZERO_HYPERLIQUID_LIVE_PRICES=true
 Railway injects `PORT`; do not hardcode it. The container binds
 `0.0.0.0:${PORT}` and exposes `/health`.
 
+Optional ZERO Intelligence API reference variables:
+
+```text
+ZERO_INTELLIGENCE_API_TOKEN=...
+ZERO_INTELLIGENCE_API_PLAN=team_fund
+ZERO_INTELLIGENCE_API_ACCOUNT_ID=acct_...
+ZERO_INTELLIGENCE_WEBHOOK_SIGNING_KEY=...
+```
+
+Do not reuse production tokens in public demos. These variables only exercise
+the hosted-compatible contract surface on your own Railway service.
+
 ## Deploy
 
 ```bash
@@ -103,6 +115,7 @@ curl -fsS "$ZERO_RAILWAY_URL/intelligence/commercial"
 curl -fsS "$ZERO_RAILWAY_URL/intelligence/model-gateway"
 curl -fsS "$ZERO_RAILWAY_URL/intelligence/model-gateway/health"
 curl -fsS "$ZERO_RAILWAY_URL/intelligence/model-gateway/audit"
+curl -fsS "$ZERO_RAILWAY_URL/v1/intelligence/snapshots"
 curl -fsS "$ZERO_RAILWAY_URL/live/preflight"
 curl -fsS "$ZERO_RAILWAY_URL/live/cockpit"
 ```
@@ -121,6 +134,24 @@ public-safe aggregate contracts. The snapshot is delayed public intelligence.
 The catalog points to `/intelligence/commercial`, which describes the paid
 hosted API boundary for realtime access, history, cohorts, webhooks, exports,
 redistribution, usage events, rate limits, and reliability commitments.
+
+The `/v1/intelligence/*` reference endpoints are hosted-compatible:
+
+```bash
+curl -fsS "$ZERO_RAILWAY_URL/v1/intelligence/snapshots"
+curl -fsS -H "Authorization: Bearer $ZERO_INTELLIGENCE_API_TOKEN" \
+  "$ZERO_RAILWAY_URL/v1/intelligence/history?limit=10"
+curl -fsS -H "Authorization: Bearer $ZERO_INTELLIGENCE_API_TOKEN" \
+  -H "content-type: application/json" \
+  -d '{"url":"https://example.com/zero","event_types":["snapshot.accepted"]}' \
+  "$ZERO_RAILWAY_URL/v1/intelligence/webhooks"
+```
+
+Delayed snapshots work without a token. Realtime, history, cohort, benchmark,
+webhook, and export scopes require a bearer token when
+`ZERO_INTELLIGENCE_API_TOKEN` is set. Responses include `x-zero-ratelimit-*`
+headers. Webhook responses include an HMAC-SHA256 signature fixture but never
+return signing key material.
 
 `/live/preflight` is intentionally non-secret. It reports whether a
 self-custodial Hyperliquid live mode would be allowed to start, but this Railway

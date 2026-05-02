@@ -106,6 +106,7 @@ contract:
 - `GET /metrics`, `/immune`, `/audit/export`
 - `GET /deployment/claim`, `/deployment/heartbeat`, `/network/profile`, `/network/leaderboard`
 - `GET /intelligence/snapshot`, `/intelligence/catalog`, `/intelligence/commercial`, `/intelligence/model-gateway`
+- `GET /v1/intelligence/snapshots`, `/v1/intelligence/history`, `/v1/intelligence/cohorts`, `/v1/intelligence/benchmarks`
 - `GET /hl/status`, `/hl/account`, `/hl/reconcile`, `/market/quote`
 - `GET /live/preflight`, `/live/cockpit`, `/live/certification`
 - `GET /operator/state`
@@ -115,6 +116,7 @@ contract:
 - `POST /network/publish`
 - `POST /network/ingest`
 - `POST /intelligence/export`
+- `POST /v1/intelligence/webhooks`, `/v1/intelligence/exports`
 - `POST /live/heartbeat`, `/live/pause`, `/live/resume`, `/live/kill`, `/live/flatten`
 
 `POST /execute` runs through `PaperEngine.submit`, records a decision with
@@ -214,6 +216,36 @@ auth shape, plan scopes, datasets, endpoint usage events, rate-limit headers,
 webhook delivery contract, export rules, reliability tiers, and privacy rules.
 It is not enforced by the local open-source runtime and does not require
 operator secrets, raw journals, custody transfer, or exchange credentials.
+
+The `/v1/intelligence/*` endpoints are a hosted-compatible reference surface
+for ZERO Intelligence API. They are intentionally small and runnable inside the
+public paper server so contributors can build clients against the commercial
+shape before the production warehouse exists:
+
+- `GET /v1/intelligence/snapshots` serves delayed public snapshots without a
+  token and returns real `x-zero-ratelimit-*` headers.
+- `GET /v1/intelligence/snapshots?freshness=realtime`,
+  `/v1/intelligence/history`, `/v1/intelligence/cohorts`, and
+  `/v1/intelligence/benchmarks` require `Authorization: Bearer <token>` when
+  `ZERO_INTELLIGENCE_API_TOKEN` is configured.
+- `POST /v1/intelligence/webhooks` returns a subscription record plus a
+  verifiable HMAC-SHA256 signature fixture. It never returns signing key
+  material.
+- `POST /v1/intelligence/exports` returns a reference export job for aggregate
+  JSONL or CSV data.
+
+Reference env vars:
+
+```text
+ZERO_INTELLIGENCE_API_TOKEN=...
+ZERO_INTELLIGENCE_API_PLAN=team_fund
+ZERO_INTELLIGENCE_API_ACCOUNT_ID=acct_...
+ZERO_INTELLIGENCE_WEBHOOK_SIGNING_KEY=...
+```
+
+These endpoints prove auth boundaries, scopes, usage events, rate-limit
+headers, and webhook signing behavior. They do not imply the local runtime is a
+hosted billing system or a historical data warehouse.
 
 `GET /intelligence/model-gateway` returns `zero.model_gateway.status.v1`, a
 public-safe provider and routing status packet. The default mode is
