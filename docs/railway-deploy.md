@@ -61,6 +61,7 @@ After deployment:
 ```bash
 curl -fsS "$ZERO_RAILWAY_URL/health"
 curl -fsS "$ZERO_RAILWAY_URL/market/quote?symbol=BTC"
+scripts/railway_doctor.py "$ZERO_RAILWAY_URL"
 ```
 
 The quote response should show:
@@ -83,6 +84,29 @@ zero --api "$ZERO_RAILWAY_URL" run status
 
 Risk-increasing commands remain locally gated by the CLI. The public Railway
 runtime still treats execution as paper simulation.
+
+## Remote Doctor
+
+Use the Railway doctor before sharing a deployment, after every deploy, and
+during incident response:
+
+```bash
+scripts/railway_doctor.py "$ZERO_RAILWAY_URL"
+scripts/railway_doctor.py "$ZERO_RAILWAY_URL" --json
+scripts/railway_doctor.py "$ZERO_RAILWAY_URL" \
+  --token "$ZERO_INTELLIGENCE_API_TOKEN" \
+  --expect-paper
+```
+
+The doctor checks `/health`, `/v2/status`, `/metrics`, `/market/quote`,
+`/immune`, `/live/preflight`, `/live/cockpit`, public ZERO Network packets,
+delayed ZERO Intelligence packets, hosted-compatible `/v1/intelligence/*`
+headers, and paid-scope fail-closed behavior. With a token, it also verifies
+that the paid history scope accepts the configured bearer token without leaking
+the token, trace IDs, private keys, or raw runtime data.
+
+Warnings are allowed for local ephemeral test services. A public Railway demo
+should use a mounted `/data` volume so `durable_journal` reports `ok`.
 
 ## Journal Recovery
 

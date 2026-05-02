@@ -176,6 +176,13 @@ curl -fsS \
   "${API}/live/kill" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["ok"] is False; assert p["reason"] == "live executor not configured"; assert p["operator_context"]["handle"] == "local-operator"'
 
+"${PYTHON_BIN}" scripts/railway_doctor.py "${API}" \
+  --token smoke-intelligence-token \
+  --expect-paper \
+  --json >/tmp/zero-paper-api-railway-doctor.json
+"${PYTHON_BIN}" -c 'import json,sys; p=json.load(open(sys.argv[1], encoding="utf-8")); assert p["schema_version"] == "zero.railway_doctor.v1"; assert p["summary"]["fail"] == 0' \
+  /tmp/zero-paper-api-railway-doctor.json
+
 (
   cd "${ROOT}/cli"
   cargo run -q -p zero -- --api "${API}" run positions >/tmp/zero-paper-api-positions.txt

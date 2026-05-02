@@ -160,6 +160,7 @@ docs-check:
     test -x scripts/package_dry_run.sh
     test -x scripts/hardening_gate.sh
     test -x scripts/railway_start.sh
+    test -x scripts/railway_doctor.py
     test -x scripts/railway_smoke.sh
     test -f Dockerfile
     test -f compose.yaml

@@ -57,15 +57,17 @@ records reconcile, and the remediation commit passes `just ci`.
 
 ## P1: Railway Runtime Down
 
-1. Check `/health`.
+1. Run `scripts/railway_doctor.py "$ZERO_RAILWAY_URL" --json` and preserve the
+   report with the incident notes.
 2. Confirm Railway injected `PORT` and the service listens on `0.0.0.0:$PORT`.
 3. Confirm the volume is mounted at `/data` and `ZERO_JOURNAL_PATH` points to
    `/data/decisions.jsonl`.
 4. Inspect restart count and deployment logs.
 5. Run `scripts/railway_smoke.sh` against the candidate image before promoting.
 
-Exit gate: `/health`, `/v2/status`, `/metrics`, `/network/profile`, and
-`/intelligence/snapshot` return public-safe packets.
+Exit gate: the Railway doctor has zero failed checks, `/health`, `/v2/status`,
+`/metrics`, `/network/profile`, and `/intelligence/snapshot` return public-safe
+packets, and live mode remains refused on public paper deployments.
 
 ## P1: Journal Recovery Failure
 

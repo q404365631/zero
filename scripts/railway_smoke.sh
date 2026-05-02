@@ -173,6 +173,13 @@ curl -fsS \
   "${API}/live/kill" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["ok"] is False; assert p["reason"] == "live executor not configured"; assert p["operator_context"]["handle"] == "local-operator"'
 
+python3 scripts/railway_doctor.py "${API}" \
+  --token railway-intelligence-token \
+  --expect-paper \
+  --json >/tmp/zero-railway-doctor.json
+python3 -c 'import json,sys; p=json.load(open(sys.argv[1], encoding="utf-8")); assert p["schema_version"] == "zero.railway_doctor.v1"; assert p["summary"]["fail"] == 0' \
+  /tmp/zero-railway-doctor.json
+
 docker rm -f "${CONTAINER_NAME}" >/dev/null
 start_container
 

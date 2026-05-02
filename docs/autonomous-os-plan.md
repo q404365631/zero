@@ -69,7 +69,7 @@ speed, scale, history, and reliability.
 | Engine runtime | 90 | live canary evidence, richer exchange history reconciliation |
 | Safety and risk | 94 | real exchange chaos drills, external review |
 | API contracts | 98 | signed live runtime packets, production hosted compatibility policy |
-| Deployment | 84 | live Railway proof, remote logs, doctor automation |
+| Deployment | 87 | live Railway proof, remote log automation |
 | Observability and audit | 95 | signed bundles, metrics backend, log drains |
 | Security and custody | 91 | external review, key-handling drill evidence |
 | ZERO Network | 70 | hosted identity verification, public pages, production ingestion service |
@@ -506,7 +506,7 @@ Target score: 98.
 Make Railway the first-class self-custodial deployment path:
 
 - volume and secret checks;
-- remote log/doctor automation;
+- remote log and doctor automation;
 - health, metrics, and recovery checks;
 - deployment smoke runbook;
 - rollback and incident drills.
@@ -516,7 +516,23 @@ Exit gate:
 - a new operator can deploy paper mode to Railway, run live-data paper, inspect
   logs, export audit, and recover from restart.
 
-### Cycle 24: Release, Registry, And Supply Chain
+Current progress:
+
+- Added `scripts/railway_doctor.py`, a stdlib remote deployment doctor for
+  Railway-style paper services.
+- The doctor checks health, recovery durability, market data source, metrics,
+  immune state, live-preflight refusal, live cockpit refusal, public Network
+  privacy, delayed Intelligence privacy, hosted-compatible rate-limit headers,
+  paid-scope fail-closed behavior, and optional tokened paid history access.
+- Local paper API smoke and Railway smoke now execute the same doctor and fail
+  CI on any failed deployment check.
+- Railway deployment docs and the P1 incident runbook now start from the doctor
+  report instead of ad hoc curl-only checks.
+
+Remaining scope before Cycle 25: real deployed Railway proof, remote log
+capture automation, rollback rehearsal, and signed deployment evidence.
+
+### Cycle 25: Release, Registry, And Supply Chain
 
 Target score: 99.
 
@@ -533,7 +549,7 @@ Exit gate:
 
 - release process is reproducible by a maintainer other than the founder.
 
-### Cycle 25: External Review And Real-World Evidence
+### Cycle 26: External Review And Real-World Evidence
 
 Target score: 100.
 

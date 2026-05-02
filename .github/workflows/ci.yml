@@ -98,6 +98,7 @@ jobs:
           test -x scripts/network_pages_smoke.py
           test -x scripts/package_dry_run.sh
           test -x scripts/railway_start.sh
+          test -x scripts/railway_doctor.py
           test -x scripts/railway_smoke.sh
           test -f railway.toml
           test -f docs/railway-deploy.md
