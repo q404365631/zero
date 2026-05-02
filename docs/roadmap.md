@@ -11,7 +11,7 @@
 - Contributor docs
 - First release artifact
 - Threat model and incident runbooks
-- Static ZERO Network index, profile, and leaderboard page builders
+- Static ZERO Network index, profile, and leaderboard page builders with smoke gate
 
 ## Near Term
 

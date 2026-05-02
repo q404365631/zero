@@ -129,6 +129,20 @@ keys, wallet addresses, exchange order IDs, strategy labels, or private notes.
 See [examples/network-leaderboard-page](../examples/network-leaderboard-page)
 and [contracts/network/leaderboard.html](../contracts/network/leaderboard.html).
 
+## Static Page Smoke Gate
+
+Checked Network pages are covered by a deterministic smoke gate:
+
+```bash
+just network-pages-smoke
+```
+
+The gate parses `contracts/network/index.html`,
+`contracts/network/profile.html`, and `contracts/network/leaderboard.html`.
+It verifies each page title and primary heading, requires expected local links,
+and fails on JavaScript, event handlers, remote references, missing local link
+targets, or raw private runtime tokens.
+
 ## Verification Badges
 
 - `paper_verified`: aggregate paper behavior was observed.

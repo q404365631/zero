@@ -114,3 +114,16 @@ def test_network_index_page_example_runs_from_repo_root() -> None:
     assert 'href="profile.html"' in page
     assert 'href="leaderboard.html"' in page
     assert "Public Proof Surface" in page
+
+
+def test_network_pages_smoke_runs_from_repo_root() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    result = subprocess.run(
+        [sys.executable, "scripts/network_pages_smoke.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert "network pages smoke passed: 3 pages" in result.stdout

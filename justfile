@@ -30,6 +30,9 @@ network-leaderboard-page-example:
 network-index-page-example:
     PYTHONPATH="$PWD/engine/src" python3 examples/network-index-page/build.py
 
+network-pages-smoke:
+    scripts/network_pages_smoke.py
+
 paper-api:
     cd engine && python3 -m zero_engine.api
 
@@ -124,6 +127,7 @@ docs-check:
     test -x scripts/install.sh
     test -x scripts/demo_capture.sh
     test -x scripts/openapi_contract_check.py
+    test -x scripts/network_pages_smoke.py
     test -x scripts/package_dry_run.sh
     test -x scripts/hardening_gate.sh
     test -x scripts/railway_start.sh
@@ -152,4 +156,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke example strategy-example strategy-plugin-example market-data-adapter-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example package-dry-run
+ci: lint test paper-api-smoke example strategy-example strategy-plugin-example market-data-adapter-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke package-dry-run

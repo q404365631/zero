@@ -47,21 +47,21 @@ Acceptance:
 - The example command remains `just example`.
 - The output summary stays deterministic and paper-only.
 
-### Add a static ZERO Network visual smoke test
+### Add ZERO Network anti-gaming rules
 
-Labels: `good first issue`, `network`, `frontend`, `docs`
+Labels: `good first issue`, `network`, `docs`, `security`
 
-Add a deterministic visual smoke script for the checked ZERO Network index,
-profile, and leaderboard pages.
+Add a short anti-gaming rules document for public Network profiles and
+leaderboards.
 
 Acceptance:
 
-- The script opens `contracts/network/index.html`,
-  `contracts/network/profile.html`, and `contracts/network/leaderboard.html`.
-- The script verifies each page title and primary heading.
-- The script fails on remote asset requests, JavaScript execution, missing
-  local links, or private execution detail tokens.
-- The check is deterministic and runs without network access.
+- The document explains why leaderboard rank is proof-of-process, not PnL.
+- The document names first-pass abuse cases: fake volume, duplicate handles,
+  replayed proof packets, sybil profiles, and stale publication.
+- The document proposes public-safe mitigations without requiring exchange
+  credentials or hosted custody.
+- [ZERO Network docs](zero-network.md) link to the document.
 
 ### Add Docker daemon troubleshooting note
 
