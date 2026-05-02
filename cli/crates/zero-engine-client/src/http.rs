@@ -21,8 +21,9 @@ use zero_operator_state::{Event as OperatorEvent, Snapshot as OperatorSnapshot};
 
 use crate::models::{
     ApproachingFeed, AutoToggleRequest, AutoToggleResponse, Brief, Evaluation, ExecuteRequest,
-    ExecuteResponse, Health, HyperliquidStatus, LiveControlResponse, LivePreflight, MarketQuote,
-    OperatorEventsAccepted, Positions, Pulse, Regime, RejectionsFeed, Risk, Root, V2Status,
+    ExecuteResponse, Health, HyperliquidAccount, HyperliquidReconciliation, HyperliquidStatus,
+    LiveControlResponse, LivePreflight, MarketQuote, OperatorEventsAccepted, Positions, Pulse,
+    Regime, RejectionsFeed, Risk, Root, V2Status,
 };
 use crate::rate_budget::{self, RateBudget};
 
@@ -571,6 +572,16 @@ impl HttpClient {
             }
             None => self.get_json("/hl/status").await,
         }
+    }
+
+    /// `GET /hl/account` — read-only Hyperliquid account truth.
+    pub async fn hyperliquid_account(&self) -> Result<HyperliquidAccount, HttpError> {
+        self.get_json("/hl/account").await
+    }
+
+    /// `GET /hl/reconcile` — local runtime versus Hyperliquid account state.
+    pub async fn hyperliquid_reconciliation(&self) -> Result<HyperliquidReconciliation, HttpError> {
+        self.get_json("/hl/reconcile").await
     }
 
     /// `GET /market/quote?symbol=...` — active quote source feeding paper mode.

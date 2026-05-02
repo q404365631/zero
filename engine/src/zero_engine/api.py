@@ -38,6 +38,11 @@ from zero_engine.network import (
     publish_profile,
 )
 from zero_engine.paper import DecisionRecord, PaperEngine
+from zero_engine.reconciliation import (
+    ReconciliationReport,
+    local_account_positions,
+    reconcile_positions,
+)
 from zero_engine.safety import evaluate_order
 
 
@@ -147,6 +152,7 @@ class PaperApiState:
     live_api_private_key: str | None = None
     live_kill_switch_path: str | None = None
     live_dead_man_timeout_s: float = 30.0
+    reconciliation_stale_after_s: float = 10.0
     live_executor: LiveExecutor | None = None
     network_handle: str = "local-operator"
     network_display_name: str | None = None
@@ -212,6 +218,30 @@ class PaperApiState:
 
     def market_source(self) -> str:
         return "hyperliquid:allMids" if self.use_live_hyperliquid_prices else "paper:static"
+
+    def hyperliquid_account_snapshot(self) -> Any:
+        if self.hyperliquid is None:
+            raise ValueError("start with --hyperliquid to verify account state")
+        if not self.live_wallet_address or not is_hex_address(self.live_wallet_address):
+            raise ValueError("valid ZERO_HYPERLIQUID_WALLET_ADDRESS required before account read")
+        return self.hyperliquid.account_snapshot(self.live_wallet_address)
+
+    def reconcile_hyperliquid_account(self) -> ReconciliationReport:
+        local_positions = local_account_positions(self.engine.positions)
+        if self.hyperliquid is None or not self.live_wallet_address or not is_hex_address(self.live_wallet_address):
+            return reconcile_positions(
+                local_positions=local_positions,
+                exchange_snapshot=None,
+                as_of=self.now(),
+                stale_after_s=self.reconciliation_stale_after_s,
+            )
+        snapshot = self.hyperliquid_account_snapshot()
+        return reconcile_positions(
+            local_positions=local_positions,
+            exchange_snapshot=snapshot,
+            as_of=self.now(),
+            stale_after_s=self.reconciliation_stale_after_s,
+        )
 
     def next_trace_id(self, method: str, path: str) -> str:
         self.trace_sequence += 1
@@ -279,6 +309,8 @@ class PaperApi:
             "/rejections": lambda: self.rejections(query),
             "/journal": lambda: self.journal(query),
             "/audit/export": lambda: self.audit_export(query),
+            "/hl/account": self.hl_account,
+            "/hl/reconcile": self.hl_reconcile,
             "/hl/status": lambda: self.hl_status(query),
             "/intelligence/catalog": self.intelligence_catalog,
             "/intelligence/snapshot": self.intelligence_snapshot,
@@ -466,11 +498,26 @@ class PaperApi:
             add("account_read", "fail", "valid wallet address required before account read")
         else:
             try:
-                state = self.state.hyperliquid.clearinghouse_state(wallet or "")
-                positions = state.get("assetPositions", []) if isinstance(state, dict) else []
-                add("account_read", "ok", f"clearinghouseState read ok · positions={len(positions)}")
+                account = self.state.hyperliquid_account_snapshot()
+                add(
+                    "account_read",
+                    "ok",
+                    "account snapshot read ok · "
+                    f"positions={len(account.positions)} open_orders={len(account.open_orders)}",
+                )
             except Exception as exc:
                 add("account_read", "fail", f"Hyperliquid account read failed: {exc}")
+
+        try:
+            reconciliation = self.state.reconcile_hyperliquid_account()
+            add(
+                "reconciliation",
+                "ok" if reconciliation.risk_increasing_allowed else "fail",
+                reconciliation.reason,
+                status_code=reconciliation.status,
+            )
+        except Exception as exc:
+            add("reconciliation", "fail", f"Hyperliquid reconciliation failed: {exc}")
 
         try:
             validated = validate_dry_run_order({"coin": "BTC", "side": "buy", "size": 0.001})
@@ -849,6 +896,12 @@ class PaperApi:
         payload["secrets_required"] = False
         return payload
 
+    def hl_account(self) -> dict[str, Any]:
+        return self.state.hyperliquid_account_snapshot().to_dict()
+
+    def hl_reconcile(self) -> dict[str, Any]:
+        return self.state.reconcile_hyperliquid_account().to_dict()
+
     def market_quote(self, query: dict[str, list[str]]) -> dict[str, Any]:
         symbol = first(query, "symbol")
         if symbol is None:
@@ -958,6 +1011,17 @@ class PaperApi:
                 key=key,
                 trace_id=trace_id if expose_trace else None,
             )
+        if not intent.reduce_only:
+            reconciliation = self.state.reconcile_hyperliquid_account()
+            if not reconciliation.risk_increasing_allowed:
+                self.state.metrics.record_execute(accepted=False)
+                return live_response(
+                    accepted=False,
+                    reason=f"reconciliation {reconciliation.status}: {reconciliation.reason}",
+                    intent=intent,
+                    key=key,
+                    trace_id=trace_id if expose_trace else None,
+                )
         record = executor.submit(intent, idempotency_key=key, trace_id=trace_id)
         self.state.metrics.record_execute(accepted=record.accepted)
         return live_response_from_record(record, include_trace=expose_trace)

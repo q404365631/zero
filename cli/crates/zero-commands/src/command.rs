@@ -83,6 +83,10 @@ pub enum Command {
     HyperliquidStatus {
         symbol: Option<String>,
     },
+    /// `/hl-account` — read-only Hyperliquid account truth.
+    HyperliquidAccount,
+    /// `/hl-reconcile` — local runtime versus Hyperliquid account reconciliation.
+    HyperliquidReconcile,
     /// `/quote <coin>` — active paper quote source for a symbol.
     /// This is read-only and cannot sign payloads or place orders.
     Quote {
@@ -499,6 +503,8 @@ impl Command {
             | Self::Brief
             | Self::Risk
             | Self::HyperliquidStatus { .. }
+            | Self::HyperliquidAccount
+            | Self::HyperliquidReconcile
             | Self::Quote { .. }
             | Self::Regime { .. }
             | Self::Evaluate { .. }
@@ -582,6 +588,8 @@ impl Command {
             Self::Brief => "/brief",
             Self::Risk => "/risk",
             Self::HyperliquidStatus { .. } => "/hl-status",
+            Self::HyperliquidAccount => "/hl-account",
+            Self::HyperliquidReconcile => "/hl-reconcile",
             Self::Quote { .. } => "/quote",
             Self::Regime { .. } => "/regime",
             Self::Evaluate { .. } => "/evaluate",
@@ -685,6 +693,16 @@ pub const COMMAND_CATALOG: &[CommandInfo] = &[
     CommandInfo {
         name: "/hl-status",
         summary: "read-only Hyperliquid info status",
+        risk: RiskDirection::Neutral,
+    },
+    CommandInfo {
+        name: "/hl-account",
+        summary: "read-only Hyperliquid account truth",
+        risk: RiskDirection::Neutral,
+    },
+    CommandInfo {
+        name: "/hl-reconcile",
+        summary: "Hyperliquid account reconciliation",
         risk: RiskDirection::Neutral,
     },
     CommandInfo {
@@ -914,6 +932,8 @@ pub fn resolve(line: &ParsedLine) -> Option<Command> {
         "hl-status" | "hl" | "hyperliquid" => Command::HyperliquidStatus {
             symbol: line.args.first().cloned(),
         },
+        "hl-account" | "hyperliquid-account" => Command::HyperliquidAccount,
+        "hl-reconcile" | "reconcile" | "hyperliquid-reconcile" => Command::HyperliquidReconcile,
         "quote" | "price" => Command::Quote {
             symbol: line.args.first().cloned(),
         },
@@ -1355,6 +1375,13 @@ mod tests {
                 symbol: Some("ETH".into())
             })
         );
+    }
+
+    #[test]
+    fn hyperliquid_account_commands_parse() {
+        assert_eq!(r("/hl-account"), Some(Command::HyperliquidAccount));
+        assert_eq!(r("/hl-reconcile"), Some(Command::HyperliquidReconcile));
+        assert_eq!(r("/reconcile"), Some(Command::HyperliquidReconcile));
     }
 
     #[test]

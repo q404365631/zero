@@ -33,6 +33,23 @@ The response includes:
 - `secrets_required=false`
 - `mids`
 
+When a local wallet address is configured, the same read-only boundary exposes
+account truth without signing:
+
+```bash
+ZERO_HYPERLIQUID_WALLET_ADDRESS=0x... \
+zero-paper-api --journal .zero/decisions.jsonl --hyperliquid
+
+curl -fsS 'http://127.0.0.1:8765/hl/account'
+curl -fsS 'http://127.0.0.1:8765/hl/reconcile'
+```
+
+`/hl/account` normalizes `clearinghouseState` plus `openOrders` into
+`zero.hl_account.v1`. `/hl/reconcile` compares that exchange snapshot with the
+local runtime positions and returns `zero.reconciliation.v1`. Risk-increasing
+live `POST /execute` requests are refused unless reconciliation is fresh and
+`risk_increasing_allowed=true`.
+
 Without `--hyperliquid`, `/hl/status` returns `enabled=false` and the paper
 runtime remains fully deterministic and offline.
 
@@ -70,8 +87,8 @@ return `ready=false` and `live_mode=refused`.
 
 ## Safety Boundary
 
-The read-only adapter may call Hyperliquid `info` methods such as `allMids` and
-`clearinghouseState`.
+The read-only adapter may call Hyperliquid `info` methods such as `allMids`,
+`clearinghouseState`, and `openOrders`.
 
 It must not:
 

@@ -327,6 +327,8 @@ fn router(shared: AppState) -> Router<AppState> {
         .route("/approaching", get(approaching))
         .route("/rejections", get(rejections))
         .route("/hl/status", get(hl_status))
+        .route("/hl/account", get(hl_account))
+        .route("/hl/reconcile", get(hl_reconcile))
         .route("/live/preflight", get(live_preflight))
         .route("/market/quote", get(market_quote))
         .route("/operator/state", get(operator_state))
@@ -756,6 +758,46 @@ async fn hl_status(
     }))
 }
 
+async fn hl_account() -> Json<serde_json::Value> {
+    Json(json!({
+        "schema_version": "zero.hl_account.v1",
+        "exchange": "hyperliquid",
+        "user": "0x0000...0000",
+        "as_of": chrono_utc_now_iso(),
+        "account_value": 10_000.0,
+        "margin_used": 25.0,
+        "withdrawable": 9_975.0,
+        "positions": [
+            {
+                "symbol": "BTC",
+                "side": "long",
+                "quantity": 0.01,
+                "entry_price": 50_000.0,
+                "position_value": 500.0,
+                "unrealized_pnl": 10.0,
+                "margin_used": 25.0
+            }
+        ],
+        "open_orders": [{"coin": "BTC", "oid": 123}],
+        "counts": {"positions": 1, "open_orders": 1}
+    }))
+}
+
+async fn hl_reconcile() -> Json<serde_json::Value> {
+    Json(json!({
+        "schema_version": "zero.reconciliation.v1",
+        "exchange": "hyperliquid",
+        "status": "ok",
+        "risk_increasing_allowed": true,
+        "reason": "local runtime and Hyperliquid account state are reconciled",
+        "as_of": chrono_utc_now_iso(),
+        "stale_after_s": 10,
+        "local": {"positions": [], "open_positions": 0},
+        "exchange_state": {"positions": [], "open_positions": 0},
+        "drifts": []
+    }))
+}
+
 async fn live_preflight() -> Json<serde_json::Value> {
     Json(json!({
         "schema_version": "zero.live_preflight.v1",
@@ -770,6 +812,7 @@ async fn live_preflight() -> Json<serde_json::Value> {
             {"name": "wallet_address", "status": "ok", "note": "0x0000...0000"},
             {"name": "api_private_key", "status": "ok", "note": "0x0000...0000"},
             {"name": "account_read", "status": "ok", "note": "clearinghouseState read ok"},
+            {"name": "reconciliation", "status": "ok", "note": "local runtime and Hyperliquid account state are reconciled", "status_code": "ok"},
             {"name": "dry_run_order", "status": "ok", "note": "buy 0.001 BTC validates locally"},
             {"name": "journal", "status": "ok", "note": "append-only decision journal configured"},
             {"name": "risk_limits", "status": "ok", "note": "max_notional_usd=1000 max_position_usd=5000"},

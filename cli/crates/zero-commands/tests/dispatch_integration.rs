@@ -91,6 +91,38 @@ async fn hl_status_renders_read_only_exchange_status() {
 }
 
 #[tokio::test]
+async fn hl_account_renders_read_only_account_truth() {
+    let (mock, ctx) = ctx_with_mock().await;
+    let out = dispatch(&ctx, "/hl-account").await.unwrap().unwrap();
+
+    assert_eq!(out.risk, Some(RiskDirection::Neutral));
+    let OutputLine::Command(s) = &out.lines[0] else {
+        panic!("expected Command, got {:?}", out.lines);
+    };
+    assert!(s.contains("hl-account:"), "account row: {s}");
+    assert!(s.contains("equity=$10000.00"), "equity field: {s}");
+    assert!(s.contains("open_orders=1"), "open orders field: {s}");
+    mock.shutdown().await;
+}
+
+#[tokio::test]
+async fn hl_reconcile_renders_reconciliation_status() {
+    let (mock, ctx) = ctx_with_mock().await;
+    let out = dispatch(&ctx, "/hl-reconcile").await.unwrap().unwrap();
+
+    assert_eq!(out.risk, Some(RiskDirection::Neutral));
+    let OutputLine::Command(s) = &out.lines[0] else {
+        panic!("expected Command, got {:?}", out.lines);
+    };
+    assert!(s.contains("hl-reconcile: status=ok"), "reconcile row: {s}");
+    assert!(
+        s.contains("risk_increasing_allowed=true"),
+        "risk gate field: {s}"
+    );
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn quote_renders_active_quote_source() {
     let (mock, ctx) = ctx_with_mock().await;
     let out = dispatch(&ctx, "/quote BTC").await.unwrap().unwrap();

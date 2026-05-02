@@ -29,6 +29,15 @@ from zero_engine.network import (
     publish_profile,
 )
 from zero_engine.paper import DecisionRecord, PaperEngine, RecoveryState
+from zero_engine.reconciliation import (
+    AccountPosition,
+    HyperliquidAccountSnapshot,
+    ReconciliationDrift,
+    ReconciliationReport,
+    local_account_positions,
+    parse_hyperliquid_account,
+    reconcile_positions,
+)
 from zero_engine.plugins import (
     StrategyPlugin,
     StrategyPluginMetadata,
@@ -51,8 +60,10 @@ from zero_engine.strategy import MomentumStrategy, Strategy, StrategySignal, pro
 
 __all__ = [
     "Candle",
+    "AccountPosition",
     "DecisionRecord",
     "DurableRuntimeBus",
+    "HyperliquidAccountSnapshot",
     "HyperliquidInfoClient",
     "HyperliquidMarketStatus",
     "IntelligenceConfig",
@@ -68,6 +79,8 @@ __all__ = [
     "PaperScenario",
     "Position",
     "PublicProfileConfig",
+    "ReconciliationDrift",
+    "ReconciliationReport",
     "RiskDecision",
     "RiskLimits",
     "RecoveryState",
@@ -89,9 +102,11 @@ __all__ = [
     "intelligence_catalog",
     "intelligence_snapshot",
     "latest_close",
+    "local_account_positions",
     "load_public_profiles",
     "load_scenario",
     "load_strategy_runner",
+    "parse_hyperliquid_account",
     "parse_scenario",
     "propose_plugin_order",
     "propose_order",
@@ -102,6 +117,7 @@ __all__ = [
     "public_profile_page",
     "public_profile",
     "publish_profile",
+    "reconcile_positions",
     "validate_strategy_plugin",
     "validate_market_data_adapter",
     "validate_strategy_runner",

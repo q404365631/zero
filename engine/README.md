@@ -30,7 +30,8 @@ The local paper API listens on `http://127.0.0.1:8765` by default and
 exposes the paper-mode subset of the engine contract used by the Rust CLI:
 `/`, `/health`, `/v2/status`, `/positions`, `/risk`, `/brief`,
 `/regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`,
-`/journal`, `/metrics`, `/audit/export`, `/hl/status`, `/market/quote`,
+`/journal`, `/metrics`, `/audit/export`, `/hl/status`, `/hl/account`,
+`/hl/reconcile`, `/market/quote`,
 `/network/profile`, `/network/leaderboard`, `/intelligence/snapshot`,
 `/intelligence/catalog`, `/live/preflight`,
 `/operator/state`, `POST /execute`, `POST /auto/toggle`, `POST /operator/events`,
@@ -66,9 +67,9 @@ To write an opt-in local intelligence packet, set
 
 Live custody preflight is visible through `/live/preflight`. It is a non-secret
 readiness gate for the Hyperliquid live executor: private keys are never
-accepted over HTTP, diagnostics are redacted, and public paper deployments
-return `live_mode=refused` unless local live credentials and controls are
-configured.
+accepted over HTTP, diagnostics are redacted, account reconciliation is checked,
+and public paper deployments return `live_mode=refused` unless local live
+credentials and controls are configured.
 
 Live execution is optional and self-custodial:
 

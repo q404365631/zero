@@ -106,7 +106,7 @@ contract:
 - `GET /metrics`, `/audit/export`
 - `GET /network/profile`, `/network/leaderboard`
 - `GET /intelligence/snapshot`, `/intelligence/catalog`
-- `GET /hl/status`, `/market/quote`, `/live/preflight`
+- `GET /hl/status`, `/hl/account`, `/hl/reconcile`, `/market/quote`, `/live/preflight`
 - `GET /operator/state`
 - `POST /execute`
 - `POST /auto/toggle`
@@ -227,6 +227,18 @@ returning `ok=false` with `reason="live executor not configured"`.
 --hyperliquid` is used, it queries Hyperliquid's public info endpoint for
 read-only mids and returns `secrets_required=false`. This endpoint must not
 place orders, sign payloads, or require exchange credentials.
+
+`GET /hl/account` returns a normalized `zero.hl_account.v1` snapshot for the
+configured `ZERO_HYPERLIQUID_WALLET_ADDRESS`: redacted wallet id, account
+value, margin used, withdrawable balance, open positions, and open orders. It
+uses read-only Hyperliquid info calls only.
+
+`GET /hl/reconcile` returns a `zero.reconciliation.v1` packet comparing local
+runtime positions with the Hyperliquid account snapshot. Status values include
+`ok`, `not_configured`, `stale_data`, `local_lag`, `exchange_rejection`, and
+`critical_mismatch`. Live risk-increasing `POST /execute` calls are refused
+unless reconciliation reports `risk_increasing_allowed=true`; reduce-only
+controls remain available for risk reduction.
 
 `GET /market/quote?symbol=BTC` returns the price source currently feeding paper
 mode. By default it returns deterministic fixture prices with `source=paper:static`.

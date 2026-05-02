@@ -594,6 +594,8 @@ async fn run(ctx: &DispatchContext, cmd: &Command) -> DispatchOutput {
         Command::Brief => brief(ctx).await,
         Command::Risk => risk_cmd(ctx).await,
         Command::HyperliquidStatus { symbol } => hl_status_cmd(ctx, symbol.as_deref()).await,
+        Command::HyperliquidAccount => hl_account_cmd(ctx).await,
+        Command::HyperliquidReconcile => hl_reconcile_cmd(ctx).await,
         Command::Quote { symbol } => quote_cmd(ctx, symbol.as_deref()).await,
         Command::Regime { coin } => regime_cmd(ctx, coin.as_deref()).await,
         Command::Evaluate { coin, extras } => evaluate_cmd(ctx, coin.as_deref(), extras).await,
@@ -660,6 +662,12 @@ fn help() -> DispatchOutput {
     ));
     out.lines.push(OutputLine::system(
         "  /hl-status [coin]    — read-only Hyperliquid info status",
+    ));
+    out.lines.push(OutputLine::system(
+        "  /hl-account          — read-only Hyperliquid account truth",
+    ));
+    out.lines.push(OutputLine::system(
+        "  /hl-reconcile        — Hyperliquid account reconciliation",
     ));
     out.lines.push(OutputLine::system(
         "  /quote <coin>        — active paper quote source",
@@ -946,6 +954,70 @@ async fn hl_status_cmd(ctx: &DispatchContext, symbol: Option<&str>) -> DispatchO
             }
         }
         Err(e) => out.lines.push(OutputLine::alert(format!("hl-status: {e}"))),
+    }
+    out
+}
+
+async fn hl_account_cmd(ctx: &DispatchContext) -> DispatchOutput {
+    let mut out = DispatchOutput::default();
+    let Some(http) = require_http(ctx, &mut out) else {
+        return out;
+    };
+    match http.hyperliquid_account().await {
+        Ok(account) => {
+            let equity = account
+                .account_value
+                .map_or("—".into(), |value| format!("${value:.2}"));
+            let margin = account
+                .margin_used
+                .map_or("—".into(), |value| format!("${value:.2}"));
+            out.lines.push(OutputLine::command(format!(
+                "hl-account: user={}  equity={equity}  margin={margin}  positions={}  open_orders={}",
+                account.user,
+                account.positions.len(),
+                account.open_orders.len()
+            )));
+            for position in account.positions.iter().take(8) {
+                out.lines.push(OutputLine::system(format!(
+                    "  {} {} qty={:.6} entry={:.4} value=${:.2} upnl=${:.2}",
+                    position.symbol,
+                    position.side,
+                    position.quantity.abs(),
+                    position.entry_price,
+                    position.position_value,
+                    position.unrealized_pnl
+                )));
+            }
+        }
+        Err(e) => out
+            .lines
+            .push(OutputLine::alert(format!("hl-account: {e}"))),
+    }
+    out
+}
+
+async fn hl_reconcile_cmd(ctx: &DispatchContext) -> DispatchOutput {
+    let mut out = DispatchOutput::default();
+    let Some(http) = require_http(ctx, &mut out) else {
+        return out;
+    };
+    match http.hyperliquid_reconciliation().await {
+        Ok(report) => {
+            out.lines.push(OutputLine::command(format!(
+                "hl-reconcile: status={}  risk_increasing_allowed={}  reason={}",
+                report.status, report.risk_increasing_allowed, report.reason
+            )));
+            for drift in report.drifts.iter().take(8) {
+                let symbol = drift.symbol.as_deref().unwrap_or("account");
+                out.lines.push(OutputLine::system(format!(
+                    "  {symbol}: {} {} — {}",
+                    drift.severity, drift.code, drift.reason
+                )));
+            }
+        }
+        Err(e) => out
+            .lines
+            .push(OutputLine::alert(format!("hl-reconcile: {e}"))),
     }
     out
 }

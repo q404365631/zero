@@ -66,11 +66,11 @@ speed, scale, history, and reliability.
 | Public repo hygiene | 99 | registry ownership, external release drill |
 | Product narrative | 98 | keep narrative aligned as runtime becomes real |
 | CLI readiness | 91 | live cockpit drills, operator automation examples |
-| Engine runtime | 83 | OODA loop, runners, durable bus, production state |
-| Safety and risk | 88 | exchange chaos drills, external review |
-| API contracts | 90 | hosted auth/rate contracts, live runtime contracts |
+| Engine runtime | 86 | certified live controller, richer exchange history reconciliation |
+| Safety and risk | 90 | exchange chaos drills, external review |
+| API contracts | 92 | hosted auth/rate contracts, live runtime contracts |
 | Deployment | 84 | live Railway proof, remote logs, doctor automation |
-| Observability and audit | 86 | signed bundles, metrics backend, log drains |
+| Observability and audit | 89 | signed bundles, metrics backend, log drains |
 | Security and custody | 90 | external review, key-handling drill evidence |
 | ZERO Network | 58 | hosted ingestion, anti-gaming, identity, public pages |
 | ZERO Intelligence | 56 | hosted API, billing, history, webhooks, terms |
@@ -192,6 +192,19 @@ Exit gate:
 - `/hl/account` and CLI readouts are available without exposing secrets;
 - reconciliation fixtures cover partial fills, canceled orders, stale mids,
   missing orders, and drift.
+
+Current status:
+
+- `GET /hl/account` returns normalized `zero.hl_account.v1` account snapshots
+  from read-only `clearinghouseState` and `openOrders` calls.
+- `GET /hl/reconcile` returns `zero.reconciliation.v1` with stale-data,
+  local-lag, exchange-rejection, and critical-mismatch classifications.
+- The Rust CLI exposes `/hl-account` and `/hl-reconcile` readouts backed by
+  typed engine-client models and mock-engine contract coverage.
+- Live risk-increasing `POST /execute` now fails closed unless reconciliation
+  allows risk increase; reduce-only controls remain available.
+- Remaining scope before Cycle 16: richer fill/funding/order-history
+  reconciliation fixtures.
 
 ### Cycle 16: Live Execution Certification Harness
 

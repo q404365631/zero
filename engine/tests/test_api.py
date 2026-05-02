@@ -246,9 +246,11 @@ def test_live_preflight_refuses_without_local_custody_controls() -> None:
 
 
 def test_live_preflight_verifies_controls_without_leaking_private_key(tmp_path) -> None:
-    def transport(_endpoint: str, payload: dict[str, Any], _timeout_s: float) -> dict[str, Any]:
+    def transport(_endpoint: str, payload: dict[str, Any], _timeout_s: float) -> Any:
         if payload["type"] == "clearinghouseState":
             return {"assetPositions": []}
+        if payload["type"] == "openOrders":
+            return []
         return {"BTC": "40500"}
 
     kill = tmp_path / "kill-switch"
@@ -276,14 +278,17 @@ def test_live_preflight_verifies_controls_without_leaking_private_key(tmp_path) 
     checks = {check["name"]: check for check in payload["checks"]}
     assert checks["api_private_key"]["status"] == "ok"
     assert checks["account_read"]["status"] == "ok"
+    assert checks["reconciliation"]["status"] == "ok"
     assert checks["journal"]["status"] == "ok"
     assert checks["emergency_controls"]["status"] == "ok"
 
 
 def test_live_preflight_can_pass_when_executor_and_controls_are_ready(tmp_path) -> None:
-    def transport(_endpoint: str, payload: dict[str, Any], _timeout_s: float) -> dict[str, Any]:
+    def transport(_endpoint: str, payload: dict[str, Any], _timeout_s: float) -> Any:
         if payload["type"] == "clearinghouseState":
             return {"assetPositions": []}
+        if payload["type"] == "openOrders":
+            return []
         return {"BTC": "40500"}
 
     kill = tmp_path / "kill-switch"
@@ -310,12 +315,54 @@ def test_live_preflight_can_pass_when_executor_and_controls_are_ready(tmp_path) 
     assert payload["live_mode"] == "ready"
 
 
+def test_hl_account_and_reconciliation_expose_read_only_account_truth() -> None:
+    def transport(_endpoint: str, payload: dict[str, Any], _timeout_s: float) -> Any:
+        if payload["type"] == "clearinghouseState":
+            return {
+                "marginSummary": {"accountValue": "10000", "totalMarginUsed": "0"},
+                "assetPositions": [],
+            }
+        if payload["type"] == "openOrders":
+            return [{"coin": "BTC", "oid": 123}]
+        return {"BTC": "40500"}
+
+    api = PaperApi(
+        PaperApiState(
+            hyperliquid=HyperliquidInfoClient(transport=transport),
+            live_wallet_address="0x0000000000000000000000000000000000000000",
+            clock=lambda: FIXED_DT,
+            started_at=FIXED_DT,
+        )
+    )
+
+    account_status, account = api.get("/hl/account", {})
+    reconcile_status, reconcile = api.get("/hl/reconcile", {})
+
+    assert account_status == 200
+    assert account["schema_version"] == "zero.hl_account.v1"
+    assert account["user"] == "0x0000...0000"
+    assert account["counts"]["open_orders"] == 1
+    assert reconcile_status == 200
+    assert reconcile["schema_version"] == "zero.reconciliation.v1"
+    assert reconcile["status"] == "ok"
+    assert reconcile["risk_increasing_allowed"] is True
+
+
 def test_live_execute_uses_live_executor_and_preserves_idempotency() -> None:
+    def transport(_endpoint: str, payload: dict[str, Any], _timeout_s: float) -> Any:
+        if payload["type"] == "clearinghouseState":
+            return {"assetPositions": []}
+        if payload["type"] == "openOrders":
+            return []
+        return {"BTC": "40500"}
+
     adapter = RecordingExchangeAdapter()
     executor = LiveExecutor(adapter=adapter, enabled=True, clock=lambda: FIXED_TS)
     executor.heartbeat()
     api = PaperApi(
         PaperApiState(
+            hyperliquid=HyperliquidInfoClient(transport=transport),
+            live_wallet_address="0x0000000000000000000000000000000000000000",
             live_executor=executor,
             clock=lambda: FIXED_DT,
             started_at=FIXED_DT,
@@ -341,11 +388,62 @@ def test_live_execute_uses_live_executor_and_preserves_idempotency() -> None:
     assert len(adapter.placed) == 1
 
 
-def test_live_kill_blocks_later_live_execute() -> None:
+def test_live_execute_blocks_risk_increase_when_reconciliation_drift_exists() -> None:
+    def transport(_endpoint: str, payload: dict[str, Any], _timeout_s: float) -> Any:
+        if payload["type"] == "clearinghouseState":
+            return {
+                "assetPositions": [
+                    {"position": {"coin": "BTC", "szi": "0.01", "entryPx": "50000"}}
+                ]
+            }
+        if payload["type"] == "openOrders":
+            return []
+        return {"BTC": "50000"}
+
     adapter = RecordingExchangeAdapter()
     executor = LiveExecutor(adapter=adapter, enabled=True, clock=lambda: FIXED_TS)
     executor.heartbeat()
-    api = PaperApi(PaperApiState(live_executor=executor, clock=lambda: FIXED_DT))
+    api = PaperApi(
+        PaperApiState(
+            hyperliquid=HyperliquidInfoClient(transport=transport),
+            live_wallet_address="0x0000000000000000000000000000000000000000",
+            live_executor=executor,
+            clock=lambda: FIXED_DT,
+            started_at=FIXED_DT,
+        )
+    )
+
+    status, payload = api.post(
+        "/execute",
+        {"coin": "BTC", "side": "buy", "size": 0.01, "idempotency_key": "blocked-drift"},
+        mode="live",
+    )
+
+    assert status == 200
+    assert payload["accepted"] is False
+    assert payload["reason"].startswith("reconciliation local_lag:")
+    assert adapter.placed == []
+
+
+def test_live_kill_blocks_later_live_execute() -> None:
+    def transport(_endpoint: str, payload: dict[str, Any], _timeout_s: float) -> Any:
+        if payload["type"] == "clearinghouseState":
+            return {"assetPositions": []}
+        if payload["type"] == "openOrders":
+            return []
+        return {"BTC": "40500"}
+
+    adapter = RecordingExchangeAdapter()
+    executor = LiveExecutor(adapter=adapter, enabled=True, clock=lambda: FIXED_TS)
+    executor.heartbeat()
+    api = PaperApi(
+        PaperApiState(
+            hyperliquid=HyperliquidInfoClient(transport=transport),
+            live_wallet_address="0x0000000000000000000000000000000000000000",
+            live_executor=executor,
+            clock=lambda: FIXED_DT,
+        )
+    )
 
     kill_status, kill = api.post("/live/kill", {}, mode="live")
     execute_status, execute = api.post(

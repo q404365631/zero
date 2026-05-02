@@ -79,6 +79,65 @@ pub struct HyperliquidStatus {
     pub extra: BTreeMap<String, Value>,
 }
 
+// ─── /hl/account and /hl/reconcile ────────────────────────────────
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct HyperliquidAccount {
+    pub schema_version: String,
+    pub exchange: String,
+    pub user: String,
+    pub as_of: Option<String>,
+    pub account_value: Option<f64>,
+    pub margin_used: Option<f64>,
+    pub withdrawable: Option<f64>,
+    pub positions: Vec<HyperliquidAccountPosition>,
+    pub open_orders: Vec<Value>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct HyperliquidAccountPosition {
+    pub symbol: String,
+    pub side: String,
+    pub quantity: f64,
+    pub entry_price: f64,
+    pub position_value: f64,
+    pub unrealized_pnl: f64,
+    pub margin_used: f64,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct HyperliquidReconciliation {
+    pub schema_version: String,
+    pub exchange: String,
+    pub status: String,
+    pub risk_increasing_allowed: bool,
+    pub reason: String,
+    pub as_of: Option<String>,
+    pub drifts: Vec<HyperliquidReconciliationDrift>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct HyperliquidReconciliationDrift {
+    pub code: String,
+    pub severity: String,
+    pub symbol: Option<String>,
+    pub reason: String,
+    pub local_quantity: Option<f64>,
+    pub exchange_quantity: Option<f64>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
 // ─── /market/quote  ────────────────────────────────────────────────
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

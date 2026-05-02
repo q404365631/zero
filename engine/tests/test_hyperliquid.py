@@ -69,6 +69,31 @@ def test_clearinghouse_state_posts_read_only_info_request() -> None:
     assert state == {"assetPositions": []}
 
 
+def test_account_snapshot_reads_clearinghouse_state_and_open_orders() -> None:
+    seen: list[dict[str, Any]] = []
+
+    def transport(_endpoint: str, payload: dict[str, Any], _timeout_s: float) -> Any:
+        seen.append(dict(payload))
+        if payload["type"] == "clearinghouseState":
+            return {
+                "marginSummary": {"accountValue": "10000"},
+                "assetPositions": [
+                    {"position": {"coin": "BTC", "szi": "0.01", "entryPx": "50000"}}
+                ],
+            }
+        if payload["type"] == "openOrders":
+            return [{"coin": "BTC", "oid": 123}]
+        raise AssertionError(f"unexpected request {payload}")
+
+    client = HyperliquidInfoClient(transport=transport)
+    snapshot = client.account_snapshot("0x0000000000000000000000000000000000000000")
+
+    assert [request["type"] for request in seen] == ["clearinghouseState", "openOrders"]
+    assert snapshot.account_value == 10000.0
+    assert snapshot.positions[0].symbol == "BTC"
+    assert snapshot.open_orders == ({"coin": "BTC", "oid": 123},)
+
+
 def test_is_hex_address() -> None:
     assert is_hex_address("0x0000000000000000000000000000000000000000")
     assert not is_hex_address("0x000000000000000000000000000000000000000")

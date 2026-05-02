@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from typing import Any
 from urllib import request
 
+from zero_engine.reconciliation import HyperliquidAccountSnapshot, parse_hyperliquid_account
+
 
 DEFAULT_INFO_URL = "https://api.hyperliquid.xyz/info"
 Transport = Callable[[str, Mapping[str, Any], float], Any]
@@ -67,6 +69,21 @@ class HyperliquidInfoClient:
         if not isinstance(data, dict):
             raise ValueError("Hyperliquid clearinghouseState response must be an object")
         return data
+
+    def open_orders(self, user: str) -> list[dict[str, Any]]:
+        if not is_hex_address(user):
+            raise ValueError("user must be a 42-character hex address")
+        data = self._post({"type": "openOrders", "user": user})
+        if not isinstance(data, list):
+            raise ValueError("Hyperliquid openOrders response must be a list")
+        return [dict(order) for order in data if isinstance(order, dict)]
+
+    def account_snapshot(self, user: str) -> HyperliquidAccountSnapshot:
+        return parse_hyperliquid_account(
+            user=user,
+            clearinghouse_state=self.clearinghouse_state(user),
+            open_orders=self.open_orders(user),
+        )
 
     def _post(self, payload: Mapping[str, Any]) -> Any:
         return self.transport(self.endpoint, payload, self.timeout_s)

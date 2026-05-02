@@ -322,6 +322,32 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HyperliquidStatusResponse"
+  /hl/account:
+    get:
+      tags: [market]
+      operationId: getHyperliquidAccount
+      summary: Hyperliquid read-only account snapshot.
+      responses:
+        "200":
+          description: Normalized read-only account truth.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HyperliquidAccountResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /hl/reconcile:
+    get:
+      tags: [market]
+      operationId: getHyperliquidReconciliation
+      summary: Local runtime versus Hyperliquid account reconciliation.
+      responses:
+        "200":
+          description: Reconciliation packet used by live risk gates.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HyperliquidReconciliationResponse"
   /market/quote:
     get:
       tags: [market]
@@ -926,6 +952,14 @@ components:
     HyperliquidStatusResponse:
       type: object
       required: [enabled, exchange]
+      additionalProperties: true
+    HyperliquidAccountResponse:
+      type: object
+      required: [schema_version, exchange, user, as_of, positions, open_orders, counts]
+      additionalProperties: true
+    HyperliquidReconciliationResponse:
+      type: object
+      required: [schema_version, exchange, status, risk_increasing_allowed, reason, as_of, local, exchange_state, drifts]
       additionalProperties: true
     MarketQuoteResponse:
       type: object

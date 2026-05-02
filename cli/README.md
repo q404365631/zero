@@ -127,7 +127,9 @@ config per invocation; set the corresponding env vars
 Live Hyperliquid custody metadata can live in config, but the private key must
 stay in the OS keychain or local process environment. `zero doctor` reads the
 engine `/live/preflight` gate and warns until the runtime proves custody,
-journal, risk, and emergency controls are ready.
+journal, account reconciliation, risk, and emergency controls are ready.
+Operators can inspect the same read-only account truth with `/hl-account` and
+the live risk gate with `/hl-reconcile`.
 
 Risk-reducing live controls are wired to the engine when an API client is
 attached:
