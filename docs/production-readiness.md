@@ -32,6 +32,14 @@ This is credible for the public open-source launch repository. It is still not
 a hosted custody product, and real capital operation remains self-custodial and
 operator-owned.
 
+For the larger target, ZERO is not yet 100/100 as a complete autonomous
+operating system. The remaining work is tracked in the
+[ZERO Autonomous OS Completion Plan](autonomous-os-plan.md): autonomous runtime
+loop, strategy runners, durable runtime bus, Hyperliquid reconciliation, live
+execution certification, immune controls, terminal live cockpit,
+multi-operator isolation, LLM gateway, hosted Network ingestion, ZERO
+Intelligence API, deployment evidence, distribution, and external review.
+
 ## CLI Readiness Detail
 
 | Area | Score | Notes |

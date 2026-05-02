@@ -87,6 +87,7 @@ docs-check:
     test -f docs/distribution.md
     test -f docs/hyperliquid-readonly.md
     test -f docs/production-readiness.md
+    test -f docs/autonomous-os-plan.md
     test -f docs/release.md
     test -f docs/releases/v0.1.1.md
     test -f docs/launch-scorecard.md
