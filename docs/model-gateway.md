@@ -51,14 +51,25 @@ OpenAI and OpenRouter requests use JSON Schema response formats; Ollama receives
 the same schema through its local `format` field; Anthropic receives the schema
 as an explicit return-only-JSON instruction.
 
+## Retry And Cost Policy
+
+Hosted model retries are bounded by `ZERO_MODEL_MAX_ATTEMPTS`, clamped to `1..3`.
+`ZERO_MODEL_TIMEOUT_S` is clamped to `1..120`. Retry attempts and timeout
+budgets are public in provider status so operators can audit the model boundary
+without exposing secrets.
+
+Provider token usage is recorded when the provider returns usage metadata. Dollar
+costs are estimated only when the operator supplies per-provider token prices;
+the runtime does not ship stale vendor pricing.
+
 ## Safety Rules
 
 - Missing provider means `failed_closed`, never fabricated certainty.
 - Model output must pass structured JSON validation before use.
-- Hosted provider request failures return `failed_closed`; they do not retry
-  into uncertain state.
+- Hosted provider request failures return `failed_closed` after the bounded
+  retry budget is exhausted.
 - Usage events record provider, model, capability, status, prompt length, output
-  length, and estimated cost only.
+  length, attempts, token counts, and estimated cost only.
 - Model output is advisory-only; live execution remains gated by preflight,
   reconciliation, immune breakers, dead-man heartbeat, and live policy.
 
@@ -68,6 +79,8 @@ as an explicit return-only-JSON instruction.
 - `ZERO_MODEL_NAME`
 - `ZERO_MODEL_MOCK_ENABLED=true`
 - `ZERO_MODEL_ALLOW_NETWORK=true`
+- `ZERO_MODEL_MAX_ATTEMPTS=1`
+- `ZERO_MODEL_TIMEOUT_S=30`
 - `OPENAI_API_KEY`
 - `ANTHROPIC_API_KEY`
 - `OLLAMA_BASE_URL`
@@ -75,6 +88,19 @@ as an explicit return-only-JSON instruction.
 - `ZERO_OPENAI_BASE_URL` for an OpenAI-compatible override
 - `ZERO_ANTHROPIC_BASE_URL` for an Anthropic-compatible override
 - `ZERO_OPENROUTER_BASE_URL` for an OpenRouter-compatible override
+- `ZERO_MODEL_OPENAI_INPUT_COST_PER_1M_TOKENS_USD`
+- `ZERO_MODEL_OPENAI_OUTPUT_COST_PER_1M_TOKENS_USD`
+- `ZERO_MODEL_ANTHROPIC_INPUT_COST_PER_1M_TOKENS_USD`
+- `ZERO_MODEL_ANTHROPIC_OUTPUT_COST_PER_1M_TOKENS_USD`
+- `ZERO_MODEL_OLLAMA_INPUT_COST_PER_1M_TOKENS_USD`
+- `ZERO_MODEL_OLLAMA_OUTPUT_COST_PER_1M_TOKENS_USD`
+- `ZERO_MODEL_OPENROUTER_INPUT_COST_PER_1M_TOKENS_USD`
+- `ZERO_MODEL_OPENROUTER_OUTPUT_COST_PER_1M_TOKENS_USD`
 
 For public CI, use the mock provider. For production, provider keys should be
 scoped per operator and managed outside the repository.
+
+For hosted ZERO Intelligence, provider keys must live in the hosted secret
+manager or in the operator's own deployment environment. Public status packets
+may expose whether a provider is configured, but must never expose key values,
+request headers, raw prompts, raw outputs, or provider request identifiers.

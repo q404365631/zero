@@ -52,8 +52,8 @@ class ModelClient(Protocol):
     local: bool
     live_network: bool
 
-    def generate_json(self, prompt: str, schema: dict[str, Any]) -> dict[str, Any]:
-        """Return a JSON-like dict or raise RuntimeError on unavailable providers."""
+    def generate_json(self, prompt: str, schema: dict[str, Any]) -> ModelGeneration:
+        """Return structured model output or raise RuntimeError on unavailable providers."""
 
 
 class JsonHttpTransport(Protocol):
@@ -77,11 +77,21 @@ class ModelGatewayConfig:
     configured_providers: frozenset[str] = frozenset()
     provider_credentials: Mapping[str, str] = field(default_factory=dict, repr=False)
     provider_endpoints: Mapping[str, str] = field(default_factory=dict)
+    provider_input_cost_per_1m_tokens_usd: Mapping[str, float] = field(default_factory=dict)
+    provider_output_cost_per_1m_tokens_usd: Mapping[str, float] = field(default_factory=dict)
+    max_attempts: int = 1
+    timeout_s: float = 30.0
     transport: JsonHttpTransport | None = field(default=None, repr=False, compare=False)
 
     def normalized_provider(self) -> str:
         provider = self.provider.strip().lower()
         return provider if provider in PROVIDER_CAPABILITIES else "none"
+
+    def normalized_max_attempts(self) -> int:
+        return min(3, max(1, int(self.max_attempts)))
+
+    def normalized_timeout_s(self) -> float:
+        return min(120.0, max(1.0, float(self.timeout_s)))
 
 
 @dataclass
@@ -92,7 +102,11 @@ class ModelUsageEvent:
     status: str
     prompt_chars: int
     output_chars: int
+    attempts: int = 0
+    input_tokens: int | None = None
+    output_tokens: int | None = None
     estimated_cost_usd: float = 0.0
+    cost_estimate_source: str = "unpriced"
 
     def to_public_dict(self) -> dict[str, Any]:
         return {
@@ -102,8 +116,20 @@ class ModelUsageEvent:
             "status": self.status,
             "prompt_chars": self.prompt_chars,
             "output_chars": self.output_chars,
+            "attempts": self.attempts,
+            "input_tokens": self.input_tokens,
+            "output_tokens": self.output_tokens,
             "estimated_cost_usd": round(self.estimated_cost_usd, 8),
+            "cost_estimate_source": self.cost_estimate_source,
         }
+
+
+@dataclass(frozen=True)
+class ModelGeneration:
+    output: dict[str, Any]
+    attempts: int = 1
+    input_tokens: int | None = None
+    output_tokens: int | None = None
 
 
 @dataclass
@@ -130,6 +156,8 @@ class ModelGateway:
                         PROVIDER_DEFAULT_ENDPOINTS[provider],
                     ),
                     transport=transport,
+                    max_attempts=self.config.normalized_max_attempts(),
+                    timeout_s=self.config.normalized_timeout_s(),
                 )
             )
         return clients
@@ -161,6 +189,13 @@ class ModelGateway:
                     8,
                 ),
                 "recent": [event.to_public_dict() for event in self.usage_events[-10:]],
+                "cost_policy": {
+                    "pricing_source": "operator_configured"
+                    if self.config.provider_input_cost_per_1m_tokens_usd
+                    or self.config.provider_output_cost_per_1m_tokens_usd
+                    else "unpriced",
+                    "price_values_included": False,
+                },
             },
             "privacy": {
                 "prompts_included": False,
@@ -194,7 +229,8 @@ class ModelGateway:
                 reason="no configured model provider for capability",
             )
         try:
-            output = client.generate_json(prompt, schema)
+            generation = client.generate_json(prompt, schema)
+            output = generation.output
             validate_structured_output(output, schema)
         except (RuntimeError, ValueError) as exc:
             return self._failed_evaluation(
@@ -203,6 +239,7 @@ class ModelGateway:
                 reason=str(exc),
                 provider=client.provider,
                 model=client.model,
+                attempts=getattr(client, "max_attempts", 1),
             )
         event = ModelUsageEvent(
             provider=client.provider,
@@ -211,6 +248,15 @@ class ModelGateway:
             status="ok",
             prompt_chars=len(prompt),
             output_chars=len(json.dumps(output, sort_keys=True)),
+            attempts=generation.attempts,
+            input_tokens=generation.input_tokens,
+            output_tokens=generation.output_tokens,
+            estimated_cost_usd=self._estimate_cost_usd(
+                provider=client.provider,
+                input_tokens=generation.input_tokens,
+                output_tokens=generation.output_tokens,
+            ),
+            cost_estimate_source=self._cost_estimate_source(client.provider, generation),
         )
         self.usage_events.append(event)
         result = {
@@ -256,6 +302,7 @@ class ModelGateway:
         reason: str,
         provider: str | None = None,
         model: str | None = None,
+        attempts: int | None = None,
     ) -> dict[str, Any]:
         event = ModelUsageEvent(
             provider=provider or "none",
@@ -264,6 +311,7 @@ class ModelGateway:
             status="failed_closed",
             prompt_chars=len(prompt),
             output_chars=0,
+            attempts=attempts if attempts is not None else (1 if provider else 0),
         )
         self.usage_events.append(event)
         result = {
@@ -284,6 +332,33 @@ class ModelGateway:
         assert_model_gateway_safe(result)
         return result
 
+    def _estimate_cost_usd(
+        self,
+        *,
+        provider: str,
+        input_tokens: int | None,
+        output_tokens: int | None,
+    ) -> float:
+        if input_tokens is None and output_tokens is None:
+            return 0.0
+        input_rate = self.config.provider_input_cost_per_1m_tokens_usd.get(provider)
+        output_rate = self.config.provider_output_cost_per_1m_tokens_usd.get(provider)
+        if input_rate is None and output_rate is None:
+            return 0.0
+        input_cost = (input_tokens or 0) * (input_rate or 0.0) / 1_000_000
+        output_cost = (output_tokens or 0) * (output_rate or 0.0) / 1_000_000
+        return input_cost + output_cost
+
+    def _cost_estimate_source(self, provider: str, generation: ModelGeneration) -> str:
+        if generation.input_tokens is None and generation.output_tokens is None:
+            return "no_provider_usage"
+        if (
+            provider in self.config.provider_input_cost_per_1m_tokens_usd
+            or provider in self.config.provider_output_cost_per_1m_tokens_usd
+        ):
+            return "operator_configured_token_price"
+        return "usage_only_unpriced"
+
 
 @dataclass(frozen=True)
 class NullModelClient:
@@ -293,7 +368,7 @@ class NullModelClient:
     local: bool = True
     live_network: bool = False
 
-    def generate_json(self, prompt: str, schema: dict[str, Any]) -> dict[str, Any]:
+    def generate_json(self, prompt: str, schema: dict[str, Any]) -> ModelGeneration:
         raise RuntimeError("no model provider configured")
 
 
@@ -307,7 +382,7 @@ class MockModelClient:
     local: bool = True
     live_network: bool = False
 
-    def generate_json(self, prompt: str, schema: dict[str, Any]) -> dict[str, Any]:
+    def generate_json(self, prompt: str, schema: dict[str, Any]) -> ModelGeneration:
         del prompt
         output = {
             "verdict": "hold",
@@ -318,7 +393,7 @@ class MockModelClient:
             output.setdefault(
                 key, _default_value_for_type(schema.get("properties", {}).get(key, {}))
             )
-        return output
+        return ModelGeneration(output=output, attempts=1)
 
 
 @dataclass(frozen=True)
@@ -363,12 +438,13 @@ class HttpJsonExternalModelClient:
     local: bool = False
     live_network: bool = True
     timeout_s: float = 30.0
+    max_attempts: int = 1
 
     @property
     def capabilities(self) -> list[str]:
         return PROVIDER_CAPABILITIES[self.provider]
 
-    def generate_json(self, prompt: str, schema: dict[str, Any]) -> dict[str, Any]:
+    def generate_json(self, prompt: str, schema: dict[str, Any]) -> ModelGeneration:
         if not self.configured:
             raise RuntimeError(f"{self.provider} is not configured")
         if not self.allow_network:
@@ -376,16 +452,25 @@ class HttpJsonExternalModelClient:
         if self.model.endswith(":operator-configured"):
             raise RuntimeError(f"{self.provider} model name is not configured")
         request_prompt = _structured_output_prompt(prompt, schema)
-        try:
-            response = self.transport.post_json(
-                url=self.endpoint,
-                headers=self._headers(),
-                payload=self._payload(request_prompt, schema),
-                timeout_s=self.timeout_s,
-            )
-        except RuntimeError as exc:
-            raise RuntimeError(f"{self.provider} request failed") from exc
-        return self._parse_response(response)
+        last_error: RuntimeError | None = None
+        attempts = min(3, max(1, self.max_attempts))
+        for attempt in range(1, attempts + 1):
+            try:
+                response = self.transport.post_json(
+                    url=self.endpoint,
+                    headers=self._headers(),
+                    payload=self._payload(request_prompt, schema),
+                    timeout_s=self.timeout_s,
+                )
+                return ModelGeneration(
+                    output=self._parse_response(response),
+                    attempts=attempt,
+                    input_tokens=_extract_input_tokens(response),
+                    output_tokens=_extract_output_tokens(response),
+                )
+            except RuntimeError as exc:
+                last_error = exc
+        raise RuntimeError(f"{self.provider} request failed") from last_error
 
     def _headers(self) -> dict[str, str]:
         if self.provider == "openai":
@@ -482,6 +567,10 @@ def provider_status(client: ModelClient, config: ModelGatewayConfig) -> dict[str
         "capabilities": list(client.capabilities),
         "required_env": PROVIDER_REQUIRED_ENV.get(provider, []),
         "adapter": "http_json" if provider in PROVIDER_DEFAULT_ENDPOINTS else "local",
+        "retry_policy": {
+            "max_attempts": config.normalized_max_attempts() if client.live_network else 0,
+            "timeout_s": config.normalized_timeout_s() if client.live_network else 0,
+        },
     }
 
 
@@ -572,6 +661,28 @@ def _decode_json_object(raw: str, label: str) -> dict[str, Any]:
     if not isinstance(decoded, dict):
         raise RuntimeError(f"{label} was not a JSON object")
     return decoded
+
+
+def _extract_input_tokens(response: dict[str, Any]) -> int | None:
+    usage = response.get("usage")
+    if not isinstance(usage, dict):
+        return None
+    for key in ("input_tokens", "prompt_tokens"):
+        value = usage.get(key)
+        if isinstance(value, int) and value >= 0:
+            return value
+    return None
+
+
+def _extract_output_tokens(response: dict[str, Any]) -> int | None:
+    usage = response.get("usage")
+    if not isinstance(usage, dict):
+        return None
+    for key in ("output_tokens", "completion_tokens"):
+        value = usage.get(key)
+        if isinstance(value, int) and value >= 0:
+            return value
+    return None
 
 
 def _default_value_for_type(property_schema: dict[str, Any]) -> Any:

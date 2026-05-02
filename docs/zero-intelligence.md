@@ -45,7 +45,8 @@ product should ingest later:
   commercial API, billing, scope, dataset, and rate-limit contract.
 - `GET /intelligence/model-gateway` returns `zero.model_gateway.status.v1`, the
   provider-agnostic, fail-closed model routing status for advisory intelligence,
-  including optional OpenAI, Anthropic, Ollama, and OpenRouter adapter readiness.
+  including optional OpenAI, Anthropic, Ollama, and OpenRouter adapter readiness,
+  bounded retry policy, usage counters, and public-safe cost-estimate source.
 - `POST /intelligence/export` writes an opt-in local JSONL packet when
   `ZERO_INTELLIGENCE_EXPORT_PATH` is configured and the request includes
   `{"consent":true}`.
@@ -103,6 +104,9 @@ Primary datasets:
   exchange credentials, private notes, or non-consented strategy details.
 - Model gateway status must not expose prompts, raw model outputs, provider
   secret values, or hosted request metadata.
+- Model gateway costs must come from operator-configured prices or provider
+  usage metadata; the public runtime must not bake stale vendor pricing into
+  source code.
 - Paid intelligence should monetize speed, scale, history, reliability, and
   commercial access, not basic runtime use.
 - Core runtime and venue adapters should remain public. Commercial connectors

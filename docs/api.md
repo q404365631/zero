@@ -200,7 +200,9 @@ public-safe provider and routing status packet. The default mode is
 `fail_closed`: no configured provider means no model-derived certainty. Mock
 providers report `local_ready`; explicitly configured external providers report
 `external_ready`. All model output is advisory-only and never bypasses
-execution safety.
+execution safety. Provider status also reports bounded retry and timeout policy;
+usage counters include attempts, token counts when available, and public-safe
+cost-estimate source.
 
 `POST /intelligence/export` requires `{"consent": true}` and
 `ZERO_INTELLIGENCE_EXPORT_PATH`. When both are present, the runtime appends the

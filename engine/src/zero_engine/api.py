@@ -238,6 +238,10 @@ class PaperApiState:
     model_gateway_configured_providers: frozenset[str] = frozenset()
     model_gateway_provider_credentials: Mapping[str, str] = field(default_factory=dict, repr=False)
     model_gateway_provider_endpoints: Mapping[str, str] = field(default_factory=dict)
+    model_gateway_provider_input_costs: Mapping[str, float] = field(default_factory=dict)
+    model_gateway_provider_output_costs: Mapping[str, float] = field(default_factory=dict)
+    model_gateway_max_attempts: int = 1
+    model_gateway_timeout_s: float = 30.0
     model_gateway_instance: ModelGateway | None = None
     default_operator_id: str = "local-operator"
     default_operator_handle: str = "local-operator"
@@ -1349,6 +1353,14 @@ class PaperApi:
                     configured_providers=self.state.model_gateway_configured_providers,
                     provider_credentials=self.state.model_gateway_provider_credentials,
                     provider_endpoints=self.state.model_gateway_provider_endpoints,
+                    provider_input_cost_per_1m_tokens_usd=(
+                        self.state.model_gateway_provider_input_costs
+                    ),
+                    provider_output_cost_per_1m_tokens_usd=(
+                        self.state.model_gateway_provider_output_costs
+                    ),
+                    max_attempts=self.state.model_gateway_max_attempts,
+                    timeout_s=self.state.model_gateway_timeout_s,
                 )
             )
         return self.state.model_gateway_instance
@@ -1929,6 +1941,10 @@ def serve(
                     model_gateway_configured_providers=configured_model_providers(),
                     model_gateway_provider_credentials=model_provider_credentials(),
                     model_gateway_provider_endpoints=model_provider_endpoints(),
+                    model_gateway_provider_input_costs=model_provider_costs("INPUT"),
+                    model_gateway_provider_output_costs=model_provider_costs("OUTPUT"),
+                    model_gateway_max_attempts=parse_int_env("ZERO_MODEL_MAX_ATTEMPTS", 1),
+                    model_gateway_timeout_s=parse_float_env("ZERO_MODEL_TIMEOUT_S", 30.0),
                     default_operator_id=os.environ.get("ZERO_OPERATOR_ID", "local-operator"),
                     default_operator_handle=os.environ.get("ZERO_OPERATOR_HANDLE", "local-operator"),
                     default_operator_role=os.environ.get("ZERO_OPERATOR_ROLE", "owner"),
@@ -2006,6 +2022,20 @@ def model_provider_endpoints() -> dict[str, str]:
     if url := os.environ.get("ZERO_OPENROUTER_BASE_URL"):
         endpoints["openrouter"] = url
     return endpoints
+
+
+def model_provider_costs(kind: str) -> dict[str, float]:
+    costs: dict[str, float] = {}
+    for provider in ("openai", "anthropic", "ollama", "openrouter"):
+        name = f"ZERO_MODEL_{provider.upper()}_{kind}_COST_PER_1M_TOKENS_USD"
+        if value := os.environ.get(name):
+            try:
+                parsed = float(value)
+            except ValueError:
+                continue
+            if parsed >= 0:
+                costs[provider] = parsed
+    return costs
 
 
 def build_live_executor(dead_man_timeout_s: float) -> LiveExecutor | None:

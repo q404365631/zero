@@ -26,8 +26,11 @@ ADVISORY_SCHEMA = {
 
 
 class StubJsonTransport:
-    def __init__(self, response: dict[str, object] | RuntimeError) -> None:
-        self.response = response
+    def __init__(
+        self,
+        response: dict[str, object] | RuntimeError | list[dict[str, object] | RuntimeError],
+    ) -> None:
+        self.responses = response if isinstance(response, list) else [response]
         self.requests: list[dict[str, object]] = []
 
     def post_json(
@@ -46,9 +49,10 @@ class StubJsonTransport:
                 "timeout_s": timeout_s,
             }
         )
-        if isinstance(self.response, RuntimeError):
-            raise self.response
-        return self.response
+        response = self.responses[min(len(self.requests) - 1, len(self.responses) - 1)]
+        if isinstance(response, RuntimeError):
+            raise response
+        return response
 
 
 def test_model_gateway_status_is_fail_closed_without_provider() -> None:
@@ -114,26 +118,34 @@ def test_model_gateway_fails_closed_on_unavailable_external_provider() -> None:
     [
         (
             "openai",
-            {"output_text": '{"verdict":"hold","confidence":0.7,"rationale":"ok"}'},
+            {
+                "output_text": '{"verdict":"hold","confidence":0.7,"rationale":"ok"}',
+                "usage": {"input_tokens": 100, "output_tokens": 20},
+            },
         ),
         (
             "anthropic",
             {
                 "content": [
                     {"type": "text", "text": '{"verdict":"hold","confidence":0.6,"rationale":"ok"}'}
-                ]
+                ],
+                "usage": {"input_tokens": 90, "output_tokens": 18},
             },
         ),
         (
             "ollama",
-            {"response": '{"verdict":"hold","confidence":0.5,"rationale":"ok"}'},
+            {
+                "response": '{"verdict":"hold","confidence":0.5,"rationale":"ok"}',
+                "usage": {"prompt_tokens": 80, "completion_tokens": 16},
+            },
         ),
         (
             "openrouter",
             {
                 "choices": [
                     {"message": {"content": '{"verdict":"hold","confidence":0.8,"rationale":"ok"}'}}
-                ]
+                ],
+                "usage": {"prompt_tokens": 70, "completion_tokens": 14},
             },
         ),
     ],
@@ -154,6 +166,8 @@ def test_external_provider_adapters_parse_structured_json(
                 "anthropic": "test-anthropic-key",
                 "openrouter": "test-openrouter-key",
             },
+            provider_input_cost_per_1m_tokens_usd={provider: 1.0},
+            provider_output_cost_per_1m_tokens_usd={provider: 2.0},
             transport=transport,
         )
     )
@@ -168,8 +182,14 @@ def test_external_provider_adapters_parse_structured_json(
     assert result["status"] == "ok"
     assert result["provider"] == provider
     assert result["output"]["verdict"] == "hold"
+    assert result["usage"]["attempts"] == 1
+    assert result["usage"]["input_tokens"] is not None
+    assert result["usage"]["output_tokens"] is not None
+    assert result["usage"]["estimated_cost_usd"] > 0
+    assert result["usage"]["cost_estimate_source"] == "operator_configured_token_price"
     assert status["mode"] == "external_ready"
     assert status["routing"]["structured_output"] == provider
+    assert status["usage"]["cost_policy"]["pricing_source"] == "operator_configured"
     assert status["privacy"]["contains_api_keys"] is False
     body = json.dumps(status)
     assert "test-openai-key" not in body
@@ -188,6 +208,40 @@ def test_external_provider_adapters_parse_structured_json(
         assert payload["response_format"]["type"] == "json_schema"
 
 
+def test_external_provider_retries_are_bounded_and_public() -> None:
+    transport = StubJsonTransport(
+        [
+            RuntimeError("temporary transport failure"),
+            {"output_text": '{"verdict":"hold","confidence":0.7,"rationale":"ok"}'},
+        ]
+    )
+    gateway = ModelGateway(
+        ModelGatewayConfig(
+            provider="openai",
+            model="openai-test-model",
+            allow_network=True,
+            configured_providers=frozenset({"openai"}),
+            provider_credentials={"openai": "test-openai-key"},
+            max_attempts=2,
+            timeout_s=7.0,
+            transport=transport,
+        )
+    )
+
+    result = gateway.evaluate_json(
+        capability="structured_output",
+        prompt="advisory",
+        schema=ADVISORY_SCHEMA,
+    )
+    status = gateway.status(generated_at="2026-05-01T00:00:00+00:00")
+
+    assert result["status"] == "ok"
+    assert result["usage"]["attempts"] == 2
+    assert len(transport.requests) == 2
+    assert transport.requests[0]["timeout_s"] == 7.0
+    assert status["providers"][1]["retry_policy"] == {"max_attempts": 2, "timeout_s": 7.0}
+
+
 def test_external_provider_transport_errors_fail_closed_without_secret_leak() -> None:
     transport = StubJsonTransport(RuntimeError("socket failure with key metadata"))
     gateway = ModelGateway(
@@ -197,6 +251,7 @@ def test_external_provider_transport_errors_fail_closed_without_secret_leak() ->
             allow_network=True,
             configured_providers=frozenset({"openai"}),
             provider_credentials={"openai": "sk-test-secret"},
+            max_attempts=2,
             transport=transport,
         )
     )
@@ -212,6 +267,8 @@ def test_external_provider_transport_errors_fail_closed_without_secret_leak() ->
     assert result["provider"] == "openai"
     assert result["output"] is None
     assert result["reason"] == "openai request failed"
+    assert result["usage"]["attempts"] == 2
+    assert len(transport.requests) == 2
     assert "sk-test-secret" not in json.dumps(result)
     assert "sk-test-secret" not in json.dumps(status)
 
