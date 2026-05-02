@@ -315,6 +315,7 @@ class PaperApi:
             "/hl/reconcile": self.hl_reconcile,
             "/hl/status": lambda: self.hl_status(query),
             "/immune": self.immune,
+            "/live/cockpit": self.live_cockpit,
             "/intelligence/catalog": self.intelligence_catalog,
             "/intelligence/snapshot": self.intelligence_snapshot,
             "/live/certification": self.live_certification,
@@ -599,6 +600,106 @@ class PaperApi:
 
     def live_certification(self) -> dict[str, Any]:
         return run_live_certification().to_dict()
+
+    def live_cockpit(self) -> dict[str, Any]:
+        preflight = self.live_preflight()
+        try:
+            reconciliation = self.state.reconcile_hyperliquid_account()
+            reconciliation_payload = {
+                "schema_version": reconciliation.to_dict()["schema_version"],
+                "status": reconciliation.status,
+                "risk_increasing_allowed": reconciliation.risk_increasing_allowed,
+                "reason": reconciliation.reason,
+                "drifts": len(reconciliation.drifts),
+            }
+        except Exception as exc:
+            reconciliation_payload = {
+                "schema_version": "zero.reconciliation.v1",
+                "status": "error",
+                "risk_increasing_allowed": False,
+                "reason": f"Hyperliquid reconciliation failed: {exc}",
+                "drifts": 0,
+            }
+        immune = preflight["immune"]
+        certification = self.live_certification()
+        failed_checks = [check for check in preflight["checks"] if check["status"] != "ok"]
+        open_breakers = [breaker for breaker in immune["breakers"] if breaker["blocks_risk"]]
+        failed_drills = [drill for drill in certification["drills"] if drill["status"] != "pass"]
+        executor = self.state.live_executor
+        records = list(executor.records if executor is not None else [])
+        record_statuses = [record.status for record in records]
+
+        if failed_checks:
+            first = failed_checks[0]
+            next_action = f"fix preflight check {first['name']}: {first['note']}"
+        elif open_breakers:
+            first = open_breakers[0]
+            next_action = f"close immune breaker {first['name']}: {first['reason']}"
+        elif not certification["passed"] or not certification["live_start_certified"]:
+            next_action = "rerun live certification and resolve failed drills"
+        else:
+            next_action = "ready for operator-owned tiny-capital canary; capture the evidence bundle"
+
+        return {
+            "schema_version": "zero.live_cockpit.v1",
+            "generated_at": self.state.now_iso(),
+            "mode": preflight["mode"],
+            "live_mode": preflight["live_mode"],
+            "ready": preflight["ready"],
+            "controls_ready": preflight["controls_ready"],
+            "risk_increasing_allowed": bool(
+                preflight["ready"]
+                and immune["risk_increasing_allowed"]
+                and certification["passed"]
+                and certification["live_start_certified"]
+            ),
+            "next_action": next_action,
+            "preflight": {
+                "schema_version": preflight["schema_version"],
+                "ready": preflight["ready"],
+                "live_mode": preflight["live_mode"],
+                "controls_ready": preflight["controls_ready"],
+                "summary": {
+                    "total": len(preflight["checks"]),
+                    "passed": len(preflight["checks"]) - len(failed_checks),
+                    "failed": len(failed_checks),
+                },
+                "failed_checks": failed_checks,
+            },
+            "immune": {
+                "schema_version": immune["schema_version"],
+                "risk_increasing_allowed": immune["risk_increasing_allowed"],
+                "summary": immune["summary"],
+                "open_breakers": open_breakers,
+            },
+            "reconciliation": reconciliation_payload,
+            "certification": {
+                "schema_version": certification["schema_version"],
+                "mode": certification["mode"],
+                "passed": certification["passed"],
+                "live_start_certified": certification["live_start_certified"],
+                "summary": certification["summary"],
+                "failed_drills": failed_drills,
+            },
+            "heartbeat": {
+                "configured": executor is not None,
+                "expired": True if executor is None else executor.dead_man_expired(),
+                "last_heartbeat_at": None if executor is None else executor.last_heartbeat_at,
+                "timeout_s": None if executor is None else executor.policy.dead_man_timeout_s,
+            },
+            "live_records": {
+                "total": len(records),
+                "accepted": len([record for record in records if record.accepted]),
+                "refused": record_statuses.count("refused"),
+                "exchange_error": record_statuses.count("exchange_error"),
+                "recent": [record.to_dict() for record in records[-5:]],
+            },
+            "operator_actions": {
+                "risk_reducing": ["/pause-entries", "/kill", "/flatten-all"],
+                "risk_increasing": ["/resume-entries"],
+                "read_only": ["/live-cockpit", "/live-certify", "/immune", "/hl-reconcile"],
+            },
+        }
 
     def immune(self, reconciliation: ReconciliationReport | None = None) -> dict[str, Any]:
         if reconciliation is None:

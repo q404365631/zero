@@ -81,6 +81,8 @@ curl -fsS \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["ok"] is False; assert p["reason"] == "explicit consent required"'
 curl -fsS "${API}/live/preflight" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.live_preflight.v1"; assert p["ready"] is False; assert p["live_mode"] == "refused"; assert "private" not in json.dumps(p).lower() or "never commit" in json.dumps(p).lower()'
+curl -fsS "${API}/live/cockpit" \
+  | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.live_cockpit.v1"; assert p["ready"] is False; assert p["risk_increasing_allowed"] is False; assert p["preflight"]["summary"]["failed"] >= 1; assert "/kill" in p["operator_actions"]["risk_reducing"]'
 curl -fsS "${API}/live/certification" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.live_certification.v1"; assert p["mode"] == "dry_run"; assert p["passed"] is True; assert p["summary"]["orders_placed_live"] == 0'
 curl -fsS \
@@ -92,8 +94,10 @@ curl -fsS \
 (
   cd "${ROOT}/cli"
   cargo run -q -p zero -- --api "${API}" run positions >/tmp/zero-paper-api-positions.txt
+  cargo run -q -p zero -- --api "${API}" run live-cockpit >/tmp/zero-paper-api-live-cockpit.txt
   cargo run -q -p zero -- --api "${API}" run immune >/tmp/zero-paper-api-immune.txt
 )
 
 grep -q "BTC" /tmp/zero-paper-api-positions.txt
+grep -q "live-cockpit:" /tmp/zero-paper-api-live-cockpit.txt
 grep -q "immune:" /tmp/zero-paper-api-immune.txt

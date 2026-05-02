@@ -66,6 +66,8 @@ curl -fsS "${API}/immune" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.immune.v1"; assert p["risk_increasing_allowed"] is False; assert p["summary"]["risk_blocking"] >= 1'
 curl -fsS "${API}/live/preflight" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.live_preflight.v1"; assert p["ready"] is False; assert p["live_mode"] == "refused"'
+curl -fsS "${API}/live/cockpit" \
+  | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.live_cockpit.v1"; assert p["ready"] is False; assert p["risk_increasing_allowed"] is False; assert p["preflight"]["summary"]["failed"] >= 1'
 curl -fsS "${API}/live/certification" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.live_certification.v1"; assert p["mode"] == "dry_run"; assert p["passed"] is True; assert p["summary"]["orders_placed_live"] == 0'
 curl -fsS "${API}/network/profile" \

@@ -95,6 +95,7 @@ docs-check:
     test -f docs/distribution.md
     test -f docs/hyperliquid-readonly.md
     test -f docs/live-certification.md
+    test -f docs/live-cockpit.md
     test -f docs/immune-system.md
     test -f docs/production-readiness.md
     test -f docs/autonomous-os-plan.md

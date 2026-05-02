@@ -30,7 +30,7 @@ operator docs, release notes, or public packet examples.
 1. Run `POST /live/kill` or the CLI kill command.
 2. If positions remain open, run reduce-only flatten from ZERO or manually at
    the exchange.
-3. Export `/audit/export?limit=1000`, `/metrics`, `/live/preflight`, and local
+3. Export `/audit/export?limit=1000`, `/metrics`, `/live/preflight`, `/live/cockpit`, and local
    live execution records.
 4. Check idempotency key, trace ID, risk limits, dead-man heartbeat, and
    kill-switch path.
@@ -44,7 +44,7 @@ Exit gate: exchange state, local journal, and ZERO live records reconcile.
 1. Run `/kill` or `POST /live/kill` immediately.
 2. If any position remains open, run `/flatten-all` or close manually at the
    exchange with reduce-only orders.
-3. Preserve `/live/preflight`, `/immune`, `/hl/reconcile`,
+3. Preserve `/live/preflight`, `/live/cockpit`, `/immune`, `/hl/reconcile`,
    `/live/certification`, `/metrics`, `/audit/export?limit=1000`, and
    exchange-side order/fill records.
 4. Compare idempotency keys, client order IDs, local live records, and exchange
@@ -117,7 +117,7 @@ Every P0/P1 incident should preserve:
 
 - commit SHA and release tag;
 - Railway deployment ID or local command line;
-- `/health`, `/v2/status`, `/metrics`, `/immune`, `/live/preflight`;
+- `/health`, `/v2/status`, `/metrics`, `/immune`, `/live/preflight`, `/live/cockpit`;
 - `/hl/reconcile`, `/live/certification`;
 - `/audit/export?limit=1000`;
 - relevant trace IDs and idempotency keys;

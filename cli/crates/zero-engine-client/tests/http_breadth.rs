@@ -109,6 +109,24 @@ async fn live_certification_decodes_dry_run_harness() {
 }
 
 #[tokio::test]
+async fn live_cockpit_decodes_operator_readiness_packet() {
+    let (mock, http) = client().await;
+    let cockpit = http.live_cockpit().await.expect("live cockpit");
+
+    assert_eq!(cockpit.schema_version, "zero.live_cockpit.v1");
+    assert_eq!(cockpit.live_mode, "refused");
+    assert!(!cockpit.ready);
+    assert!(!cockpit.risk_increasing_allowed);
+    assert_eq!(cockpit.preflight.failed_checks[0].name, "live_executor");
+    assert_eq!(cockpit.immune.open_breakers[0].name, "dead_man");
+    assert!(cockpit.certification.passed);
+    assert!(cockpit.heartbeat.expired);
+    assert_eq!(cockpit.live_records.total, 0);
+    assert!(cockpit.next_action.contains("live_executor"));
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn immune_decodes_risk_blocking_breakers() {
     let (mock, http) = client().await;
     let report = http.immune().await.expect("immune");

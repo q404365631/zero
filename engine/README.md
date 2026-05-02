@@ -33,7 +33,7 @@ exposes the paper-mode subset of the engine contract used by the Rust CLI:
 `/journal`, `/metrics`, `/immune`, `/audit/export`, `/hl/status`, `/hl/account`,
 `/hl/reconcile`, `/market/quote`,
 `/network/profile`, `/network/leaderboard`, `/intelligence/snapshot`,
-`/intelligence/catalog`, `/live/preflight`, `/live/certification`,
+`/intelligence/catalog`, `/live/preflight`, `/live/cockpit`, `/live/certification`,
 `/operator/state`, `POST /execute`, `POST /auto/toggle`, `POST /operator/events`,
 `POST /network/publish`, `POST /intelligence/export`, and the live-control
 endpoints under `POST /live/*`.
@@ -75,6 +75,10 @@ Live certification is visible through `/live/certification`. It runs dry-run
 fake-exchange drills for heartbeat, idempotency, exchange outages, pause,
 reduce-only flatten, kill, rate limits, and loss limits without placing live
 orders.
+
+The live cockpit is visible through `/live/cockpit`. It combines preflight,
+reconciliation, immune breakers, dry-run certification, heartbeat state, recent
+live records, and the next required operator action into one read-only packet.
 
 The immune system is visible through `/immune`. It reports stale-data,
 reconciliation, dead-man, pause, kill, daily-loss, order-velocity,

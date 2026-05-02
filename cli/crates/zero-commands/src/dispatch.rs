@@ -597,6 +597,7 @@ async fn run(ctx: &DispatchContext, cmd: &Command) -> DispatchOutput {
         Command::HyperliquidAccount => hl_account_cmd(ctx).await,
         Command::HyperliquidReconcile => hl_reconcile_cmd(ctx).await,
         Command::LiveCertify => live_certify_cmd(ctx).await,
+        Command::LiveCockpit => live_cockpit_cmd(ctx).await,
         Command::Immune => immune_cmd(ctx).await,
         Command::Quote { symbol } => quote_cmd(ctx, symbol.as_deref()).await,
         Command::Regime { coin } => regime_cmd(ctx, coin.as_deref()).await,
@@ -608,6 +609,7 @@ async fn run(ctx: &DispatchContext, cmd: &Command) -> DispatchOutput {
         Command::Kill => kill_cmd(ctx).await,
         Command::FlattenAll => flatten_cmd(ctx).await,
         Command::PauseEntries => pause_cmd(ctx).await,
+        Command::ResumeEntries => resume_entries_cmd(ctx).await,
         Command::Break { minutes } => break_stub(ctx, *minutes).await,
         Command::Execute => execute_stub(),
         Command::State => DispatchOutput {
@@ -675,6 +677,9 @@ fn help() -> DispatchOutput {
         "  /live-certify        — dry-run live execution certification",
     ));
     out.lines.push(OutputLine::system(
+        "  /live-cockpit        — live readiness cockpit",
+    ));
+    out.lines.push(OutputLine::system(
         "  /immune              — immune breaker state",
     ));
     out.lines.push(OutputLine::system(
@@ -702,6 +707,9 @@ fn help() -> DispatchOutput {
     ));
     out.lines.push(OutputLine::system(
         "  /kill /flatten-all /pause-entries /break /close  — risk-reducers (instant)",
+    ));
+    out.lines.push(OutputLine::system(
+        "  /resume-entries      — resume new entries (friction-gated)",
     ));
     out.lines.push(OutputLine::system(
         "  /close <coin>        — close a single position",
@@ -1070,6 +1078,87 @@ async fn live_certify_cmd(ctx: &DispatchContext) -> DispatchOutput {
     out
 }
 
+async fn live_cockpit_cmd(ctx: &DispatchContext) -> DispatchOutput {
+    let mut out = DispatchOutput::default();
+    let Some(http) = require_http(ctx, &mut out) else {
+        return out;
+    };
+    match http.live_cockpit().await {
+        Ok(cockpit) => {
+            let preflight_total = json_u64(&cockpit.preflight.summary, "total");
+            let preflight_passed = json_u64(&cockpit.preflight.summary, "passed");
+            let preflight_failed = json_u64(&cockpit.preflight.summary, "failed");
+            let immune_open = json_u64(&cockpit.immune.summary, "open");
+            let immune_blocking = json_u64(&cockpit.immune.summary, "risk_blocking");
+            let cert_total = json_u64(&cockpit.certification.summary, "total");
+            let cert_passed = json_u64(&cockpit.certification.summary, "passed");
+            let timeout = cockpit
+                .heartbeat
+                .timeout_s
+                .map_or_else(|| "n/a".to_string(), |s| s.to_string());
+
+            out.lines.push(OutputLine::command(format!(
+                "live-cockpit: live_mode={}  ready={}  risk_allowed={}  controls_ready={}",
+                cockpit.live_mode,
+                cockpit.ready,
+                cockpit.risk_increasing_allowed,
+                cockpit.controls_ready
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  next: {}",
+                cockpit.next_action
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  preflight: passed={preflight_passed}/{preflight_total} failed={preflight_failed}"
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  immune: open={immune_open} risk_blocking={immune_blocking}"
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  reconcile: status={} risk_allowed={} drifts={} - {}",
+                cockpit.reconciliation.status,
+                cockpit.reconciliation.risk_increasing_allowed,
+                cockpit.reconciliation.drifts,
+                cockpit.reconciliation.reason
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  certification: passed={} live_start_certified={} drills={cert_passed}/{cert_total}",
+                cockpit.certification.passed, cockpit.certification.live_start_certified
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  heartbeat: configured={} expired={} timeout_s={timeout}",
+                cockpit.heartbeat.configured, cockpit.heartbeat.expired
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  live-records: total={} accepted={} refused={} exchange_error={}",
+                cockpit.live_records.total,
+                cockpit.live_records.accepted,
+                cockpit.live_records.refused,
+                cockpit.live_records.exchange_error
+            )));
+            for check in cockpit.preflight.failed_checks.iter().take(4) {
+                out.lines.push(OutputLine::system(format!(
+                    "  preflight:{} {} - {}",
+                    check.name, check.status, check.note
+                )));
+            }
+            for breaker in cockpit.immune.open_breakers.iter().take(4) {
+                out.lines.push(OutputLine::system(format!(
+                    "  breaker:{} {} - {}",
+                    breaker.name, breaker.status, breaker.reason
+                )));
+            }
+            out.lines.push(OutputLine::system(
+                "  actions: reduce=/pause-entries /kill /flatten-all  resume=/resume-entries",
+            ));
+        }
+        Err(e) => out
+            .lines
+            .push(OutputLine::alert(format!("live-cockpit: {e}"))),
+    }
+    out
+}
+
 async fn immune_cmd(ctx: &DispatchContext) -> DispatchOutput {
     let mut out = DispatchOutput::default();
     let Some(http) = require_http(ctx, &mut out) else {
@@ -1101,6 +1190,12 @@ async fn immune_cmd(ctx: &DispatchContext) -> DispatchOutput {
         Err(e) => out.lines.push(OutputLine::alert(format!("immune: {e}"))),
     }
     out
+}
+
+fn json_u64(map: &std::collections::BTreeMap<String, serde_json::Value>, key: &str) -> u64 {
+    map.get(key)
+        .and_then(serde_json::Value::as_u64)
+        .unwrap_or(0)
 }
 
 async fn quote_cmd(ctx: &DispatchContext, symbol: Option<&str>) -> DispatchOutput {
@@ -1698,6 +1793,21 @@ async fn pause_cmd(ctx: &DispatchContext) -> DispatchOutput {
             ..Default::default()
         },
         Err(e) => single_alert(format!("/pause-entries — engine refused: {e}")),
+    }
+}
+
+async fn resume_entries_cmd(ctx: &DispatchContext) -> DispatchOutput {
+    let Some(http) = &ctx.http else {
+        return single_alert(
+            "/resume-entries — engine client unavailable; live resume not posted.",
+        );
+    };
+    match http.post_live_resume().await {
+        Ok(reply) => DispatchOutput {
+            lines: render_live_control("/resume-entries", "live entries resume", &reply),
+            ..Default::default()
+        },
+        Err(e) => single_alert(format!("/resume-entries — engine refused: {e}")),
     }
 }
 

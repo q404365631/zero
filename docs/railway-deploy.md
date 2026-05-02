@@ -100,6 +100,7 @@ curl -fsS "$ZERO_RAILWAY_URL/network/leaderboard"
 curl -fsS "$ZERO_RAILWAY_URL/intelligence/snapshot"
 curl -fsS "$ZERO_RAILWAY_URL/intelligence/catalog"
 curl -fsS "$ZERO_RAILWAY_URL/live/preflight"
+curl -fsS "$ZERO_RAILWAY_URL/live/cockpit"
 ```
 
 Every HTTP response carries `X-Zero-Trace-Id`. Paper decisions created through
@@ -126,6 +127,10 @@ not put private exchange keys into the public paper service.
 `/live/certification` is also safe on Railway. It runs a dry-run fake-exchange
 harness and should report `mode=dry_run`, `passed=true`, and
 `summary.orders_placed_live=0`.
+
+`/live/cockpit` is safe on Railway. It should report `ready=false`,
+`risk_increasing_allowed=false`, and a `next_action` that explains which local
+live-control prerequisite is missing.
 
 `/immune` is safe on Railway too. Public paper services should normally report
 `risk_increasing_allowed=false` because local live custody is absent; that is a

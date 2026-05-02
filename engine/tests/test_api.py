@@ -344,6 +344,26 @@ def test_live_certification_endpoint_returns_dry_run_evidence() -> None:
     assert drills["exchange_submit_outage_fails_closed_without_retry"]["status"] == "pass"
 
 
+def test_live_cockpit_combines_preflight_immune_certification_and_next_action() -> None:
+    status, payload = PaperApi(PaperApiState(clock=lambda: FIXED_DT, started_at=FIXED_DT)).get(
+        "/live/cockpit",
+        {},
+    )
+
+    assert status == 200
+    assert payload["schema_version"] == "zero.live_cockpit.v1"
+    assert payload["ready"] is False
+    assert payload["risk_increasing_allowed"] is False
+    assert payload["preflight"]["summary"]["failed"] >= 1
+    assert payload["immune"]["summary"]["risk_blocking"] >= 1
+    assert payload["certification"]["passed"] is True
+    assert payload["reconciliation"]["status"] == "not_configured"
+    assert payload["heartbeat"]["configured"] is False
+    assert payload["live_records"]["total"] == 0
+    assert payload["next_action"].startswith("fix preflight check")
+    assert "/kill" in payload["operator_actions"]["risk_reducing"]
+
+
 def test_hl_account_and_reconciliation_expose_read_only_account_truth() -> None:
     def transport(_endpoint: str, payload: dict[str, Any], _timeout_s: float) -> Any:
         if payload["type"] == "clearinghouseState":

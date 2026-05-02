@@ -141,6 +141,35 @@ async fn live_certify_renders_dry_run_certification_status() {
 }
 
 #[tokio::test]
+async fn live_cockpit_renders_readiness_and_next_action() {
+    let (mock, ctx) = ctx_with_mock().await;
+    let out = dispatch(&ctx, "/live-cockpit").await.unwrap().unwrap();
+
+    assert_eq!(out.risk, Some(RiskDirection::Neutral));
+    let OutputLine::Command(s) = &out.lines[0] else {
+        panic!("expected Command, got {:?}", out.lines);
+    };
+    assert!(s.contains("live-cockpit:"), "cockpit row: {s}");
+    assert!(s.contains("live_mode=refused"), "live mode field: {s}");
+    assert!(s.contains("risk_allowed=false"), "risk allowed field: {s}");
+    assert!(
+        out.lines
+            .iter()
+            .any(|line| matches!(line, OutputLine::System(s) if s.contains("next:"))),
+        "next action missing: {:?}",
+        out.lines
+    );
+    assert!(
+        out.lines
+            .iter()
+            .any(|line| matches!(line, OutputLine::System(s) if s.contains("breaker:dead_man"))),
+        "dead_man breaker missing: {:?}",
+        out.lines
+    );
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn immune_renders_risk_blocking_breakers() {
     let (mock, ctx) = ctx_with_mock().await;
     let out = dispatch(&ctx, "/immune").await.unwrap().unwrap();

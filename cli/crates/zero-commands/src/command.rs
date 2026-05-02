@@ -89,6 +89,8 @@ pub enum Command {
     HyperliquidReconcile,
     /// `/live-certify` — dry-run live execution certification harness.
     LiveCertify,
+    /// `/live-cockpit` — consolidated live readiness and breaker cockpit.
+    LiveCockpit,
     /// `/immune` — risk-blocking immune and circuit-breaker state.
     Immune,
     /// `/quote <coin>` — active paper quote source for a symbol.
@@ -140,6 +142,7 @@ pub enum Command {
     Kill,
     FlattenAll,
     PauseEntries,
+    ResumeEntries,
     Break {
         minutes: Option<u32>,
     },
@@ -510,6 +513,7 @@ impl Command {
             | Self::HyperliquidAccount
             | Self::HyperliquidReconcile
             | Self::LiveCertify
+            | Self::LiveCockpit
             | Self::Immune
             | Self::Quote { .. }
             | Self::Regime { .. }
@@ -554,9 +558,10 @@ impl Command {
             // both operator self-declarations that defeat a
             // guardrail; the ladder must gate them for the same
             // reason it gates `/execute`.
-            Self::Execute | Self::StateOverride { .. } | Self::DisclosureOverride { .. } => {
-                RiskDirection::Increases
-            }
+            Self::Execute
+            | Self::ResumeEntries
+            | Self::StateOverride { .. }
+            | Self::DisclosureOverride { .. } => RiskDirection::Increases,
 
             // `/auto`'s risk direction depends on the action. `on`
             // unlocks engine-initiated position changes and joins
@@ -597,6 +602,7 @@ impl Command {
             Self::HyperliquidAccount => "/hl-account",
             Self::HyperliquidReconcile => "/hl-reconcile",
             Self::LiveCertify => "/live-certify",
+            Self::LiveCockpit => "/live-cockpit",
             Self::Immune => "/immune",
             Self::Quote { .. } => "/quote",
             Self::Regime { .. } => "/regime",
@@ -608,6 +614,7 @@ impl Command {
             Self::Kill => "/kill",
             Self::FlattenAll => "/flatten-all",
             Self::PauseEntries => "/pause-entries",
+            Self::ResumeEntries => "/resume-entries",
             Self::Break { .. } => "/break",
             Self::Execute => "/execute",
             Self::State => "/state",
@@ -716,6 +723,11 @@ pub const COMMAND_CATALOG: &[CommandInfo] = &[
     CommandInfo {
         name: "/live-certify",
         summary: "dry-run live certification harness",
+        risk: RiskDirection::Neutral,
+    },
+    CommandInfo {
+        name: "/live-cockpit",
+        summary: "live readiness cockpit",
         risk: RiskDirection::Neutral,
     },
     CommandInfo {
@@ -953,6 +965,7 @@ pub fn resolve(line: &ParsedLine) -> Option<Command> {
         "hl-account" | "hyperliquid-account" => Command::HyperliquidAccount,
         "hl-reconcile" | "reconcile" | "hyperliquid-reconcile" => Command::HyperliquidReconcile,
         "live-certify" | "certify-live" | "live-certification" => Command::LiveCertify,
+        "live-cockpit" | "cockpit" | "live" => Command::LiveCockpit,
         "immune" | "breakers" | "circuit-breakers" => Command::Immune,
         "quote" | "price" => Command::Quote {
             symbol: line.args.first().cloned(),
@@ -990,6 +1003,7 @@ pub fn resolve(line: &ParsedLine) -> Option<Command> {
         "kill" => Command::Kill,
         "flatten-all" | "flatten" => Command::FlattenAll,
         "pause-entries" | "pause" => Command::PauseEntries,
+        "resume-entries" | "live-resume" => Command::ResumeEntries,
         "break" => Command::Break {
             minutes: line.args.first().and_then(|s| s.parse::<u32>().ok()),
         },
@@ -1361,6 +1375,7 @@ mod tests {
         assert_eq!(Command::HyperliquidAccount.risk(), RiskDirection::Neutral);
         assert_eq!(Command::HyperliquidReconcile.risk(), RiskDirection::Neutral);
         assert_eq!(Command::LiveCertify.risk(), RiskDirection::Neutral);
+        assert_eq!(Command::LiveCockpit.risk(), RiskDirection::Neutral);
         assert_eq!(Command::Immune.risk(), RiskDirection::Neutral);
         assert_eq!(
             Command::Quote { symbol: None }.risk(),
@@ -1408,8 +1423,12 @@ mod tests {
         assert_eq!(r("/reconcile"), Some(Command::HyperliquidReconcile));
         assert_eq!(r("/live-certify"), Some(Command::LiveCertify));
         assert_eq!(r("/certify-live"), Some(Command::LiveCertify));
+        assert_eq!(r("/live-cockpit"), Some(Command::LiveCockpit));
+        assert_eq!(r("/cockpit"), Some(Command::LiveCockpit));
         assert_eq!(r("/immune"), Some(Command::Immune));
         assert_eq!(r("/breakers"), Some(Command::Immune));
+        assert_eq!(r("/resume-entries"), Some(Command::ResumeEntries));
+        assert_eq!(r("/live-resume"), Some(Command::ResumeEntries));
     }
 
     #[test]
@@ -2001,6 +2020,7 @@ mod tests {
         assert_eq!(Command::Kill.risk(), RiskDirection::Reduces);
         assert_eq!(Command::FlattenAll.risk(), RiskDirection::Reduces);
         assert_eq!(Command::PauseEntries.risk(), RiskDirection::Reduces);
+        assert_eq!(Command::ResumeEntries.risk(), RiskDirection::Increases);
         assert_eq!(
             Command::Break { minutes: None }.risk(),
             RiskDirection::Reduces

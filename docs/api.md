@@ -107,7 +107,7 @@ contract:
 - `GET /network/profile`, `/network/leaderboard`
 - `GET /intelligence/snapshot`, `/intelligence/catalog`
 - `GET /hl/status`, `/hl/account`, `/hl/reconcile`, `/market/quote`
-- `GET /live/preflight`, `/live/certification`
+- `GET /live/preflight`, `/live/cockpit`, `/live/certification`
 - `GET /operator/state`
 - `POST /execute`
 - `POST /auto/toggle`
@@ -225,6 +225,11 @@ evidence packet. It runs fake-exchange drills for heartbeat, idempotency,
 exchange outage, pause, reduce-only flatten, kill, rejected dead-man scheduling,
 rate limit, and daily-loss behavior. It never needs secrets and must report
 `orders_placed_live=0`.
+
+`GET /live/cockpit` returns a consolidated `zero.live_cockpit.v1` operator
+packet. It joins preflight failures, immune breakers, reconciliation status,
+dry-run certification, heartbeat expiry, recent live records, operator actions,
+and the next required action. It is read-only and safe to expose in diagnostics.
 
 `GET /immune` returns the `zero.immune.v1` breaker packet used by live
 preflight and the CLI. It names each risk-blocking breaker, whether new risk is

@@ -98,6 +98,9 @@ $ curl -fsS http://127.0.0.1:8765/intelligence/snapshot
 $ curl -fsS http://127.0.0.1:8765/live/preflight
 {"schema_version": "zero.live_preflight.v1", "live_mode": "refused", "ready": false}
 
+$ zero --api http://127.0.0.1:8765 run live-cockpit
+live-cockpit: live_mode=refused  ready=false  risk_allowed=false
+
 $ curl -fsS http://127.0.0.1:8765/hl/reconcile
 {"schema_version": "zero.reconciliation.v1", "status": "not_configured", "risk_increasing_allowed": false}
 

@@ -489,6 +489,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/LivePreflightResponse"
+  /live/cockpit:
+    get:
+      tags: [live]
+      operationId: getLiveCockpit
+      summary: Consolidated read-only live operator cockpit packet.
+      responses:
+        "200":
+          description: Live cockpit packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveCockpitResponse"
   /live/certification:
     get:
       tags: [live]
@@ -1032,6 +1044,34 @@ components:
     LivePreflightResponse:
       type: object
       required: [schema_version, generated_at, exchange, mode, ready, live_mode, controls_ready, checks]
+      additionalProperties: true
+    LiveCockpitResponse:
+      type: object
+      required:
+        - schema_version
+        - generated_at
+        - mode
+        - live_mode
+        - ready
+        - controls_ready
+        - risk_increasing_allowed
+        - next_action
+        - preflight
+        - immune
+        - reconciliation
+        - certification
+        - heartbeat
+        - live_records
+        - operator_actions
+      properties:
+        schema_version:
+          const: zero.live_cockpit.v1
+        ready:
+          type: boolean
+        risk_increasing_allowed:
+          type: boolean
+        next_action:
+          type: string
       additionalProperties: true
     LiveCertificationResponse:
       type: object

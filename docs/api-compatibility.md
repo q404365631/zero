@@ -76,6 +76,7 @@ operator-owned configuration.
 Compatibility guarantees for live-facing endpoints are conservative:
 
 - `GET /live/preflight` must stay non-secret and safe to expose in diagnostics;
+- `GET /live/cockpit` must stay read-only and safe to expose in diagnostics;
 - `GET /immune` must stay read-only and side-effect free;
 - `GET /live/certification` must stay dry-run by default and report zero live
   orders placed;

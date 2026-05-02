@@ -206,6 +206,102 @@ pub struct LiveCertificationDrill {
     pub extra: BTreeMap<String, Value>,
 }
 
+// ─── /live/cockpit ────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveCockpit {
+    pub schema_version: String,
+    pub generated_at: Option<String>,
+    pub mode: String,
+    pub live_mode: String,
+    pub ready: bool,
+    pub controls_ready: bool,
+    pub risk_increasing_allowed: bool,
+    pub next_action: String,
+    pub preflight: LiveCockpitPreflight,
+    pub immune: LiveCockpitImmune,
+    pub reconciliation: LiveCockpitReconciliation,
+    pub certification: LiveCockpitCertification,
+    pub heartbeat: LiveCockpitHeartbeat,
+    pub live_records: LiveCockpitRecords,
+    pub operator_actions: BTreeMap<String, Vec<String>>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveCockpitPreflight {
+    pub schema_version: String,
+    pub ready: bool,
+    pub live_mode: String,
+    pub controls_ready: bool,
+    pub summary: BTreeMap<String, Value>,
+    pub failed_checks: Vec<LivePreflightCheck>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveCockpitImmune {
+    pub schema_version: String,
+    pub risk_increasing_allowed: bool,
+    pub summary: BTreeMap<String, Value>,
+    pub open_breakers: Vec<ImmuneBreaker>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveCockpitReconciliation {
+    pub schema_version: String,
+    pub status: String,
+    pub risk_increasing_allowed: bool,
+    pub reason: String,
+    pub drifts: u64,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveCockpitCertification {
+    pub schema_version: String,
+    pub mode: String,
+    pub passed: bool,
+    pub live_start_certified: bool,
+    pub summary: BTreeMap<String, Value>,
+    pub failed_drills: Vec<LiveCertificationDrill>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveCockpitHeartbeat {
+    pub configured: bool,
+    pub expired: bool,
+    pub last_heartbeat_at: Option<f64>,
+    pub timeout_s: Option<f64>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveCockpitRecords {
+    pub total: u64,
+    pub accepted: u64,
+    pub refused: u64,
+    pub exchange_error: u64,
+    pub recent: Vec<Value>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
 // ─── /immune ──────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

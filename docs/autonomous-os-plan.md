@@ -65,10 +65,10 @@ speed, scale, history, and reliability.
 |---|---:|---|
 | Public repo hygiene | 99 | registry ownership, external release drill |
 | Product narrative | 98 | keep narrative aligned as runtime becomes real |
-| CLI readiness | 93 | live cockpit drills, operator automation examples |
+| CLI readiness | 95 | richer TUI cockpit layout, operator automation examples |
 | Engine runtime | 90 | live canary evidence, richer exchange history reconciliation |
 | Safety and risk | 94 | real exchange chaos drills, external review |
-| API contracts | 94 | hosted auth/rate contracts, live runtime contracts |
+| API contracts | 95 | hosted auth/rate contracts, signed live runtime packets |
 | Deployment | 84 | live Railway proof, remote logs, doctor automation |
 | Observability and audit | 91 | signed bundles, metrics backend, log drains |
 | Security and custody | 90 | external review, key-handling drill evidence |
@@ -291,6 +291,22 @@ Exit gate:
 
 - an operator can diagnose and reduce risk from the terminal without using raw
   HTTP calls.
+
+Current status:
+
+- `GET /live/cockpit` emits `zero.live_cockpit.v1`, joining preflight,
+  reconciliation, immune breakers, dry-run certification, heartbeat, recent
+  live records, operator actions, and the next required action.
+- The Rust client decodes the cockpit packet and `zero run live-cockpit`
+  renders the live-mode state, failed checks, open breakers, certification
+  count, heartbeat expiry, and risk-reducer commands.
+- `/resume-entries` is wired as a friction-gated live resume command; `/kill`,
+  `/flatten-all`, and `/pause-entries` remain instant risk reducers.
+- Local, Railway, mock-engine, and OpenAPI contract checks cover the cockpit.
+- [Live Cockpit](live-cockpit.md) documents the operator workflow and canary
+  evidence boundary.
+- Remaining scope before Cycle 19: richer full-screen TUI cockpit layout and
+  real tiny-capital canary evidence after external live approval.
 
 ### Cycle 19: Multi-Operator Foundation
 

@@ -330,6 +330,7 @@ fn router(shared: AppState) -> Router<AppState> {
         .route("/hl/account", get(hl_account))
         .route("/hl/reconcile", get(hl_reconcile))
         .route("/immune", get(immune))
+        .route("/live/cockpit", get(live_cockpit))
         .route("/live/certification", get(live_certification))
         .route("/live/preflight", get(live_preflight))
         .route("/market/quote", get(market_quote))
@@ -865,6 +866,85 @@ async fn immune() -> Json<serde_json::Value> {
                 "evidence": {"status": "missing"}
             }
         ]
+    }))
+}
+
+async fn live_cockpit() -> Json<serde_json::Value> {
+    Json(json!({
+        "schema_version": "zero.live_cockpit.v1",
+        "generated_at": chrono_utc_now_iso(),
+        "mode": "paper",
+        "live_mode": "refused",
+        "ready": false,
+        "controls_ready": true,
+        "risk_increasing_allowed": false,
+        "next_action": "fix preflight check live_executor: mock has no live executor",
+        "preflight": {
+            "schema_version": "zero.live_preflight.v1",
+            "ready": false,
+            "live_mode": "refused",
+            "controls_ready": true,
+            "summary": {"total": 9, "passed": 8, "failed": 1},
+            "failed_checks": [
+                {"name": "live_executor", "status": "fail", "note": "mock has no live executor"}
+            ]
+        },
+        "immune": {
+            "schema_version": "zero.immune.v1",
+            "risk_increasing_allowed": false,
+            "summary": {"total": 3, "open": 2, "closed": 1, "warning": 0, "risk_blocking": 2},
+            "open_breakers": [
+                {
+                    "name": "dead_man",
+                    "status": "open",
+                    "blocks_risk": true,
+                    "severity": "critical",
+                    "reason": "live executor not configured",
+                    "evidence": {"configured": false}
+                },
+                {
+                    "name": "reconciliation",
+                    "status": "open",
+                    "blocks_risk": true,
+                    "severity": "critical",
+                    "reason": "account reconciliation unavailable",
+                    "evidence": {"status": "missing"}
+                }
+            ]
+        },
+        "reconciliation": {
+            "schema_version": "zero.reconciliation.v1",
+            "status": "ok",
+            "risk_increasing_allowed": true,
+            "reason": "local runtime and Hyperliquid account state are reconciled",
+            "drifts": 0
+        },
+        "certification": {
+            "schema_version": "zero.live_certification.v1",
+            "mode": "dry_run",
+            "passed": true,
+            "live_start_certified": true,
+            "summary": {"total": 10, "passed": 10, "failed": 0, "orders_placed_live": 0},
+            "failed_drills": []
+        },
+        "heartbeat": {
+            "configured": false,
+            "expired": true,
+            "last_heartbeat_at": null,
+            "timeout_s": null
+        },
+        "live_records": {
+            "total": 0,
+            "accepted": 0,
+            "refused": 0,
+            "exchange_error": 0,
+            "recent": []
+        },
+        "operator_actions": {
+            "risk_reducing": ["/pause-entries", "/kill", "/flatten-all"],
+            "risk_increasing": ["/resume-entries"],
+            "read_only": ["/live-cockpit", "/live-certify", "/immune", "/hl-reconcile"]
+        }
     }))
 }
 

@@ -130,8 +130,11 @@ engine `/live/preflight` gate and warns until the runtime proves custody,
 journal, account reconciliation, risk, and emergency controls are ready.
 Operators can inspect the same read-only account truth with `/hl-account`, the
 live risk gate with `/hl-reconcile`, and the current breaker layer with
-`/immune`. `/live-certify` runs the dry-run fake-exchange certification harness
-and prints the drill pass count before any real canary is considered.
+`/immune`. `/live-cockpit` combines preflight, reconciliation, immune breakers,
+certification, heartbeat, recent live records, and the next required action in
+one read-only operator view. `/live-certify` runs the dry-run fake-exchange
+certification harness and prints the drill pass count before any real canary is
+considered.
 
 Risk-reducing live controls are wired to the engine when an API client is
 attached:
@@ -140,6 +143,8 @@ attached:
   supervisor when present.
 - `/flatten-all` posts `POST /live/flatten` for reduce-only close orders.
 - `/pause-entries` posts `POST /live/pause` to stop new risk-increasing entries.
+- `/resume-entries` posts `POST /live/resume` and is friction-gated because it
+  can reopen risk-increasing entries.
 
 If the connected engine is paper-only, these commands surface the engine's
 `live executor not configured` refusal instead of pretending live risk changed.
