@@ -62,6 +62,7 @@ After deployment:
 curl -fsS "$ZERO_RAILWAY_URL/health"
 curl -fsS "$ZERO_RAILWAY_URL/market/quote?symbol=BTC"
 scripts/railway_doctor.py "$ZERO_RAILWAY_URL"
+scripts/deployment_evidence.sh "$ZERO_RAILWAY_URL"
 ```
 
 The quote response should show:
@@ -107,6 +108,36 @@ the token, trace IDs, private keys, or raw runtime data.
 
 Warnings are allowed for local ephemeral test services. A public Railway demo
 should use a mounted `/data` volume so `durable_journal` reports `ok`.
+
+## Deployment Evidence Pack
+
+Before sharing a public demo, promoting a Railway deploy, or closing an
+incident, capture a redacted evidence folder:
+
+```bash
+scripts/deployment_evidence.sh "$ZERO_RAILWAY_URL"
+scripts/deployment_evidence.sh "$ZERO_RAILWAY_URL" \
+  --token "$ZERO_INTELLIGENCE_API_TOKEN" \
+  --railway-logs
+```
+
+By default the collector writes to
+`artifacts/deployment-evidence/<timestamp>/`. The folder contains:
+
+- `doctor.json`;
+- redacted `/health`, `/v2/status`, `/metrics`, `/audit/export`, `/immune`,
+  `/live/preflight`, `/live/cockpit`, `/live/certification`,
+  `/deployment/claim`, `/deployment/heartbeat`, `/network/profile`,
+  `/intelligence/snapshot`, and `/v1/intelligence/snapshots` packets;
+- optional `railway_logs.txt` when the Railway CLI is installed, linked, and
+  authenticated;
+- `manifest.json` with git context, doctor summary, file inventory, and
+  redaction policy;
+- `SHA256SUMS` for the captured files.
+
+The collector redacts supplied tokens, authorization values, private/signing key
+patterns, trace IDs, and smoke idempotency keys. Treat the output as
+operator-review evidence, not as a substitute for private journal custody.
 
 ## Journal Recovery
 

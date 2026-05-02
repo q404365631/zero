@@ -14,7 +14,7 @@ reserved for ZERO Intelligence.
 - Deterministic paper scenarios and strategy example
 - Inspectable paper decision log
 - Local paper HTTP API with CLI-compatible endpoints
-- Railway deployment template, remote doctor, and smoke test
+- Railway deployment template, remote doctor, deployment evidence pack, and smoke test
 - Hyperliquid read-only market data path
 - Optional self-custodial live-executor boundary with fail-closed paper deploys
 - Public-safe ZERO Network profile, leaderboard, local publish, and hosted-compatible ingestion contracts

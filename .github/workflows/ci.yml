@@ -99,6 +99,8 @@ jobs:
           test -x scripts/package_dry_run.sh
           test -x scripts/railway_start.sh
           test -x scripts/railway_doctor.py
+          test -x scripts/deployment_evidence.py
+          test -x scripts/deployment_evidence.sh
           test -x scripts/railway_smoke.sh
           test -f railway.toml
           test -f docs/railway-deploy.md

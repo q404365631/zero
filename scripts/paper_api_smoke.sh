@@ -183,6 +183,13 @@ curl -fsS \
 "${PYTHON_BIN}" -c 'import json,sys; p=json.load(open(sys.argv[1], encoding="utf-8")); assert p["schema_version"] == "zero.railway_doctor.v1"; assert p["summary"]["fail"] == 0' \
   /tmp/zero-paper-api-railway-doctor.json
 
+EVIDENCE_DIR="$(mktemp -d)"
+"${PYTHON_BIN}" scripts/deployment_evidence.py "${API}" \
+  --token smoke-intelligence-token \
+  --output "${EVIDENCE_DIR}" >/tmp/zero-paper-api-deployment-evidence.txt
+"${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); audit=(d/"audit_export.json").read_text(encoding="utf-8"); assert m["schema_version"] == "zero.deployment_evidence.v1"; assert m["doctor"]["summary"]["fail"] == 0; assert (d/"SHA256SUMS").is_file(); assert "\"trace_id\": \"trace-" not in audit; assert "smoke-1" not in audit' \
+  "${EVIDENCE_DIR}"
+
 (
   cd "${ROOT}/cli"
   cargo run -q -p zero -- --api "${API}" run positions >/tmp/zero-paper-api-positions.txt

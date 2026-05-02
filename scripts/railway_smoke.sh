@@ -180,6 +180,13 @@ python3 scripts/railway_doctor.py "${API}" \
 python3 -c 'import json,sys; p=json.load(open(sys.argv[1], encoding="utf-8")); assert p["schema_version"] == "zero.railway_doctor.v1"; assert p["summary"]["fail"] == 0' \
   /tmp/zero-railway-doctor.json
 
+EVIDENCE_DIR="$(mktemp -d)"
+python3 scripts/deployment_evidence.py "${API}" \
+  --token railway-intelligence-token \
+  --output "${EVIDENCE_DIR}" >/tmp/zero-railway-deployment-evidence.txt
+python3 -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); audit=(d/"audit_export.json").read_text(encoding="utf-8"); assert m["schema_version"] == "zero.deployment_evidence.v1"; assert m["doctor"]["summary"]["fail"] == 0; assert (d/"SHA256SUMS").is_file(); assert "\"trace_id\": \"trace-" not in audit; assert "railway-smoke" not in audit' \
+  "${EVIDENCE_DIR}"
+
 docker rm -f "${CONTAINER_NAME}" >/dev/null
 start_container
 

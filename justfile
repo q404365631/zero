@@ -57,6 +57,9 @@ package-dry-run:
 railway-smoke:
     scripts/railway_smoke.sh
 
+deployment-evidence url:
+    scripts/deployment_evidence.sh "{{url}}"
+
 checksum output *artifacts:
     python3 scripts/write_sha256s.py "{{output}}" {{artifacts}}
 
@@ -161,6 +164,8 @@ docs-check:
     test -x scripts/hardening_gate.sh
     test -x scripts/railway_start.sh
     test -x scripts/railway_doctor.py
+    test -x scripts/deployment_evidence.py
+    test -x scripts/deployment_evidence.sh
     test -x scripts/railway_smoke.sh
     test -f Dockerfile
     test -f compose.yaml

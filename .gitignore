@@ -13,6 +13,7 @@ target/
 dist/
 coverage.xml
 htmlcov/
+artifacts/deployment-evidence/
 *.db
 *.db-*
 *.sqlite

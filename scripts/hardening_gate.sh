@@ -39,4 +39,6 @@ bash -n scripts/package_dry_run.sh
 bash -n scripts/paper_api_smoke.sh
 bash -n scripts/railway_smoke.sh
 bash -n scripts/railway_start.sh
+bash -n scripts/deployment_evidence.sh
 python3 -m py_compile scripts/railway_doctor.py
+python3 -m py_compile scripts/deployment_evidence.py
