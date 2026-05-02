@@ -13,11 +13,13 @@ def scenario_path() -> Path:
 def test_runtime_loop_runs_one_complete_ooda_cycle(tmp_path: Path) -> None:
     decision_journal = tmp_path / "decisions.jsonl"
     cycle_journal = tmp_path / "cycles.jsonl"
+    runtime_bus = tmp_path / "runtime-bus"
     loop = RuntimeLoop.from_config(
         load_runtime_config(
             scenario_path=scenario_path(),
             decision_journal_path=decision_journal,
             cycle_journal_path=cycle_journal,
+            runtime_bus_path=runtime_bus,
             interval_s=0,
         )
     )
@@ -35,15 +37,21 @@ def test_runtime_loop_runs_one_complete_ooda_cycle(tmp_path: Path) -> None:
     assert loop.engine.fills
     assert decision_journal.exists()
     assert cycle_journal.exists()
+    assert (runtime_bus / "events.jsonl").exists()
+    assert (runtime_bus / "state-snapshot.json").exists()
+    assert loop.bus is not None
+    assert loop.bus.verify_integrity().ok is True
 
 
 def test_runtime_loop_recovers_and_continues_from_decision_journal(tmp_path: Path) -> None:
     decision_journal = tmp_path / "decisions.jsonl"
     cycle_journal = tmp_path / "cycles.jsonl"
+    runtime_bus = tmp_path / "runtime-bus"
     config = load_runtime_config(
         scenario_path=scenario_path(),
         decision_journal_path=decision_journal,
         cycle_journal_path=cycle_journal,
+        runtime_bus_path=runtime_bus,
         interval_s=0,
     )
     first_loop = RuntimeLoop.from_config(config)
@@ -59,6 +67,49 @@ def test_runtime_loop_recovers_and_continues_from_decision_journal(tmp_path: Pat
     assert second.act["decision"]["symbol"] == "ETH"
     assert len(decision_journal.read_text().splitlines()) == 2
     assert len(cycle_journal.read_text().splitlines()) == 2
+    assert second_loop.bus is not None
+    audit = second_loop.bus.export_audit()
+    assert audit["integrity"]["ok"] is True
+    assert audit["summary"]["event_types"]["runtime.cycle"] == 2
+    assert audit["summary"]["event_types"]["decision.record"] == 2
+    assert audit["snapshot"]["payload"]["health"]["last_cycle_id"] == 2
+    assert audit["events"][0]["event_type"] == "runtime.cycle"
+
+
+def test_runtime_bus_audit_reconstructs_session_from_disk_only(tmp_path: Path) -> None:
+    decision_journal = tmp_path / "decisions.jsonl"
+    runtime_bus = tmp_path / "runtime-bus"
+    loop = RuntimeLoop.from_config(
+        load_runtime_config(
+            scenario_path=scenario_path(),
+            decision_journal_path=decision_journal,
+            runtime_bus_path=runtime_bus,
+            interval_s=0,
+        )
+    )
+
+    first = loop.run_once()
+    second = loop.run_once()
+
+    disk_bus = RuntimeLoop.from_config(
+        load_runtime_config(
+            scenario_path=scenario_path(),
+            decision_journal_path=decision_journal,
+            runtime_bus_path=runtime_bus,
+            interval_s=0,
+        )
+    ).bus
+    assert disk_bus is not None
+    audit = disk_bus.export_audit()
+
+    assert first.cycle_id == 1
+    assert second.cycle_id == 2
+    assert audit["integrity"]["ok"] is True
+    assert audit["summary"]["event_types"]["fill.record"] == 1
+    assert audit["summary"]["event_types"]["rejection.record"] == 1
+    assert audit["snapshot"]["payload"]["health"]["decisions"] == 2
+    assert audit["snapshot"]["payload"]["health"]["fills"] == 1
+    assert audit["snapshot"]["payload"]["health"]["rejections"] == 1
 
 
 def test_zero_engine_run_cli_emits_cycle_record(tmp_path: Path) -> None:
@@ -74,6 +125,8 @@ def test_zero_engine_run_cli_emits_cycle_record(tmp_path: Path) -> None:
             str(tmp_path / "decisions.jsonl"),
             "--cycle-journal",
             str(tmp_path / "cycles.jsonl"),
+            "--runtime-bus",
+            str(tmp_path / "runtime-bus"),
             "--once",
             "--interval",
             "0",
@@ -88,3 +141,4 @@ def test_zero_engine_run_cli_emits_cycle_record(tmp_path: Path) -> None:
     assert payload["schema_version"] == CYCLE_SCHEMA_VERSION
     assert payload["observe"]["phase"] == "observe"
     assert payload["act"]["accepted"] is True
+    assert (tmp_path / "runtime-bus" / "events.jsonl").exists()

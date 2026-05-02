@@ -1,5 +1,6 @@
 """ZERO public engine runtime."""
 
+from zero_engine.bus import DurableRuntimeBus, RuntimeBusEvent, RuntimeBusIntegrity
 from zero_engine.hyperliquid import HyperliquidInfoClient, HyperliquidMarketStatus
 from zero_engine.intelligence import (
     IntelligenceConfig,
@@ -51,6 +52,7 @@ from zero_engine.strategy import MomentumStrategy, Strategy, StrategySignal, pro
 __all__ = [
     "Candle",
     "DecisionRecord",
+    "DurableRuntimeBus",
     "HyperliquidInfoClient",
     "HyperliquidMarketStatus",
     "IntelligenceConfig",
@@ -69,6 +71,8 @@ __all__ = [
     "RiskDecision",
     "RiskLimits",
     "RecoveryState",
+    "RuntimeBusEvent",
+    "RuntimeBusIntegrity",
     "RuntimeConfig",
     "RuntimeCycleRecord",
     "RuntimeLoop",

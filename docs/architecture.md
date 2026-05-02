@@ -39,13 +39,15 @@ deterministic and prevents examples from bypassing safety gates.
 The runtime loop wraps that path in an explicit OODA cycle:
 
 ```text
-observe -> orient -> decide -> act -> learn -> journal
+observe -> orient -> decide -> act -> learn -> journal -> durable bus
 ```
 
 The public `zero-engine-run` command currently runs this loop in paper mode and
-emits `zero.runtime.cycle.v1` records. Live-capable runtime work must preserve
-the same cycle visibility and fail closed when safety or reconciliation checks
-are not ready.
+emits `zero.runtime.cycle.v1` records. With `--runtime-bus`, it also writes
+checksum-chained `zero.runtime.event.v1` events and a fast boot snapshot. See
+[runtime-bus.md](runtime-bus.md) for the local event contract. Live-capable
+runtime work must preserve the same cycle visibility and fail closed when
+safety or reconciliation checks are not ready.
 
 ## Commercial Flow
 

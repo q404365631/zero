@@ -83,6 +83,7 @@ docs-check:
     test -f docs/cli-quickstart.md
     test -f docs/api.md
     test -f docs/api-compatibility.md
+    test -f docs/runtime-bus.md
     test -f docs/strategy-plugins.md
     test -f docs/market-data-adapters.md
     test -f docs/positioning.md

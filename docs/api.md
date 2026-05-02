@@ -148,6 +148,12 @@ counts, and recovery state.
 runtime summary, retention/redaction metadata, metrics, recovery state, and the
 most recent decisions. The public paper runtime records no secrets.
 
+`zero-engine-run --runtime-bus DIR` writes checksum-chained local runtime events
+to `DIR/events.jsonl` and a fast boot snapshot to `DIR/state-snapshot.json`.
+The bus is not an HTTP API yet; it is the local event contract for OODA cycles,
+decisions, fills, rejections, positions, health, and future operator commands.
+See [runtime-bus.md](runtime-bus.md).
+
 `GET /network/profile` returns a `zero.network.profile.v1` public-safe profile
 packet with aggregate behavior, verification badges, a proof hash, and privacy
 metadata. It excludes raw decisions, trace IDs, idempotency keys, wallet

@@ -66,7 +66,7 @@ speed, scale, history, and reliability.
 | Public repo hygiene | 99 | registry ownership, external release drill |
 | Product narrative | 98 | keep narrative aligned as runtime becomes real |
 | CLI readiness | 91 | live cockpit drills, operator automation examples |
-| Engine runtime | 72 | OODA loop, runners, durable bus, production state |
+| Engine runtime | 83 | OODA loop, runners, durable bus, production state |
 | Safety and risk | 88 | exchange chaos drills, external review |
 | API contracts | 90 | hosted auth/rate contracts, live runtime contracts |
 | Deployment | 84 | live Railway proof, remote logs, doctor automation |
@@ -160,6 +160,20 @@ Exit gate:
 
 - kill and restart during a paper loop recovers state without duplicated fills;
 - audit export can reconstruct the session from disk only.
+
+Current progress:
+
+- `DurableRuntimeBus` writes dependency-free local
+  `zero.runtime.event.v1` events to `events.jsonl`.
+- Events are checksum-chained through `previous_checksum` and `checksum`, and
+  `verify_integrity()` fails closed on mutation, deletion, reorder, or chain
+  break.
+- `zero-engine-run --runtime-bus DIR` records runtime cycles, decisions,
+  fills, rejections, position snapshots, and health events.
+- `state-snapshot.json` stores the latest fast-boot state with event count and
+  last checksum.
+- `export_audit()` returns `zero.runtime.audit.v1` from disk only, including
+  integrity status, event type counts, latest snapshot, and events.
 
 ### Cycle 15: Hyperliquid Account Reconciliation
 

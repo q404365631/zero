@@ -148,7 +148,11 @@ just ci
 Run one paper runtime cycle:
 
 ```bash
-PYTHONPATH="$PWD/engine/src" zero-engine-run --once --interval 0
+PYTHONPATH="$PWD/engine/src" zero-engine-run \
+  --journal .zero/decisions.jsonl \
+  --runtime-bus .zero/runtime-bus \
+  --once \
+  --interval 0
 ```
 
 For the complete first-run path, see
