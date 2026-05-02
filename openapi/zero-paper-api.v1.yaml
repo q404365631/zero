@@ -200,6 +200,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/MetricsResponse"
+  /immune:
+    get:
+      tags: [runtime]
+      operationId: getImmune
+      summary: Risk-blocking immune and circuit-breaker state.
+      responses:
+        "200":
+          description: Immune breaker packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImmuneResponse"
   /audit/export:
     get:
       tags: [audit]
@@ -603,7 +615,7 @@ components:
       additionalProperties: false
     HealthResponse:
       type: object
-      required: [status, components, dependencies, circuit_breakers, risk, recovery, ws_connections]
+      required: [status, components, dependencies, circuit_breakers, risk, recovery, immune, ws_connections]
       properties:
         status:
           type: string
@@ -622,6 +634,8 @@ components:
           additionalProperties: true
         recovery:
           $ref: "#/components/schemas/Recovery"
+        immune:
+          $ref: "#/components/schemas/ImmuneResponse"
         ws_connections:
           type: integer
           minimum: 0
@@ -847,7 +861,7 @@ components:
       additionalProperties: false
     MetricsResponse:
       type: object
-      required: [schema_version, generated_at, mode, runtime, api, engine, recovery]
+      required: [schema_version, generated_at, mode, runtime, api, engine, immune, recovery]
       properties:
         schema_version:
           type: string
@@ -869,6 +883,32 @@ components:
           additionalProperties: true
         recovery:
           $ref: "#/components/schemas/Recovery"
+        immune:
+          $ref: "#/components/schemas/ImmuneResponse"
+      additionalProperties: false
+    ImmuneResponse:
+      type: object
+      required: [schema_version, generated_at, mode, risk_increasing_allowed, summary, breakers]
+      properties:
+        schema_version:
+          type: string
+          const: zero.immune.v1
+        generated_at:
+          type: string
+          format: date-time
+        mode:
+          type: string
+        risk_increasing_allowed:
+          type: boolean
+        summary:
+          type: object
+          additionalProperties: true
+        breakers:
+          type: array
+          items:
+            type: object
+            required: [name, status, blocks_risk, severity, reason, evidence]
+            additionalProperties: true
       additionalProperties: false
     AuditExportResponse:
       type: object

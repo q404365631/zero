@@ -103,7 +103,7 @@ contract:
 - `GET /`, `/health`, `/v2/status`
 - `GET /positions`, `/risk`, `/brief`
 - `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
-- `GET /metrics`, `/audit/export`
+- `GET /metrics`, `/immune`, `/audit/export`
 - `GET /network/profile`, `/network/leaderboard`
 - `GET /intelligence/snapshot`, `/intelligence/catalog`
 - `GET /hl/status`, `/hl/account`, `/hl/reconcile`, `/market/quote`
@@ -225,6 +225,11 @@ evidence packet. It runs fake-exchange drills for heartbeat, idempotency,
 exchange outage, pause, reduce-only flatten, kill, rejected dead-man scheduling,
 rate limit, and daily-loss behavior. It never needs secrets and must report
 `orders_placed_live=0`.
+
+`GET /immune` returns the `zero.immune.v1` breaker packet used by live
+preflight and the CLI. It names each risk-blocking breaker, whether new risk is
+allowed, and the evidence behind open breakers. Risk-reducing live controls
+remain available even when `/immune` reports `risk_increasing_allowed=false`.
 
 Public Railway paper deployments should not set live credentials. Their
 expected behavior is `ready=false`, `live_mode=refused`, and `POST /live/*`

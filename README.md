@@ -103,6 +103,9 @@ $ curl -fsS http://127.0.0.1:8765/hl/reconcile
 
 $ curl -fsS http://127.0.0.1:8765/live/certification
 {"schema_version": "zero.live_certification.v1", "mode": "dry_run", "passed": true}
+
+$ curl -fsS http://127.0.0.1:8765/immune
+{"schema_version": "zero.immune.v1", "risk_increasing_allowed": false}
 ```
 
 ## Install CLI

@@ -206,6 +206,34 @@ pub struct LiveCertificationDrill {
     pub extra: BTreeMap<String, Value>,
 }
 
+// ─── /immune ──────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct ImmuneReport {
+    pub schema_version: String,
+    pub generated_at: Option<String>,
+    pub mode: String,
+    pub risk_increasing_allowed: bool,
+    pub summary: BTreeMap<String, Value>,
+    pub breakers: Vec<ImmuneBreaker>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct ImmuneBreaker {
+    pub name: String,
+    pub status: String,
+    pub blocks_risk: bool,
+    pub severity: String,
+    pub reason: String,
+    pub evidence: BTreeMap<String, Value>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
 // ─── /live/* control POSTs ─────────────────────────────────────────
 
 /// Response body for live risk-reduction controls.

@@ -228,6 +228,7 @@ def test_paper_api_hl_status_uses_read_only_adapter() -> None:
     assert payload["mids"] == {"BTC": 40500.0}
     assert health_status == 200
     assert health["dependencies"]["exchange"] == "hyperliquid"
+    assert health["immune"]["schema_version"] == "zero.immune.v1"
 
 
 def test_live_preflight_refuses_without_local_custody_controls() -> None:
@@ -243,6 +244,8 @@ def test_live_preflight_refuses_without_local_custody_controls() -> None:
     assert checks["live_executor"]["status"] == "fail"
     assert checks["wallet_address"]["status"] == "fail"
     assert checks["api_private_key"]["note"] == "store key locally; never commit it"
+    assert checks["immune_breakers"]["status"] == "fail"
+    assert payload["immune"]["risk_increasing_allowed"] is False
 
 
 def test_live_preflight_verifies_controls_without_leaking_private_key(tmp_path) -> None:
@@ -281,6 +284,7 @@ def test_live_preflight_verifies_controls_without_leaking_private_key(tmp_path) 
     assert checks["reconciliation"]["status"] == "ok"
     assert checks["journal"]["status"] == "ok"
     assert checks["emergency_controls"]["status"] == "ok"
+    assert checks["immune_breakers"]["status"] == "fail"
 
 
 def test_live_preflight_can_pass_when_executor_and_controls_are_ready(tmp_path) -> None:
@@ -313,6 +317,19 @@ def test_live_preflight_can_pass_when_executor_and_controls_are_ready(tmp_path) 
     assert status == 200
     assert payload["ready"] is True
     assert payload["live_mode"] == "ready"
+    assert payload["immune"]["risk_increasing_allowed"] is True
+
+
+def test_immune_endpoint_exposes_risk_blocking_breakers() -> None:
+    status, payload = PaperApi(PaperApiState(clock=lambda: FIXED_DT)).get("/immune", {})
+
+    assert status == 200
+    assert payload["schema_version"] == "zero.immune.v1"
+    assert payload["risk_increasing_allowed"] is False
+    breakers = {breaker["name"]: breaker for breaker in payload["breakers"]}
+    assert breakers["dead_man"]["status"] == "open"
+    assert breakers["reconciliation"]["status"] == "open"
+    assert breakers["stale_market_data"]["status"] == "closed"
 
 
 def test_live_certification_endpoint_returns_dry_run_evidence() -> None:

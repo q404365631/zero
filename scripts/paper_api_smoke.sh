@@ -57,6 +57,8 @@ curl -fsS \
 
 curl -fsS "${API}/metrics" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.metrics.v1"; assert p["api"]["execute_count"] >= 1'
+curl -fsS "${API}/immune" \
+  | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.immune.v1"; assert p["risk_increasing_allowed"] is False; assert p["summary"]["risk_blocking"] >= 1'
 curl -fsS "${API}/audit/export?limit=5" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.audit.v1"; assert p["decisions"][0]["trace_id"].startswith("trace-")'
 curl -fsS "${API}/network/profile" \
@@ -90,6 +92,8 @@ curl -fsS \
 (
   cd "${ROOT}/cli"
   cargo run -q -p zero -- --api "${API}" run positions >/tmp/zero-paper-api-positions.txt
+  cargo run -q -p zero -- --api "${API}" run immune >/tmp/zero-paper-api-immune.txt
 )
 
 grep -q "BTC" /tmp/zero-paper-api-positions.txt
+grep -q "immune:" /tmp/zero-paper-api-immune.txt

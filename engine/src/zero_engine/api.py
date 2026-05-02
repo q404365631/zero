@@ -22,6 +22,7 @@ from zero_engine.hyperliquid import (
     redact_secret,
     validate_dry_run_order,
 )
+from zero_engine.immune import build_immune_report
 from zero_engine.intelligence import (
     IntelligenceConfig,
     export_intelligence_snapshot,
@@ -313,6 +314,7 @@ class PaperApi:
             "/hl/account": self.hl_account,
             "/hl/reconcile": self.hl_reconcile,
             "/hl/status": lambda: self.hl_status(query),
+            "/immune": self.immune,
             "/intelligence/catalog": self.intelligence_catalog,
             "/intelligence/snapshot": self.intelligence_snapshot,
             "/live/certification": self.live_certification,
@@ -433,6 +435,7 @@ class PaperApi:
         exchange = "hyperliquid" if self.state.hyperliquid is not None else "paper"
         market_data = "live" if self.state.use_live_hyperliquid_prices else "fixture"
         recovery = self.recovery()
+        immune = self.immune()
         return {
             "status": "ok",
             "components": {
@@ -453,11 +456,11 @@ class PaperApi:
                 "live_preflight": "available",
             },
             "circuit_breakers": {
-                "paper": "closed",
-                "hl_info": "closed" if self.state.hyperliquid is not None else "n/a",
+                breaker["name"]: breaker["status"] for breaker in immune["breakers"]
             },
             "risk": {"equity": 10_000.0, "drawdown_pct": 0.0, "kill_all": False},
             "recovery": recovery,
+            "immune": immune,
             "ws_connections": 0,
         }
 
@@ -519,7 +522,23 @@ class PaperApi:
                 status_code=reconciliation.status,
             )
         except Exception as exc:
+            reconciliation = None
             add("reconciliation", "fail", f"Hyperliquid reconciliation failed: {exc}")
+
+        immune = self.immune(reconciliation=reconciliation)
+        open_breakers = [
+            breaker["name"]
+            for breaker in immune["breakers"]
+            if breaker["blocks_risk"]
+        ]
+        add(
+            "immune_breakers",
+            "ok" if immune["risk_increasing_allowed"] else "fail",
+            "all risk-blocking breakers closed"
+            if immune["risk_increasing_allowed"]
+            else "risk-blocking breakers open: " + ", ".join(open_breakers),
+            risk_increasing_allowed=immune["risk_increasing_allowed"],
+        )
 
         try:
             validated = validate_dry_run_order({"coin": "BTC", "side": "buy", "size": 0.001})
@@ -560,7 +579,11 @@ class PaperApi:
             else "set ZERO_LIVE_KILL_SWITCH_PATH to an existing local file",
         )
 
-        controls_ready = all(check["status"] == "ok" for check in checks if check["name"] != "live_executor")
+        controls_ready = all(
+            check["status"] == "ok"
+            for check in checks
+            if check["name"] not in {"live_executor", "immune_breakers"}
+        )
         ready = controls_ready and all(check["status"] == "ok" for check in checks)
         return {
             "schema_version": "zero.live_preflight.v1",
@@ -571,10 +594,35 @@ class PaperApi:
             "live_mode": "ready" if ready else "refused",
             "controls_ready": controls_ready,
             "checks": checks,
+            "immune": immune,
         }
 
     def live_certification(self) -> dict[str, Any]:
         return run_live_certification().to_dict()
+
+    def immune(self, reconciliation: ReconciliationReport | None = None) -> dict[str, Any]:
+        if reconciliation is None:
+            try:
+                reconciliation = self.state.reconcile_hyperliquid_account()
+            except Exception:
+                reconciliation = None
+        return build_immune_report(
+            generated_at=self.state.now_iso(),
+            mode="live-capable" if self.state.live_executor is not None else "paper",
+            live_executor=self.state.live_executor,
+            market_data_age_s=self.market_data_age_s(),
+            market_data_stale_after_s=self.state.price_cache_ttl_s,
+            reconciliation=reconciliation,
+            positions=self.state.engine.positions,
+            max_exposure_usd=self.state.engine.limits.max_position_notional_usd,
+        ).to_dict()
+
+    def market_data_age_s(self) -> float | None:
+        if not self.state.use_live_hyperliquid_prices:
+            return None
+        if self.state.price_cache_at is None:
+            return self.state.price_cache_ttl_s + 1
+        return max(0.0, (self.state.now() - self.state.price_cache_at).total_seconds())
 
     def v2_status(self) -> dict[str, Any]:
         positions = list(self.state.engine.positions.values())
@@ -771,6 +819,7 @@ class PaperApi:
                 if decisions
                 else 0.0,
             },
+            "immune": self.immune(),
             "recovery": self.recovery(),
         }
 
@@ -796,6 +845,7 @@ class PaperApi:
                     [p for p in self.state.engine.positions.values() if p.quantity != 0]
                 ),
             },
+            "immune": self.immune(),
             "retention": {
                 "policy": "operator-managed",
                 "redaction": "no secrets are recorded by the public paper runtime",
@@ -1023,6 +1073,28 @@ class PaperApi:
                 return live_response(
                     accepted=False,
                     reason=f"reconciliation {reconciliation.status}: {reconciliation.reason}",
+                    intent=intent,
+                    key=key,
+                    trace_id=trace_id if expose_trace else None,
+                )
+            immune = self.immune(reconciliation=reconciliation)
+            if not immune["risk_increasing_allowed"]:
+                open_breakers = [
+                    breaker["name"]
+                    for breaker in immune["breakers"]
+                    if breaker["blocks_risk"]
+                ]
+                reason = "immune breaker open: " + ", ".join(open_breakers)
+                if "kill_switch" in open_breakers:
+                    reason = "kill switch active"
+                elif "operator_pause" in open_breakers:
+                    reason = "live entries paused"
+                elif "dead_man" in open_breakers:
+                    reason = "dead-man switch expired"
+                self.state.metrics.record_execute(accepted=False)
+                return live_response(
+                    accepted=False,
+                    reason=reason,
                     intent=intent,
                     key=key,
                     trace_id=trace_id if expose_trace else None,

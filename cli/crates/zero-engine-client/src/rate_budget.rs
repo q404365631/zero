@@ -122,7 +122,7 @@ impl Clock for ManualClock {
 /// - **1 point:** the cheap rollups the CLI reads for chrome —
 ///   `/`, `/health`, `/status`, `/risk`, `/positions`, `/brief`,
 ///   `/regime`, `/approaching`, `/rejections`, `/hl/status`, `/hl/account`,
-///   `/hl/reconcile`, `/live/certification`, `/market/quote`, `/operator/state`, and
+///   `/hl/reconcile`, `/immune`, `/live/certification`, `/market/quote`, `/operator/state`, and
 ///   `POST /operator/events` (append-only, cheap).
 /// - **2 points:** endpoints that trigger meaningful engine work —
 ///   `/evaluate/{coin}` (runs the verdict pipeline against live

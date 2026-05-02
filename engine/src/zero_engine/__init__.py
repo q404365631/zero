@@ -2,6 +2,7 @@
 
 from zero_engine.bus import DurableRuntimeBus, RuntimeBusEvent, RuntimeBusIntegrity
 from zero_engine.hyperliquid import HyperliquidInfoClient, HyperliquidMarketStatus
+from zero_engine.immune import ImmuneBreaker, ImmuneReport, build_immune_report
 from zero_engine.intelligence import (
     IntelligenceConfig,
     export_intelligence_snapshot,
@@ -71,6 +72,8 @@ __all__ = [
     "HyperliquidAccountSnapshot",
     "HyperliquidInfoClient",
     "HyperliquidMarketStatus",
+    "ImmuneBreaker",
+    "ImmuneReport",
     "IntelligenceConfig",
     "JsonlCandleAdapter",
     "CertificationDrill",
@@ -104,6 +107,7 @@ __all__ = [
     "StrategyPlugin",
     "StrategyPluginMetadata",
     "StrategySignal",
+    "build_immune_report",
     "evaluate_order",
     "export_intelligence_snapshot",
     "intelligence_catalog",

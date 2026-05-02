@@ -597,6 +597,7 @@ async fn run(ctx: &DispatchContext, cmd: &Command) -> DispatchOutput {
         Command::HyperliquidAccount => hl_account_cmd(ctx).await,
         Command::HyperliquidReconcile => hl_reconcile_cmd(ctx).await,
         Command::LiveCertify => live_certify_cmd(ctx).await,
+        Command::Immune => immune_cmd(ctx).await,
         Command::Quote { symbol } => quote_cmd(ctx, symbol.as_deref()).await,
         Command::Regime { coin } => regime_cmd(ctx, coin.as_deref()).await,
         Command::Evaluate { coin, extras } => evaluate_cmd(ctx, coin.as_deref(), extras).await,
@@ -672,6 +673,9 @@ fn help() -> DispatchOutput {
     ));
     out.lines.push(OutputLine::system(
         "  /live-certify        — dry-run live execution certification",
+    ));
+    out.lines.push(OutputLine::system(
+        "  /immune              — immune breaker state",
     ));
     out.lines.push(OutputLine::system(
         "  /quote <coin>        — active paper quote source",
@@ -1062,6 +1066,39 @@ async fn live_certify_cmd(ctx: &DispatchContext) -> DispatchOutput {
         Err(e) => out
             .lines
             .push(OutputLine::alert(format!("live-certify: {e}"))),
+    }
+    out
+}
+
+async fn immune_cmd(ctx: &DispatchContext) -> DispatchOutput {
+    let mut out = DispatchOutput::default();
+    let Some(http) = require_http(ctx, &mut out) else {
+        return out;
+    };
+    match http.immune().await {
+        Ok(report) => {
+            let open = report
+                .summary
+                .get("open")
+                .and_then(serde_json::Value::as_u64)
+                .unwrap_or_else(|| report.breakers.iter().filter(|b| b.blocks_risk).count() as u64);
+            out.lines.push(OutputLine::command(format!(
+                "immune: risk_increasing_allowed={}  open={}  mode={}",
+                report.risk_increasing_allowed, open, report.mode
+            )));
+            for breaker in report
+                .breakers
+                .iter()
+                .filter(|breaker| breaker.blocks_risk)
+                .take(8)
+            {
+                out.lines.push(OutputLine::system(format!(
+                    "  {}: {} - {}",
+                    breaker.name, breaker.status, breaker.reason
+                )));
+            }
+        }
+        Err(e) => out.lines.push(OutputLine::alert(format!("immune: {e}"))),
     }
     out
 }

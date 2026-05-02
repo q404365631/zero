@@ -22,8 +22,8 @@ use zero_operator_state::{Event as OperatorEvent, Snapshot as OperatorSnapshot};
 use crate::models::{
     ApproachingFeed, AutoToggleRequest, AutoToggleResponse, Brief, Evaluation, ExecuteRequest,
     ExecuteResponse, Health, HyperliquidAccount, HyperliquidReconciliation, HyperliquidStatus,
-    LiveCertification, LiveControlResponse, LivePreflight, MarketQuote, OperatorEventsAccepted,
-    Positions, Pulse, Regime, RejectionsFeed, Risk, Root, V2Status,
+    ImmuneReport, LiveCertification, LiveControlResponse, LivePreflight, MarketQuote,
+    OperatorEventsAccepted, Positions, Pulse, Regime, RejectionsFeed, Risk, Root, V2Status,
 };
 use crate::rate_budget::{self, RateBudget};
 
@@ -598,6 +598,11 @@ impl HttpClient {
     /// `GET /live/certification` — dry-run live certification drills.
     pub async fn live_certification(&self) -> Result<LiveCertification, HttpError> {
         self.get_json("/live/certification").await
+    }
+
+    /// `GET /immune` — risk-blocking immune and circuit-breaker state.
+    pub async fn immune(&self) -> Result<ImmuneReport, HttpError> {
+        self.get_json("/immune").await
     }
 
     /// `POST /live/heartbeat` — refresh the exchange-side dead-man switch.

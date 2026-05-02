@@ -44,9 +44,9 @@ Exit gate: exchange state, local journal, and ZERO live records reconcile.
 1. Run `/kill` or `POST /live/kill` immediately.
 2. If any position remains open, run `/flatten-all` or close manually at the
    exchange with reduce-only orders.
-3. Preserve `/live/preflight`, `/hl/reconcile`, `/live/certification`,
-   `/metrics`, `/audit/export?limit=1000`, and exchange-side order/fill
-   records.
+3. Preserve `/live/preflight`, `/immune`, `/hl/reconcile`,
+   `/live/certification`, `/metrics`, `/audit/export?limit=1000`, and
+   exchange-side order/fill records.
 4. Compare idempotency keys, client order IDs, local live records, and exchange
    order/fill history.
 5. Do not run another canary until a regression test and a fresh certification
@@ -117,7 +117,7 @@ Every P0/P1 incident should preserve:
 
 - commit SHA and release tag;
 - Railway deployment ID or local command line;
-- `/health`, `/v2/status`, `/metrics`, `/live/preflight`;
+- `/health`, `/v2/status`, `/metrics`, `/immune`, `/live/preflight`;
 - `/hl/reconcile`, `/live/certification`;
 - `/audit/export?limit=1000`;
 - relevant trace IDs and idempotency keys;

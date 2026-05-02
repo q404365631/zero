@@ -127,6 +127,10 @@ not put private exchange keys into the public paper service.
 harness and should report `mode=dry_run`, `passed=true`, and
 `summary.orders_placed_live=0`.
 
+`/immune` is safe on Railway too. Public paper services should normally report
+`risk_increasing_allowed=false` because local live custody is absent; that is a
+correct refusal state for paper deployments.
+
 If a deployment starts without a volume, the API still runs, but the journal is
 ephemeral and will be lost on restart. Do not use an ephemeral journal for
 operator demos or public behavior verification.
@@ -144,4 +148,5 @@ operator demos or public behavior verification.
 
 For incident handling, use [incident-runbooks.md](incident-runbooks.md). The
 Railway-specific P1 runbook requires `/health`, `/v2/status`, `/metrics`,
-`/network/profile`, and `/intelligence/snapshot` to recover before promotion.
+`/immune`, `/network/profile`, and `/intelligence/snapshot` to recover before
+promotion.

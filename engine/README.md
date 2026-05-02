@@ -30,7 +30,7 @@ The local paper API listens on `http://127.0.0.1:8765` by default and
 exposes the paper-mode subset of the engine contract used by the Rust CLI:
 `/`, `/health`, `/v2/status`, `/positions`, `/risk`, `/brief`,
 `/regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`,
-`/journal`, `/metrics`, `/audit/export`, `/hl/status`, `/hl/account`,
+`/journal`, `/metrics`, `/immune`, `/audit/export`, `/hl/status`, `/hl/account`,
 `/hl/reconcile`, `/market/quote`,
 `/network/profile`, `/network/leaderboard`, `/intelligence/snapshot`,
 `/intelligence/catalog`, `/live/preflight`, `/live/certification`,
@@ -75,6 +75,10 @@ Live certification is visible through `/live/certification`. It runs dry-run
 fake-exchange drills for heartbeat, idempotency, exchange outages, pause,
 reduce-only flatten, kill, rate limits, and loss limits without placing live
 orders.
+
+The immune system is visible through `/immune`. It reports stale-data,
+reconciliation, dead-man, pause, kill, daily-loss, order-velocity,
+exchange-error, and exposure breakers as a single `zero.immune.v1` packet.
 
 Live execution is optional and self-custodial:
 

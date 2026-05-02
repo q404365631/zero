@@ -329,6 +329,7 @@ fn router(shared: AppState) -> Router<AppState> {
         .route("/hl/status", get(hl_status))
         .route("/hl/account", get(hl_account))
         .route("/hl/reconcile", get(hl_reconcile))
+        .route("/immune", get(immune))
         .route("/live/certification", get(live_certification))
         .route("/live/preflight", get(live_preflight))
         .route("/market/quote", get(market_quote))
@@ -828,6 +829,42 @@ async fn live_certification() -> Json<serde_json::Value> {
             }
         ],
         "evidence_requirements": ["live_preflight packet", "hl_reconcile packet"]
+    }))
+}
+
+async fn immune() -> Json<serde_json::Value> {
+    Json(json!({
+        "schema_version": "zero.immune.v1",
+        "generated_at": chrono_utc_now_iso(),
+        "mode": "paper",
+        "risk_increasing_allowed": false,
+        "summary": {"total": 3, "open": 2, "closed": 1, "warning": 0, "risk_blocking": 2},
+        "breakers": [
+            {
+                "name": "stale_market_data",
+                "status": "closed",
+                "blocks_risk": false,
+                "severity": "info",
+                "reason": "market data fresh",
+                "evidence": {"age_s": 0.1}
+            },
+            {
+                "name": "dead_man",
+                "status": "open",
+                "blocks_risk": true,
+                "severity": "critical",
+                "reason": "live executor not configured",
+                "evidence": {"configured": false}
+            },
+            {
+                "name": "reconciliation",
+                "status": "open",
+                "blocks_risk": true,
+                "severity": "critical",
+                "reason": "account reconciliation unavailable",
+                "evidence": {"status": "missing"}
+            }
+        ]
     }))
 }
 

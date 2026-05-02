@@ -141,6 +141,30 @@ async fn live_certify_renders_dry_run_certification_status() {
 }
 
 #[tokio::test]
+async fn immune_renders_risk_blocking_breakers() {
+    let (mock, ctx) = ctx_with_mock().await;
+    let out = dispatch(&ctx, "/immune").await.unwrap().unwrap();
+
+    assert_eq!(out.risk, Some(RiskDirection::Neutral));
+    let OutputLine::Command(s) = &out.lines[0] else {
+        panic!("expected Command, got {:?}", out.lines);
+    };
+    assert!(
+        s.contains("immune: risk_increasing_allowed=false"),
+        "immune row: {s}"
+    );
+    assert!(s.contains("open=2"), "open count: {s}");
+    assert!(
+        out.lines
+            .iter()
+            .any(|line| matches!(line, OutputLine::System(s) if s.contains("dead_man"))),
+        "dead_man breaker missing: {:?}",
+        out.lines
+    );
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn quote_renders_active_quote_source() {
     let (mock, ctx) = ctx_with_mock().await;
     let out = dispatch(&ctx, "/quote BTC").await.unwrap().unwrap();

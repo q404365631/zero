@@ -109,6 +109,23 @@ async fn live_certification_decodes_dry_run_harness() {
 }
 
 #[tokio::test]
+async fn immune_decodes_risk_blocking_breakers() {
+    let (mock, http) = client().await;
+    let report = http.immune().await.expect("immune");
+
+    assert_eq!(report.schema_version, "zero.immune.v1");
+    assert!(!report.risk_increasing_allowed);
+    assert_eq!(report.breakers.len(), 3);
+    assert!(
+        report
+            .breakers
+            .iter()
+            .any(|b| b.name == "dead_man" && b.blocks_risk)
+    );
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn regime_decodes_without_coin() {
     let (mock, http) = client().await;
     let r = http.regime(None).await.expect("regime");

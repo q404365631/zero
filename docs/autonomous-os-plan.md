@@ -65,17 +65,17 @@ speed, scale, history, and reliability.
 |---|---:|---|
 | Public repo hygiene | 99 | registry ownership, external release drill |
 | Product narrative | 98 | keep narrative aligned as runtime becomes real |
-| CLI readiness | 92 | live cockpit drills, operator automation examples |
-| Engine runtime | 89 | live canary evidence, richer exchange history reconciliation |
-| Safety and risk | 92 | real exchange chaos drills, external review |
-| API contracts | 93 | hosted auth/rate contracts, live runtime contracts |
+| CLI readiness | 93 | live cockpit drills, operator automation examples |
+| Engine runtime | 90 | live canary evidence, richer exchange history reconciliation |
+| Safety and risk | 94 | real exchange chaos drills, external review |
+| API contracts | 94 | hosted auth/rate contracts, live runtime contracts |
 | Deployment | 84 | live Railway proof, remote logs, doctor automation |
-| Observability and audit | 89 | signed bundles, metrics backend, log drains |
+| Observability and audit | 91 | signed bundles, metrics backend, log drains |
 | Security and custody | 90 | external review, key-handling drill evidence |
 | ZERO Network | 58 | hosted ingestion, anti-gaming, identity, public pages |
 | ZERO Intelligence | 56 | hosted API, billing, history, webhooks, terms |
 | Release and distribution | 90 | registries, Homebrew, release rollback rehearsal |
-| Operator docs | 95 | real exchange drill evidence |
+| Operator docs | 96 | real exchange drill evidence |
 
 ## Execution Cycles
 
@@ -257,6 +257,22 @@ Exit gate:
 - every breaker has fixtures, metrics, audit records, and CLI rendering;
 - risk-reducing commands continue to work while risk-increasing actions are
   blocked.
+
+Current status:
+
+- `zero.immune.v1` models risk-blocking breaker state for stale market data,
+  reconciliation, dead-man freshness, operator pause, kill switch, daily loss,
+  order velocity, exchange submit errors, operator inactivity, and max exposure.
+- `GET /immune` exposes the packet; `/health`, `/metrics`, `/audit/export`,
+  and `/live/preflight` embed it so breaker state is visible in operations and
+  evidence bundles.
+- Live risk-increasing execution checks the immune packet after reconciliation
+  and before order submission. Risk-reducing controls remain available.
+- The Rust CLI exposes `/immune` with typed client and mock-engine coverage.
+- [Immune System](immune-system.md) documents breaker semantics and live-start
+  behavior.
+- Remaining scope before Cycle 18: add richer TUI cockpit layout and real
+  canary evidence for exchange-side breaker behavior.
 
 ### Cycle 18: Operator Terminal Live Cockpit
 
