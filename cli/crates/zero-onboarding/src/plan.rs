@@ -125,8 +125,9 @@ impl Plan {
 }
 
 fn record_welcome(at: chrono::DateTime<chrono::Utc>) -> Result<(), Error> {
-    let dir = zero_config::zero_dir().map_err(|e| Error::Session(format!("dir: {e}")))?;
-    let db_path = dir.join("state.db");
+    let paths =
+        zero_config::runtime_paths().map_err(|e| Error::Session(format!("runtime paths: {e}")))?;
+    let db_path = paths.state_db_path;
     let store =
         zero_session::Store::open(&db_path).map_err(|e| Error::Session(format!("open: {e}")))?;
     store

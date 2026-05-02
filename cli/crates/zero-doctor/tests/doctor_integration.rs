@@ -59,6 +59,8 @@ async fn healthy_engine_passes_all_rows() {
         "runtime",
         "config_dir",
         "config_parse",
+        "operator_partition",
+        "credential_partition",
         "engine_reachable",
         "engine_healthy",
         "engine_components",
@@ -71,6 +73,28 @@ async fn healthy_engine_passes_all_rows() {
     }
 
     mock.shutdown().await;
+}
+
+#[tokio::test]
+async fn legacy_shared_state_artifacts_warn_partition_check() {
+    let dir = unique_tmp("legacy-state");
+    write_config(&dir, "[identity]\nhandle = \"Desk Asia\"\n");
+    std::fs::write(dir.join("state.db"), "").expect("legacy state.db");
+
+    let doctor = Doctor::builder().client(None).config_dir(dir).build();
+    let report = doctor.run().await;
+
+    let partition = report
+        .checks
+        .iter()
+        .find(|c| c.name == "operator_partition")
+        .expect("operator_partition row");
+    assert_eq!(partition.status, CheckStatus::Warn);
+    assert!(
+        partition.note.contains("legacy shared artifacts present"),
+        "{}",
+        partition.note
+    );
 }
 
 #[tokio::test]

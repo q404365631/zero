@@ -2,49 +2,44 @@
 //!
 //! Both the daemon and the CLI-side dialer need to agree on
 //! *where* the socket and state file live; isolating the logic
-//! here means a future move (e.g. `/var/run/zero.sock` on Linux,
-//! `~/Library/Application Support/getzero/zero/sock` on macOS)
-//! is a single-file change instead of a grep-and-replace.
+//! here means a future move (e.g. `/var/run/zero/<operator>.sock`
+//! on Linux) is a single-file change instead of a grep-and-replace.
 //!
-//! The defaults land under [`zero_config::zero_dir`] — the same
-//! `~/.zero` directory the rest of the CLI uses. We intentionally
-//! *do not* put the socket under `XDG_RUNTIME_DIR` on Linux,
-//! because that directory is lost across login sessions and the
-//! daemon's whole purpose is surviving the operator's terminal.
+//! The defaults land under [`zero_config::runtime_paths`]. We
+//! intentionally *do not* put the socket under `XDG_RUNTIME_DIR`
+//! on Linux, because that directory is lost across login sessions
+//! and the daemon's whole purpose is surviving the operator's
+//! terminal.
 
 use std::path::{Path, PathBuf};
 
-/// Socket file name under the zero directory. Short enough to
-/// fit comfortably in `nc -U ~/.zero/sock` muscle memory.
+/// Socket file name under the operator directory.
 pub const SOCKET_FILE_NAME: &str = "sock";
 
-/// State-file path relative to the zero directory.
-/// `state/headless.json` keeps the daemon's persistence sibling
-/// to future `state/*.json` files (session DB already lives
-/// under `~/.zero/state.db`; we deliberately namespace the new
-/// files under a `state/` subdir to avoid crowding the top
-/// level).
+/// State-file path relative to the operator directory.
+/// `state/headless.json` keeps daemon persistence under the same
+/// operator partition as session state and wraps.
 pub const STATE_SUBDIR: &str = "state";
 pub const STATE_FILE_NAME: &str = "headless.json";
 
-/// Default Unix socket path: `<zero_dir>/sock`. Falls back to
-/// `<tmpdir>/zero-sock` when `zero_dir()` is unavailable (rare —
-/// the CLI refuses to launch without it), so the daemon can at
-/// least start for a smoke test under CI with no home dir.
+/// Default Unix socket path:
+/// `<zero_dir>/operators/<operator-slug>/sock`. Falls back to
+/// `<tmpdir>/zero-sock` when config paths are unavailable.
 #[must_use]
 pub fn default_socket_path() -> PathBuf {
-    zero_config::zero_dir().map_or_else(
+    zero_config::runtime_paths().map_or_else(
         |_| std::env::temp_dir().join("zero-sock"),
-        |d| d.join(SOCKET_FILE_NAME),
+        |paths| paths.headless_socket_path,
     )
 }
 
-/// Default state-file path: `<zero_dir>/state/headless.json`.
+/// Default state-file path:
+/// `<zero_dir>/operators/<operator-slug>/state/headless.json`.
 #[must_use]
 pub fn default_state_path() -> PathBuf {
-    zero_config::zero_dir().map_or_else(
+    zero_config::runtime_paths().map_or_else(
         |_| std::env::temp_dir().join("zero-headless.json"),
-        |d| d.join(STATE_SUBDIR).join(STATE_FILE_NAME),
+        |paths| paths.headless_state_path,
     )
 }
 

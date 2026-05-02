@@ -29,14 +29,14 @@ use zero_headless::daemon::{AlwaysReachable, Config, Daemon, HttpEngineProbe};
 )]
 struct Cli {
     /// Override the Unix socket path. Defaults to
-    /// `<zero_dir>/sock`. The `zero` CLI's real
+    /// `<zero_dir>/operators/<operator-slug>/sock`. The `zero` CLI's real
     /// `SupervisorSource` adapter agrees on this path by
     /// reading the same default.
     #[arg(long)]
     socket: Option<PathBuf>,
 
     /// Override the persistent state path. Defaults to
-    /// `<zero_dir>/state/headless.json`.
+    /// `<zero_dir>/operators/<operator-slug>/state/headless.json`.
     #[arg(long)]
     state: Option<PathBuf>,
 

@@ -44,3 +44,7 @@ The engine includes the resolved `zero.operator_context.v1` packet in:
 This is the foundation for multi-operator teams. It is intentionally not a
 permission system yet: risk-increasing commands remain protected by CLI
 friction, preflight, immune breakers, reconciliation, and live execution policy.
+
+Local mutable state is partitioned separately from this HTTP audit envelope.
+See [Operator Isolation](operator-isolation.md) for the filesystem and keychain
+model.

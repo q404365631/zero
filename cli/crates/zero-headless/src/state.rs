@@ -1,5 +1,5 @@
-//! Persistent supervisor state under
-//! `~/.zero/state/headless.json`.
+//! Persistent supervisor state under the operator-local
+//! `state/headless.json`.
 //!
 //! # Why persist
 //!
@@ -24,7 +24,7 @@
 //! The on-disk format is deliberately the same JSON shape as
 //! the IPC protocol's state envelope. An operator who wants to
 //! see why the daemon started the way it did can just
-//! `cat ~/.zero/state/headless.json` instead of learning a
+//! inspect the operator-local state file instead of learning a
 //! second schema.
 
 use std::fs;

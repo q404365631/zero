@@ -4,10 +4,12 @@
 //!
 //! 1. **`zero-headlessd` binary** — the supervisor daemon. Runs
 //!    under launchd (macOS) or systemd (Linux); listens on a
-//!    Unix socket at `~/.zero/sock` for typed line-delimited JSON
+//!    Unix socket at
+//!    `<zero_dir>/operators/<operator-slug>/sock` for typed line-delimited JSON
 //!    requests from the `zero` CLI (and, in M3, the Telegram
 //!    bot). Persists its "operator intended me to be running"
-//!    state under `~/.zero/state/headless.json` so a
+//!    state under
+//!    `<zero_dir>/operators/<operator-slug>/state/headless.json` so a
 //!    crash-and-restart recovers the operator's posture rather
 //!    than silently defaulting to "off".
 //!
@@ -24,8 +26,9 @@
 //! - **Line-delimited JSON framing.** One request per line,
 //!   one response per line. Chosen over length-prefixed framing
 //!   so an operator debugging a stuck daemon can
-//!   `nc -U ~/.zero/sock` and read what the daemon is saying
-//!   without tooling. Every envelope has a `kind` tag so the
+//!   `nc -U <zero_dir>/operators/<operator-slug>/sock` and read
+//!   what the daemon is saying without tooling. Every envelope has
+//!   a `kind` tag so the
 //!   protocol is forward-extensible.
 //!
 //! - **Kill-switch paths are never gated.** A `/kill` from the

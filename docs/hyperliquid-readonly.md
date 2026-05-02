@@ -85,6 +85,9 @@ material through local process configuration or the CLI keychain helpers, and
 the endpoint reports only redacted diagnostics. Public paper deployments should
 return `ready=false` and `live_mode=refused`.
 
+CLI keychain writes are operator-scoped with account names derived from
+`identity.handle`; see [Operator Isolation](operator-isolation.md).
+
 ## Safety Boundary
 
 The read-only adapter may call Hyperliquid `info` methods such as `allMids`,

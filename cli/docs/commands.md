@@ -51,7 +51,7 @@ Options:
 
       --no-persist
           Disable session persistence for this invocation. The TUI runs from a fresh in-memory log
-          and nothing is written to `~/.zero/state.db`
+          and nothing is written to the operator-local session DB
 
       --json
           Emit machine-readable output (where supported). Implies no color and no widgets
@@ -110,7 +110,7 @@ Options:
 
       --no-persist
           Disable session persistence for this invocation. The TUI runs from a fresh in-memory log
-          and nothing is written to `~/.zero/state.db`
+          and nothing is written to the operator-local session DB
 
       --json
           Emit machine-readable output (where supported). Implies no color and no widgets
@@ -138,7 +138,7 @@ Options:
       --token <TOKEN>    Operator token (or set `ZERO_API_TOKEN`) [env: ZERO_API_TOKEN=]
       --paper            Start in paper mode
       --no-persist       Disable session persistence for this invocation. The TUI runs from a fresh
-                         in-memory log and nothing is written to `~/.zero/state.db`
+                         in-memory log and nothing is written to the operator-local session DB
       --json             Emit machine-readable output (where supported). Implies no color and no
                          widgets
   -v, --verbose...       Increase log verbosity (`-v` info, `-vv` debug, `-vvv` trace)
@@ -158,7 +158,7 @@ Options:
       --token <TOKEN>  Operator token (or set `ZERO_API_TOKEN`) [env: ZERO_API_TOKEN=]
       --paper          Start in paper mode
       --no-persist     Disable session persistence for this invocation. The TUI runs from a fresh
-                       in-memory log and nothing is written to `~/.zero/state.db`
+                       in-memory log and nothing is written to the operator-local session DB
       --json           Emit machine-readable output (where supported). Implies no color and no
                        widgets
   -v, --verbose...     Increase log verbosity (`-v` info, `-vv` debug, `-vvv` trace)
@@ -202,7 +202,7 @@ Options:
 
       --no-persist
           Disable session persistence for this invocation. The TUI runs from a fresh in-memory log
-          and nothing is written to `~/.zero/state.db`
+          and nothing is written to the operator-local session DB
 
       --json
           Emit machine-readable output (where supported). Implies no color and no widgets

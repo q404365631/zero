@@ -108,7 +108,7 @@ struct Cli {
 
     /// Disable session persistence for this invocation. The TUI
     /// runs from a fresh in-memory log and nothing is written to
-    /// `~/.zero/state.db`.
+    /// the operator-local session DB.
     #[arg(long, global = true)]
     no_persist: bool,
 
@@ -281,7 +281,7 @@ enum TracingTarget {
     /// `doctor`, `version`, `run`, `init`, and the no-TTY help
     /// path.
     Stderr,
-    /// TUI path: emit to `<zero_dir>/zero.log`, append-only,
+    /// TUI path: emit to the operator-local `zero.log`, append-only,
     /// no ANSI. If the file cannot be opened we silently fall
     /// back to discarding — the alternative is corrupting the
     /// frame, which is the exact bug this enum exists to fix.
@@ -319,7 +319,7 @@ fn init_tracing(verbose: u8, target: &TracingTarget) {
                 .try_init();
         }
         TracingTarget::TuiLogFile => {
-            // Best-effort: resolve `<zero_dir>/zero.log`, create
+            // Best-effort: resolve the operator-local `zero.log`, create
             // the dir, open for append. On any failure we fall
             // through to a no-op subscriber — the alternative is
             // falling back to stderr, which is exactly the bug
@@ -354,16 +354,20 @@ fn init_tracing(verbose: u8, target: &TracingTarget) {
     }
 }
 
-/// Open `<zero_dir>/zero.log` for append, creating the parent
+/// Open the operator-local `zero.log` for append, creating the parent
 /// dir if needed. Factored out so the happy-path logic in
 /// `init_tracing` stays readable.
 fn open_tui_log_sink() -> std::io::Result<std::fs::File> {
-    let dir = zero_config::zero_dir().map_err(|e| std::io::Error::other(e.to_string()))?;
-    std::fs::create_dir_all(&dir)?;
+    let path = zero_config::runtime_paths()
+        .map_err(|e| std::io::Error::other(e.to_string()))?
+        .log_path;
+    if let Some(dir) = path.parent() {
+        std::fs::create_dir_all(dir)?;
+    }
     std::fs::OpenOptions::new()
         .create(true)
         .append(true)
-        .open(dir.join("zero.log"))
+        .open(path)
 }
 
 /// Mirror of the four independent `zero init` flags. Grouped as
@@ -708,7 +712,7 @@ async fn run_tui(cli: &Cli) -> ExitCode {
         zero_commands::AutoMode::Off,
     )));
     // M2 §6: the real `SupervisorSource` adapter talks to
-    // `zero-headlessd` over `~/.zero/sock`. The dispatcher
+    // `zero-headlessd` over the operator-local socket. The dispatcher
     // surface is sync (so `/kill` can't deadlock), but the
     // client is async — the adapter bridges the two via
     // `block_in_place` on the ambient multi-threaded tokio
@@ -845,13 +849,13 @@ fn run_daily_wrap(sink: &zero_tui::app::session::SessionSink) {
 
     let report = zero_session::wrap::generate(&row, &events, now);
 
-    // Write under `~/.zero/state/wraps/` — a subdirectory of
-    // the config dir, *not* alongside `state.db`. Keeping
+    // Write under the operator-local `state/wraps/` directory.
+    // Keeping
     // wraps in their own subdir means a future `/wraps`
     // command listing them does not have to filter the DB
     // file out.
-    let wraps_dir = match zero_config::zero_dir() {
-        Ok(d) => d.join("state").join("wraps"),
+    let wraps_dir = match zero_config::runtime_paths() {
+        Ok(paths) => paths.wraps_dir,
         Err(e) => {
             tracing::warn!(err = %e, "wrap: zero_dir failed");
             return;
@@ -1000,8 +1004,16 @@ fn open_session_store(
     use zero_tui::app::log::{EntryKind, LogEntry};
     use zero_tui::app::session::{SessionSink, replay, summarize};
 
-    let dir = zero_config::zero_dir().map_err(|e| format!("session: {e}"))?;
-    let db_path = dir.join("state.db");
+    let cfg = zero_config::load_config().map_err(|e| format!("session: {e}"))?;
+    let paths = cfg.as_ref().map_or_else(
+        || zero_config::runtime_paths_for_handle("local-operator"),
+        zero_config::runtime_paths_for_config,
+    );
+    let paths = paths.map_err(|e| format!("session: {e}"))?;
+    let db_path = cfg
+        .as_ref()
+        .and_then(|c| c.session.storage_path.clone())
+        .unwrap_or(paths.state_db_path);
     let store = Arc::new(zero_session::Store::open(&db_path).map_err(|e| format!("session: {e}"))?);
 
     // Welcome comes *before* replay so a first-ever session
@@ -1109,6 +1121,26 @@ impl zero_commands::ConfigSource for ConfigAdapter {
                 ));
             }
             Err(e) => rows.push(R::new("config file", format!("(unavailable: {e})"))),
+        }
+
+        match zero_config::runtime_paths() {
+            Ok(paths) => {
+                rows.push(R::new("operator partition", paths.operator_slug));
+                rows.push(R::new(
+                    "operator dir",
+                    paths.operator_dir.display().to_string(),
+                ));
+                rows.push(R::new(
+                    "session db",
+                    paths.state_db_path.display().to_string(),
+                ));
+                rows.push(R::new("tui log", paths.log_path.display().to_string()));
+                rows.push(R::new(
+                    "headless socket",
+                    paths.headless_socket_path.display().to_string(),
+                ));
+            }
+            Err(e) => rows.push(R::new("operator partition", format!("(unavailable: {e})"))),
         }
 
         match zero_config::load_config() {
@@ -1230,17 +1262,17 @@ impl zero_commands::ConfigSource for ConfigAdapter {
         // Session-store directory writability. Failures here
         // land as warnings because the TUI still runs
         // (in-memory only) but session persistence is lost.
-        match zero_config::zero_dir() {
-            Ok(dir) => match std::fs::create_dir_all(&dir) {
+        match zero_config::runtime_paths() {
+            Ok(paths) => match std::fs::create_dir_all(&paths.operator_dir) {
                 Ok(()) => findings.push(F::ok(format!(
-                    "session-store dir writable: {}",
-                    dir.display()
+                    "operator partition writable: {}",
+                    paths.operator_dir.display()
                 ))),
                 Err(e) => findings.push(F::warn(format!(
-                    "session-store dir not writable ({e}) — sessions will not persist"
+                    "operator partition not writable ({e}) — sessions will not persist"
                 ))),
             },
-            Err(e) => findings.push(F::warn(format!("session-store dir unavailable: {e}"))),
+            Err(e) => findings.push(F::warn(format!("operator partition unavailable: {e}"))),
         }
 
         findings

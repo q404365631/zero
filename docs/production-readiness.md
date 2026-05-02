@@ -14,17 +14,17 @@ end.
 |---|---:|---|
 | Public repo hygiene | 99 | Strong CI, release artifacts, governance, docs, clean boundaries, first-class GitHub product page, first-10-minutes guide, reproducible demo capture, threat model, incident runbooks, distribution policy, and hardening gate. |
 | Product narrative | 98 | Clear category around autonomous operating systems for self-custodial onchain operations, with public runtime, terminal, network, and intelligence surfaces separated cleanly. |
-| CLI readiness | 96 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, live risk-reducer wiring, `/live-cockpit`, `/live-certify`, `/immune`, friction-gated `/resume-entries`, and operator-context audit headers exist. Remaining full-screen cockpit drills need real canary evidence. |
+| CLI readiness | 97 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, live risk-reducer wiring, `/live-cockpit`, `/live-certify`, `/immune`, friction-gated `/resume-entries`, operator-context audit headers, and operator-local runtime partitions exist. Remaining full-screen cockpit drills need real canary evidence. |
 | Engine runtime | 90 | Deterministic paper runtime, bounded OODA cycle records, strategy runner SDK, declarative paper strategies, append-only decision journal, checksum-chained durable runtime bus, restart replay, read-only Hyperliquid info adapter, live-mid paper execution, traceable audit export, live custody preflight, account reconciliation, dry-run live certification, first-class immune breaker packets, and optional Hyperliquid live executor exist. Still missing continuous live-certified controller and real live canary evidence. |
 | Safety and risk | 94 | CLI risk asymmetry, local custody validation, dry-run order validation, preflight refusal, account-reconciliation gate, idempotent live submit, no-retry exchange-error records, dry-run live certification drills, `zero.immune.v1` breakers, dead-man heartbeat, max notional/loss/order-rate limits, pause, kill, reduce-only flatten, threat model, and P0/P1 runbooks exist. Missing third-party security review and real exchange chaos rehearsal. |
 | API contracts | 96 | Paper fixtures are pinned across Python and Rust, OpenAPI documents the local paper runtime, compatibility rules are explicit, `/operator/context` exposes audit identity, `/hl/status` exposes read-only market status, `/hl/account` and `/hl/reconcile` expose account truth, `/immune` exposes risk-blocking breaker state, `/live/cockpit` exposes consolidated live operator state, `/live/certification` exposes dry-run safety evidence, `/market/quote` names the active price source, `/health` plus `/v2/status` expose recovery state, `/metrics` plus `/audit/export` expose observable runtime state, `/network/*` exposes public proof packets, `/intelligence/*` exposes delayed intelligence and commercial API contracts, `/live/preflight` exposes a non-secret live-readiness gate, and `POST /live/*` controls are typed in the CLI. Missing hosted auth enforcement and production hosted compatibility policy. |
 | Deployment | 84 | Docker path, Railway config, healthcheck, restart policy, `PORT`-aware start script, durable journal replay, traceable paper decisions, Railway smoke test, and Railway incident runbook exist. Missing live deployed project proof and remote log/doctor automation. |
-| Observability and audit | 94 | HTTP trace IDs, operator context packets, live-control action logs, traced paper decisions, metrics, idempotency counters, replay counts, retention/redaction metadata, structured audit export, checksum-chained runtime events, local state snapshots, immune breaker packets, Hyperliquid reconciliation packets, live cockpit packets, dry-run live certification packets, live execution records, and required incident artifacts are documented. Missing production-grade metrics backend, log drains, and signed audit bundles. |
-| Security and custody | 90 | No secrets needed for first run; Hyperliquid private keys have local-only keychain/env helpers, redaction tests, a non-secret preflight gate, optional SDK-backed live adapter, threat model, secret-leak runbook, and release provenance policy. Missing external security review. |
+| Observability and audit | 95 | HTTP trace IDs, operator context packets, operator-local state partitions, live-control action logs, traced paper decisions, metrics, idempotency counters, replay counts, retention/redaction metadata, structured audit export, checksum-chained runtime events, local state snapshots, immune breaker packets, Hyperliquid reconciliation packets, live cockpit packets, dry-run live certification packets, live execution records, and required incident artifacts are documented. Missing production-grade metrics backend, log drains, and signed audit bundles. |
+| Security and custody | 91 | No secrets needed for first run; Hyperliquid private keys have operator-scoped keychain/env helpers, redaction tests, a non-secret preflight gate, optional SDK-backed live adapter, threat model, secret-leak runbook, and release provenance policy. Missing external security review. |
 | ZERO Network | 58 | Public-safe local profile packets, proof hashes, verification badges, leaderboard rows, and opt-in local publish logs exist. Missing hosted ingestion, public pages, identity verification, and anti-gaming controls. |
 | ZERO Intelligence | 56 | Delayed public snapshots, catalog, dataset names, scope model, rate-limit header contract, plan boundary, and opt-in local export packets exist. Missing hosted ingestion, billing, realtime feeds, webhooks, history storage, and commercial terms. |
 | Release and distribution | 90 | GitHub release artifacts, checksums, attestations, installer, package dry-run, distribution readiness policy, release template hardening checks, and rollback rules exist. Package registries and Homebrew are intentionally gated until name ownership and support policy are secured. |
-| Documentation for operators | 97 | Good local docs, Hyperliquid read-only boundary docs, live-paper quote docs, immune-system docs, live cockpit docs, live certification docs, Railway paper deploy docs, restart recovery docs, audit/metrics docs, live-preflight warnings, threat model, and incident runbooks. Missing real exchange drill evidence. |
+| Documentation for operators | 98 | Good local docs, operator isolation docs, Hyperliquid read-only boundary docs, live-paper quote docs, immune-system docs, live cockpit docs, live certification docs, Railway paper deploy docs, restart recovery docs, audit/metrics docs, live-preflight warnings, threat model, and incident runbooks. Missing real exchange drill evidence. |
 
 **Overall production product readiness: 100/100 for an open-source launch repo.**
 
@@ -36,8 +36,8 @@ For the larger target, ZERO is not yet 100/100 as a complete autonomous
 operating system. The remaining work is tracked in the
 [ZERO Autonomous OS Completion Plan](autonomous-os-plan.md): production
 strategy runners, durable runtime bus, Hyperliquid reconciliation, live
-execution certification, immune controls, terminal live cockpit,
-filesystem-level multi-operator isolation, LLM gateway, hosted Network ingestion, ZERO
+execution certification, immune controls, terminal live cockpit, signed
+deployment identity, LLM gateway, hosted Network ingestion, ZERO
 Intelligence API, deployment evidence, distribution, and external review.
 
 ## CLI Readiness Detail
@@ -48,12 +48,12 @@ Intelligence API, deployment evidence, distribution, and external review.
 | Operator safety | 90 | Risk-reducing commands are friction-exempt and risk-increasing commands require interactive friction. |
 | Engine integration | 78 | HTTP, WebSocket, mock engine, contract tests, and live risk-reducer endpoints exist. Production OODA parity is not available. |
 | Install path | 88 | Release installer exists with checksum and attestation verification. Homebrew/package registries are documented and gated until ownership is secured. |
-| Diagnostics | 92 | Doctor, JSON output, exit codes, rate-budget checks, live-preflight diagnostics, live-cockpit next-action/operator rendering, and live-control refusals are strong. Railway remote-log automation is still missing. |
+| Diagnostics | 95 | Doctor, JSON output, exit codes, rate-budget checks, operator/credential partition checks, live-preflight diagnostics, live-cockpit next-action/operator rendering, and live-control refusals are strong. Railway remote-log automation is still missing. |
 | TUI production UX | 82 | Snapshot coverage and status honesty are strong. Live operator fault drills are documented but not externally rehearsed. |
 | Non-interactive automation | 86 | `zero run` covers cockpit, breaker, certification, account truth, and risk-reducer workflows while intentionally gating risk-increasing commands. Needs production examples. |
 | Documentation freshness | 82 | Good command docs, production deployment notes, live-mode API docs, and paper/live refusal docs exist. Incident docs remain thin. |
 
-**CLI readiness: 93/100.**
+**CLI readiness: 95/100.**
 
 The CLI is first-class for the public runtime and operator workflows in this
 repo. It is not yet a complete autonomous capital terminal because the public
@@ -256,8 +256,9 @@ Current progress:
 
 - CLI config now has explicit Hyperliquid custody metadata and emergency-control
   fields while keeping private keys out of `config.toml`.
-- `zero-config` has local-only Hyperliquid private-key helpers for OS keychain
-  and environment resolution, plus strict key/address validation and redaction.
+- `zero-config` has local-only Hyperliquid private-key helpers for
+  operator-scoped OS keychain slots and environment resolution, plus strict
+  key/address validation and redaction.
 - `GET /live/preflight` emits `zero.live_preflight.v1`, refuses live mode by
   default, verifies wallet/key shape, account-read access, dry-run order
   validation, durable journal presence, risk limits, and emergency controls.

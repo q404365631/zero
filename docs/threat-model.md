@@ -11,6 +11,7 @@ ZERO Network proof packets, and ZERO Intelligence packet contracts.
 - Public profile, leaderboard, and intelligence packets
 - Release artifacts, checksums, and attestations
 - CLI configuration and local keychain references
+- Operator-local runtime partitions
 
 ## Trust Boundaries
 
@@ -32,6 +33,7 @@ ZERO Network proof packets, and ZERO Intelligence packet contracts.
 | Paper deployment accidentally enables live execution | Unexpected real orders | Public Railway smoke proves live mode refused, live executor requires explicit env and preflight | Kill service, unset live env, inspect journal and exchange orders |
 | Exchange outage or malformed market data | Bad decisions | Read-only quote source labeling, fail-closed missing symbols, operator-visible errors | Pause automation, switch to deterministic paper source, document outage window |
 | Duplicate order submission | Over-exposure | Idempotency keys, no retry on live order submit, deterministic client order IDs | Kill live executor, reconcile exchange fills, resume only after audit |
+| Local state crosses operators | Privacy breach, wrong-context action, or stale recovery state | Operator-scoped filesystem partitions, operator-scoped keychain account names, `zero doctor` partition rows and legacy-artifact warning | Stop automation, archive/migrate shared artifacts, rerun doctor before live mode |
 | Dead-man or kill switch failure | Continued exposure | Dead-man heartbeat, pause, kill, reduce-only flatten controls | Trigger kill, manually flatten at venue, open P0 incident |
 | Release artifact tampering | Compromised installs | SHA256SUMS plus GitHub artifact attestations | Pull draft release, rotate affected tag, rebuild from clean runner |
 | Dependency compromise | Runtime compromise | Dependabot, CodeQL, OpenSSF Scorecard, lockfile review | Pin or remove dependency, cut patched release |
@@ -50,6 +52,7 @@ Update this document before merging changes that touch:
 
 - exchange signing or live execution;
 - private key handling;
+- operator-local filesystem or keychain partitioning;
 - decision journals, audit export, or recovery;
 - public profile, leaderboard, or intelligence serialization;
 - release artifact generation, installation, or verification;

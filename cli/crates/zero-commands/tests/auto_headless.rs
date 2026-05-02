@@ -377,7 +377,7 @@ async fn headless_start_then_status_reports_running_with_socket() {
     assert!(s.contains("start"), "line = {s:?}");
     assert!(s.contains("running"), "line = {s:?}");
     assert!(s.contains("changed"), "line = {s:?}");
-    assert!(s.contains("socket=~/.zero/sock"), "line = {s:?}");
+    assert!(s.contains("socket=<operator-socket>"), "line = {s:?}");
     assert!(src.is_running());
 
     let status = dispatch(&ctx, "/headless status").await.unwrap().unwrap();
@@ -454,7 +454,7 @@ async fn kill_with_running_supervisor_tears_down_socket_and_tags_line() {
     assert!(
         out.lines.iter().any(|line| matches!(
             line,
-            OutputLine::Alert(s) if s.contains("headless supervisor") && s.contains("~/.zero/sock")
+            OutputLine::Alert(s) if s.contains("headless supervisor") && s.contains("operator-local socket")
         )),
         "headless tear-down line missing: {:?}",
         out.lines,

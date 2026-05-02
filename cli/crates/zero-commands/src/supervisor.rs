@@ -87,8 +87,8 @@ pub enum SupervisorAction {
 
 /// Reply from a [`SupervisorSource`] call. `state` is the
 /// observed state after the adapter acted. `socket` is the
-/// daemon's Unix socket path when the daemon is running (always
-/// `~/.zero/sock` in production; tests stub this to any path).
+/// daemon's Unix socket path when the daemon is running. Production
+/// paths are operator-local; tests stub this to any path.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SupervisorReply {
     pub state: SupervisorState,
@@ -273,7 +273,7 @@ impl MockSupervisorSource {
         Self {
             inner: std::sync::Mutex::new(MockSupervisorInner {
                 running,
-                socket: "~/.zero/sock".to_owned(),
+                socket: "<operator-socket>".to_owned(),
                 pid: 4242,
                 started_at: std::time::Instant::now(),
                 socket_torn_down: false,
@@ -417,7 +417,7 @@ mod tests {
         let status = src.act(SupervisorAction::Status).unwrap();
         assert!(!status.changed);
         assert_eq!(status.state, SupervisorState::Running);
-        assert_eq!(status.socket.as_deref(), Some("~/.zero/sock"));
+        assert_eq!(status.socket.as_deref(), Some("<operator-socket>"));
     }
 
     #[test]

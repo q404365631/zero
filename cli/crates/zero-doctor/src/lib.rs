@@ -218,6 +218,8 @@ impl Doctor {
         checks.push(check_runtime());
         checks.push(self.check_config_dir());
         checks.push(self.check_config_parse());
+        checks.push(self.check_operator_partition());
+        checks.push(self.check_credential_partition());
 
         // Engine-facing.
         if let Some(client) = &self.client {
@@ -425,6 +427,97 @@ impl Doctor {
             Err(e) => CheckResult::fail(
                 "config_parse",
                 format!("read {}: {e}", path.display()),
+                elapsed(started),
+            ),
+        }
+    }
+
+    fn check_operator_partition(&self) -> CheckResult {
+        let started = std::time::Instant::now();
+        let path = self
+            .config_path
+            .clone()
+            .unwrap_or_else(|| self.config_dir.join("config.toml"));
+        let handle = std::fs::read_to_string(&path)
+            .ok()
+            .and_then(|body| toml::from_str::<zero_config::Config>(&body).ok())
+            .map_or_else(|| "local-operator".to_string(), |cfg| cfg.identity.handle);
+        let paths = zero_config::runtime_paths_in(self.config_dir.clone(), &handle);
+        let expected_prefix = self.config_dir.join("operators").join(&paths.operator_slug);
+        if !paths.operator_dir.starts_with(&expected_prefix) {
+            return CheckResult::fail(
+                "operator_partition",
+                format!(
+                    "state dir escaped operator partition: {}",
+                    paths.operator_dir.display()
+                ),
+                elapsed(started),
+            );
+        }
+
+        let legacy_paths = [
+            self.config_dir.join("state.db"),
+            self.config_dir.join("zero.log"),
+            self.config_dir.join("sock"),
+            self.config_dir.join("state").join("headless.json"),
+        ];
+        let stale: Vec<String> = legacy_paths
+            .iter()
+            .filter(|p| p.exists())
+            .map(|p| p.display().to_string())
+            .collect();
+        if !stale.is_empty() {
+            return CheckResult::warn(
+                "operator_partition",
+                format!(
+                    "legacy shared artifacts present; migrate or archive: {}",
+                    stale.join(", ")
+                ),
+                elapsed(started),
+            );
+        }
+
+        CheckResult::ok(
+            "operator_partition",
+            format!(
+                "{} -> {}",
+                paths.operator_slug,
+                paths.operator_dir.display()
+            ),
+            elapsed(started),
+        )
+    }
+
+    fn check_credential_partition(&self) -> CheckResult {
+        let started = std::time::Instant::now();
+        let path = self
+            .config_path
+            .clone()
+            .unwrap_or_else(|| self.config_dir.join("config.toml"));
+        if !path.exists() {
+            return CheckResult::warn(
+                "credential_partition",
+                "no config; keychain account will use legacy default until `zero init`",
+                elapsed(started),
+            );
+        }
+        match std::fs::read_to_string(&path)
+            .ok()
+            .and_then(|body| toml::from_str::<zero_config::Config>(&body).ok())
+        {
+            Some(cfg) => {
+                let account = zero_config::keychain_account_for_handle(&cfg.identity.handle);
+                CheckResult::ok(
+                    "credential_partition",
+                    format!(
+                        "keychain account {account} for services dev.getzero.zero and dev.getzero.hyperliquid"
+                    ),
+                    elapsed(started),
+                )
+            }
+            None => CheckResult::warn(
+                "credential_partition",
+                "config unreadable; keychain account cannot be derived",
                 elapsed(started),
             ),
         }

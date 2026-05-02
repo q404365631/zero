@@ -65,17 +65,17 @@ speed, scale, history, and reliability.
 |---|---:|---|
 | Public repo hygiene | 99 | registry ownership, external release drill |
 | Product narrative | 98 | keep narrative aligned as runtime becomes real |
-| CLI readiness | 95 | richer TUI cockpit layout, operator automation examples |
+| CLI readiness | 97 | richer TUI cockpit layout, operator automation examples |
 | Engine runtime | 90 | live canary evidence, richer exchange history reconciliation |
 | Safety and risk | 94 | real exchange chaos drills, external review |
-| API contracts | 95 | hosted auth/rate contracts, signed live runtime packets |
+| API contracts | 96 | hosted auth/rate contracts, signed live runtime packets |
 | Deployment | 84 | live Railway proof, remote logs, doctor automation |
-| Observability and audit | 91 | signed bundles, metrics backend, log drains |
-| Security and custody | 90 | external review, key-handling drill evidence |
+| Observability and audit | 95 | signed bundles, metrics backend, log drains |
+| Security and custody | 91 | external review, key-handling drill evidence |
 | ZERO Network | 58 | hosted ingestion, anti-gaming, identity, public pages |
 | ZERO Intelligence | 56 | hosted API, billing, history, webhooks, terms |
 | Release and distribution | 90 | registries, Homebrew, release rollback rehearsal |
-| Operator docs | 96 | real exchange drill evidence |
+| Operator docs | 98 | real exchange drill evidence |
 
 ## Execution Cycles
 
@@ -338,8 +338,16 @@ Current status:
   surfaced in cockpit/audit packets.
 - The Rust CLI attaches `identity.handle` as operator context when config is
   present and renders the resolved operator line in `zero run live-cockpit`.
-- Remaining scope before Cycle 20: per-operator local filesystem partitions,
-  credential partition checks, and signed deployment identity.
+- Local mutable CLI state now lands under
+  `<zero_dir>/operators/<operator-slug>/`, including `state.db`, `zero.log`,
+  the headless socket, headless state, and daily wraps.
+- OS keychain writes use `operator:<operator-slug>` account names for engine
+  and Hyperliquid secrets, with legacy `default` reads kept only for migration
+  compatibility.
+- `zero doctor` includes `operator_partition` and `credential_partition` rows,
+  and warns when legacy shared state artifacts remain at the top level.
+- Remaining scope before Cycle 20: signed deployment identity and hosted
+  control-plane claim protocol.
 
 ### Cycle 20: LLM Gateway
 

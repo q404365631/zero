@@ -1,6 +1,6 @@
 //! SQLite-backed session persistence.
 //!
-//! One database at `~/.zero/state.db`, WAL-journalled. Every
+//! One database per operator partition, WAL-journalled. Every
 //! operator input and every dispatcher output is written on the
 //! hot path so a crash preserves full replay (spec v2.1 §9).
 //!

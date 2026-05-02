@@ -10,7 +10,7 @@
 //! debugging a stuck daemon can run
 //!
 //! ```sh
-//! { echo '{"kind":"status"}'; sleep 0.2; } | nc -U ~/.zero/sock
+//! { echo '{"kind":"status"}'; sleep 0.2; } | nc -U <zero_dir>/operators/<operator-slug>/sock
 //! ```
 //!
 //! and see the reply without needing a framing parser. The M2

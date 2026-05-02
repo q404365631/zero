@@ -1759,7 +1759,7 @@ async fn kill_cmd(ctx: &DispatchContext) -> DispatchOutput {
         // means the daemon was already stopped — `/kill` does not
         // need to tag a non-event.
         Ok(true) => lines.push(OutputLine::alert(
-            "/kill — headless supervisor stopped and ~/.zero/sock torn down.",
+            "/kill — headless supervisor stopped and operator-local socket torn down.",
         )),
         Ok(false) => {}
         // A tear-down failure is an honesty bug if we silently

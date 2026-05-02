@@ -113,16 +113,20 @@ Full table: [`docs/commands.md`](docs/commands.md#exit-codes).
 
 | Path | What |
 |---|---|
-| `~/.zero/config.toml` | operator config (handle, defaults, guardrails, custody metadata) |
-| `~/.zero/state.db` | session log — conversations, slash-command history, journey milestones |
-| `~/.zero/zero.log` | TUI tracing output (WS/poller WARN records live here, not on the status bar) |
-| OS keychain | engine bearer token (`dev.getzero.zero`) and future Hyperliquid API key (`dev.getzero.hyperliquid`) |
+| `<zero_dir>/config.toml` | active operator config (handle, defaults, guardrails, custody metadata) |
+| `<zero_dir>/operators/<operator-slug>/state/state.db` | session log — conversations, slash-command history, journey milestones |
+| `<zero_dir>/operators/<operator-slug>/zero.log` | TUI tracing output (WS/poller WARN records live here, not on the status bar) |
+| `<zero_dir>/operators/<operator-slug>/sock` | local headless supervisor socket |
+| OS keychain account `operator:<operator-slug>` | engine bearer token (`dev.getzero.zero`) and Hyperliquid API key (`dev.getzero.hyperliquid`) |
 
 The `--no-persist` global flag disables session persistence
 for a single invocation — nothing goes to `state.db`, useful
 for one-off scripted runs. `--api` and `--token` override the
 config per invocation; set the corresponding env vars
 (`ZERO_API_URL`, `ZERO_API_TOKEN`) for shell use.
+
+See [Operator Isolation](../docs/operator-isolation.md) for the local
+filesystem and keychain partition model.
 
 Live Hyperliquid custody metadata can live in config, but the private key must
 stay in the OS keychain or local process environment. `zero doctor` reads the
@@ -209,7 +213,7 @@ Full explanation and cross-references:
 | `zero-tui` | ratatui app — shell, status bar, prompt, conversation, modes, widgets |
 | `zero-engine-client` | unified HTTP + WS + MCP client mirroring engine state |
 | `zero-session` | SQLite-backed session persistence (replay, resume, fork, daily wrap) |
-| `zero-config` | `~/.zero/config.toml` + OS keychain secrets |
+| `zero-config` | config, operator-local paths, and OS keychain secret slots |
 | `zero-commands` | slash-command framework + built-ins, with the RiskDirection invariant |
 | `zero-operator-state` | pure state-vector + label + friction classifier (runs on engine & CLI) |
 | `zero-onboarding` | first-run wizard per spec §11 |

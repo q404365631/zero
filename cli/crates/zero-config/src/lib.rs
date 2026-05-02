@@ -138,6 +138,115 @@ pub fn config_path() -> Result<PathBuf, ConfigError> {
     Ok(zero_dir()?.join("config.toml"))
 }
 
+/// Filesystem locations for one operator's mutable local state.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RuntimePaths {
+    pub root_dir: PathBuf,
+    pub operator_slug: String,
+    pub operator_dir: PathBuf,
+    pub state_dir: PathBuf,
+    pub state_db_path: PathBuf,
+    pub log_path: PathBuf,
+    pub wraps_dir: PathBuf,
+    pub headless_socket_path: PathBuf,
+    pub headless_state_path: PathBuf,
+}
+
+impl RuntimePaths {
+    fn new(root_dir: PathBuf, operator_slug: String) -> Self {
+        let operator_dir = root_dir.join("operators").join(&operator_slug);
+        let state_dir = operator_dir.join("state");
+        Self {
+            root_dir,
+            operator_slug,
+            operator_dir: operator_dir.clone(),
+            state_dir: state_dir.clone(),
+            state_db_path: state_dir.join("state.db"),
+            log_path: operator_dir.join("zero.log"),
+            wraps_dir: state_dir.join("wraps"),
+            headless_socket_path: operator_dir.join("sock"),
+            headless_state_path: state_dir.join("headless.json"),
+        }
+    }
+}
+
+/// Stable filesystem/keychain slug for an operator handle.
+///
+/// Handles are operator-facing and can contain punctuation. Local
+/// partitions need boring path segments, so this function lowercases
+/// ASCII alphanumerics, preserves `-`, `_`, `.`, folds all other runs
+/// to one `-`, and falls back to `local-operator`.
+#[must_use]
+pub fn operator_slug(handle: &str) -> String {
+    let mut out = String::new();
+    let mut last_dash = false;
+    for ch in handle.trim().chars() {
+        let next = if ch.is_ascii_alphanumeric() {
+            last_dash = false;
+            ch.to_ascii_lowercase()
+        } else if matches!(ch, '-' | '_' | '.') {
+            last_dash = false;
+            ch
+        } else if !last_dash {
+            last_dash = true;
+            '-'
+        } else {
+            continue;
+        };
+        out.push(next);
+    }
+    let out = out.trim_matches('-').to_string();
+    if out.is_empty() {
+        "local-operator".to_string()
+    } else {
+        out
+    }
+}
+
+/// Operator-specific keychain account name.
+#[must_use]
+pub fn keychain_account_for_handle(handle: &str) -> String {
+    format!("operator:{}", operator_slug(handle))
+}
+
+/// Resolve runtime paths for a handle under the canonical ZERO dir.
+///
+/// # Errors
+/// Returns [`ConfigError::NoConfigDir`] if the platform config dir
+/// cannot be resolved.
+pub fn runtime_paths_for_handle(handle: &str) -> Result<RuntimePaths, ConfigError> {
+    Ok(RuntimePaths::new(zero_dir()?, operator_slug(handle)))
+}
+
+/// Resolve runtime paths under an explicit root. This is used by
+/// doctor tests and tooling that intentionally inspect a staged
+/// ZERO home instead of the platform default.
+#[must_use]
+pub fn runtime_paths_in(root_dir: PathBuf, handle: &str) -> RuntimePaths {
+    RuntimePaths::new(root_dir, operator_slug(handle))
+}
+
+/// Resolve runtime paths from a loaded config.
+///
+/// # Errors
+/// Returns [`ConfigError::NoConfigDir`] if the platform config dir
+/// cannot be resolved.
+pub fn runtime_paths_for_config(cfg: &Config) -> Result<RuntimePaths, ConfigError> {
+    runtime_paths_for_handle(&cfg.identity.handle)
+}
+
+/// Resolve runtime paths for the active operator. Falls back to
+/// `local-operator` when no config exists yet.
+///
+/// # Errors
+/// Returns config read/parse errors or [`ConfigError::NoConfigDir`].
+pub fn runtime_paths() -> Result<RuntimePaths, ConfigError> {
+    match load_config()? {
+        Some(cfg) => runtime_paths_for_config(&cfg),
+        None => runtime_paths_for_handle("local-operator"),
+    }
+}
+
 /// Default engine API URL when nothing else is configured.
 pub const DEFAULT_API_URL: &str = "https://api.getzero.dev";
 
@@ -158,10 +267,21 @@ pub mod keychain {
     /// Account name under which we store the engine token. A
     /// single logical operator slot per CLI machine; operators with
     /// multiple engines switch via `zero pair --target`.
+    ///
+    /// Kept as a legacy fallback. New writes use
+    /// `operator:<operator-slug>` so multiple operators on one
+    /// workstation cannot share credentials accidentally.
     pub const DEFAULT_ACCOUNT: &str = "default";
     /// Hyperliquid API-wallet private key. This is local-only and
     /// never belongs in `config.toml`.
     pub const HYPERLIQUID_SERVICE: &str = "dev.getzero.hyperliquid";
+}
+
+fn active_keychain_account() -> String {
+    load_config().ok().flatten().map_or_else(
+        || keychain::DEFAULT_ACCOUNT.to_string(),
+        |cfg| keychain_account_for_handle(&cfg.identity.handle),
+    )
 }
 
 /// Resolve the engine API URL from explicit override → env → default.
@@ -262,7 +382,8 @@ pub fn resolve_hyperliquid_private_key(explicit: Option<&str>) -> Option<String>
 /// Returns `ConfigError::Keyring` on platform-specific failures
 /// (no secret service running on Linux, locked keychain on macOS).
 pub fn keyring_store_engine_token(token: &str) -> Result<(), ConfigError> {
-    let entry = keyring::Entry::new(keychain::ENGINE_SERVICE, keychain::DEFAULT_ACCOUNT)?;
+    let account = active_keychain_account();
+    let entry = keyring::Entry::new(keychain::ENGINE_SERVICE, &account)?;
     entry.set_password(token)?;
     Ok(())
 }
@@ -274,9 +395,18 @@ pub fn keyring_store_engine_token(token: &str) -> Result<(), ConfigError> {
 /// "no entry found"; a missing entry resolves to `Ok(None)` so
 /// callers can treat "no token yet" as the normal first-run state.
 pub fn keyring_read_engine_token() -> Result<Option<String>, ConfigError> {
-    let entry = keyring::Entry::new(keychain::ENGINE_SERVICE, keychain::DEFAULT_ACCOUNT)?;
+    let account = active_keychain_account();
+    let entry = keyring::Entry::new(keychain::ENGINE_SERVICE, &account)?;
     match entry.get_password() {
         Ok(t) => Ok(Some(t)),
+        Err(keyring::Error::NoEntry) if account != keychain::DEFAULT_ACCOUNT => {
+            let legacy = keyring::Entry::new(keychain::ENGINE_SERVICE, keychain::DEFAULT_ACCOUNT)?;
+            match legacy.get_password() {
+                Ok(t) => Ok(Some(t)),
+                Err(keyring::Error::NoEntry) => Ok(None),
+                Err(e) => Err(e.into()),
+            }
+        }
         Err(keyring::Error::NoEntry) => Ok(None),
         Err(e) => Err(e.into()),
     }
@@ -288,7 +418,8 @@ pub fn keyring_read_engine_token() -> Result<Option<String>, ConfigError> {
 /// Only returns an error on keychain I/O; a missing entry is a
 /// successful outcome.
 pub fn keyring_clear_engine_token() -> Result<(), ConfigError> {
-    let entry = keyring::Entry::new(keychain::ENGINE_SERVICE, keychain::DEFAULT_ACCOUNT)?;
+    let account = active_keychain_account();
+    let entry = keyring::Entry::new(keychain::ENGINE_SERVICE, &account)?;
     match entry.delete_credential() {
         Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
         Err(e) => Err(e.into()),
@@ -308,7 +439,8 @@ pub fn keyring_store_hyperliquid_private_key(private_key: &str) -> Result<(), Co
             "hyperliquid api private key must be a 32-byte hex value".to_string(),
         ));
     }
-    let entry = keyring::Entry::new(keychain::HYPERLIQUID_SERVICE, keychain::DEFAULT_ACCOUNT)?;
+    let account = active_keychain_account();
+    let entry = keyring::Entry::new(keychain::HYPERLIQUID_SERVICE, &account)?;
     entry.set_password(private_key)?;
     Ok(())
 }
@@ -319,9 +451,19 @@ pub fn keyring_store_hyperliquid_private_key(private_key: &str) -> Result<(), Co
 /// Returns keychain platform errors; missing entry resolves to
 /// `Ok(None)`.
 pub fn keyring_read_hyperliquid_private_key() -> Result<Option<String>, ConfigError> {
-    let entry = keyring::Entry::new(keychain::HYPERLIQUID_SERVICE, keychain::DEFAULT_ACCOUNT)?;
+    let account = active_keychain_account();
+    let entry = keyring::Entry::new(keychain::HYPERLIQUID_SERVICE, &account)?;
     match entry.get_password() {
         Ok(t) => Ok(Some(t)),
+        Err(keyring::Error::NoEntry) if account != keychain::DEFAULT_ACCOUNT => {
+            let legacy =
+                keyring::Entry::new(keychain::HYPERLIQUID_SERVICE, keychain::DEFAULT_ACCOUNT)?;
+            match legacy.get_password() {
+                Ok(t) => Ok(Some(t)),
+                Err(keyring::Error::NoEntry) => Ok(None),
+                Err(e) => Err(e.into()),
+            }
+        }
         Err(keyring::Error::NoEntry) => Ok(None),
         Err(e) => Err(e.into()),
     }
@@ -333,7 +475,8 @@ pub fn keyring_read_hyperliquid_private_key() -> Result<Option<String>, ConfigEr
 /// Only returns an error on keychain I/O; a missing entry is a
 /// successful outcome.
 pub fn keyring_clear_hyperliquid_private_key() -> Result<(), ConfigError> {
-    let entry = keyring::Entry::new(keychain::HYPERLIQUID_SERVICE, keychain::DEFAULT_ACCOUNT)?;
+    let account = active_keychain_account();
+    let entry = keyring::Entry::new(keychain::HYPERLIQUID_SERVICE, &account)?;
     match entry.delete_credential() {
         Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
         Err(e) => Err(e.into()),
@@ -500,5 +643,40 @@ mod tests {
         );
         assert_eq!(redact("short"), "<redacted>");
         assert_eq!(redact(""), "<unset>");
+    }
+
+    #[test]
+    fn operator_slug_is_stable_for_paths_and_keychain_accounts() {
+        assert_eq!(operator_slug("Ada Lovelace"), "ada-lovelace");
+        assert_eq!(operator_slug(" desk/asia  "), "desk-asia");
+        assert_eq!(operator_slug("desk_1.alpha"), "desk_1.alpha");
+        assert_eq!(operator_slug("   "), "local-operator");
+        assert_eq!(
+            keychain_account_for_handle("Desk Asia"),
+            "operator:desk-asia"
+        );
+    }
+
+    #[test]
+    fn runtime_paths_are_operator_partitioned() {
+        let paths = runtime_paths_in(PathBuf::from("/zero"), "Desk Asia");
+
+        assert_eq!(paths.operator_slug, "desk-asia");
+        assert_eq!(
+            paths.operator_dir,
+            PathBuf::from("/zero/operators/desk-asia")
+        );
+        assert_eq!(
+            paths.state_db_path,
+            PathBuf::from("/zero/operators/desk-asia/state/state.db")
+        );
+        assert_eq!(
+            paths.headless_socket_path,
+            PathBuf::from("/zero/operators/desk-asia/sock")
+        );
+        assert_eq!(
+            paths.headless_state_path,
+            PathBuf::from("/zero/operators/desk-asia/state/headless.json")
+        );
     }
 }

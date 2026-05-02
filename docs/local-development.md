@@ -107,6 +107,13 @@ friction model intact; risk-reducing commands must remain fast.
 
 ## Local State
 
+CLI runtime state is operator-partitioned under
+`<zero_dir>/operators/<operator-slug>/`. The active config remains at
+`<zero_dir>/config.toml`; the default session DB, TUI log, headless socket, and
+headless state live under the operator partition. `zero doctor` warns when
+legacy shared state files remain at the top level. See
+[Operator Isolation](operator-isolation.md).
+
 Ignored local state includes:
 
 - `.venv/`
