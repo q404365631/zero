@@ -1,0 +1,357 @@
+{
+  "auth": {
+    "credential": "hosted ZERO Intelligence API token",
+    "local_runtime_enforcement": "not enforced by the open-source runtime",
+    "runtime_required": false,
+    "scheme": "bearer"
+  },
+  "boundary": {
+    "commercial": [
+      "fresh realtime access",
+      "history",
+      "cohorts",
+      "benchmarks",
+      "webhooks",
+      "bulk exports",
+      "commercial redistribution",
+      "reliability commitments"
+    ],
+    "not_sold": [
+      "custody",
+      "basic execution safety",
+      "local private journals",
+      "operator secrets"
+    ],
+    "open": [
+      "local runtime",
+      "paper mode",
+      "self-custodial operation",
+      "public profiles",
+      "public leaderboards",
+      "delayed public snapshots"
+    ]
+  },
+  "datasets": [
+    {
+      "name": "verified_behavior_snapshots",
+      "public_delay_s": 900,
+      "raw_private_data": false,
+      "source": "accepted ZERO Network ingestion packets"
+    },
+    {
+      "name": "risk_operations_history",
+      "public_delay_s": 900,
+      "raw_private_data": false,
+      "source": "aggregate risk, rejection, liveness, and breaker history"
+    },
+    {
+      "name": "cohort_benchmarks",
+      "public_delay_s": 900,
+      "raw_private_data": false,
+      "source": "aggregated cohorts from verified public-safe packets"
+    },
+    {
+      "name": "leaderboard_history",
+      "public_delay_s": 900,
+      "raw_private_data": false,
+      "source": "accepted leaderboard rows over time"
+    }
+  ],
+  "endpoints": [
+    {
+      "path": "GET /v1/intelligence/snapshots",
+      "required_scope": "intelligence:read:delayed or intelligence:read:realtime",
+      "usage_event": "snapshot.delayed.read or snapshot.realtime.read"
+    },
+    {
+      "path": "GET /v1/intelligence/history",
+      "required_scope": "intelligence:read:history",
+      "usage_event": "history.query"
+    },
+    {
+      "path": "GET /v1/intelligence/cohorts",
+      "required_scope": "intelligence:cohorts",
+      "usage_event": "cohort.query"
+    },
+    {
+      "path": "GET /v1/intelligence/benchmarks",
+      "required_scope": "intelligence:benchmarks",
+      "usage_event": "benchmark.query"
+    },
+    {
+      "path": "POST /v1/intelligence/webhooks",
+      "required_scope": "intelligence:webhooks",
+      "usage_event": "webhook.subscription.created"
+    },
+    {
+      "path": "POST /v1/intelligence/exports",
+      "required_scope": "intelligence:exports",
+      "usage_event": "export.created"
+    }
+  ],
+  "exports": {
+    "contents": "aggregate-only datasets selected by scope",
+    "formats": [
+      "jsonl",
+      "csv"
+    ],
+    "raw_private_data": false,
+    "redistribution_requires_scope": "intelligence:redistribute"
+  },
+  "generated_at": "2026-05-01T00:00:00+00:00",
+  "plans": [
+    {
+      "billing": "public quota",
+      "freshness": "delayed >= 900s",
+      "id": "free",
+      "included_usage_events": [
+        "snapshot.delayed.read"
+      ],
+      "name": "Free",
+      "scopes": [
+        "intelligence:read:delayed"
+      ]
+    },
+    {
+      "billing": "subscription",
+      "freshness": "realtime",
+      "id": "pro_operator",
+      "included_usage_events": [
+        "snapshot.realtime.read",
+        "history.query",
+        "webhook.delivery"
+      ],
+      "name": "Pro Operator",
+      "scopes": [
+        "intelligence:read:realtime",
+        "intelligence:read:history",
+        "intelligence:webhooks"
+      ]
+    },
+    {
+      "billing": "subscription plus usage",
+      "freshness": "realtime plus historical",
+      "id": "team_fund",
+      "included_usage_events": [
+        "snapshot.realtime.read",
+        "history.query",
+        "cohort.query",
+        "benchmark.query",
+        "export.created",
+        "webhook.delivery"
+      ],
+      "name": "Team/Fund",
+      "scopes": [
+        "intelligence:read:realtime",
+        "intelligence:read:history",
+        "intelligence:cohorts",
+        "intelligence:benchmarks",
+        "intelligence:exports",
+        "intelligence:webhooks"
+      ]
+    },
+    {
+      "billing": "contract",
+      "freshness": "contract SLO",
+      "id": "enterprise",
+      "included_usage_events": [
+        "snapshot.realtime.read",
+        "history.query",
+        "cohort.query",
+        "benchmark.query",
+        "export.created",
+        "webhook.delivery",
+        "redistribution.reported"
+      ],
+      "name": "Enterprise",
+      "scopes": [
+        "intelligence:read:realtime",
+        "intelligence:read:history",
+        "intelligence:cohorts",
+        "intelligence:benchmarks",
+        "intelligence:exports",
+        "intelligence:webhooks",
+        "intelligence:redistribute"
+      ]
+    }
+  ],
+  "positioning": "ZERO Intelligence API monetizes verified autonomous behavior, not runtime access",
+  "privacy": {
+    "custody_transferred": false,
+    "exchange_credentials_collected": false,
+    "operator_secrets_included": false,
+    "raw_journals_required": false,
+    "raw_model_prompts_included": false,
+    "source_packets": "redacted ZERO Network packets only"
+  },
+  "rate_limits": {
+    "headers": [
+      "x-zero-ratelimit-limit",
+      "x-zero-ratelimit-remaining",
+      "x-zero-ratelimit-reset",
+      "x-zero-ratelimit-policy"
+    ],
+    "policy": [
+      {
+        "plan": "free",
+        "public_quota": true,
+        "unit": "requests",
+        "window": "1h"
+      },
+      {
+        "plan": "pro_operator",
+        "public_quota": false,
+        "unit": "requests plus webhook deliveries",
+        "window": "1m"
+      },
+      {
+        "plan": "team_fund",
+        "public_quota": false,
+        "unit": "requests, exports, and webhook deliveries",
+        "window": "1m"
+      },
+      {
+        "plan": "enterprise",
+        "public_quota": false,
+        "unit": "SLO-backed capacity",
+        "window": "contract"
+      }
+    ]
+  },
+  "reliability": {
+    "enterprise": "contract SLO",
+    "free": "best effort",
+    "pro_operator": "status-page backed",
+    "team_fund": "priority support"
+  },
+  "schema_version": "zero.intelligence.commercial.v1",
+  "scopes": [
+    {
+      "commercial": false,
+      "description": "read delayed aggregate public snapshots",
+      "name": "intelligence:read:delayed"
+    },
+    {
+      "commercial": true,
+      "description": "read fresh verified behavior snapshots",
+      "name": "intelligence:read:realtime"
+    },
+    {
+      "commercial": true,
+      "description": "query historical verified behavior",
+      "name": "intelligence:read:history"
+    },
+    {
+      "commercial": true,
+      "description": "query cohort analytics",
+      "name": "intelligence:cohorts"
+    },
+    {
+      "commercial": true,
+      "description": "query benchmark analytics",
+      "name": "intelligence:benchmarks"
+    },
+    {
+      "commercial": true,
+      "description": "create bulk exports",
+      "name": "intelligence:exports"
+    },
+    {
+      "commercial": true,
+      "description": "subscribe to event delivery",
+      "name": "intelligence:webhooks"
+    },
+    {
+      "commercial": true,
+      "description": "redistribute intelligence commercially",
+      "name": "intelligence:redistribute"
+    }
+  ],
+  "usage_events": [
+    {
+      "billable": false,
+      "metered": false,
+      "name": "snapshot.delayed.read",
+      "required_fields": [
+        "account_id",
+        "scope",
+        "dataset",
+        "timestamp"
+      ]
+    },
+    {
+      "billable": true,
+      "metered": true,
+      "name": "snapshot.realtime.read",
+      "required_fields": [
+        "account_id",
+        "scope",
+        "dataset",
+        "timestamp",
+        "freshness_ms"
+      ]
+    },
+    {
+      "billable": true,
+      "metered": true,
+      "name": "history.query",
+      "required_fields": [
+        "account_id",
+        "scope",
+        "dataset",
+        "timestamp",
+        "rows_returned"
+      ]
+    },
+    {
+      "billable": true,
+      "metered": true,
+      "name": "webhook.delivery",
+      "required_fields": [
+        "account_id",
+        "scope",
+        "event_type",
+        "timestamp",
+        "delivery_status"
+      ]
+    },
+    {
+      "billable": true,
+      "metered": true,
+      "name": "export.created",
+      "required_fields": [
+        "account_id",
+        "scope",
+        "dataset",
+        "timestamp",
+        "rows_exported"
+      ]
+    },
+    {
+      "billable": true,
+      "metered": true,
+      "name": "redistribution.reported",
+      "required_fields": [
+        "account_id",
+        "scope",
+        "dataset",
+        "timestamp",
+        "distribution_channel"
+      ]
+    }
+  ],
+  "webhooks": {
+    "delivery": {
+      "payloads": "aggregate-only",
+      "retries": "bounded retry with dead-letter visibility",
+      "signing": "hosted webhook signatures required"
+    },
+    "event_types": [
+      "snapshot.accepted",
+      "cohort.updated",
+      "benchmark.updated",
+      "leaderboard.updated",
+      "risk_regime.changed"
+    ]
+  }
+}

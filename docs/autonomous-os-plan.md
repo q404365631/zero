@@ -73,7 +73,7 @@ speed, scale, history, and reliability.
 | Observability and audit | 95 | signed bundles, metrics backend, log drains |
 | Security and custody | 91 | external review, key-handling drill evidence |
 | ZERO Network | 70 | hosted identity verification, public pages, production ingestion service |
-| ZERO Intelligence | 56 | hosted API, billing, history, webhooks, terms |
+| ZERO Intelligence | 63 | hosted service implementation, billing provider, history storage, terms |
 | Release and distribution | 90 | registries, Homebrew, release rollback rehearsal |
 | Operator docs | 98 | real exchange drill evidence |
 
@@ -450,6 +450,21 @@ Exit gate:
 - public delayed data and commercial realtime data are separate, tested, and
   documented;
 - no exchange credentials or raw private journals are required.
+
+Current progress:
+
+- Added `zero.intelligence.commercial.v1`, a pinned hosted API boundary for
+  open/commercial/not-sold rules, bearer-token hosted auth shape, plans,
+  scopes, datasets, endpoints, rate-limit headers, usage events, webhooks,
+  exports, reliability tiers, and privacy.
+- Added `GET /intelligence/commercial` plus OpenAPI, fixture, tests, local
+  smoke, and Railway smoke coverage.
+- Updated `zero.intelligence.catalog.v1` so its hosted API summary points to
+  the commercial contract instead of carrying only prose.
+
+Remaining scope before Cycle 23: real hosted service persistence, API-key
+issuer, billing provider integration, webhook signing implementation, history
+storage, commercial terms, and retention policy.
 
 ### Cycle 23: Production Deployment And Remote Operations
 

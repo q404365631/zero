@@ -13,6 +13,7 @@ from zero_engine.intelligence import (
     IntelligenceConfig,
     export_intelligence_snapshot,
     intelligence_catalog,
+    intelligence_commercial_contract,
     intelligence_snapshot,
 )
 from zero_engine.live import LiveExecutionPolicy, LiveExecutionRecord, LiveExecutor
@@ -135,6 +136,7 @@ __all__ = [
     "expected_profile_proof_hash",
     "ingest_public_profiles",
     "intelligence_catalog",
+    "intelligence_commercial_contract",
     "intelligence_snapshot",
     "latest_close",
     "load_ingested_public_profiles",

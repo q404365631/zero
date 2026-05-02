@@ -43,6 +43,9 @@ product should ingest later:
   Its source binds both the deployment claim hash and deployment heartbeat hash.
 - `GET /intelligence/catalog` returns `zero.intelligence.catalog.v1`, the
   commercial API, billing, scope, dataset, and rate-limit contract.
+- `GET /intelligence/commercial` returns `zero.intelligence.commercial.v1`, the
+  pinned hosted API boundary for plans, scopes, datasets, usage events,
+  webhooks, exports, reliability tiers, and privacy.
 - `GET /intelligence/model-gateway` returns `zero.model_gateway.status.v1`, the
   provider-agnostic, fail-closed model routing status for advisory intelligence,
   including optional OpenAI, Anthropic, Ollama, and OpenRouter adapter readiness,
@@ -68,12 +71,14 @@ operation.
 
 ## Hosted API Shape
 
-The paid hosted API should use bearer API keys, explicit scopes, and standard
-rate-limit headers:
+The paid hosted API should use bearer API keys, explicit scopes, usage events,
+and standard rate-limit headers. The checked contract fixture lives at
+[contracts/intelligence/commercial.json](../contracts/intelligence/commercial.json).
 
 - `x-zero-ratelimit-limit`
 - `x-zero-ratelimit-remaining`
 - `x-zero-ratelimit-reset`
+- `x-zero-ratelimit-policy`
 
 Primary scopes:
 
@@ -91,6 +96,17 @@ Primary datasets:
 - `cohort_benchmarks`
 - `risk_operations_history`
 - `leaderboard_history`
+
+Primary usage events:
+
+- `snapshot.delayed.read`
+- `snapshot.realtime.read`
+- `history.query`
+- `cohort.query`
+- `benchmark.query`
+- `webhook.delivery`
+- `export.created`
+- `redistribution.reported`
 
 ## Data Rules
 

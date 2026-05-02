@@ -7,6 +7,8 @@ from typing import Any
 
 from zero_engine.network import assert_public_profile_safe
 
+COMMERCIAL_CONTRACT_SCHEMA_VERSION = "zero.intelligence.commercial.v1"
+
 
 @dataclass(frozen=True)
 class IntelligenceConfig:
@@ -86,6 +88,10 @@ def intelligence_snapshot(
 
 
 def intelligence_catalog(*, generated_at: str, public_delay_s: int = 900) -> dict[str, Any]:
+    commercial_contract = intelligence_commercial_contract(
+        generated_at=generated_at,
+        public_delay_s=public_delay_s,
+    )
     catalog = {
         "schema_version": "zero.intelligence.catalog.v1",
         "generated_at": generated_at,
@@ -159,25 +165,12 @@ def intelligence_catalog(*, generated_at: str, public_delay_s: int = 900) -> dic
             ],
         },
         "hosted_api_contract": {
-            "auth": "bearer API key",
-            "rate_limit_headers": [
-                "x-zero-ratelimit-limit",
-                "x-zero-ratelimit-remaining",
-                "x-zero-ratelimit-reset",
-            ],
-            "datasets": [
-                "verified_behavior_snapshots",
-                "cohort_benchmarks",
-                "risk_operations_history",
-                "leaderboard_history",
-            ],
-            "endpoints": [
-                "GET /v1/intelligence/snapshots",
-                "GET /v1/intelligence/cohorts",
-                "GET /v1/intelligence/benchmarks",
-                "POST /v1/intelligence/webhooks",
-                "POST /v1/intelligence/exports",
-            ],
+            "schema_version": COMMERCIAL_CONTRACT_SCHEMA_VERSION,
+            "endpoint": "GET /intelligence/commercial",
+            "auth": commercial_contract["auth"],
+            "rate_limit_headers": commercial_contract["rate_limits"]["headers"],
+            "datasets": [dataset["name"] for dataset in commercial_contract["datasets"]],
+            "endpoints": [endpoint["path"] for endpoint in commercial_contract["endpoints"]],
         },
         "data_rules": {
             "source": "verified redacted network proof packets",
@@ -188,6 +181,330 @@ def intelligence_catalog(*, generated_at: str, public_delay_s: int = 900) -> dic
     }
     assert_intelligence_safe(catalog)
     return catalog
+
+
+def intelligence_commercial_contract(
+    *,
+    generated_at: str,
+    public_delay_s: int = 900,
+) -> dict[str, Any]:
+    contract = {
+        "schema_version": COMMERCIAL_CONTRACT_SCHEMA_VERSION,
+        "generated_at": generated_at,
+        "positioning": "ZERO Intelligence API monetizes verified autonomous behavior, not runtime access",
+        "boundary": {
+            "open": [
+                "local runtime",
+                "paper mode",
+                "self-custodial operation",
+                "public profiles",
+                "public leaderboards",
+                "delayed public snapshots",
+            ],
+            "commercial": [
+                "fresh realtime access",
+                "history",
+                "cohorts",
+                "benchmarks",
+                "webhooks",
+                "bulk exports",
+                "commercial redistribution",
+                "reliability commitments",
+            ],
+            "not_sold": [
+                "custody",
+                "basic execution safety",
+                "local private journals",
+                "operator secrets",
+            ],
+        },
+        "auth": {
+            "scheme": "bearer",
+            "credential": "hosted ZERO Intelligence API token",
+            "runtime_required": False,
+            "local_runtime_enforcement": "not enforced by the open-source runtime",
+        },
+        "plans": [
+            {
+                "id": "free",
+                "name": "Free",
+                "billing": "public quota",
+                "scopes": ["intelligence:read:delayed"],
+                "freshness": f"delayed >= {public_delay_s}s",
+                "included_usage_events": ["snapshot.delayed.read"],
+            },
+            {
+                "id": "pro_operator",
+                "name": "Pro Operator",
+                "billing": "subscription",
+                "scopes": [
+                    "intelligence:read:realtime",
+                    "intelligence:read:history",
+                    "intelligence:webhooks",
+                ],
+                "freshness": "realtime",
+                "included_usage_events": [
+                    "snapshot.realtime.read",
+                    "history.query",
+                    "webhook.delivery",
+                ],
+            },
+            {
+                "id": "team_fund",
+                "name": "Team/Fund",
+                "billing": "subscription plus usage",
+                "scopes": [
+                    "intelligence:read:realtime",
+                    "intelligence:read:history",
+                    "intelligence:cohorts",
+                    "intelligence:benchmarks",
+                    "intelligence:exports",
+                    "intelligence:webhooks",
+                ],
+                "freshness": "realtime plus historical",
+                "included_usage_events": [
+                    "snapshot.realtime.read",
+                    "history.query",
+                    "cohort.query",
+                    "benchmark.query",
+                    "export.created",
+                    "webhook.delivery",
+                ],
+            },
+            {
+                "id": "enterprise",
+                "name": "Enterprise",
+                "billing": "contract",
+                "scopes": [
+                    "intelligence:read:realtime",
+                    "intelligence:read:history",
+                    "intelligence:cohorts",
+                    "intelligence:benchmarks",
+                    "intelligence:exports",
+                    "intelligence:webhooks",
+                    "intelligence:redistribute",
+                ],
+                "freshness": "contract SLO",
+                "included_usage_events": [
+                    "snapshot.realtime.read",
+                    "history.query",
+                    "cohort.query",
+                    "benchmark.query",
+                    "export.created",
+                    "webhook.delivery",
+                    "redistribution.reported",
+                ],
+            },
+        ],
+        "scopes": [
+            {
+                "name": "intelligence:read:delayed",
+                "description": "read delayed aggregate public snapshots",
+                "commercial": False,
+            },
+            {
+                "name": "intelligence:read:realtime",
+                "description": "read fresh verified behavior snapshots",
+                "commercial": True,
+            },
+            {
+                "name": "intelligence:read:history",
+                "description": "query historical verified behavior",
+                "commercial": True,
+            },
+            {
+                "name": "intelligence:cohorts",
+                "description": "query cohort analytics",
+                "commercial": True,
+            },
+            {
+                "name": "intelligence:benchmarks",
+                "description": "query benchmark analytics",
+                "commercial": True,
+            },
+            {
+                "name": "intelligence:exports",
+                "description": "create bulk exports",
+                "commercial": True,
+            },
+            {
+                "name": "intelligence:webhooks",
+                "description": "subscribe to event delivery",
+                "commercial": True,
+            },
+            {
+                "name": "intelligence:redistribute",
+                "description": "redistribute intelligence commercially",
+                "commercial": True,
+            },
+        ],
+        "datasets": [
+            {
+                "name": "verified_behavior_snapshots",
+                "source": "accepted ZERO Network ingestion packets",
+                "public_delay_s": public_delay_s,
+                "raw_private_data": False,
+            },
+            {
+                "name": "risk_operations_history",
+                "source": "aggregate risk, rejection, liveness, and breaker history",
+                "public_delay_s": public_delay_s,
+                "raw_private_data": False,
+            },
+            {
+                "name": "cohort_benchmarks",
+                "source": "aggregated cohorts from verified public-safe packets",
+                "public_delay_s": public_delay_s,
+                "raw_private_data": False,
+            },
+            {
+                "name": "leaderboard_history",
+                "source": "accepted leaderboard rows over time",
+                "public_delay_s": public_delay_s,
+                "raw_private_data": False,
+            },
+        ],
+        "endpoints": [
+            {
+                "path": "GET /v1/intelligence/snapshots",
+                "required_scope": "intelligence:read:delayed or intelligence:read:realtime",
+                "usage_event": "snapshot.delayed.read or snapshot.realtime.read",
+            },
+            {
+                "path": "GET /v1/intelligence/history",
+                "required_scope": "intelligence:read:history",
+                "usage_event": "history.query",
+            },
+            {
+                "path": "GET /v1/intelligence/cohorts",
+                "required_scope": "intelligence:cohorts",
+                "usage_event": "cohort.query",
+            },
+            {
+                "path": "GET /v1/intelligence/benchmarks",
+                "required_scope": "intelligence:benchmarks",
+                "usage_event": "benchmark.query",
+            },
+            {
+                "path": "POST /v1/intelligence/webhooks",
+                "required_scope": "intelligence:webhooks",
+                "usage_event": "webhook.subscription.created",
+            },
+            {
+                "path": "POST /v1/intelligence/exports",
+                "required_scope": "intelligence:exports",
+                "usage_event": "export.created",
+            },
+        ],
+        "rate_limits": {
+            "headers": [
+                "x-zero-ratelimit-limit",
+                "x-zero-ratelimit-remaining",
+                "x-zero-ratelimit-reset",
+                "x-zero-ratelimit-policy",
+            ],
+            "policy": [
+                {
+                    "plan": "free",
+                    "window": "1h",
+                    "unit": "requests",
+                    "public_quota": True,
+                },
+                {
+                    "plan": "pro_operator",
+                    "window": "1m",
+                    "unit": "requests plus webhook deliveries",
+                    "public_quota": False,
+                },
+                {
+                    "plan": "team_fund",
+                    "window": "1m",
+                    "unit": "requests, exports, and webhook deliveries",
+                    "public_quota": False,
+                },
+                {
+                    "plan": "enterprise",
+                    "window": "contract",
+                    "unit": "SLO-backed capacity",
+                    "public_quota": False,
+                },
+            ],
+        },
+        "usage_events": [
+            {
+                "name": "snapshot.delayed.read",
+                "metered": False,
+                "billable": False,
+                "required_fields": ["account_id", "scope", "dataset", "timestamp"],
+            },
+            {
+                "name": "snapshot.realtime.read",
+                "metered": True,
+                "billable": True,
+                "required_fields": ["account_id", "scope", "dataset", "timestamp", "freshness_ms"],
+            },
+            {
+                "name": "history.query",
+                "metered": True,
+                "billable": True,
+                "required_fields": ["account_id", "scope", "dataset", "timestamp", "rows_returned"],
+            },
+            {
+                "name": "webhook.delivery",
+                "metered": True,
+                "billable": True,
+                "required_fields": ["account_id", "scope", "event_type", "timestamp", "delivery_status"],
+            },
+            {
+                "name": "export.created",
+                "metered": True,
+                "billable": True,
+                "required_fields": ["account_id", "scope", "dataset", "timestamp", "rows_exported"],
+            },
+            {
+                "name": "redistribution.reported",
+                "metered": True,
+                "billable": True,
+                "required_fields": ["account_id", "scope", "dataset", "timestamp", "distribution_channel"],
+            },
+        ],
+        "webhooks": {
+            "event_types": [
+                "snapshot.accepted",
+                "cohort.updated",
+                "benchmark.updated",
+                "leaderboard.updated",
+                "risk_regime.changed",
+            ],
+            "delivery": {
+                "signing": "hosted webhook signatures required",
+                "retries": "bounded retry with dead-letter visibility",
+                "payloads": "aggregate-only",
+            },
+        },
+        "exports": {
+            "formats": ["jsonl", "csv"],
+            "contents": "aggregate-only datasets selected by scope",
+            "raw_private_data": False,
+            "redistribution_requires_scope": "intelligence:redistribute",
+        },
+        "reliability": {
+            "free": "best effort",
+            "pro_operator": "status-page backed",
+            "team_fund": "priority support",
+            "enterprise": "contract SLO",
+        },
+        "privacy": {
+            "exchange_credentials_collected": False,
+            "custody_transferred": False,
+            "raw_journals_required": False,
+            "raw_model_prompts_included": False,
+            "operator_secrets_included": False,
+            "source_packets": "redacted ZERO Network packets only",
+        },
+    }
+    assert_intelligence_safe(contract)
+    return contract
 
 
 def export_intelligence_snapshot(

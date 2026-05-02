@@ -1,32 +1,4 @@
 {
-  "schema_version": "zero.intelligence.catalog.v1",
-  "generated_at": "2026-05-01T00:00:00Z",
-  "positioning": "commercial data product created by verified autonomous behavior",
-  "public": {
-    "runtime": "open-source",
-    "network_profiles": "open",
-    "leaderboards": "open",
-    "model_gateway_status": {
-      "schema_version": "zero.model_gateway.status.v1",
-      "endpoint": "GET /intelligence/model-gateway",
-      "default": "fail_closed unless an operator configures a provider"
-    },
-    "model_gateway_health": {
-      "schema_version": "zero.model_gateway.health.v1",
-      "endpoint": "GET /intelligence/model-gateway/health",
-      "default": "config-only; explicit network=true required for provider probe"
-    },
-    "model_gateway_audit": {
-      "schema_version": "zero.model_gateway.audit.v1",
-      "endpoint": "GET /intelligence/model-gateway/audit",
-      "default": "production model operations bundle without prompts or raw outputs"
-    },
-    "delayed_snapshots": {
-      "schema_version": "zero.intelligence.snapshot.v1",
-      "delay_s": 900,
-      "endpoint": "GET /intelligence/snapshot"
-    }
-  },
   "commercial": {
     "metered_by": [
       "freshness",
@@ -43,22 +15,23 @@
     ],
     "plans": [
       {
+        "limits": "low public quota",
         "name": "free",
         "scopes": [
           "intelligence:read:delayed"
-        ],
-        "limits": "low public quota"
+        ]
       },
       {
+        "limits": "subscription quota",
         "name": "pro_operator",
         "scopes": [
           "intelligence:read:realtime",
           "intelligence:read:history",
           "intelligence:webhooks"
-        ],
-        "limits": "subscription quota"
+        ]
       },
       {
+        "limits": "subscription plus usage",
         "name": "team_fund",
         "scopes": [
           "intelligence:read:realtime",
@@ -66,10 +39,10 @@
           "intelligence:cohorts",
           "intelligence:exports",
           "intelligence:webhooks"
-        ],
-        "limits": "subscription plus usage"
+        ]
       },
       {
+        "limits": "contract SLO and redistribution terms",
         "name": "enterprise",
         "scopes": [
           "intelligence:read:realtime",
@@ -78,36 +51,72 @@
           "intelligence:exports",
           "intelligence:webhooks",
           "intelligence:redistribute"
-        ],
-        "limits": "contract SLO and redistribution terms"
+        ]
       }
     ]
   },
+  "data_rules": {
+    "custody": "never transferred",
+    "exchange_credentials": "never collected",
+    "raw_operator_data": "excluded unless explicitly consented and contracted",
+    "source": "verified redacted network proof packets"
+  },
+  "generated_at": "2026-05-01T00:00:00+00:00",
   "hosted_api_contract": {
-    "auth": "bearer API key",
-    "rate_limit_headers": [
-      "x-zero-ratelimit-limit",
-      "x-zero-ratelimit-remaining",
-      "x-zero-ratelimit-reset"
-    ],
+    "auth": {
+      "credential": "hosted ZERO Intelligence API token",
+      "local_runtime_enforcement": "not enforced by the open-source runtime",
+      "runtime_required": false,
+      "scheme": "bearer"
+    },
     "datasets": [
       "verified_behavior_snapshots",
-      "cohort_benchmarks",
       "risk_operations_history",
+      "cohort_benchmarks",
       "leaderboard_history"
     ],
+    "endpoint": "GET /intelligence/commercial",
     "endpoints": [
       "GET /v1/intelligence/snapshots",
+      "GET /v1/intelligence/history",
       "GET /v1/intelligence/cohorts",
       "GET /v1/intelligence/benchmarks",
       "POST /v1/intelligence/webhooks",
       "POST /v1/intelligence/exports"
-    ]
+    ],
+    "rate_limit_headers": [
+      "x-zero-ratelimit-limit",
+      "x-zero-ratelimit-remaining",
+      "x-zero-ratelimit-reset",
+      "x-zero-ratelimit-policy"
+    ],
+    "schema_version": "zero.intelligence.commercial.v1"
   },
-  "data_rules": {
-    "source": "verified redacted network proof packets",
-    "raw_operator_data": "excluded unless explicitly consented and contracted",
-    "exchange_credentials": "never collected",
-    "custody": "never transferred"
-  }
+  "positioning": "commercial data product created by verified autonomous behavior",
+  "public": {
+    "delayed_snapshots": {
+      "delay_s": 900,
+      "endpoint": "GET /intelligence/snapshot",
+      "schema_version": "zero.intelligence.snapshot.v1"
+    },
+    "leaderboards": "open",
+    "model_gateway_audit": {
+      "default": "production model operations bundle without prompts or raw outputs",
+      "endpoint": "GET /intelligence/model-gateway/audit",
+      "schema_version": "zero.model_gateway.audit.v1"
+    },
+    "model_gateway_health": {
+      "default": "config-only; explicit network=true required for provider probe",
+      "endpoint": "GET /intelligence/model-gateway/health",
+      "schema_version": "zero.model_gateway.health.v1"
+    },
+    "model_gateway_status": {
+      "default": "fail_closed unless an operator configures a provider",
+      "endpoint": "GET /intelligence/model-gateway",
+      "schema_version": "zero.model_gateway.status.v1"
+    },
+    "network_profiles": "open",
+    "runtime": "open-source"
+  },
+  "schema_version": "zero.intelligence.catalog.v1"
 }

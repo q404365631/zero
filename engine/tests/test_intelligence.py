@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
+from pathlib import Path
 
 from zero_engine.api import PaperApi, PaperApiState
+from zero_engine.intelligence import intelligence_catalog, intelligence_commercial_contract
 from zero_engine.journal import DecisionJournal
 from zero_engine.paper import PaperEngine
 
@@ -82,8 +84,59 @@ def test_intelligence_catalog_names_commercial_metering_without_gating_runtime()
     assert catalog["public"]["model_gateway_audit"]["schema_version"] == "zero.model_gateway.audit.v1"
     assert "local runtime use" in catalog["commercial"]["not_metered_by"]
     assert "freshness" in catalog["commercial"]["metered_by"]
-    assert catalog["hosted_api_contract"]["auth"] == "bearer API key"
+    assert catalog["hosted_api_contract"]["auth"]["scheme"] == "bearer"
+    assert catalog["hosted_api_contract"]["auth"]["runtime_required"] is False
+    assert catalog["hosted_api_contract"]["schema_version"] == "zero.intelligence.commercial.v1"
+    assert catalog["hosted_api_contract"]["endpoint"] == "GET /intelligence/commercial"
     assert "intelligence:redistribute" in catalog["commercial"]["plans"][-1]["scopes"]
+
+
+def test_intelligence_commercial_contract_is_billing_ready_public_safe(tmp_path) -> None:
+    api = seed_api(tmp_path)
+
+    status, contract = api.get("/intelligence/commercial", {})
+
+    assert status == 200
+    assert contract["schema_version"] == "zero.intelligence.commercial.v1"
+    assert contract["auth"]["scheme"] == "bearer"
+    assert contract["auth"]["runtime_required"] is False
+    assert contract["plans"][0]["id"] == "free"
+    assert contract["plans"][-1]["id"] == "enterprise"
+    assert "intelligence:read:delayed" in [scope["name"] for scope in contract["scopes"]]
+    assert "intelligence:redistribute" in contract["plans"][-1]["scopes"]
+    assert "x-zero-ratelimit-policy" in contract["rate_limits"]["headers"]
+    assert "snapshot.realtime.read" in [event["name"] for event in contract["usage_events"]]
+    assert contract["privacy"]["exchange_credentials_collected"] is False
+    assert contract["privacy"]["operator_secrets_included"] is False
+    body = json.dumps(contract)
+    assert "intelligence-fill" not in body
+    assert "trace-intelligence" not in body
+    assert "BTC" not in body
+    assert "ETH" not in body
+
+
+def test_intelligence_commercial_contract_fixture_is_fresh() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    expected = json.loads((repo_root / "contracts/intelligence/commercial.json").read_text())
+
+    contract = intelligence_commercial_contract(
+        generated_at="2026-05-01T00:00:00+00:00",
+        public_delay_s=900,
+    )
+
+    assert contract == expected
+
+
+def test_intelligence_catalog_fixture_is_fresh() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    expected = json.loads((repo_root / "contracts/intelligence/catalog.json").read_text())
+
+    catalog = intelligence_catalog(
+        generated_at="2026-05-01T00:00:00+00:00",
+        public_delay_s=900,
+    )
+
+    assert catalog == expected
 
 
 def test_intelligence_export_requires_consent_and_path(tmp_path) -> None:

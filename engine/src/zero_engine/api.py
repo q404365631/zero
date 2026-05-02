@@ -29,6 +29,7 @@ from zero_engine.intelligence import (
     IntelligenceConfig,
     export_intelligence_snapshot,
     intelligence_catalog,
+    intelligence_commercial_contract,
     intelligence_snapshot,
 )
 from zero_engine.journal import DecisionJournal
@@ -467,6 +468,7 @@ class PaperApi:
             "/immune": self.immune,
             "/live/cockpit": lambda: self.live_cockpit(operator_context),
             "/intelligence/catalog": self.intelligence_catalog,
+            "/intelligence/commercial": self.intelligence_commercial,
             "/intelligence/model-gateway": self.intelligence_model_gateway,
             "/intelligence/model-gateway/health": lambda: self.intelligence_model_gateway_health(
                 query
@@ -1343,6 +1345,12 @@ class PaperApi:
 
     def intelligence_catalog(self) -> dict[str, Any]:
         return intelligence_catalog(
+            generated_at=self.state.now_iso(),
+            public_delay_s=self.state.intelligence_public_delay_s,
+        )
+
+    def intelligence_commercial(self) -> dict[str, Any]:
+        return intelligence_commercial_contract(
             generated_at=self.state.now_iso(),
             public_delay_s=self.state.intelligence_public_delay_s,
         )

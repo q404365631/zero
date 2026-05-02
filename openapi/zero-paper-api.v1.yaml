@@ -336,8 +336,20 @@ paths:
           description: Intelligence catalog.
           content:
             application/json:
+            schema:
+              $ref: "#/components/schemas/IntelligenceCatalogResponse"
+  /intelligence/commercial:
+    get:
+      tags: [intelligence]
+      operationId: getIntelligenceCommercial
+      summary: Billing-ready commercial ZERO Intelligence API contract.
+      responses:
+        "200":
+          description: Commercial API boundary, scopes, plans, usage events, and privacy contract.
+          content:
+            application/json:
               schema:
-                $ref: "#/components/schemas/IntelligenceCatalogResponse"
+                $ref: "#/components/schemas/IntelligenceCommercialResponse"
   /intelligence/model-gateway:
     get:
       tags: [intelligence]
@@ -1322,6 +1334,62 @@ components:
     IntelligenceCatalogResponse:
       type: object
       required: [schema_version, generated_at, positioning, public, commercial, hosted_api_contract, data_rules]
+      additionalProperties: true
+    IntelligenceCommercialResponse:
+      type: object
+      required: [schema_version, generated_at, positioning, boundary, auth, plans, scopes, datasets, endpoints, rate_limits, usage_events, webhooks, exports, reliability, privacy]
+      properties:
+        schema_version:
+          const: zero.intelligence.commercial.v1
+        generated_at:
+          type: string
+          format: date-time
+        boundary:
+          type: object
+          required: [open, commercial, not_sold]
+          additionalProperties: true
+        auth:
+          type: object
+          required: [scheme, credential, runtime_required, local_runtime_enforcement]
+          additionalProperties: true
+        plans:
+          type: array
+          items:
+            type: object
+            required: [id, name, billing, scopes, freshness, included_usage_events]
+            additionalProperties: true
+        scopes:
+          type: array
+          items:
+            type: object
+            required: [name, description, commercial]
+            additionalProperties: true
+        datasets:
+          type: array
+          items:
+            type: object
+            required: [name, source, public_delay_s, raw_private_data]
+            additionalProperties: true
+        endpoints:
+          type: array
+          items:
+            type: object
+            required: [path, required_scope, usage_event]
+            additionalProperties: true
+        rate_limits:
+          type: object
+          required: [headers, policy]
+          additionalProperties: true
+        usage_events:
+          type: array
+          items:
+            type: object
+            required: [name, metered, billable, required_fields]
+            additionalProperties: true
+        privacy:
+          type: object
+          required: [exchange_credentials_collected, custody_transferred, raw_journals_required, raw_model_prompts_included, operator_secrets_included, source_packets]
+          additionalProperties: true
       additionalProperties: true
     ModelGatewayStatusResponse:
       type: object

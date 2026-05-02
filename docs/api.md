@@ -105,7 +105,7 @@ contract:
 - `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
 - `GET /metrics`, `/immune`, `/audit/export`
 - `GET /deployment/claim`, `/deployment/heartbeat`, `/network/profile`, `/network/leaderboard`
-- `GET /intelligence/snapshot`, `/intelligence/catalog`, `/intelligence/model-gateway`
+- `GET /intelligence/snapshot`, `/intelligence/catalog`, `/intelligence/commercial`, `/intelligence/model-gateway`
 - `GET /hl/status`, `/hl/account`, `/hl/reconcile`, `/market/quote`
 - `GET /live/preflight`, `/live/cockpit`, `/live/certification`
 - `GET /operator/state`
@@ -206,6 +206,14 @@ API contract. The contract makes the open-core rule explicit: the runtime,
 paper mode, self-custodial operation, public profiles, public leaderboards, and
 delayed snapshots are public; realtime feeds, history, cohorts, benchmarks,
 webhooks, bulk exports, commercial redistribution, and SLOs are paid surfaces.
+
+`GET /intelligence/commercial` returns
+`zero.intelligence.commercial.v1`, the billing-ready hosted Intelligence API
+contract. It names the open/commercial/not-sold boundary, bearer-token hosted
+auth shape, plan scopes, datasets, endpoint usage events, rate-limit headers,
+webhook delivery contract, export rules, reliability tiers, and privacy rules.
+It is not enforced by the local open-source runtime and does not require
+operator secrets, raw journals, custody transfer, or exchange credentials.
 
 `GET /intelligence/model-gateway` returns `zero.model_gateway.status.v1`, a
 public-safe provider and routing status packet. The default mode is

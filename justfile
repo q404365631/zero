@@ -147,6 +147,7 @@ docs-check:
     test -f contracts/network/index.html
     test -f contracts/intelligence/snapshot.json
     test -f contracts/intelligence/catalog.json
+    test -f contracts/intelligence/commercial.json
     test -f contracts/intelligence/model_gateway.json
     test -f contracts/intelligence/model_gateway_health.json
     test -f contracts/intelligence/model_gateway_audit.json
