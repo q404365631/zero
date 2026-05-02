@@ -98,10 +98,21 @@ Build the public OODA controller as the engine source of truth:
 
 Exit gate:
 
-- `zero-engine run --mode paper --once` produces one complete cycle record.
-- `zero-engine run --mode paper --interval 5s` can run continuously.
+- `zero-engine-run --once` produces one complete cycle record.
+- `zero-engine-run --interval 5` can run continuously.
 - Restart recovery preserves last cycle, idempotency keys, positions, and
   rejection counts.
+
+Current progress:
+
+- `zero-engine-run --once` runs one paper OODA cycle from a public scenario.
+- `RuntimeLoop` records explicit observe, orient, decide, act, and learn
+  phases as `zero.runtime.cycle.v1`.
+- Decision journals recover through the existing `PaperEngine` replay path, so
+  later runtime invocations continue at the next scenario intent instead of
+  duplicating the first action.
+- `examples/runtime-loop` demonstrates a bounded paper cycle with temporary
+  decision and cycle journals.
 
 ### Cycle 13: Strategy Runner SDK
 

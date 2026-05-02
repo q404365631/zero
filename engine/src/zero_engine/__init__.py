@@ -34,6 +34,7 @@ from zero_engine.plugins import (
     propose_plugin_order,
     validate_strategy_plugin,
 )
+from zero_engine.runtime import RuntimeConfig, RuntimeCycleRecord, RuntimeLoop
 from zero_engine.safety import RiskDecision, evaluate_order
 from zero_engine.scenario import PaperScenario, load_scenario, parse_scenario
 from zero_engine.strategy import MomentumStrategy, Strategy, StrategySignal, propose_order
@@ -59,6 +60,9 @@ __all__ = [
     "RiskDecision",
     "RiskLimits",
     "RecoveryState",
+    "RuntimeConfig",
+    "RuntimeCycleRecord",
+    "RuntimeLoop",
     "Side",
     "Strategy",
     "StrategyPlugin",

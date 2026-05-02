@@ -15,7 +15,7 @@ end.
 | Public repo hygiene | 99 | Strong CI, release artifacts, governance, docs, clean boundaries, first-class GitHub product page, first-10-minutes guide, reproducible demo capture, threat model, incident runbooks, distribution policy, and hardening gate. |
 | Product narrative | 98 | Clear category around autonomous operating systems for self-custodial onchain operations, with public runtime, terminal, network, and intelligence surfaces separated cleanly. |
 | CLI readiness | 91 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, and live risk-reducer wiring. Remaining live drills are documented as incident runbooks. |
-| Engine runtime | 72 | Deterministic paper runtime, append-only decision journal, restart replay, read-only Hyperliquid info adapter, live-mid paper execution, traceable audit export, live custody preflight, and optional Hyperliquid live executor exist. Still missing OODA loop, runners, and durable production bus. |
+| Engine runtime | 76 | Deterministic paper runtime, bounded OODA cycle records, append-only decision journal, restart replay, read-only Hyperliquid info adapter, live-mid paper execution, traceable audit export, live custody preflight, and optional Hyperliquid live executor exist. Still missing production runners, durable runtime bus, and continuous live-certified controller. |
 | Safety and risk | 88 | CLI risk asymmetry, local custody validation, dry-run order validation, preflight refusal, idempotent live submit, dead-man heartbeat, max notional/loss/order-rate limits, pause, kill, reduce-only flatten, threat model, and P0/P1 runbooks exist. Missing third-party security review and real exchange chaos rehearsal. |
 | API contracts | 90 | Paper fixtures are pinned across Python and Rust, OpenAPI documents the local paper runtime, compatibility rules are explicit, `/hl/status` exposes read-only market status, `/market/quote` names the active price source, `/health` plus `/v2/status` expose recovery state, `/metrics` plus `/audit/export` expose observable runtime state, `/network/*` exposes public proof packets, `/intelligence/*` exposes delayed intelligence and commercial API contracts, `/live/preflight` exposes a non-secret live-readiness gate, and `POST /live/*` controls are typed in the CLI. Missing hosted auth enforcement and production hosted compatibility policy. |
 | Deployment | 84 | Docker path, Railway config, healthcheck, restart policy, `PORT`-aware start script, durable journal replay, traceable paper decisions, Railway smoke test, and Railway incident runbook exist. Missing live deployed project proof and remote log/doctor automation. |
@@ -34,8 +34,8 @@ operator-owned.
 
 For the larger target, ZERO is not yet 100/100 as a complete autonomous
 operating system. The remaining work is tracked in the
-[ZERO Autonomous OS Completion Plan](autonomous-os-plan.md): autonomous runtime
-loop, strategy runners, durable runtime bus, Hyperliquid reconciliation, live
+[ZERO Autonomous OS Completion Plan](autonomous-os-plan.md): production
+strategy runners, durable runtime bus, Hyperliquid reconciliation, live
 execution certification, immune controls, terminal live cockpit,
 multi-operator isolation, LLM gateway, hosted Network ingestion, ZERO
 Intelligence API, deployment evidence, distribution, and external review.

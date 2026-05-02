@@ -36,6 +36,17 @@ JSONL candles -> MarketDataAdapter -> Strategy -> OrderIntent -> PaperEngine -> 
 Strategies propose. The paper engine decides. This keeps extension work
 deterministic and prevents examples from bypassing safety gates.
 
+The runtime loop wraps that path in an explicit OODA cycle:
+
+```text
+observe -> orient -> decide -> act -> learn -> journal
+```
+
+The public `zero-engine-run` command currently runs this loop in paper mode and
+emits `zero.runtime.cycle.v1` records. Live-capable runtime work must preserve
+the same cycle visibility and fail closed when safety or reconciliation checks
+are not ready.
+
 ## Commercial Flow
 
 ```text

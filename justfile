@@ -30,6 +30,9 @@ network-leaderboard-page-example:
 network-index-page-example:
     PYTHONPATH="$PWD/engine/src" python3 examples/network-index-page/build.py
 
+runtime-loop-example:
+    PYTHONPATH="$PWD/engine/src" python3 examples/runtime-loop/run.py
+
 network-pages-smoke:
     scripts/network_pages_smoke.py
 
@@ -70,6 +73,7 @@ cli-test:
     cd cli && cargo test --workspace
 
 docs-check:
+    test -f AGENTS.md
     test -f docs/local-development.md
     test -f docs/first-10-minutes.md
     test -f docs/demo-terminal.md
@@ -88,6 +92,7 @@ docs-check:
     test -f docs/hyperliquid-readonly.md
     test -f docs/production-readiness.md
     test -f docs/autonomous-os-plan.md
+    test -f docs/agentic-contribution.md
     test -f docs/release.md
     test -f docs/releases/v0.1.1.md
     test -f docs/launch-scorecard.md
@@ -104,6 +109,8 @@ docs-check:
     test -f examples/market-data-adapter/README.md
     test -f examples/market-data-adapter/adapter.py
     test -f examples/market-data-adapter/run.py
+    test -f examples/runtime-loop/README.md
+    test -x examples/runtime-loop/run.py
     test -f examples/network-leaderboard/README.md
     test -f examples/network-leaderboard/build.py
     test -f examples/network-leaderboard/profiles.jsonl
@@ -157,4 +164,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke example strategy-example strategy-plugin-example market-data-adapter-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke package-dry-run
+ci: lint test paper-api-smoke example strategy-example strategy-plugin-example market-data-adapter-example runtime-loop-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke package-dry-run

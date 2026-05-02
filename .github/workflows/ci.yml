@@ -35,6 +35,7 @@ jobs:
       - name: Check required launch docs
         run: |
           test -f README.md
+          test -f AGENTS.md
           test -f CONTRIBUTING.md
           test -f SECURITY.md
           test -f CODE_OF_CONDUCT.md
@@ -52,6 +53,8 @@ jobs:
           test -f docs/zero-intelligence.md
           test -f docs/hyperliquid-readonly.md
           test -f docs/production-readiness.md
+          test -f docs/autonomous-os-plan.md
+          test -f docs/agentic-contribution.md
           test -f docs/release.md
           test -f docs/releases/v0.1.1.md
           test -f docs/launch-scorecard.md
@@ -72,6 +75,8 @@ jobs:
           test -f examples/market-data-adapter/README.md
           test -f examples/market-data-adapter/adapter.py
           test -f examples/market-data-adapter/run.py
+          test -f examples/runtime-loop/README.md
+          test -x examples/runtime-loop/run.py
           test -f examples/network-leaderboard/README.md
           test -f examples/network-leaderboard/build.py
           test -f examples/network-leaderboard/profiles.jsonl
@@ -126,6 +131,20 @@ jobs:
         run: |
           PYTHONPATH="$PWD/engine/src:$PWD/examples/market-data-adapter" \
             python3 examples/market-data-adapter/run.py
+
+  runtime-loop-example:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install engine
+        working-directory: engine
+        run: python -m pip install -e ".[dev]"
+      - name: Run runtime loop example
+        run: PYTHONPATH="$PWD/engine/src" python3 examples/runtime-loop/run.py
 
   network-leaderboard-example:
     runs-on: ubuntu-latest

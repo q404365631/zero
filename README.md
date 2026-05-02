@@ -58,6 +58,7 @@ flowchart LR
 ## What You Can Run Today
 
 - Run the local paper engine against bundled example candles.
+- Run a bounded paper OODA runtime cycle with durable cycle records.
 - Start a local paper API and inspect operator state.
 - Use the Rust CLI for health checks, status, replay, and supervised actions.
 - Query Hyperliquid read-only market data without exposing funds.
@@ -141,6 +142,12 @@ Run the full local gate:
 
 ```bash
 just ci
+```
+
+Run one paper runtime cycle:
+
+```bash
+PYTHONPATH="$PWD/engine/src" zero-engine-run --once --interval 0
 ```
 
 For the complete first-run path, see
@@ -235,6 +242,11 @@ just ci
 Read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and
 [GOVERNANCE.md](GOVERNANCE.md).
 
+Using a coding or design agent? Start with [AGENTS.md](AGENTS.md) and
+[docs/agentic-contribution.md](docs/agentic-contribution.md). Agent-authored
+changes should stay scoped, paper-first by default, and explicit about safety
+invariants.
+
 ## Documentation
 
 - [Architecture](docs/architecture.md)
@@ -251,6 +263,8 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and
 - [ZERO Network](docs/zero-network.md)
 - [ZERO Intelligence](docs/zero-intelligence.md)
 - [Production Readiness](docs/production-readiness.md)
+- [Autonomous OS Plan](docs/autonomous-os-plan.md)
+- [Agentic Contribution](docs/agentic-contribution.md)
 - [Launch Scorecard](docs/launch-scorecard.md)
 - [Roadmap](docs/roadmap.md)
 
