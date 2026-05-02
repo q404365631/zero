@@ -18,6 +18,8 @@ The response is `zero.live_cockpit.v1` and includes:
 - `certification`: dry-run live execution drill status;
 - `heartbeat`: dead-man configuration and expiry state;
 - `live_records`: recent live submit/refusal/exchange-error evidence;
+- `operator_context`: the resolved operator audit identity;
+- `operator_actions.recent`: recent live control attempts by operator context;
 - `next_action`: the first concrete action required before live risk can
   increase.
 

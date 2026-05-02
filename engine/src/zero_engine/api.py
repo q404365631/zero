@@ -7,6 +7,7 @@ import json
 import os
 import sys
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from http import HTTPStatus
@@ -73,6 +74,61 @@ class PriceQuote:
             "source": self.source,
             "as_of": self.as_of.isoformat().replace("+00:00", "Z"),
         }
+
+
+def safe_context_value(value: Any, *, default: str, max_len: int = 80) -> str:
+    raw = str(value or "").strip()
+    if not raw:
+        return default
+    safe = "".join(ch for ch in raw if ch.isalnum() or ch in {"-", "_", ".", ":", "@"})
+    return (safe or default)[:max_len]
+
+
+@dataclass(frozen=True)
+class OperatorContext:
+    operator_id: str = "local-operator"
+    handle: str = "local-operator"
+    role: str = "owner"
+    scope: str = "local-private"
+    source: str = "runtime-default"
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": "zero.operator_context.v1",
+            "operator_id": self.operator_id,
+            "handle": self.handle,
+            "role": self.role,
+            "scope": self.scope,
+            "source": self.source,
+        }
+
+
+@dataclass(frozen=True)
+class OperatorActionRecord:
+    action: str
+    risk_direction: str
+    ok: bool
+    operator_context: OperatorContext
+    as_of: str
+    trace_id: str | None = None
+    state: str | None = None
+    reason: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "action": self.action,
+            "risk_direction": self.risk_direction,
+            "ok": self.ok,
+            "as_of": self.as_of,
+            "operator_context": self.operator_context.to_dict(),
+        }
+        if self.trace_id:
+            payload["trace_id"] = self.trace_id
+        if self.state:
+            payload["state"] = self.state
+        if self.reason:
+            payload["reason"] = self.reason
+        return payload
 
 
 @dataclass
@@ -162,6 +218,12 @@ class PaperApiState:
     network_publish_path: str | None = None
     intelligence_public_delay_s: int = 900
     intelligence_export_path: str | None = None
+    default_operator_id: str = "local-operator"
+    default_operator_handle: str = "local-operator"
+    default_operator_role: str = "owner"
+    default_operator_scope: str = "local-private"
+    default_operator_source: str = "runtime-default"
+    operator_action_log: list[OperatorActionRecord] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         if self.execution_cache:
@@ -269,6 +331,65 @@ class PaperApiState:
             at=self.now_iso(),
         )
 
+    def operator_context(
+        self,
+        headers: Mapping[str, str] | None = None,
+    ) -> OperatorContext:
+        normalized = {key.lower(): value for key, value in (headers or {}).items()}
+        has_header_context = any(
+            key in normalized
+            for key in {
+                "x-zero-operator-id",
+                "x-zero-operator-handle",
+                "x-zero-operator-role",
+                "x-zero-operator-scope",
+            }
+        )
+        handle = safe_context_value(
+            normalized.get("x-zero-operator-handle", self.default_operator_handle),
+            default="local-operator",
+        )
+        return OperatorContext(
+            operator_id=safe_context_value(
+                normalized.get("x-zero-operator-id", self.default_operator_id),
+                default=handle,
+            ),
+            handle=handle,
+            role=safe_context_value(
+                normalized.get("x-zero-operator-role", self.default_operator_role),
+                default="operator",
+                max_len=32,
+            ),
+            scope=safe_context_value(
+                normalized.get("x-zero-operator-scope", self.default_operator_scope),
+                default="local-private",
+                max_len=40,
+            ),
+            source="request-header" if has_header_context else self.default_operator_source,
+        )
+
+    def record_operator_action(
+        self,
+        *,
+        action: str,
+        risk_direction: str,
+        result: dict[str, Any],
+        trace_id: str | None,
+        operator_context: OperatorContext,
+    ) -> None:
+        self.operator_action_log.append(
+            OperatorActionRecord(
+                action=action,
+                risk_direction=risk_direction,
+                ok=bool(result.get("ok")),
+                state=str(result["state"]) if result.get("state") is not None else None,
+                reason=str(result["reason"]) if result.get("reason") is not None else None,
+                trace_id=trace_id,
+                as_of=self.now_iso(),
+                operator_context=operator_context,
+            )
+        )
+
 
 class PaperApi:
     def __init__(self, state: PaperApiState | None = None) -> None:
@@ -279,10 +400,12 @@ class PaperApi:
         path: str,
         query: dict[str, list[str]],
         trace_id: str | None = None,
+        operator_context: OperatorContext | None = None,
     ) -> tuple[int, dict[str, Any]]:
         trace_id = trace_id or self.state.next_trace_id("GET", path)
+        operator_context = operator_context or self.state.operator_context()
         started = time.perf_counter()
-        status, payload = self._get(path, query, trace_id)
+        status, payload = self._get(path, query, trace_id, operator_context)
         self.state.record_request(
             method="GET",
             path=path,
@@ -297,6 +420,7 @@ class PaperApi:
         path: str,
         query: dict[str, list[str]],
         trace_id: str,
+        operator_context: OperatorContext,
     ) -> tuple[int, dict[str, Any]]:
         routes = {
             "/": self.root,
@@ -310,12 +434,12 @@ class PaperApi:
             "/approaching": self.approaching,
             "/rejections": lambda: self.rejections(query),
             "/journal": lambda: self.journal(query),
-            "/audit/export": lambda: self.audit_export(query),
+            "/audit/export": lambda: self.audit_export(query, operator_context),
             "/hl/account": self.hl_account,
             "/hl/reconcile": self.hl_reconcile,
             "/hl/status": lambda: self.hl_status(query),
             "/immune": self.immune,
-            "/live/cockpit": self.live_cockpit,
+            "/live/cockpit": lambda: self.live_cockpit(operator_context),
             "/intelligence/catalog": self.intelligence_catalog,
             "/intelligence/snapshot": self.intelligence_snapshot,
             "/live/certification": self.live_certification,
@@ -325,6 +449,7 @@ class PaperApi:
             "/network/profile": self.network_profile,
             "/network/leaderboard": self.network_leaderboard,
             "/operator/state": self.operator_state,
+            "/operator/context": lambda: self.operator_context_payload(operator_context),
         }
         if path.startswith("/evaluate/"):
             try:
@@ -350,10 +475,19 @@ class PaperApi:
         trace_id: str | None = None,
         expose_trace: bool = False,
         mode: str | None = None,
+        operator_context: OperatorContext | None = None,
     ) -> tuple[int, dict[str, Any]]:
         trace_id = trace_id or self.state.next_trace_id("POST", path)
+        operator_context = operator_context or self.state.operator_context()
         started = time.perf_counter()
-        status, response = self._post(path, payload, trace_id, expose_trace=expose_trace, mode=mode)
+        status, response = self._post(
+            path,
+            payload,
+            trace_id,
+            expose_trace=expose_trace,
+            mode=mode,
+            operator_context=operator_context,
+        )
         self.state.record_request(
             method="POST",
             path=path,
@@ -371,6 +505,7 @@ class PaperApi:
         *,
         expose_trace: bool = False,
         mode: str | None = None,
+        operator_context: OperatorContext,
     ) -> tuple[int, dict[str, Any]]:
         if path == "/execute":
             try:
@@ -379,6 +514,7 @@ class PaperApi:
                         payload,
                         trace_id=trace_id,
                         expose_trace=expose_trace,
+                        operator_context=operator_context,
                     )
                 return HTTPStatus.OK, self.execute(
                     payload,
@@ -402,6 +538,7 @@ class PaperApi:
             return HTTPStatus.OK, {
                 "accepted": 1,
                 "snapshot": self.operator_state(),
+                "operator_context": operator_context.to_dict(),
                 **({"trace_id": trace_id} if expose_trace else {}),
             }
         if path == "/network/publish":
@@ -412,15 +549,15 @@ class PaperApi:
         if path == "/intelligence/export":
             return HTTPStatus.OK, self.intelligence_export(payload)
         if path == "/live/heartbeat":
-            return HTTPStatus.OK, self.live_heartbeat()
+            return HTTPStatus.OK, self.live_heartbeat(trace_id, operator_context)
         if path == "/live/pause":
-            return HTTPStatus.OK, self.live_pause()
+            return HTTPStatus.OK, self.live_pause(trace_id, operator_context)
         if path == "/live/resume":
-            return HTTPStatus.OK, self.live_resume()
+            return HTTPStatus.OK, self.live_resume(trace_id, operator_context)
         if path == "/live/kill":
-            return HTTPStatus.OK, self.live_kill()
+            return HTTPStatus.OK, self.live_kill(trace_id, operator_context)
         if path == "/live/flatten":
-            return HTTPStatus.OK, self.live_flatten(trace_id=trace_id)
+            return HTTPStatus.OK, self.live_flatten(trace_id=trace_id, operator_context=operator_context)
         return HTTPStatus.NOT_FOUND, {"error": "not found", "path": path}
 
     def root(self) -> dict[str, Any]:
@@ -601,7 +738,8 @@ class PaperApi:
     def live_certification(self) -> dict[str, Any]:
         return run_live_certification().to_dict()
 
-    def live_cockpit(self) -> dict[str, Any]:
+    def live_cockpit(self, operator_context: OperatorContext | None = None) -> dict[str, Any]:
+        operator_context = operator_context or self.state.operator_context()
         preflight = self.live_preflight()
         try:
             reconciliation = self.state.reconcile_hyperliquid_account()
@@ -654,6 +792,17 @@ class PaperApi:
                 and certification["live_start_certified"]
             ),
             "next_action": next_action,
+            "operator_context": operator_context.to_dict(),
+            "access_policy": {
+                "identity_required_for_live_controls": True,
+                "default_scope": "local-private",
+                "header_overrides": [
+                    "X-Zero-Operator-Id",
+                    "X-Zero-Operator-Handle",
+                    "X-Zero-Operator-Role",
+                    "X-Zero-Operator-Scope",
+                ],
+            },
             "preflight": {
                 "schema_version": preflight["schema_version"],
                 "ready": preflight["ready"],
@@ -698,6 +847,10 @@ class PaperApi:
                 "risk_reducing": ["/pause-entries", "/kill", "/flatten-all"],
                 "risk_increasing": ["/resume-entries"],
                 "read_only": ["/live-cockpit", "/live-certify", "/immune", "/hl-reconcile"],
+                "recent": [
+                    record.to_dict()
+                    for record in self.state.operator_action_log[-10:]
+                ],
             },
         }
 
@@ -924,7 +1077,12 @@ class PaperApi:
             "recovery": self.recovery(),
         }
 
-    def audit_export(self, query: dict[str, list[str]]) -> dict[str, Any]:
+    def audit_export(
+        self,
+        query: dict[str, list[str]],
+        operator_context: OperatorContext | None = None,
+    ) -> dict[str, Any]:
+        operator_context = operator_context or self.state.operator_context()
         limit = int(first(query, "limit") or "100")
         if self.state.engine.journal is not None:
             decisions = self.state.engine.journal.tail(limit)
@@ -938,6 +1096,7 @@ class PaperApi:
             "mode": "paper",
             "source": source,
             "limit": limit,
+            "operator_context": operator_context.to_dict(),
             "summary": {
                 "decisions": len(self.state.engine.decisions),
                 "fills": len(self.state.engine.fills),
@@ -954,6 +1113,10 @@ class PaperApi:
             },
             "metrics": self.metrics(),
             "recovery": self.recovery(),
+            "operator_actions": [
+                record.to_dict()
+                for record in self.state.operator_action_log[-limit:]
+            ],
             "decisions": decisions,
         }
 
@@ -1103,6 +1266,17 @@ class PaperApi:
             "version": len(self.state.engine.decisions),
         }
 
+    def operator_context_payload(self, operator_context: OperatorContext) -> dict[str, Any]:
+        return {
+            **operator_context.to_dict(),
+            "generated_at": self.state.now_iso(),
+            "identity_policy": {
+                "live_controls": "required",
+                "secrets": "never_recorded",
+                "audit_scope": "operator_context plus trace_id",
+            },
+        }
+
     def execute(
         self,
         payload: dict[str, Any],
@@ -1150,7 +1324,9 @@ class PaperApi:
         trace_id: str | None = None,
         *,
         expose_trace: bool = False,
+        operator_context: OperatorContext | None = None,
     ) -> dict[str, Any]:
+        operator_context = operator_context or self.state.operator_context()
         key = str(payload.get("idempotency_key") or trace_id or "")
         symbol = str(payload.get("coin") or "").upper()
         side = Side(str(payload.get("side") or "").lower())
@@ -1166,6 +1342,7 @@ class PaperApi:
                 intent=intent,
                 key=key,
                 trace_id=trace_id if expose_trace else None,
+                operator_context=operator_context,
             )
         if not intent.reduce_only:
             reconciliation = self.state.reconcile_hyperliquid_account()
@@ -1177,6 +1354,7 @@ class PaperApi:
                     intent=intent,
                     key=key,
                     trace_id=trace_id if expose_trace else None,
+                    operator_context=operator_context,
                 )
             immune = self.immune(reconciliation=reconciliation)
             if not immune["risk_increasing_allowed"]:
@@ -1199,42 +1377,109 @@ class PaperApi:
                     intent=intent,
                     key=key,
                     trace_id=trace_id if expose_trace else None,
+                    operator_context=operator_context,
                 )
-        record = executor.submit(intent, idempotency_key=key, trace_id=trace_id)
+        record = executor.submit(
+            intent,
+            idempotency_key=key,
+            trace_id=trace_id,
+            operator_context=operator_context.to_dict(),
+        )
         self.state.metrics.record_execute(accepted=record.accepted)
         return live_response_from_record(record, include_trace=expose_trace)
 
-    def live_heartbeat(self) -> dict[str, Any]:
+    def live_heartbeat(
+        self,
+        trace_id: str | None = None,
+        operator_context: OperatorContext | None = None,
+    ) -> dict[str, Any]:
+        operator_context = operator_context or self.state.operator_context()
         if self.state.live_executor is None:
-            return {"ok": False, "reason": "live executor not configured"}
-        return self.state.live_executor.heartbeat()
+            result = {"ok": False, "reason": "live executor not configured"}
+        else:
+            result = self.state.live_executor.heartbeat()
+        return self.live_control_result("heartbeat", "neutral", result, trace_id, operator_context)
 
-    def live_pause(self) -> dict[str, Any]:
+    def live_pause(
+        self,
+        trace_id: str | None = None,
+        operator_context: OperatorContext | None = None,
+    ) -> dict[str, Any]:
+        operator_context = operator_context or self.state.operator_context()
         if self.state.live_executor is None:
-            return {"ok": False, "reason": "live executor not configured"}
-        return self.state.live_executor.pause()
+            result = {"ok": False, "reason": "live executor not configured"}
+        else:
+            result = self.state.live_executor.pause()
+        return self.live_control_result("pause_entries", "reduces", result, trace_id, operator_context)
 
-    def live_resume(self) -> dict[str, Any]:
+    def live_resume(
+        self,
+        trace_id: str | None = None,
+        operator_context: OperatorContext | None = None,
+    ) -> dict[str, Any]:
+        operator_context = operator_context or self.state.operator_context()
         if self.state.live_executor is None:
-            return {"ok": False, "reason": "live executor not configured"}
-        return self.state.live_executor.resume()
+            result = {"ok": False, "reason": "live executor not configured"}
+        else:
+            result = self.state.live_executor.resume()
+        return self.live_control_result("resume_entries", "increases", result, trace_id, operator_context)
 
-    def live_kill(self) -> dict[str, Any]:
+    def live_kill(
+        self,
+        trace_id: str | None = None,
+        operator_context: OperatorContext | None = None,
+    ) -> dict[str, Any]:
+        operator_context = operator_context or self.state.operator_context()
         if self.state.live_executor is None:
-            return {"ok": False, "reason": "live executor not configured"}
-        return self.state.live_executor.kill()
+            result = {"ok": False, "reason": "live executor not configured"}
+        else:
+            result = self.state.live_executor.kill()
+        return self.live_control_result("kill", "reduces", result, trace_id, operator_context)
 
-    def live_flatten(self, trace_id: str | None = None) -> dict[str, Any]:
+    def live_flatten(
+        self,
+        trace_id: str | None = None,
+        operator_context: OperatorContext | None = None,
+    ) -> dict[str, Any]:
+        operator_context = operator_context or self.state.operator_context()
         if self.state.live_executor is None:
-            return {"ok": False, "reason": "live executor not configured", "orders": []}
+            result = {"ok": False, "reason": "live executor not configured", "orders": []}
+            return self.live_control_result("flatten_all", "reduces", result, trace_id, operator_context)
         prices = {symbol: self.state.quote_for(symbol).price for symbol in self.state.engine.positions}
         records = self.state.live_executor.flatten(
             self.state.engine.positions,
             prices,
             idempotency_prefix=f"flatten-{self.state.next_trace_id('POST', '/live/flatten')}",
             trace_id=trace_id,
+            operator_context=operator_context.to_dict(),
         )
-        return {"ok": True, "orders": [live_response_from_record(record) for record in records]}
+        result = {"ok": True, "orders": [live_response_from_record(record) for record in records]}
+        return self.live_control_result("flatten_all", "reduces", result, trace_id, operator_context)
+
+    def live_control_result(
+        self,
+        action: str,
+        risk_direction: str,
+        result: dict[str, Any],
+        trace_id: str | None,
+        operator_context: OperatorContext,
+    ) -> dict[str, Any]:
+        payload = {
+            **result,
+            "operator_context": operator_context.to_dict(),
+            "action": action,
+            "risk_direction": risk_direction,
+        }
+        if trace_id:
+            payload["trace_id"] = trace_id
+        self.state.record_operator_action(
+            action=action,
+            risk_direction=risk_direction,
+            result=payload,
+            trace_id=trace_id,
+            operator_context=operator_context,
+        )
+        return payload
 
     def coins_tradeable(self) -> int:
         if not self.state.use_live_hyperliquid_prices:
@@ -1298,6 +1543,7 @@ def live_response(
     intent: OrderIntent,
     key: str,
     trace_id: str | None = None,
+    operator_context: OperatorContext | None = None,
 ) -> dict[str, Any]:
     payload = {
         "accepted": accepted,
@@ -1312,6 +1558,8 @@ def live_response(
     }
     if trace_id:
         payload["trace_id"] = trace_id
+    if operator_context is not None:
+        payload["operator_context"] = operator_context.to_dict()
     return payload
 
 
@@ -1329,12 +1577,18 @@ def live_response_from_record(record: Any, *, include_trace: bool = False) -> di
     }
     if include_trace and record.trace_id:
         payload["trace_id"] = record.trace_id
+    if getattr(record, "operator_context", None):
+        payload["operator_context"] = record.operator_context
     return payload
 
 
 def first(query: dict[str, list[str]], name: str) -> str | None:
     values = query.get(name)
     return values[0] if values else None
+
+
+def request_headers(headers: Any) -> dict[str, str]:
+    return {str(key).lower(): str(value) for key, value in headers.items()}
 
 
 def epoch_to_iso(value: float) -> str:
@@ -1352,15 +1606,22 @@ def make_handler(api: PaperApi) -> type[BaseHTTPRequestHandler]:
         def do_GET(self) -> None:
             parsed = urlparse(self.path)
             trace_id = api.state.next_trace_id("GET", parsed.path)
+            operator_context = api.state.operator_context(request_headers(self.headers))
             if parsed.path == "/ws":
                 self.accept_websocket(trace_id)
                 return
-            status, payload = api.get(parsed.path, parse_qs(parsed.query), trace_id=trace_id)
+            status, payload = api.get(
+                parsed.path,
+                parse_qs(parsed.query),
+                trace_id=trace_id,
+                operator_context=operator_context,
+            )
             self.write_json(status, payload, trace_id=trace_id)
 
         def do_POST(self) -> None:
             parsed = urlparse(self.path)
             trace_id = api.state.next_trace_id("POST", parsed.path)
+            operator_context = api.state.operator_context(request_headers(self.headers))
             try:
                 length = int(self.headers.get("content-length", "0"))
                 body = self.rfile.read(length).decode("utf-8") if length else "{}"
@@ -1371,6 +1632,7 @@ def make_handler(api: PaperApi) -> type[BaseHTTPRequestHandler]:
                     trace_id=trace_id,
                     expose_trace=True,
                     mode=self.headers.get("x-zero-mode"),
+                    operator_context=operator_context,
                 )
             except (ValueError, TypeError, json.JSONDecodeError) as exc:
                 status, response = HTTPStatus.BAD_REQUEST, {"error": str(exc)}
@@ -1457,6 +1719,19 @@ def serve(
     hl_client = HyperliquidInfoClient() if hyperliquid or hyperliquid_live_prices else None
     dead_man_timeout_s = parse_float_env("ZERO_LIVE_DEAD_MAN_TIMEOUT_S", 30.0)
     live_executor = build_live_executor(dead_man_timeout_s)
+    operator_source = (
+        "env"
+        if any(
+            os.environ.get(name)
+            for name in {
+                "ZERO_OPERATOR_ID",
+                "ZERO_OPERATOR_HANDLE",
+                "ZERO_OPERATOR_ROLE",
+                "ZERO_OPERATOR_SCOPE",
+            }
+        )
+        else "runtime-default"
+    )
     server = ThreadingHTTPServer(
         (host, port),
         make_handler(
@@ -1479,6 +1754,11 @@ def serve(
                         900,
                     ),
                     intelligence_export_path=os.environ.get("ZERO_INTELLIGENCE_EXPORT_PATH"),
+                    default_operator_id=os.environ.get("ZERO_OPERATOR_ID", "local-operator"),
+                    default_operator_handle=os.environ.get("ZERO_OPERATOR_HANDLE", "local-operator"),
+                    default_operator_role=os.environ.get("ZERO_OPERATOR_ROLE", "owner"),
+                    default_operator_scope=os.environ.get("ZERO_OPERATOR_SCOPE", "local-private"),
+                    default_operator_source=operator_source,
                 )
             )
         ),

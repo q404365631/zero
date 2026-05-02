@@ -1109,6 +1109,13 @@ async fn live_cockpit_cmd(ctx: &DispatchContext) -> DispatchOutput {
                 cockpit.next_action
             )));
             out.lines.push(OutputLine::system(format!(
+                "  operator: handle={} id={} role={} scope={}",
+                cockpit.operator_context.handle,
+                cockpit.operator_context.operator_id,
+                cockpit.operator_context.role,
+                cockpit.operator_context.scope
+            )));
+            out.lines.push(OutputLine::system(format!(
                 "  preflight: passed={preflight_passed}/{preflight_total} failed={preflight_failed}"
             )));
             out.lines.push(OutputLine::system(format!(
@@ -1826,6 +1833,11 @@ fn render_live_control(
     }
     if !reply.orders.is_empty() {
         parts.push(format!("orders={}", reply.orders.len()));
+    }
+    if let Some(operator) = &reply.operator_context
+        && !operator.handle.is_empty()
+    {
+        parts.push(format!("operator={}", operator.handle));
     }
     vec![OutputLine::alert(parts.join(" "))]
 }

@@ -22,6 +22,7 @@
 - Live execution certification harness
 - Immune system and circuit breakers
 - Operator terminal live cockpit packet and CLI renderer
+- Operator context audit packets for team and agentic runs
 - Strategy plugin template with paper-first contributor example
 - Market data adapter template with deterministic contributor example
 - Railway deployment template

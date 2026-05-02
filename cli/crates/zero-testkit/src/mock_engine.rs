@@ -879,6 +879,17 @@ async fn live_cockpit() -> Json<serde_json::Value> {
         "controls_ready": true,
         "risk_increasing_allowed": false,
         "next_action": "fix preflight check live_executor: mock has no live executor",
+        "operator_context": mock_operator_context(),
+        "access_policy": {
+            "identity_required_for_live_controls": true,
+            "default_scope": "local-private",
+            "header_overrides": [
+                "X-Zero-Operator-Id",
+                "X-Zero-Operator-Handle",
+                "X-Zero-Operator-Role",
+                "X-Zero-Operator-Scope"
+            ]
+        },
         "preflight": {
             "schema_version": "zero.live_preflight.v1",
             "ready": false,
@@ -943,7 +954,8 @@ async fn live_cockpit() -> Json<serde_json::Value> {
         "operator_actions": {
             "risk_reducing": ["/pause-entries", "/kill", "/flatten-all"],
             "risk_increasing": ["/resume-entries"],
-            "read_only": ["/live-cockpit", "/live-certify", "/immune", "/hl-reconcile"]
+            "read_only": ["/live-cockpit", "/live-certify", "/immune", "/hl-reconcile"],
+            "recent": []
         }
     }))
 }
@@ -1129,6 +1141,9 @@ async fn live_heartbeat(State(s): State<AppState>) -> Json<serde_json::Value> {
     capture_live_control(&s, "/live/heartbeat");
     Json(json!({
         "ok": true,
+        "action": "heartbeat",
+        "risk_direction": "neutral",
+        "operator_context": mock_operator_context(),
         "as_of": chrono_utc_now_iso(),
         "dead_man_timeout_s": 30,
         "exchange_dead_man": {"ok": true}
@@ -1137,12 +1152,26 @@ async fn live_heartbeat(State(s): State<AppState>) -> Json<serde_json::Value> {
 
 async fn live_pause(State(s): State<AppState>) -> Json<serde_json::Value> {
     capture_live_control(&s, "/live/pause");
-    Json(json!({"ok": true, "state": "paused", "as_of": chrono_utc_now_iso()}))
+    Json(json!({
+        "ok": true,
+        "state": "paused",
+        "action": "pause_entries",
+        "risk_direction": "reduces",
+        "operator_context": mock_operator_context(),
+        "as_of": chrono_utc_now_iso()
+    }))
 }
 
 async fn live_resume(State(s): State<AppState>) -> Json<serde_json::Value> {
     capture_live_control(&s, "/live/resume");
-    Json(json!({"ok": true, "state": "running", "as_of": chrono_utc_now_iso()}))
+    Json(json!({
+        "ok": true,
+        "state": "running",
+        "action": "resume_entries",
+        "risk_direction": "increases",
+        "operator_context": mock_operator_context(),
+        "as_of": chrono_utc_now_iso()
+    }))
 }
 
 async fn live_kill(State(s): State<AppState>) -> Json<serde_json::Value> {
@@ -1150,6 +1179,9 @@ async fn live_kill(State(s): State<AppState>) -> Json<serde_json::Value> {
     Json(json!({
         "ok": true,
         "state": "killed",
+        "action": "kill",
+        "risk_direction": "reduces",
+        "operator_context": mock_operator_context(),
         "as_of": chrono_utc_now_iso(),
         "exchange_cancel": {"ok": true, "cancelled": 2}
     }))
@@ -1159,6 +1191,9 @@ async fn live_flatten(State(s): State<AppState>) -> Json<serde_json::Value> {
     capture_live_control(&s, "/live/flatten");
     Json(json!({
         "ok": true,
+        "action": "flatten_all",
+        "risk_direction": "reduces",
+        "operator_context": mock_operator_context(),
         "orders": [
             {"accepted": true, "coin": "BTC", "side": "sell", "size": 0.42, "reason": "submitted"}
         ]
@@ -1456,4 +1491,15 @@ fn chrono_utc_now_iso() -> String {
     // Cheap ISO-ish timestamp good enough for test fixtures; no
     // dependency on `chrono` inside this crate.
     format!("1970-01-01T00:00:{:02}Z", secs % 60)
+}
+
+fn mock_operator_context() -> serde_json::Value {
+    json!({
+        "schema_version": "zero.operator_context.v1",
+        "operator_id": "mock-operator",
+        "handle": "mock-operator",
+        "role": "owner",
+        "scope": "local-private",
+        "source": "mock"
+    })
 }

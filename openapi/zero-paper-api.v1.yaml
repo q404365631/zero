@@ -395,6 +395,39 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/OperatorStateResponse"
+  /operator/context:
+    get:
+      tags: [operator]
+      operationId: getOperatorContext
+      summary: Current operator audit identity.
+      parameters:
+        - name: X-Zero-Operator-Id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-Zero-Operator-Handle
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-Zero-Operator-Role
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-Zero-Operator-Scope
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Operator context packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperatorContextResponse"
   /operator/events:
     post:
       tags: [operator]
@@ -924,7 +957,7 @@ components:
       additionalProperties: false
     AuditExportResponse:
       type: object
-      required: [schema_version, exported_at, mode, source, limit, summary, retention, metrics, recovery, decisions]
+      required: [schema_version, exported_at, mode, source, limit, operator_context, summary, retention, metrics, recovery, operator_actions, decisions]
       additionalProperties: true
     ExecuteRequest:
       type: object
@@ -1033,9 +1066,26 @@ components:
       type: object
       required: [label, friction, vector, as_of, version]
       additionalProperties: true
+    OperatorContextResponse:
+      type: object
+      required: [schema_version, operator_id, handle, role, scope, source]
+      properties:
+        schema_version:
+          const: zero.operator_context.v1
+        operator_id:
+          type: string
+        handle:
+          type: string
+        role:
+          type: string
+        scope:
+          type: string
+        source:
+          type: string
+      additionalProperties: true
     OperatorEventsResponse:
       type: object
-      required: [accepted, snapshot]
+      required: [accepted, snapshot, operator_context]
       additionalProperties: true
     AutoToggleResponse:
       type: object
@@ -1063,6 +1113,7 @@ components:
         - heartbeat
         - live_records
         - operator_actions
+        - operator_context
       properties:
         schema_version:
           const: zero.live_cockpit.v1
@@ -1072,6 +1123,8 @@ components:
           type: boolean
         next_action:
           type: string
+        operator_context:
+          $ref: "#/components/schemas/OperatorContextResponse"
       additionalProperties: true
     LiveCertificationResponse:
       type: object

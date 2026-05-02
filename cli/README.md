@@ -132,9 +132,11 @@ Operators can inspect the same read-only account truth with `/hl-account`, the
 live risk gate with `/hl-reconcile`, and the current breaker layer with
 `/immune`. `/live-cockpit` combines preflight, reconciliation, immune breakers,
 certification, heartbeat, recent live records, and the next required action in
-one read-only operator view. `/live-certify` runs the dry-run fake-exchange
-certification harness and prints the drill pass count before any real canary is
-considered.
+one read-only operator view. The CLI attaches the configured `identity.handle`
+as `X-Zero-Operator-*` audit context, and `/live-cockpit` renders the resolved
+operator identity so team and agentic runs are attributable. `/live-certify`
+runs the dry-run fake-exchange certification harness and prints the drill pass
+count before any real canary is considered.
 
 Risk-reducing live controls are wired to the engine when an API client is
 attached:

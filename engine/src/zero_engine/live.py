@@ -47,6 +47,7 @@ class LiveExecutionRecord:
     as_of: float
     exchange_response: dict[str, Any] = field(default_factory=dict)
     trace_id: str | None = None
+    operator_context: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         payload = {
@@ -65,6 +66,8 @@ class LiveExecutionRecord:
         }
         if self.trace_id:
             payload["trace_id"] = self.trace_id
+        if self.operator_context:
+            payload["operator_context"] = dict(self.operator_context)
         return payload
 
 
@@ -126,6 +129,7 @@ class LiveExecutor:
         *,
         idempotency_key: str,
         trace_id: str | None = None,
+        operator_context: dict[str, Any] | None = None,
     ) -> LiveExecutionRecord:
         if idempotency_key in self.execution_cache:
             return self.execution_cache[idempotency_key]
@@ -146,6 +150,7 @@ class LiveExecutor:
                 reduce_only=intent.reduce_only,
                 as_of=now,
                 trace_id=trace_id,
+                operator_context=operator_context,
             )
             self.record(idempotency_key, record)
             return record
@@ -167,6 +172,7 @@ class LiveExecutor:
                 as_of=now,
                 exchange_response={"ok": False, "error": str(exc)},
                 trace_id=trace_id,
+                operator_context=operator_context,
             )
             self.record(idempotency_key, record)
             return record
@@ -185,6 +191,7 @@ class LiveExecutor:
             as_of=now,
             exchange_response=response,
             trace_id=trace_id,
+            operator_context=operator_context,
         )
         self.order_timestamps.append(now)
         self.record(idempotency_key, record)
@@ -197,6 +204,7 @@ class LiveExecutor:
         *,
         idempotency_prefix: str,
         trace_id: str | None = None,
+        operator_context: dict[str, Any] | None = None,
     ) -> list[LiveExecutionRecord]:
         records: list[LiveExecutionRecord] = []
         for symbol, position in sorted(positions.items()):
@@ -217,6 +225,7 @@ class LiveExecutor:
                     intent,
                     idempotency_key=f"{idempotency_prefix}-{symbol}",
                     trace_id=trace_id,
+                    operator_context=operator_context,
                 )
             )
         return records

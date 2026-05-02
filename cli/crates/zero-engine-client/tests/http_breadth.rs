@@ -122,6 +122,8 @@ async fn live_cockpit_decodes_operator_readiness_packet() {
     assert!(cockpit.certification.passed);
     assert!(cockpit.heartbeat.expired);
     assert_eq!(cockpit.live_records.total, 0);
+    assert_eq!(cockpit.operator_context.handle, "mock-operator");
+    assert_eq!(cockpit.operator_context.scope, "local-private");
     assert!(cockpit.next_action.contains("live_executor"));
     mock.shutdown().await;
 }

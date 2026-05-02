@@ -30,6 +30,8 @@ When assigning an agent, include:
 - the safety invariant it must preserve;
 - the checks it should run;
 - whether the work is engine, CLI, docs, Network, Intelligence, or design.
+- the operator context to use when testing shared runtimes, usually
+  `X-Zero-Operator-Handle: <agent-or-engineer-handle>`.
 
 Example:
 
@@ -38,6 +40,11 @@ Implement Cycle 12 runtime-loop tests only. Own engine/tests/test_runtime.py.
 Preserve paper-only behavior and no live execution. Run engine pytest and
 just docs-check.
 ```
+
+When an agent touches live-control surfaces, capture `/operator/context`,
+`/live/cockpit`, and `/audit/export?limit=100` in the review notes. The context
+packet is audit identity, not permission; agents must not bypass CLI friction,
+preflight, immune breakers, or live execution policy.
 
 ## Review Checklist
 

@@ -30,10 +30,10 @@ operator docs, release notes, or public packet examples.
 1. Run `POST /live/kill` or the CLI kill command.
 2. If positions remain open, run reduce-only flatten from ZERO or manually at
    the exchange.
-3. Export `/audit/export?limit=1000`, `/metrics`, `/live/preflight`, `/live/cockpit`, and local
-   live execution records.
-4. Check idempotency key, trace ID, risk limits, dead-man heartbeat, and
-   kill-switch path.
+3. Export `/operator/context`, `/audit/export?limit=1000`, `/metrics`,
+   `/live/preflight`, `/live/cockpit`, and local live execution records.
+4. Check operator context, idempotency key, trace ID, risk limits, dead-man
+   heartbeat, and kill-switch path.
 5. Do not resume live mode until a regression test proves the failure cannot
    recur.
 

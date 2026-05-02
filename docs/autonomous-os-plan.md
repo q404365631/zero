@@ -327,6 +327,20 @@ Exit gate:
 - two operators can run isolated local deployments from the same checkout;
 - state, journals, profiles, and credentials cannot cross partitions.
 
+Current status:
+
+- `zero.operator_context.v1` is resolved from `X-Zero-Operator-*` headers,
+  `ZERO_OPERATOR_*` environment variables, or the local default.
+- `GET /operator/context` exposes the active audit identity.
+- `/live/cockpit`, `/audit/export`, live control responses, and live execution
+  records include operator context.
+- Live control attempts are appended to an in-memory operator action log and
+  surfaced in cockpit/audit packets.
+- The Rust CLI attaches `identity.handle` as operator context when config is
+  present and renders the resolved operator line in `zero run live-cockpit`.
+- Remaining scope before Cycle 20: per-operator local filesystem partitions,
+  credential partition checks, and signed deployment identity.
+
 ### Cycle 20: LLM Gateway
 
 Target score: 95.

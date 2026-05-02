@@ -510,6 +510,13 @@ fn build_client(cli: &Cli) -> Option<HttpClient> {
             if cli.paper {
                 client = client.with_mode(zero_engine_client::Mode::Paper);
             }
+            if let Ok(Some(cfg)) = zero_config::load_config()
+                && !cfg.identity.handle.trim().is_empty()
+            {
+                client = client.with_operator_context(
+                    zero_engine_client::OperatorRequestContext::local(cfg.identity.handle),
+                );
+            }
             Some(client)
         }
         Err(e) => {

@@ -229,7 +229,14 @@ rate limit, and daily-loss behavior. It never needs secrets and must report
 `GET /live/cockpit` returns a consolidated `zero.live_cockpit.v1` operator
 packet. It joins preflight failures, immune breakers, reconciliation status,
 dry-run certification, heartbeat expiry, recent live records, operator actions,
-and the next required action. It is read-only and safe to expose in diagnostics.
+the resolved `zero.operator_context.v1` audit identity, and the next required
+action. It is read-only and safe to expose in diagnostics.
+
+`GET /operator/context` returns the operator audit identity currently attached
+to requests. The engine resolves it from `X-Zero-Operator-*` headers,
+`ZERO_OPERATOR_*` environment variables, or the local default. Live control
+responses and `/audit/export` include the same packet so incidents can be
+reviewed per operator without recording secrets.
 
 `GET /immune` returns the `zero.immune.v1` breaker packet used by live
 preflight and the CLI. It names each risk-blocking breaker, whether new risk is

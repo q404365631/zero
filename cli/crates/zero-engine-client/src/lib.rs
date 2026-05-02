@@ -14,15 +14,15 @@ pub mod stat;
 pub mod state;
 pub mod ws;
 
-pub use http::{HttpClient, HttpError, Mode, RateLimitSource};
+pub use http::{HttpClient, HttpError, Mode, OperatorRequestContext, RateLimitSource};
 pub use models::{
     Approaching, ApproachingFeed, AutoState, AutoToggleRequest, AutoToggleResponse, Brief,
     ComponentCounts, ComponentHealth, Evaluation, EvaluationLayer, ExecuteRequest, ExecuteResponse,
     ExecuteSide, Health, HlRate, LiveCockpit, LiveCockpitCertification, LiveCockpitHeartbeat,
     LiveCockpitImmune, LiveCockpitPreflight, LiveCockpitReconciliation, LiveCockpitRecords,
-    LiveControlResponse, LivePreflight, LivePreflightCheck, Position, Positions, Pulse, PulseEvent,
-    Regime, Rejection, RejectionsFeed, Risk, RiskSummary, Root, V2Confidence, V2Market,
-    V2Positions, V2Status, V2Today,
+    LiveControlResponse, LivePreflight, LivePreflightCheck, OperatorContext, Position, Positions,
+    Pulse, PulseEvent, Regime, Rejection, RejectionsFeed, Risk, RiskSummary, Root, V2Confidence,
+    V2Market, V2Positions, V2Status, V2Today,
 };
 pub use poll::{BACKFILL_INTERVAL, EngineStatePoller, OperatorStatePoller, POLL_INTERVAL};
 pub use rate_budget::{

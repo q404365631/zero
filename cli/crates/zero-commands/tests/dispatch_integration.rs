@@ -162,6 +162,13 @@ async fn live_cockpit_renders_readiness_and_next_action() {
     assert!(
         out.lines
             .iter()
+            .any(|line| matches!(line, OutputLine::System(s) if s.contains("operator: handle=mock-operator"))),
+        "operator context missing: {:?}",
+        out.lines
+    );
+    assert!(
+        out.lines
+            .iter()
             .any(|line| matches!(line, OutputLine::System(s) if s.contains("breaker:dead_man"))),
         "dead_man breaker missing: {:?}",
         out.lines

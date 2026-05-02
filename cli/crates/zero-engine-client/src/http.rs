@@ -23,7 +23,8 @@ use crate::models::{
     ApproachingFeed, AutoToggleRequest, AutoToggleResponse, Brief, Evaluation, ExecuteRequest,
     ExecuteResponse, Health, HyperliquidAccount, HyperliquidReconciliation, HyperliquidStatus,
     ImmuneReport, LiveCertification, LiveCockpit, LiveControlResponse, LivePreflight, MarketQuote,
-    OperatorEventsAccepted, Positions, Pulse, Regime, RejectionsFeed, Risk, Root, V2Status,
+    OperatorContext, OperatorEventsAccepted, Positions, Pulse, Regime, RejectionsFeed, Risk, Root,
+    V2Status,
 };
 use crate::rate_budget::{self, RateBudget};
 
@@ -124,6 +125,33 @@ pub struct HttpClient {
     /// — the header is the only per-invocation override surface
     /// and M2_PLAN §5/§7 pins the exact wire shape.
     mode: Option<Mode>,
+    /// Optional operator identity headers attached to every request.
+    /// The engine treats these as local audit context, never auth:
+    /// auth remains the bearer token / deployment boundary. This
+    /// lets team runs, coding agents, and design engineers leave a
+    /// clear operator trail without putting secrets into payloads.
+    operator: Option<OperatorRequestContext>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OperatorRequestContext {
+    pub operator_id: String,
+    pub handle: String,
+    pub role: String,
+    pub scope: String,
+}
+
+impl OperatorRequestContext {
+    #[must_use]
+    pub fn local(handle: impl Into<String>) -> Self {
+        let handle = handle.into();
+        Self {
+            operator_id: handle.clone(),
+            handle,
+            role: "owner".to_string(),
+            scope: "local-private".to_string(),
+        }
+    }
 }
 
 /// Per-invocation engine-mode override. See [`HttpClient::with_mode`].
@@ -171,6 +199,7 @@ impl HttpClient {
             inner,
             rate_budget: None,
             mode: None,
+            operator: None,
         })
     }
 
@@ -185,6 +214,13 @@ impl HttpClient {
     #[must_use]
     pub fn with_mode(mut self, mode: Mode) -> Self {
         self.mode = Some(mode);
+        self
+    }
+
+    /// Attach operator audit context headers to every request.
+    #[must_use]
+    pub fn with_operator_context(mut self, operator: OperatorRequestContext) -> Self {
+        self.operator = Some(operator);
         self
     }
 
@@ -248,6 +284,12 @@ impl HttpClient {
                 HeaderName::from_static("x-zero-mode"),
                 HeaderValue::from_static(mode.as_header_value()),
             );
+        }
+        if let Some(operator) = &self.operator {
+            insert_header_str(&mut headers, "x-zero-operator-id", &operator.operator_id);
+            insert_header_str(&mut headers, "x-zero-operator-handle", &operator.handle);
+            insert_header_str(&mut headers, "x-zero-operator-role", &operator.role);
+            insert_header_str(&mut headers, "x-zero-operator-scope", &operator.scope);
         }
         headers
     }
@@ -605,6 +647,11 @@ impl HttpClient {
         self.get_json("/live/cockpit").await
     }
 
+    /// `GET /operator/context` — current operator audit identity.
+    pub async fn operator_context(&self) -> Result<OperatorContext, HttpError> {
+        self.get_json("/operator/context").await
+    }
+
     /// `GET /immune` — risk-blocking immune and circuit-breaker state.
     pub async fn immune(&self) -> Result<ImmuneReport, HttpError> {
         self.get_json("/immune").await
@@ -931,6 +978,12 @@ fn truncate(s: &str, max: usize) -> String {
     }
 }
 
+fn insert_header_str(headers: &mut HeaderMap, name: &'static str, value: &str) {
+    if let Ok(v) = HeaderValue::from_str(value) {
+        headers.insert(HeaderName::from_static(name), v);
+    }
+}
+
 /// Mint a fresh v4 UUID for use as an `/execute` idempotency key.
 ///
 /// v4 (random) over v1 (time-based) deliberately: we want two
@@ -1060,6 +1113,44 @@ mod tests {
         let unset = HttpClient::new("https://example.test", None).expect("client");
         assert!(unset.mode().is_none());
         assert!(unset.auth_headers().get("x-zero-mode").is_none());
+    }
+
+    #[test]
+    fn operator_context_attaches_audit_headers() {
+        let client = HttpClient::new("https://example.test", None)
+            .expect("client")
+            .with_operator_context(OperatorRequestContext {
+                operator_id: "team-alpha:alice".to_string(),
+                handle: "alice".to_string(),
+                role: "trader".to_string(),
+                scope: "team-private".to_string(),
+            });
+
+        let headers = client.auth_headers();
+        assert_eq!(
+            headers
+                .get("x-zero-operator-id")
+                .and_then(|v| v.to_str().ok()),
+            Some("team-alpha:alice"),
+        );
+        assert_eq!(
+            headers
+                .get("x-zero-operator-handle")
+                .and_then(|v| v.to_str().ok()),
+            Some("alice"),
+        );
+        assert_eq!(
+            headers
+                .get("x-zero-operator-role")
+                .and_then(|v| v.to_str().ok()),
+            Some("trader"),
+        );
+        assert_eq!(
+            headers
+                .get("x-zero-operator-scope")
+                .and_then(|v| v.to_str().ok()),
+            Some("team-private"),
+        );
     }
 
     #[test]

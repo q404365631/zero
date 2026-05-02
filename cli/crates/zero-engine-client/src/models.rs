@@ -219,13 +219,27 @@ pub struct LiveCockpit {
     pub controls_ready: bool,
     pub risk_increasing_allowed: bool,
     pub next_action: String,
+    pub operator_context: OperatorContext,
     pub preflight: LiveCockpitPreflight,
     pub immune: LiveCockpitImmune,
     pub reconciliation: LiveCockpitReconciliation,
     pub certification: LiveCockpitCertification,
     pub heartbeat: LiveCockpitHeartbeat,
     pub live_records: LiveCockpitRecords,
-    pub operator_actions: BTreeMap<String, Vec<String>>,
+    pub operator_actions: BTreeMap<String, Value>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct OperatorContext {
+    pub schema_version: Option<String>,
+    pub operator_id: String,
+    pub handle: String,
+    pub role: String,
+    pub scope: String,
+    pub source: Option<String>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, Value>,
 }
@@ -347,6 +361,9 @@ pub struct LiveControlResponse {
     pub state: Option<String>,
     pub reason: Option<String>,
     pub orders: Vec<Value>,
+    pub operator_context: Option<OperatorContext>,
+    pub action: Option<String>,
+    pub risk_direction: Option<String>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, Value>,
 }

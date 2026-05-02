@@ -360,8 +360,32 @@ def test_live_cockpit_combines_preflight_immune_certification_and_next_action() 
     assert payload["reconciliation"]["status"] == "not_configured"
     assert payload["heartbeat"]["configured"] is False
     assert payload["live_records"]["total"] == 0
+    assert payload["operator_context"]["handle"] == "local-operator"
+    assert payload["operator_context"]["scope"] == "local-private"
     assert payload["next_action"].startswith("fix preflight check")
     assert "/kill" in payload["operator_actions"]["risk_reducing"]
+
+
+def test_operator_context_endpoint_accepts_header_overrides() -> None:
+    api = PaperApi(PaperApiState(clock=lambda: FIXED_DT, started_at=FIXED_DT))
+    context = api.state.operator_context(
+        {
+            "x-zero-operator-id": "team-alpha:alice",
+            "x-zero-operator-handle": "alice",
+            "x-zero-operator-role": "trader",
+            "x-zero-operator-scope": "team-private",
+        }
+    )
+
+    status, payload = api.get("/operator/context", {}, operator_context=context)
+
+    assert status == 200
+    assert payload["schema_version"] == "zero.operator_context.v1"
+    assert payload["operator_id"] == "team-alpha:alice"
+    assert payload["handle"] == "alice"
+    assert payload["role"] == "trader"
+    assert payload["scope"] == "team-private"
+    assert payload["source"] == "request-header"
 
 
 def test_hl_account_and_reconciliation_expose_read_only_account_truth() -> None:
@@ -494,18 +518,38 @@ def test_live_kill_blocks_later_live_execute() -> None:
         )
     )
 
-    kill_status, kill = api.post("/live/kill", {}, mode="live")
+    operator_context = api.state.operator_context(
+        {"x-zero-operator-id": "ops-1", "x-zero-operator-handle": "ops"}
+    )
+    kill_status, kill = api.post(
+        "/live/kill",
+        {},
+        mode="live",
+        trace_id="trace-kill",
+        operator_context=operator_context,
+    )
     execute_status, execute = api.post(
         "/execute",
         {"coin": "BTC", "side": "buy", "size": 0.01, "idempotency_key": "after-kill"},
         mode="live",
+        operator_context=operator_context,
     )
+    audit_status, audit = api.get("/audit/export", {"limit": ["10"]}, operator_context=operator_context)
+    cockpit_status, cockpit = api.get("/live/cockpit", {}, operator_context=operator_context)
 
     assert kill_status == 200
     assert kill["state"] == "killed"
+    assert kill["operator_context"]["handle"] == "ops"
+    assert kill["trace_id"] == "trace-kill"
     assert execute_status == 200
     assert execute["accepted"] is False
     assert execute["reason"] == "kill switch active"
+    assert audit_status == 200
+    assert audit["operator_context"]["operator_id"] == "ops-1"
+    assert audit["operator_actions"][0]["action"] == "kill"
+    assert audit["operator_actions"][0]["risk_direction"] == "reduces"
+    assert cockpit_status == 200
+    assert cockpit["operator_actions"]["recent"][0]["operator_context"]["handle"] == "ops"
 
 
 def test_paper_api_market_quote_uses_fixture_prices_by_default() -> None:
