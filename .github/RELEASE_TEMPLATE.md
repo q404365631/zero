@@ -26,9 +26,11 @@ just paper-api-smoke
 - [ ] `scripts/hardening_gate.sh`
 - [ ] `just registry-readiness`
 - [ ] `just release-rehearsal`
+- [ ] `just draft-release-rehearsal`
 - [ ] Draft GitHub Release contains the Python package, CLI binaries, paper image tarball, and `SHA256SUMS`.
 - [ ] `scripts/release_verify.py <downloaded-release-dir>` passes.
 - [ ] `SBOM.spdx.json` and `PROVENANCE.json` are attached and included in `SHA256SUMS`.
+- [ ] `scripts/homebrew_formula.py <downloaded-release-dir> --tag <tag> --output zero.rb` renders a formula without publishing a tap.
 - [ ] `shasum -a 256 -c SHA256SUMS` passes after downloading all attached release assets.
 - [ ] `gh attestation verify zero-linux -R zero-intel/zero` passes.
 - [ ] `gh attestation verify zero-macos -R zero-intel/zero` passes.

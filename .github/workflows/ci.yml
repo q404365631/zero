@@ -99,9 +99,11 @@ jobs:
           test -x scripts/network_pages_smoke.py
           test -x scripts/package_dry_run.sh
           test -x scripts/registry_readiness.py
+          test -x scripts/homebrew_formula.py
           test -x scripts/release_provenance.py
           test -x scripts/release_verify.py
           test -x scripts/release_rehearsal.sh
+          test -x scripts/draft_release_rehearsal.sh
           test -x scripts/railway_start.sh
           test -x scripts/railway_doctor.py
           test -x scripts/deployment_evidence.py
@@ -318,6 +320,13 @@ jobs:
       - uses: actions/checkout@v6.0.2
       - name: Rehearse release assembly and verification
         run: scripts/release_rehearsal.sh
+
+  draft-release-rehearsal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - name: Dry-run draft release and Homebrew formula rehearsal
+        run: scripts/draft_release_rehearsal.sh
 
   railway-smoke:
     runs-on: ubuntu-latest

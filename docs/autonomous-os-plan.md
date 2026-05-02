@@ -74,7 +74,7 @@ speed, scale, history, and reliability.
 | Security and custody | 91 | external review, key-handling drill evidence |
 | ZERO Network | 70 | hosted identity verification, public pages, production ingestion service |
 | ZERO Intelligence | 70 | production hosted service persistence, billing provider, history storage, terms |
-| Release and distribution | 97 | external registry ownership evidence, Homebrew tap, draft-release rollback drill |
+| Release and distribution | 98 | external registry ownership evidence and public Homebrew tap publication |
 | Operator docs | 98 | real exchange drill evidence |
 
 ## Execution Cycles
@@ -577,10 +577,14 @@ Current progress:
   release-asset metadata.
 - Added `docs/dependency-policy.md` with update rules, release requirements,
   and vulnerability-response steps.
+- Added `scripts/draft_release_rehearsal.sh` for dry-run CI and maintainer-run
+  temporary draft GitHub Release creation, fresh-download verification,
+  Homebrew formula rendering, and rollback.
+- Added `scripts/homebrew_formula.py` to render a tap-ready formula from
+  `SHA256SUMS` without publishing a tap.
 
 Remaining scope before Cycle 26: external package-registry ownership evidence,
-Homebrew tap, and real release rollback rehearsal against a draft GitHub
-Release.
+public Homebrew tap publication, and first real release evidence.
 
 ### Cycle 26: External Review And Real-World Evidence
 

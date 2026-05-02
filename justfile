@@ -66,6 +66,12 @@ release-verify dir:
 release-provenance dir:
     scripts/release_provenance.py "{{dir}}"
 
+draft-release-rehearsal:
+    scripts/draft_release_rehearsal.sh
+
+homebrew-formula release_dir tag:
+    scripts/homebrew_formula.py "{{release_dir}}" --tag "{{tag}}"
+
 railway-smoke:
     scripts/railway_smoke.sh
 
@@ -175,9 +181,11 @@ docs-check:
     test -x scripts/network_pages_smoke.py
     test -x scripts/package_dry_run.sh
     test -x scripts/registry_readiness.py
+    test -x scripts/homebrew_formula.py
     test -x scripts/release_provenance.py
     test -x scripts/release_verify.py
     test -x scripts/release_rehearsal.sh
+    test -x scripts/draft_release_rehearsal.sh
     test -x scripts/hardening_gate.sh
     test -x scripts/railway_start.sh
     test -x scripts/railway_doctor.py
@@ -208,4 +216,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal
+ci: lint test paper-api-smoke example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal

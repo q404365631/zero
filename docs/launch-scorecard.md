@@ -29,6 +29,7 @@ reserved for ZERO Intelligence.
 - Release verifier and tamper-detection rehearsal
 - Release SBOM/provenance bundle with checksummed `SBOM.spdx.json` and
   `PROVENANCE.json`
+- Draft GitHub Release rollback rehearsal and Homebrew formula renderer
 - GitHub artifact attestations for release asset provenance
 - Threat model, incident runbooks, distribution policy, and hardening gate
 - Dependency and supply-chain policy with vulnerability response rules

@@ -153,6 +153,7 @@ Run the release rehearsal before tagging:
 
 ```bash
 just release-rehearsal
+just draft-release-rehearsal
 ```
 
 The rehearsal creates a temporary GitHub Actions-style artifact directory,
@@ -164,6 +165,21 @@ not publish a release unless the verifier catches the tampered-artifact case.
 The assembly step also runs `scripts/release_provenance.py` to generate
 `SBOM.spdx.json` and `PROVENANCE.json` before writing the combined checksum
 manifest.
+
+`just draft-release-rehearsal` dry-runs the GitHub draft release rehearsal path:
+it builds temporary release assets, verifies them, and renders a Homebrew formula
+from the combined checksum manifest. It does not contact GitHub unless explicitly
+run as:
+
+```bash
+scripts/draft_release_rehearsal.sh --execute
+```
+
+The execute mode creates a temporary draft prerelease, downloads all attached
+assets into a fresh directory, runs `scripts/release_verify.py`, renders the
+Homebrew formula from the fresh download, then deletes the draft release and its
+temporary tag. Use `--keep` only when a maintainer needs to inspect the draft
+release manually.
 
 ## Current Automation
 
@@ -181,12 +197,26 @@ manifest.
   attestation and draft release upload
 - GitHub artifact attestations for release assets listed in the combined
   checksum manifest
+- Dry-run draft release rollback rehearsal in CI; execute mode remains
+  maintainer-triggered only
 
 The workflow uploads artifacts to the GitHub Actions run and attaches the
 assembled release bundle to a draft GitHub Release. It does not publish to PyPI,
 crates.io, Homebrew, or Docker Hub yet. Package publishing should be added only
 after repository ownership, package names, signing, and token permissions are
 finalized.
+
+## Homebrew Formula
+
+Render the formula from a downloaded and verified release directory:
+
+```bash
+scripts/homebrew_formula.py <downloaded-release-dir> --tag v0.1.1 --output zero.rb
+```
+
+The formula uses the `zero-macos` and `zero-linux` checksums from `SHA256SUMS`.
+Do not publish it to a tap until [distribution.md](distribution.md) ownership
+and rollback gates pass.
 
 ## Signing And Provenance
 

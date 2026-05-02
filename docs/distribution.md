@@ -94,6 +94,35 @@ The first formula must:
 - state that the engine defaults to paper mode;
 - link to `docs/release.md` and `docs/safety-model.md`.
 
+Render the candidate formula from a verified release directory:
+
+```bash
+scripts/homebrew_formula.py <downloaded-release-dir> --tag v0.1.1 --output zero.rb
+```
+
+The renderer reads `SHA256SUMS` and refuses to emit a formula unless checksums
+for both `zero-linux` and `zero-macos` are present. The formula is a tap input,
+not a tap publication step.
+
+## Draft Release Rollback Rehearsal
+
+Run the dry-run path in normal CI and before release PRs:
+
+```bash
+just draft-release-rehearsal
+```
+
+Maintainers can run the real GitHub draft-release rollback drill with:
+
+```bash
+scripts/draft_release_rehearsal.sh --execute
+```
+
+The execute mode creates a temporary draft prerelease, downloads all assets to a
+fresh directory, verifies the bundle, renders the Homebrew formula, then deletes
+the draft release and temporary tag. This proves the rollback motion without
+publishing a package registry, Homebrew tap, or production release.
+
 ## Registry Rollback
 
 If a package is unsafe:
