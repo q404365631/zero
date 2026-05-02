@@ -198,7 +198,9 @@ webhooks, bulk exports, commercial redistribution, and SLOs are paid surfaces.
 `GET /intelligence/model-gateway` returns `zero.model_gateway.status.v1`, a
 public-safe provider and routing status packet. The default mode is
 `fail_closed`: no configured provider means no model-derived certainty. Mock
-and external providers are advisory-only and never bypass execution safety.
+providers report `local_ready`; explicitly configured external providers report
+`external_ready`. All model output is advisory-only and never bypasses
+execution safety.
 
 `POST /intelligence/export` requires `{"consent": true}` and
 `ZERO_INTELLIGENCE_EXPORT_PATH`. When both are present, the runtime appends the

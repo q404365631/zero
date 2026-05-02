@@ -1240,7 +1240,7 @@ components:
           format: date-time
         mode:
           type: string
-          enum: [fail_closed, local_ready]
+          enum: [fail_closed, local_ready, external_ready]
         default_provider:
           type: string
         routing:

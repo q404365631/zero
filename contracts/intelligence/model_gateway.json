@@ -18,7 +18,8 @@
       "model": "none",
       "network_allowed": false,
       "provider": "none",
-      "required_env": []
+      "required_env": [],
+      "adapter": "local"
     },
     {
       "capabilities": [
@@ -36,7 +37,8 @@
       "provider": "openai",
       "required_env": [
         "OPENAI_API_KEY"
-      ]
+      ],
+      "adapter": "http_json"
     },
     {
       "capabilities": [
@@ -53,7 +55,8 @@
       "provider": "anthropic",
       "required_env": [
         "ANTHROPIC_API_KEY"
-      ]
+      ],
+      "adapter": "http_json"
     },
     {
       "capabilities": [
@@ -70,7 +73,8 @@
       "provider": "ollama",
       "required_env": [
         "OLLAMA_BASE_URL"
-      ]
+      ],
+      "adapter": "http_json"
     },
     {
       "capabilities": [
@@ -87,7 +91,8 @@
       "provider": "openrouter",
       "required_env": [
         "OPENROUTER_API_KEY"
-      ]
+      ],
+      "adapter": "http_json"
     }
   ],
   "routing": {

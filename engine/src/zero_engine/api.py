@@ -236,6 +236,8 @@ class PaperApiState:
     model_gateway_mock_enabled: bool = False
     model_gateway_allow_network: bool = False
     model_gateway_configured_providers: frozenset[str] = frozenset()
+    model_gateway_provider_credentials: Mapping[str, str] = field(default_factory=dict, repr=False)
+    model_gateway_provider_endpoints: Mapping[str, str] = field(default_factory=dict)
     model_gateway_instance: ModelGateway | None = None
     default_operator_id: str = "local-operator"
     default_operator_handle: str = "local-operator"
@@ -1345,6 +1347,8 @@ class PaperApi:
                     mock_enabled=self.state.model_gateway_mock_enabled,
                     allow_network=self.state.model_gateway_allow_network,
                     configured_providers=self.state.model_gateway_configured_providers,
+                    provider_credentials=self.state.model_gateway_provider_credentials,
+                    provider_endpoints=self.state.model_gateway_provider_endpoints,
                 )
             )
         return self.state.model_gateway_instance
@@ -1923,6 +1927,8 @@ def serve(
                     model_gateway_mock_enabled=parse_bool_env("ZERO_MODEL_MOCK_ENABLED", False),
                     model_gateway_allow_network=parse_bool_env("ZERO_MODEL_ALLOW_NETWORK", False),
                     model_gateway_configured_providers=configured_model_providers(),
+                    model_gateway_provider_credentials=model_provider_credentials(),
+                    model_gateway_provider_endpoints=model_provider_endpoints(),
                     default_operator_id=os.environ.get("ZERO_OPERATOR_ID", "local-operator"),
                     default_operator_handle=os.environ.get("ZERO_OPERATOR_HANDLE", "local-operator"),
                     default_operator_role=os.environ.get("ZERO_OPERATOR_ROLE", "owner"),
@@ -1976,6 +1982,30 @@ def configured_model_providers() -> frozenset[str]:
     if os.environ.get("OPENROUTER_API_KEY"):
         providers.add("openrouter")
     return frozenset(providers)
+
+
+def model_provider_credentials() -> dict[str, str]:
+    credentials: dict[str, str] = {}
+    if api_key := os.environ.get("OPENAI_API_KEY"):
+        credentials["openai"] = api_key
+    if api_key := os.environ.get("ANTHROPIC_API_KEY"):
+        credentials["anthropic"] = api_key
+    if api_key := os.environ.get("OPENROUTER_API_KEY"):
+        credentials["openrouter"] = api_key
+    return credentials
+
+
+def model_provider_endpoints() -> dict[str, str]:
+    endpoints: dict[str, str] = {}
+    if base_url := os.environ.get("OLLAMA_BASE_URL"):
+        endpoints["ollama"] = f"{base_url.rstrip('/')}/api/generate"
+    if url := os.environ.get("ZERO_OPENAI_BASE_URL"):
+        endpoints["openai"] = url
+    if url := os.environ.get("ZERO_ANTHROPIC_BASE_URL"):
+        endpoints["anthropic"] = url
+    if url := os.environ.get("ZERO_OPENROUTER_BASE_URL"):
+        endpoints["openrouter"] = url
+    return endpoints
 
 
 def build_live_executor(dead_man_timeout_s: float) -> LiveExecutor | None:

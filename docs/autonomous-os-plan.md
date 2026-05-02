@@ -370,6 +370,8 @@ single model vendor:
 - Added capability tiers for hard reasoning, fast reasoning, chat, embeddings,
   and structured output.
 - Added deterministic mock provider for CI and local conformance.
+- Added real HTTP JSON adapters for OpenAI, Anthropic, Ollama, and OpenRouter
+  behind explicit network opt-in.
 - Added structured output validation, fail-closed evaluation, and usage/cost
   event recording.
 - Added `GET /intelligence/model-gateway` plus OpenAPI, fixture, smoke checks,
@@ -378,11 +380,13 @@ single model vendor:
 Exit gate:
 
 - the runtime can evaluate through mock/local providers in CI;
-- live providers are optional and configured per operator;
+- live providers are optional, configured per operator, and never expose secret
+  values in public status packets;
 - model failure degrades safely instead of inventing certainty.
 
-Remaining scope before Cycle 21: implement actual external provider HTTP
-adapters and retry policies behind the same fail-closed contract.
+Remaining scope before Cycle 21: add bounded retry budgets, provider cost
+estimation, and hosted key-management policy behind the same fail-closed
+contract.
 
 ### Cycle 21: ZERO Network Ingestion And Anti-Gaming
 

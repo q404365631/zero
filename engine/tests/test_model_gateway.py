@@ -25,6 +25,32 @@ ADVISORY_SCHEMA = {
 }
 
 
+class StubJsonTransport:
+    def __init__(self, response: dict[str, object] | RuntimeError) -> None:
+        self.response = response
+        self.requests: list[dict[str, object]] = []
+
+    def post_json(
+        self,
+        *,
+        url: str,
+        headers: dict[str, str],
+        payload: dict[str, object],
+        timeout_s: float,
+    ) -> dict[str, object]:
+        self.requests.append(
+            {
+                "url": url,
+                "headers": dict(headers),
+                "payload": payload,
+                "timeout_s": timeout_s,
+            }
+        )
+        if isinstance(self.response, RuntimeError):
+            raise self.response
+        return self.response
+
+
 def test_model_gateway_status_is_fail_closed_without_provider() -> None:
     gateway = ModelGateway()
 
@@ -81,6 +107,113 @@ def test_model_gateway_fails_closed_on_unavailable_external_provider() -> None:
     assert result["output"] is None
     assert result["safety"]["fail_closed"] is True
     assert "disabled" in result["reason"]
+
+
+@pytest.mark.parametrize(
+    ("provider", "response"),
+    [
+        (
+            "openai",
+            {"output_text": '{"verdict":"hold","confidence":0.7,"rationale":"ok"}'},
+        ),
+        (
+            "anthropic",
+            {
+                "content": [
+                    {"type": "text", "text": '{"verdict":"hold","confidence":0.6,"rationale":"ok"}'}
+                ]
+            },
+        ),
+        (
+            "ollama",
+            {"response": '{"verdict":"hold","confidence":0.5,"rationale":"ok"}'},
+        ),
+        (
+            "openrouter",
+            {
+                "choices": [
+                    {"message": {"content": '{"verdict":"hold","confidence":0.8,"rationale":"ok"}'}}
+                ]
+            },
+        ),
+    ],
+)
+def test_external_provider_adapters_parse_structured_json(
+    provider: str,
+    response: dict[str, object],
+) -> None:
+    transport = StubJsonTransport(response)
+    gateway = ModelGateway(
+        ModelGatewayConfig(
+            provider=provider,
+            model=f"{provider}-test-model",
+            allow_network=True,
+            configured_providers=frozenset({provider}),
+            provider_credentials={
+                "openai": "test-openai-key",
+                "anthropic": "test-anthropic-key",
+                "openrouter": "test-openrouter-key",
+            },
+            transport=transport,
+        )
+    )
+
+    result = gateway.evaluate_json(
+        capability="structured_output",
+        prompt="Use public aggregates only.",
+        schema=ADVISORY_SCHEMA,
+    )
+    status = gateway.status(generated_at="2026-05-01T00:00:00+00:00")
+
+    assert result["status"] == "ok"
+    assert result["provider"] == provider
+    assert result["output"]["verdict"] == "hold"
+    assert status["mode"] == "external_ready"
+    assert status["routing"]["structured_output"] == provider
+    assert status["privacy"]["contains_api_keys"] is False
+    body = json.dumps(status)
+    assert "test-openai-key" not in body
+    assert "test-anthropic-key" not in body
+    assert "test-openrouter-key" not in body
+    assert transport.requests
+    payload = transport.requests[0]["payload"]
+    assert isinstance(payload, dict)
+    if provider == "openai":
+        text = payload["text"]
+        assert isinstance(text, dict)
+        assert text["format"]["type"] == "json_schema"
+    elif provider == "ollama":
+        assert payload["format"] == ADVISORY_SCHEMA
+    elif provider == "openrouter":
+        assert payload["response_format"]["type"] == "json_schema"
+
+
+def test_external_provider_transport_errors_fail_closed_without_secret_leak() -> None:
+    transport = StubJsonTransport(RuntimeError("socket failure with key metadata"))
+    gateway = ModelGateway(
+        ModelGatewayConfig(
+            provider="openai",
+            model="openai-test-model",
+            allow_network=True,
+            configured_providers=frozenset({"openai"}),
+            provider_credentials={"openai": "sk-test-secret"},
+            transport=transport,
+        )
+    )
+
+    result = gateway.evaluate_json(
+        capability="structured_output",
+        prompt="advisory",
+        schema=ADVISORY_SCHEMA,
+    )
+    status = gateway.status(generated_at="2026-05-01T00:00:00+00:00")
+
+    assert result["status"] == "failed_closed"
+    assert result["provider"] == "openai"
+    assert result["output"] is None
+    assert result["reason"] == "openai request failed"
+    assert "sk-test-secret" not in json.dumps(result)
+    assert "sk-test-secret" not in json.dumps(status)
 
 
 def test_structured_output_validation_rejects_missing_or_wrong_types() -> None:

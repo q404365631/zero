@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import json
+import urllib.error
+import urllib.request
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
@@ -34,6 +37,13 @@ PROVIDER_REQUIRED_ENV: dict[str, list[str]] = {
     "openrouter": ["OPENROUTER_API_KEY"],
 }
 
+PROVIDER_DEFAULT_ENDPOINTS: dict[str, str] = {
+    "openai": "https://api.openai.com/v1/responses",
+    "anthropic": "https://api.anthropic.com/v1/messages",
+    "ollama": "http://127.0.0.1:11434/api/generate",
+    "openrouter": "https://openrouter.ai/api/v1/chat/completions",
+}
+
 
 class ModelClient(Protocol):
     provider: str
@@ -46,6 +56,18 @@ class ModelClient(Protocol):
         """Return a JSON-like dict or raise RuntimeError on unavailable providers."""
 
 
+class JsonHttpTransport(Protocol):
+    def post_json(
+        self,
+        *,
+        url: str,
+        headers: Mapping[str, str],
+        payload: dict[str, Any],
+        timeout_s: float,
+    ) -> dict[str, Any]:
+        """Post JSON and return the decoded JSON response."""
+
+
 @dataclass(frozen=True)
 class ModelGatewayConfig:
     provider: str = "none"
@@ -53,6 +75,9 @@ class ModelGatewayConfig:
     mock_enabled: bool = False
     allow_network: bool = False
     configured_providers: frozenset[str] = frozenset()
+    provider_credentials: Mapping[str, str] = field(default_factory=dict, repr=False)
+    provider_endpoints: Mapping[str, str] = field(default_factory=dict)
+    transport: JsonHttpTransport | None = field(default=None, repr=False, compare=False)
 
     def normalized_provider(self) -> str:
         provider = self.provider.strip().lower()
@@ -90,14 +115,21 @@ class ModelGateway:
         clients: list[ModelClient] = [NullModelClient()]
         if self.config.mock_enabled or self.config.normalized_provider() == "mock":
             clients.append(MockModelClient(model=self.config.model or "zero-mock-v1"))
+        transport = self.config.transport or UrllibJsonTransport()
         for provider in ("openai", "anthropic", "ollama", "openrouter"):
             configured = provider in self.config.configured_providers
             clients.append(
-                RegisteredExternalModelClient(
+                HttpJsonExternalModelClient(
                     provider=provider,
                     model=self.config.model or f"{provider}:operator-configured",
                     configured=configured,
                     allow_network=self.config.allow_network,
+                    credential=self.config.provider_credentials.get(provider),
+                    endpoint=self.config.provider_endpoints.get(
+                        provider,
+                        PROVIDER_DEFAULT_ENDPOINTS[provider],
+                    ),
+                    transport=transport,
                 )
             )
         return clients
@@ -109,10 +141,16 @@ class ModelGateway:
             for capability in sorted(CAPABILITIES)
             if capability != "embeddings"
         }
+        selected = routing.get("structured_output")
+        mode = "fail_closed"
+        if selected == "mock":
+            mode = "local_ready"
+        elif selected in PROVIDER_DEFAULT_ENDPOINTS:
+            mode = "external_ready"
         payload = {
             "schema_version": MODEL_GATEWAY_STATUS_SCHEMA_VERSION,
             "generated_at": generated_at,
-            "mode": "fail_closed" if routing.get("structured_output") is None else "local_ready",
+            "mode": mode,
             "default_provider": self.config.normalized_provider(),
             "routing": routing,
             "providers": providers,
@@ -277,30 +315,154 @@ class MockModelClient:
             "rationale": "mock provider returns deterministic advisory hold",
         }
         for key in schema.get("required", []):
-            output.setdefault(key, _default_value_for_type(schema.get("properties", {}).get(key, {})))
+            output.setdefault(
+                key, _default_value_for_type(schema.get("properties", {}).get(key, {}))
+            )
         return output
 
 
 @dataclass(frozen=True)
-class RegisteredExternalModelClient:
+class UrllibJsonTransport:
+    def post_json(
+        self,
+        *,
+        url: str,
+        headers: Mapping[str, str],
+        payload: dict[str, Any],
+        timeout_s: float,
+    ) -> dict[str, Any]:
+        request = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"content-type": "application/json", **dict(headers)},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=timeout_s) as response:
+                body = response.read().decode("utf-8")
+        except urllib.error.URLError as exc:
+            raise RuntimeError("model provider request failed") from exc
+        try:
+            decoded = json.loads(body)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError("model provider returned invalid JSON") from exc
+        if not isinstance(decoded, dict):
+            raise RuntimeError("model provider returned a non-object JSON response")
+        return decoded
+
+
+@dataclass(frozen=True)
+class HttpJsonExternalModelClient:
     provider: str
     model: str
     configured: bool
     allow_network: bool = False
+    credential: str | None = field(default=None, repr=False)
+    endpoint: str = ""
+    transport: JsonHttpTransport = field(default_factory=UrllibJsonTransport, repr=False)
     local: bool = False
     live_network: bool = True
+    timeout_s: float = 30.0
 
     @property
     def capabilities(self) -> list[str]:
         return PROVIDER_CAPABILITIES[self.provider]
 
     def generate_json(self, prompt: str, schema: dict[str, Any]) -> dict[str, Any]:
-        del prompt, schema
         if not self.configured:
             raise RuntimeError(f"{self.provider} is not configured")
         if not self.allow_network:
             raise RuntimeError(f"{self.provider} network calls are disabled")
-        raise RuntimeError(f"{self.provider} adapter is registered but not enabled in the open runtime")
+        if self.model.endswith(":operator-configured"):
+            raise RuntimeError(f"{self.provider} model name is not configured")
+        request_prompt = _structured_output_prompt(prompt, schema)
+        try:
+            response = self.transport.post_json(
+                url=self.endpoint,
+                headers=self._headers(),
+                payload=self._payload(request_prompt, schema),
+                timeout_s=self.timeout_s,
+            )
+        except RuntimeError as exc:
+            raise RuntimeError(f"{self.provider} request failed") from exc
+        return self._parse_response(response)
+
+    def _headers(self) -> dict[str, str]:
+        if self.provider == "openai":
+            return {"authorization": f"Bearer {self._required_credential()}"}
+        if self.provider == "anthropic":
+            return {
+                "x-api-key": self._required_credential(),
+                "anthropic-version": "2023-06-01",
+            }
+        if self.provider == "openrouter":
+            return {"authorization": f"Bearer {self._required_credential()}"}
+        return {}
+
+    def _payload(self, prompt: str, schema: dict[str, Any]) -> dict[str, Any]:
+        if self.provider == "openai":
+            return {
+                "model": self.model,
+                "input": prompt,
+                "text": {
+                    "format": {
+                        "type": "json_schema",
+                        "name": "zero_model_gateway_output",
+                        "schema": schema,
+                        "strict": False,
+                    }
+                },
+            }
+        if self.provider == "anthropic":
+            return {
+                "model": self.model,
+                "max_tokens": 1024,
+                "messages": [{"role": "user", "content": prompt}],
+            }
+        if self.provider == "ollama":
+            return {
+                "model": self.model,
+                "prompt": prompt,
+                "format": schema or "json",
+                "stream": False,
+            }
+        if self.provider == "openrouter":
+            return {
+                "model": self.model,
+                "messages": [{"role": "user", "content": prompt}],
+                "response_format": {
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": "zero_model_gateway_output",
+                        "schema": schema,
+                    },
+                },
+            }
+        raise RuntimeError(f"{self.provider} provider is unsupported")
+
+    def _parse_response(self, response: dict[str, Any]) -> dict[str, Any]:
+        if self.provider == "openai":
+            return _extract_openai_json(response)
+        if self.provider == "anthropic":
+            return _extract_text_content_json(response)
+        if self.provider == "ollama":
+            candidate = response.get("response")
+            if isinstance(candidate, dict):
+                return candidate
+            if isinstance(candidate, str):
+                return _decode_json_object(candidate, "ollama response")
+        if self.provider == "openrouter":
+            choices = response.get("choices")
+            if isinstance(choices, list) and choices:
+                message = choices[0].get("message") if isinstance(choices[0], dict) else None
+                if isinstance(message, dict) and isinstance(message.get("content"), str):
+                    return _decode_json_object(message["content"], "openrouter message")
+        raise RuntimeError(f"{self.provider} response did not include a JSON object")
+
+    def _required_credential(self) -> str:
+        if not self.credential:
+            raise RuntimeError(f"{self.provider} credential is not configured")
+        return self.credential
 
 
 def provider_status(client: ModelClient, config: ModelGatewayConfig) -> dict[str, Any]:
@@ -319,6 +481,7 @@ def provider_status(client: ModelClient, config: ModelGatewayConfig) -> dict[str
         "network_allowed": bool(config.allow_network and configured and client.live_network),
         "capabilities": list(client.capabilities),
         "required_env": PROVIDER_REQUIRED_ENV.get(provider, []),
+        "adapter": "http_json" if provider in PROVIDER_DEFAULT_ENDPOINTS else "local",
     }
 
 
@@ -360,6 +523,55 @@ def _matches_json_type(value: Any, expected: str | list[str]) -> bool:
         if item == "null" and value is None:
             return True
     return False
+
+
+def _structured_output_prompt(prompt: str, schema: dict[str, Any]) -> str:
+    return (
+        f"{prompt}\n\n"
+        "Return only a JSON object that matches this JSON schema:\n"
+        f"{json.dumps(schema, sort_keys=True)}"
+    )
+
+
+def _extract_openai_json(response: dict[str, Any]) -> dict[str, Any]:
+    output_json = response.get("output_json")
+    if isinstance(output_json, dict):
+        return output_json
+    output_text = response.get("output_text")
+    if isinstance(output_text, str):
+        return _decode_json_object(output_text, "openai output_text")
+    output = response.get("output")
+    if isinstance(output, list):
+        for item in output:
+            if not isinstance(item, dict):
+                continue
+            content = item.get("content")
+            if not isinstance(content, list):
+                continue
+            for part in content:
+                if isinstance(part, dict) and isinstance(part.get("text"), str):
+                    return _decode_json_object(part["text"], "openai content text")
+    raise RuntimeError("openai response did not include a JSON object")
+
+
+def _extract_text_content_json(response: dict[str, Any]) -> dict[str, Any]:
+    content = response.get("content")
+    if not isinstance(content, list):
+        raise RuntimeError("anthropic response did not include content")
+    for part in content:
+        if isinstance(part, dict) and isinstance(part.get("text"), str):
+            return _decode_json_object(part["text"], "anthropic content text")
+    raise RuntimeError("anthropic response did not include text content")
+
+
+def _decode_json_object(raw: str, label: str) -> dict[str, Any]:
+    try:
+        decoded = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"{label} was not valid JSON") from exc
+    if not isinstance(decoded, dict):
+        raise RuntimeError(f"{label} was not a JSON object")
+    return decoded
 
 
 def _default_value_for_type(property_schema: dict[str, Any]) -> Any:
