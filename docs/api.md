@@ -113,6 +113,7 @@ contract:
 - `POST /auto/toggle`
 - `POST /operator/events`
 - `POST /network/publish`
+- `POST /network/ingest`
 - `POST /intelligence/export`
 - `POST /live/heartbeat`, `/live/pause`, `/live/resume`, `/live/kill`, `/live/flatten`
 
@@ -182,6 +183,17 @@ screenshots.
 `ZERO_NETWORK_PUBLISH_PATH`. When both are present, the runtime appends the
 redacted profile packet to a local JSONL proof log. It does not upload to a
 ZERO-hosted service from the public runtime.
+
+`POST /network/ingest` accepts one redacted profile packet or a list of
+packets and returns `zero.network.ingestion.v1`. It is the public-safe
+hosted-compatible validation contract for ZERO Network: profile publication
+must be explicitly enabled, proof hashes must match recomputed aggregate
+evidence, aggregate metrics must be internally consistent, duplicate accepted
+handles/proofs are refused, and deployment claim/heartbeat hashes must bind
+when present. The response includes accepted/refused records plus an
+accepted-only leaderboard. It never requires raw journals, exchange
+credentials, wallet material, trace IDs, idempotency keys, or per-trade
+symbols.
 
 `GET /intelligence/snapshot` returns a `zero.intelligence.snapshot.v1` delayed
 public intelligence packet derived from the verified ZERO Network profile. It

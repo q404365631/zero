@@ -141,6 +141,7 @@ docs-check:
     test -f contracts/deployment/heartbeat.json
     test -f contracts/network/profile.json
     test -f contracts/network/leaderboard.json
+    test -f contracts/network/ingestion.json
     test -f contracts/network/profile.html
     test -f contracts/network/leaderboard.html
     test -f contracts/network/index.html

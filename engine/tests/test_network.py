@@ -8,8 +8,11 @@ import pytest
 from zero_engine.api import PaperApi, PaperApiState
 from zero_engine.deployment import DeploymentIdentityConfig, deployment_claim, deployment_heartbeat
 from zero_engine.journal import DecisionJournal
+from zero_engine.models import OrderIntent, Side
 from zero_engine.network import (
     PublicProfileConfig,
+    expected_profile_proof_hash,
+    ingest_public_profiles,
     load_public_profiles,
     public_leaderboard,
     public_leaderboard_page,
@@ -91,6 +94,12 @@ def test_public_profile_is_aggregate_and_private_by_default(tmp_path) -> None:
     assert "BTC" not in body
     assert "ETH" not in body
     assert "api:/execute" not in body
+
+
+def test_expected_profile_proof_hash_matches_runtime_profile(tmp_path) -> None:
+    profile = seed_api(tmp_path).network_profile()
+
+    assert expected_profile_proof_hash(profile) == profile["verification"]["proof_hash"]
 
 
 def test_deployment_claim_is_public_safe_and_signature_ready(tmp_path) -> None:
@@ -243,6 +252,99 @@ def test_network_publish_writes_redacted_profile_packet(tmp_path) -> None:
     assert "trace-network" not in written
     assert "BTC" not in written
     assert "ETH" not in written
+
+
+def test_network_ingestion_accepts_consented_runtime_profile(tmp_path) -> None:
+    profile = seed_api(tmp_path).network_profile()
+    profile["profile"]["publish_enabled"] = True
+
+    ingestion = ingest_public_profiles([profile], generated_at=FIXED_DT.isoformat())
+
+    assert ingestion["schema_version"] == "zero.network.ingestion.v1"
+    assert ingestion["summary"] == {
+        "submitted": 1,
+        "accepted": 1,
+        "refused": 0,
+        "duplicates": 0,
+        "leaderboard_rows": 1,
+    }
+    assert ingestion["records"][0]["decision"] == "accepted"
+    assert ingestion["records"][0]["trust_tier"] == "unsigned_local"
+    assert ingestion["records"][0]["leaderboard_eligible"] is True
+    assert ingestion["records"][0]["anti_gaming_score"] > 0
+    assert ingestion["leaderboard"]["rows"][0]["handle"] == "zero_test"
+    body = json.dumps(ingestion)
+    assert "network-fill" not in body
+    assert "trace-network" not in body
+    assert "BTC" not in body
+    assert "ETH" not in body
+
+
+def test_network_ingestion_refuses_missing_consent_and_proof_mismatch(tmp_path) -> None:
+    profile = seed_api(tmp_path).network_profile()
+    profile["verification"]["proof_hash"] = "sha256:" + ("a" * 64)
+    profile["leaderboard_row"]["proof_hash"] = "sha256:" + ("a" * 64)
+
+    ingestion = ingest_public_profiles([profile], generated_at=FIXED_DT.isoformat())
+
+    assert ingestion["summary"]["accepted"] == 0
+    assert ingestion["summary"]["refused"] == 1
+    record = ingestion["records"][0]
+    assert record["decision"] == "refused"
+    assert "missing_consent" in record["risk_flags"]
+    assert "proof_hash_mismatch" in record["risk_flags"]
+    assert ingestion["leaderboard"]["row_count"] == 0
+
+
+def test_network_ingestion_refuses_duplicate_accepted_packets(tmp_path) -> None:
+    profile = seed_api(tmp_path).network_profile()
+    profile["profile"]["publish_enabled"] = True
+
+    ingestion = ingest_public_profiles([profile, profile], generated_at=FIXED_DT.isoformat())
+
+    assert ingestion["summary"]["accepted"] == 1
+    assert ingestion["summary"]["refused"] == 1
+    assert ingestion["summary"]["duplicates"] == 1
+    assert ingestion["records"][1]["decision"] == "refused"
+    assert "duplicate_handle" in ingestion["records"][1]["risk_flags"]
+    assert "duplicate_proof_hash" in ingestion["records"][1]["risk_flags"]
+
+
+def test_network_ingestion_api_accepts_current_profile_packet(tmp_path) -> None:
+    api = seed_api(tmp_path)
+    profile = api.network_profile()
+    profile["profile"]["publish_enabled"] = True
+
+    status, ingestion = api.post("/network/ingest", {"profiles": [profile]})
+
+    assert status == 200
+    assert ingestion["schema_version"] == "zero.network.ingestion.v1"
+    assert ingestion["summary"]["accepted"] == 1
+    assert ingestion["leaderboard"]["rows"][0]["handle"] == "zero_test"
+
+
+def test_network_ingestion_contract_is_fresh() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    expected = json.loads((repo_root / "contracts/network/ingestion.json").read_text())
+    engine = PaperEngine(clock=lambda: FIXED_TS)
+    engine.submit(OrderIntent("BTC", Side.BUY, quantity=0.01, price=40_000, confidence=0.9))
+    engine.submit(OrderIntent("ETH", Side.BUY, quantity=1.0, price=3_000, confidence=0.9))
+    profile = public_profile(
+        engine,
+        config=PublicProfileConfig(
+            handle="zero_local",
+            display_name="ZERO Local",
+            publish_enabled=True,
+        ),
+        generated_at="2026-05-01T00:00:00+00:00",
+    )
+
+    payload = ingest_public_profiles(
+        [profile],
+        generated_at="2026-05-01T00:00:00+00:00",
+    )
+
+    assert payload == expected
 
 
 def test_public_profile_rejects_invalid_handles() -> None:

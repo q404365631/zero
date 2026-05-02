@@ -80,6 +80,34 @@ curl -fsS "${API}/deployment/heartbeat" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.deployment.heartbeat.v1"; assert p["heartbeat_hash"].startswith("sha256:"); assert p["deployment_claim_hash"].startswith("sha256:"); assert p["signature"]["status"] == "unsigned_local"; assert p["signature"]["signed_heartbeat_hash"] == p["heartbeat_hash"]; assert p["liveness"]["status"] == "paper_only"; assert "railway-smoke" not in body; assert "trace-" not in body'
 curl -fsS "${API}/network/leaderboard" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.network.leaderboard.v1"; assert len(p["rows"]) == 1; assert p["rows"][0]["proof_hash"].startswith("sha256:"); assert p["rows"][0]["deployment_claim_hash"].startswith("sha256:"); assert p["rows"][0]["deployment_heartbeat_hash"].startswith("sha256:")'
+PROFILE_FILE="$(mktemp)"
+curl -fsS "${API}/network/profile" >"${PROFILE_FILE}"
+python3 - "${API}" "${PROFILE_FILE}" <<'PY'
+import json
+import sys
+import urllib.request
+
+api, profile_path = sys.argv[1], sys.argv[2]
+with open(profile_path, encoding="utf-8") as fh:
+    profile = json.load(fh)
+profile["profile"]["publish_enabled"] = True
+request = urllib.request.Request(
+    f"{api}/network/ingest",
+    data=json.dumps({"profiles": [profile]}).encode("utf-8"),
+    headers={"content-type": "application/json"},
+    method="POST",
+)
+with urllib.request.urlopen(request) as response:
+    packet = json.load(response)
+body = json.dumps(packet)
+assert packet["schema_version"] == "zero.network.ingestion.v1"
+assert packet["summary"]["accepted"] == 1
+assert packet["leaderboard"]["row_count"] == 1
+assert packet["records"][0]["decision"] == "accepted"
+assert "railway-smoke" not in body
+assert "trace-" not in body
+PY
+rm -f "${PROFILE_FILE}"
 curl -fsS \
   -H "content-type: application/json" \
   -d '{"consent":false}' \

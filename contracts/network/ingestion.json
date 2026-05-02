@@ -1,0 +1,112 @@
+{
+  "generated_at": "2026-05-01T00:00:00+00:00",
+  "leaderboard": {
+    "generated_at": "2026-05-01T00:00:00+00:00",
+    "privacy": {
+      "default": "private",
+      "excluded": [
+        "raw decisions",
+        "trace ids",
+        "idempotency keys",
+        "wallet addresses",
+        "exchange order ids",
+        "private notes",
+        "strategy source labels",
+        "per-trade symbols"
+      ],
+      "included": [
+        "aggregate decision counts",
+        "aggregate fill and rejection counts",
+        "aggregate notional",
+        "verification badge status",
+        "proof hash",
+        "deployment claim hash",
+        "deployment heartbeat hash"
+      ],
+      "publication": "opt-in"
+    },
+    "row_count": 1,
+    "rows": [
+      {
+        "decisions": 2,
+        "display_name": "ZERO Local",
+        "handle": "zero_local",
+        "mode": "paper",
+        "open_positions": 1,
+        "proof_hash": "sha256:27064c66a4dd2b5f6617430dfc35e2001e422e479d8e4131d08ee87e10803fda",
+        "rank": 1,
+        "rejection_rate": 0.5,
+        "verification_score": 3.5
+      }
+    ],
+    "rules": {
+      "purpose": "proof-of-process, not financial advice",
+      "ranking": [
+        "verification_score desc",
+        "decisions desc",
+        "rejection_rate desc",
+        "handle asc"
+      ]
+    },
+    "schema_version": "zero.network.leaderboard.v1"
+  },
+  "privacy": {
+    "default": "private",
+    "excluded": [
+      "raw decisions",
+      "trace ids",
+      "idempotency keys",
+      "wallet addresses",
+      "exchange order ids",
+      "private notes",
+      "strategy source labels",
+      "per-trade symbols"
+    ],
+    "included": [
+      "aggregate decision counts",
+      "aggregate fill and rejection counts",
+      "aggregate notional",
+      "verification badge status",
+      "proof hash",
+      "deployment claim hash",
+      "deployment heartbeat hash"
+    ],
+    "publication": "opt-in"
+  },
+  "records": [
+    {
+      "anti_gaming_score": 3.5,
+      "decision": "accepted",
+      "handle": "zero_local",
+      "index": 1,
+      "leaderboard_eligible": true,
+      "proof_hash": "sha256:27064c66a4dd2b5f6617430dfc35e2001e422e479d8e4131d08ee87e10803fda",
+      "refusal_reasons": [],
+      "risk_flags": [],
+      "trust_tier": "profile_only"
+    }
+  ],
+  "rules": {
+    "accepted_inputs": [
+      "zero.network.profile.v1"
+    ],
+    "financial_advice": false,
+    "purpose": "hosted-style intake simulation for public redacted proof packets",
+    "ranking_source": "accepted packets only",
+    "refusal_policy": [
+      "missing explicit profile publish consent",
+      "malformed or unsafe public packet",
+      "proof hash mismatch",
+      "metric inconsistency",
+      "duplicate handle or proof hash"
+    ]
+  },
+  "schema_version": "zero.network.ingestion.v1",
+  "summary": {
+    "accepted": 1,
+    "duplicates": 0,
+    "leaderboard_rows": 1,
+    "refused": 0,
+    "submitted": 1
+  }
+}

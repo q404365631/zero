@@ -294,6 +294,26 @@ paths:
                 $ref: "#/components/schemas/LocalExportResponse"
         "400":
           $ref: "#/components/responses/BadRequest"
+  /network/ingest:
+    post:
+      tags: [network]
+      operationId: ingestNetworkProfiles
+      summary: Validate redacted profile packets with hosted-style anti-gaming rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NetworkIngestRequest"
+      responses:
+        "200":
+          description: Ingestion decision packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NetworkIngestionResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
   /intelligence/snapshot:
     get:
       tags: [intelligence]
@@ -1235,6 +1255,48 @@ components:
         display_name:
           type: string
       additionalProperties: false
+    NetworkIngestRequest:
+      type: object
+      properties:
+        profile:
+          type: object
+          additionalProperties: true
+        profiles:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      additionalProperties: false
+    NetworkIngestionResponse:
+      type: object
+      required: [schema_version, generated_at, summary, records, leaderboard, rules, privacy]
+      properties:
+        schema_version:
+          const: zero.network.ingestion.v1
+        generated_at:
+          type: string
+          format: date-time
+        summary:
+          type: object
+          required: [submitted, accepted, refused, duplicates, leaderboard_rows]
+          additionalProperties: true
+        records:
+          type: array
+          items:
+            type: object
+            required: [index, decision, handle, proof_hash, trust_tier, anti_gaming_score, leaderboard_eligible, risk_flags, refusal_reasons]
+            additionalProperties: true
+        leaderboard:
+          $ref: "#/components/schemas/NetworkLeaderboardResponse"
+        rules:
+          type: object
+          required: [purpose, accepted_inputs, refusal_policy, ranking_source, financial_advice]
+          additionalProperties: true
+        privacy:
+          type: object
+          required: [default, publication]
+          additionalProperties: true
+      additionalProperties: true
     ConsentRequest:
       type: object
       required: [consent]

@@ -72,6 +72,40 @@ The public runtime writes a JSONL proof packet to the configured local path. It
 does not upload to a ZERO-hosted service. A future hosted Network ingestion API
 can consume the same packet without changing the local privacy contract.
 
+## Hosted-Compatible Ingestion And Anti-Gaming
+
+`POST /network/ingest` validates already-redacted `zero.network.profile.v1`
+packets and returns `zero.network.ingestion.v1`:
+
+```bash
+curl -fsS \
+  -H "content-type: application/json" \
+  -d '{"profiles":[...]}' \
+  http://127.0.0.1:8765/network/ingest
+```
+
+This route is stricter than the static leaderboard renderer. It models the
+public-safe checks a hosted ZERO Network ingestion service must preserve:
+
+- explicit `publish_enabled=true` consent;
+- recomputed profile proof hash;
+- internally consistent decision, fill, rejection, acceptance-rate, and
+  rejection-rate metrics;
+- duplicate accepted handle refusal;
+- duplicate accepted proof-hash refusal;
+- deployment claim and heartbeat hash binding when deployment packets are
+  present;
+- accepted-only leaderboard output.
+
+Every submitted packet receives an accepted/refused record with risk flags,
+refusal reasons, trust tier, anti-gaming score, and leaderboard eligibility.
+The ingestion response includes no raw journals, trace IDs, idempotency keys,
+wallet addresses, exchange order IDs, strategy labels, per-trade symbols, or
+credentials.
+
+The pinned contract fixture lives at
+[contracts/network/ingestion.json](../contracts/network/ingestion.json).
+
 ## Public Index Page Builder
 
 The public repository includes a deterministic static index for checked Network

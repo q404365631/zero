@@ -30,6 +30,7 @@ REQUIRED_PATHS = {
     "/network/profile",
     "/network/leaderboard",
     "/network/publish",
+    "/network/ingest",
     "/intelligence/snapshot",
     "/intelligence/catalog",
     "/intelligence/model-gateway",
@@ -75,6 +76,8 @@ REQUIRED_SCHEMAS = {
     "DeploymentHeartbeatResponse",
     "NetworkProfileResponse",
     "NetworkLeaderboardResponse",
+    "NetworkIngestRequest",
+    "NetworkIngestionResponse",
     "IntelligenceSnapshotResponse",
     "IntelligenceCatalogResponse",
     "ModelGatewayStatusResponse",
@@ -135,6 +138,18 @@ FIXTURE_REQUIREMENTS = {
     "contracts/paper-api/execute_rejected.json": {
         "schema": "ExecuteResponse",
         "keys": {"accepted", "simulated", "fill_id", "coin", "side", "size", "reason"},
+    },
+    "contracts/network/ingestion.json": {
+        "schema": "NetworkIngestionResponse",
+        "keys": {
+            "schema_version",
+            "generated_at",
+            "summary",
+            "records",
+            "leaderboard",
+            "rules",
+            "privacy",
+        },
     },
     "contracts/intelligence/snapshot.json": {
         "schema": "IntelligenceSnapshotResponse",

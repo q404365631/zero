@@ -38,6 +38,9 @@ from zero_engine.market import (
 from zero_engine.models import OrderIntent, Position, RiskLimits, Side
 from zero_engine.network import (
     PublicProfileConfig,
+    expected_profile_proof_hash,
+    ingest_public_profiles,
+    load_ingested_public_profiles,
     load_public_profiles,
     public_leaderboard,
     public_leaderboard_page,
@@ -129,9 +132,12 @@ __all__ = [
     "deployment_heartbeat",
     "evaluate_order",
     "export_intelligence_snapshot",
+    "expected_profile_proof_hash",
+    "ingest_public_profiles",
     "intelligence_catalog",
     "intelligence_snapshot",
     "latest_close",
+    "load_ingested_public_profiles",
     "local_account_positions",
     "load_public_profiles",
     "load_scenario",

@@ -13,6 +13,8 @@ from zero_engine.paper import PaperEngine
 HANDLE_RE = re.compile(r"^[a-zA-Z0-9_-]{3,32}$")
 PROFILE_SCHEMA_VERSION = "zero.network.profile.v1"
 LEADERBOARD_SCHEMA_VERSION = "zero.network.leaderboard.v1"
+INGESTION_SCHEMA_VERSION = "zero.network.ingestion.v1"
+SHA256_RE = re.compile(r"^sha256:[a-f0-9]{64}$")
 
 
 @dataclass(frozen=True)
@@ -202,6 +204,71 @@ def public_leaderboard(
                 "handle asc",
             ],
             "purpose": "proof-of-process, not financial advice",
+        },
+        "privacy": privacy_policy(),
+    }
+    assert_public_profile_safe(payload)
+    return payload
+
+
+def ingest_public_profiles(
+    profiles: list[dict[str, Any]] | tuple[dict[str, Any], ...],
+    *,
+    generated_at: str,
+    limit: int = 100,
+) -> dict[str, Any]:
+    if limit <= 0:
+        raise ValueError("ingestion limit must be positive")
+    accepted_profiles: list[dict[str, Any]] = []
+    records: list[dict[str, Any]] = []
+    seen_handles: set[str] = set()
+    seen_proofs: set[str] = set()
+
+    for index, profile in enumerate(profiles, start=1):
+        record = _ingest_public_profile(
+            profile,
+            index=index,
+            seen_handles=seen_handles,
+            seen_proofs=seen_proofs,
+        )
+        records.append(record)
+        if record["decision"] == "accepted":
+            accepted_profiles.append(profile)
+            seen_handles.add(record["handle"])
+            seen_proofs.add(record["proof_hash"])
+
+    leaderboard = public_leaderboard(accepted_profiles, generated_at=generated_at, limit=limit)
+    payload = {
+        "schema_version": INGESTION_SCHEMA_VERSION,
+        "generated_at": generated_at,
+        "summary": {
+            "submitted": len(profiles),
+            "accepted": len(accepted_profiles),
+            "refused": len(profiles) - len(accepted_profiles),
+            "duplicates": len(
+                [
+                    record
+                    for record in records
+                    if "duplicate_handle" in record["risk_flags"]
+                    or "duplicate_proof_hash" in record["risk_flags"]
+                ]
+            ),
+            "leaderboard_rows": leaderboard["row_count"],
+        },
+        "records": records,
+        "leaderboard": leaderboard,
+        "rules": {
+            "purpose": "hosted-style intake simulation for public redacted proof packets",
+            "accepted_inputs": ["zero.network.profile.v1"],
+            "refusal_policy": [
+                "missing explicit profile publish consent",
+                "malformed or unsafe public packet",
+                "proof hash mismatch",
+                "metric inconsistency",
+                "duplicate handle or proof hash",
+            ],
+            "ranking_source": "accepted packets only",
+            "financial_advice": False,
         },
         "privacy": privacy_policy(),
     }
@@ -766,6 +833,10 @@ def load_public_profiles(path: str | Path) -> tuple[dict[str, Any], ...]:
     return tuple(profiles)
 
 
+def load_ingested_public_profiles(path: str | Path, *, generated_at: str) -> dict[str, Any]:
+    return ingest_public_profiles(load_public_profiles(path), generated_at=generated_at)
+
+
 def publish_profile(
     profile: dict[str, Any],
     *,
@@ -799,6 +870,20 @@ def publish_profile(
         "proof_hash": profile["verification"]["proof_hash"],
         "profile": profile,
     }
+
+
+def expected_profile_proof_hash(profile: dict[str, Any]) -> str:
+    row = _public_leaderboard_row(profile)
+    verification = profile.get("verification", {})
+    proof_payload = {
+        "schema_version": "zero.network.proof.v1",
+        "handle": row["handle"],
+        "mode": row["mode"],
+        "metrics": profile.get("metrics", {}),
+        "deployment_claim_hash": verification.get("deployment_claim_hash"),
+        "deployment_heartbeat_hash": verification.get("deployment_heartbeat_hash"),
+    }
+    return sha256_json(proof_payload)
 
 
 def privacy_policy() -> dict[str, Any]:
@@ -890,6 +975,173 @@ def _public_leaderboard_row(profile: dict[str, Any]) -> dict[str, Any]:
             deployment_heartbeat_hash or row.get("deployment_heartbeat_hash")
         )
     return public_row
+
+
+def _ingest_public_profile(
+    profile: dict[str, Any],
+    *,
+    index: int,
+    seen_handles: set[str],
+    seen_proofs: set[str],
+) -> dict[str, Any]:
+    risk_flags: list[str] = []
+    refusal_reasons: list[str] = []
+    row: dict[str, Any] | None = None
+    handle = "unknown"
+    proof_hash = ""
+    try:
+        row = _public_leaderboard_row(profile)
+        handle = row["handle"]
+        proof_hash = row["proof_hash"]
+        _validate_ingestion_shape(profile, row, risk_flags, refusal_reasons)
+        if handle in seen_handles:
+            risk_flags.append("duplicate_handle")
+            refusal_reasons.append("duplicate accepted handle")
+        if proof_hash in seen_proofs:
+            risk_flags.append("duplicate_proof_hash")
+            refusal_reasons.append("duplicate accepted proof hash")
+    except ValueError as exc:
+        risk_flags.append("malformed_packet")
+        refusal_reasons.append(str(exc))
+
+    accepted = not refusal_reasons
+    anti_gaming_score = _anti_gaming_score(profile, row, accepted=accepted)
+    trust_tier = _trust_tier(profile)
+    return {
+        "index": index,
+        "decision": "accepted" if accepted else "refused",
+        "handle": handle,
+        "proof_hash": proof_hash,
+        "trust_tier": trust_tier,
+        "anti_gaming_score": anti_gaming_score,
+        "leaderboard_eligible": accepted,
+        "risk_flags": sorted(set(risk_flags)),
+        "refusal_reasons": refusal_reasons,
+    }
+
+
+def _validate_ingestion_shape(
+    profile: dict[str, Any],
+    row: dict[str, Any],
+    risk_flags: list[str],
+    refusal_reasons: list[str],
+) -> None:
+    assert_public_profile_safe(profile)
+    handle = row["handle"]
+    if not HANDLE_RE.match(handle):
+        risk_flags.append("invalid_handle")
+        refusal_reasons.append("profile handle does not match public handle rules")
+    if not bool(profile.get("profile", {}).get("publish_enabled")):
+        risk_flags.append("missing_consent")
+        refusal_reasons.append("profile publish_enabled must be true for hosted intake")
+    proof_hash = row["proof_hash"]
+    if not SHA256_RE.match(proof_hash):
+        risk_flags.append("invalid_proof_hash")
+        refusal_reasons.append("proof hash must be sha256:<64 lowercase hex chars>")
+    else:
+        expected = expected_profile_proof_hash(profile)
+        if proof_hash != expected:
+            risk_flags.append("proof_hash_mismatch")
+            refusal_reasons.append("proof hash does not match public profile evidence")
+    metrics = profile.get("metrics")
+    if not isinstance(metrics, dict):
+        risk_flags.append("invalid_metrics")
+        refusal_reasons.append("metrics must be a JSON object")
+        return
+    decisions = _safe_int(metrics.get("decisions"))
+    fills = _safe_int(metrics.get("fills"))
+    rejections = _safe_int(metrics.get("rejections"))
+    if decisions <= 0:
+        risk_flags.append("empty_profile")
+        refusal_reasons.append("profile must contain at least one decision")
+    if fills < 0 or rejections < 0 or fills + rejections > decisions:
+        risk_flags.append("metric_inconsistency")
+        refusal_reasons.append("fills plus rejections must be non-negative and no greater than decisions")
+    expected_rejection_rate = round(rejections / decisions, 4) if decisions else 0.0
+    if abs(float(metrics.get("rejection_rate", 0.0)) - expected_rejection_rate) > 0.0001:
+        risk_flags.append("metric_inconsistency")
+        refusal_reasons.append("rejection_rate must match rejections / decisions")
+    expected_acceptance_rate = round((decisions - rejections) / decisions, 4) if decisions else 0.0
+    if abs(float(metrics.get("acceptance_rate", 0.0)) - expected_acceptance_rate) > 0.0001:
+        risk_flags.append("metric_inconsistency")
+        refusal_reasons.append("acceptance_rate must match accepted decisions / decisions")
+    _validate_deployment_binding(profile, risk_flags, refusal_reasons)
+
+
+def _validate_deployment_binding(
+    profile: dict[str, Any],
+    risk_flags: list[str],
+    refusal_reasons: list[str],
+) -> None:
+    verification = profile.get("verification", {})
+    claim = profile.get("deployment_claim")
+    heartbeat = profile.get("deployment_heartbeat")
+    claim_hash = verification.get("deployment_claim_hash")
+    heartbeat_hash = verification.get("deployment_heartbeat_hash")
+    if isinstance(claim, dict):
+        if claim_hash and claim.get("claim_hash") != claim_hash:
+            risk_flags.append("deployment_claim_mismatch")
+            refusal_reasons.append("deployment claim hash must match profile verification")
+    elif claim_hash:
+        risk_flags.append("deployment_claim_missing")
+        refusal_reasons.append("deployment claim packet missing for declared claim hash")
+    if isinstance(heartbeat, dict):
+        if heartbeat_hash and heartbeat.get("heartbeat_hash") != heartbeat_hash:
+            risk_flags.append("deployment_heartbeat_mismatch")
+            refusal_reasons.append("deployment heartbeat hash must match profile verification")
+        if claim_hash and heartbeat.get("deployment_claim_hash") != claim_hash:
+            risk_flags.append("deployment_heartbeat_mismatch")
+            refusal_reasons.append("deployment heartbeat must bind to deployment claim hash")
+    elif heartbeat_hash:
+        risk_flags.append("deployment_heartbeat_missing")
+        refusal_reasons.append("deployment heartbeat packet missing for declared heartbeat hash")
+
+
+def _trust_tier(profile: dict[str, Any]) -> str:
+    claim = profile.get("deployment_claim")
+    heartbeat = profile.get("deployment_heartbeat")
+    claim_sig = claim.get("signature", {}) if isinstance(claim, dict) else {}
+    heartbeat_sig = heartbeat.get("signature", {}) if isinstance(heartbeat, dict) else {}
+    if (
+        isinstance(claim_sig, dict)
+        and isinstance(heartbeat_sig, dict)
+        and claim_sig.get("status") == "signed_external"
+        and heartbeat_sig.get("status") == "signed_external"
+    ):
+        return "signed_external"
+    if claim or heartbeat:
+        return "unsigned_local"
+    return "profile_only"
+
+
+def _anti_gaming_score(
+    profile: dict[str, Any],
+    row: dict[str, Any] | None,
+    *,
+    accepted: bool,
+) -> float:
+    if not accepted or row is None:
+        return 0.0
+    metrics = profile.get("metrics", {})
+    score = float(row.get("verification_score", 0.0))
+    if _trust_tier(profile) == "signed_external":
+        score += 15.0
+    elif _trust_tier(profile) == "unsigned_local":
+        score += 5.0
+    if metrics.get("journal_durable"):
+        score += 5.0
+    if _safe_int(metrics.get("live_execution_count")) > 0:
+        score += 5.0
+    return round(min(100.0, max(0.0, score)), 2)
+
+
+def _safe_int(value: Any) -> int:
+    if isinstance(value, bool):
+        return 0
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
 
 
 def _metric(label: str, value: Any) -> str:

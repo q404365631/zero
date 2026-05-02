@@ -30,20 +30,24 @@ Acceptance:
 - The note keeps the container path paper-only.
 - The note does not weaken CI expectations.
 
-## Good First Issue: Add ZERO Network Anti-Gaming Rules
+## Good First Issue: Add ZERO Network Stale Publication Window Docs
 
 Labels: `good first issue`, `network`, `docs`, `security`
 
-Add a short anti-gaming rules document for public Network profiles and
-leaderboards.
+Add a short stale-publication policy document for public Network profiles and
+leaderboards. The ingestion contract already rejects missing consent, proof
+mismatches, inconsistent aggregate metrics, and duplicate accepted handles or
+proofs. This issue should document how hosted Network pages should mark stale
+or expired packets once real publication timestamps are available.
 
 Acceptance:
 
-- The document explains why leaderboard rank is proof-of-process, not PnL.
-- The document names first-pass abuse cases: fake volume, duplicate handles,
-  replayed proof packets, sybil profiles, and stale publication.
-- The document proposes public-safe mitigations without requiring exchange
-  credentials or hosted custody.
+- The document explains why stale packets should lose freshness badges even
+  when proof hashes remain valid.
+- The document proposes public-safe freshness windows for paper and live
+  profile packets.
+- The document keeps leaderboard rank proof-of-process, not PnL.
+- The policy does not require exchange credentials or hosted custody.
 - `docs/zero-network.md` links to the document.
 
 ## Help Wanted: Homebrew Tap

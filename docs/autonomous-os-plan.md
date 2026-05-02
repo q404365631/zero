@@ -68,11 +68,11 @@ speed, scale, history, and reliability.
 | CLI readiness | 97 | richer TUI cockpit layout, operator automation examples |
 | Engine runtime | 90 | live canary evidence, richer exchange history reconciliation |
 | Safety and risk | 94 | real exchange chaos drills, external review |
-| API contracts | 96 | hosted auth/rate contracts, signed live runtime packets |
+| API contracts | 97 | hosted auth/rate contracts, signed live runtime packets |
 | Deployment | 84 | live Railway proof, remote logs, doctor automation |
 | Observability and audit | 95 | signed bundles, metrics backend, log drains |
 | Security and custody | 91 | external review, key-handling drill evidence |
-| ZERO Network | 58 | hosted ingestion, anti-gaming, identity, public pages |
+| ZERO Network | 70 | hosted identity verification, public pages, production ingestion service |
 | ZERO Intelligence | 56 | hosted API, billing, history, webhooks, terms |
 | Release and distribution | 90 | registries, Homebrew, release rollback rehearsal |
 | Operator docs | 98 | real exchange drill evidence |
@@ -414,6 +414,23 @@ Exit gate:
 
 - profile and leaderboard data can be accepted, rejected, replayed, and audited
   without private runtime data.
+
+Current progress:
+
+- Added `zero.network.ingestion.v1` for hosted-compatible validation of
+  already-redacted public profile packets.
+- Added `POST /network/ingest` with explicit publication-consent checks,
+  recomputed proof-hash validation, aggregate metric consistency checks,
+  duplicate handle/proof refusal, deployment claim/heartbeat hash binding, and
+  accepted-only leaderboard output.
+- Added a pinned ingestion fixture at
+  [contracts/network/ingestion.json](../contracts/network/ingestion.json).
+- Local and Railway smoke paths verify accepted ingestion remains public-safe
+  and does not leak trace IDs or idempotency keys.
+
+Remaining scope before Cycle 22: signed hosted identity verification, public
+profile pages backed by the ingestion result, stale-publication windows, sybil
+policy, and production service persistence.
 
 ### Cycle 22: ZERO Intelligence API
 

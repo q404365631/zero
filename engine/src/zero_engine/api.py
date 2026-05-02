@@ -38,6 +38,7 @@ from zero_engine.model_gateway import ModelGateway, ModelGatewayConfig
 from zero_engine.models import OrderIntent, Position, Side
 from zero_engine.network import (
     PublicProfileConfig,
+    ingest_public_profiles,
     public_leaderboard,
     public_profile,
     publish_profile,
@@ -576,6 +577,11 @@ class PaperApi:
         if path == "/network/publish":
             try:
                 return HTTPStatus.OK, self.network_publish(payload)
+            except ValueError as exc:
+                return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
+        if path == "/network/ingest":
+            try:
+                return HTTPStatus.OK, self.network_ingest(payload)
             except ValueError as exc:
                 return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
         if path == "/intelligence/export":
@@ -1209,6 +1215,17 @@ class PaperApi:
             consent=bool(payload.get("consent")),
             publish_path=self.state.network_publish_path,
         )
+
+    def network_ingest(self, payload: dict[str, Any]) -> dict[str, Any]:
+        profiles = payload.get("profiles")
+        if profiles is None and isinstance(payload.get("profile"), dict):
+            profiles = [payload["profile"]]
+        if not isinstance(profiles, list):
+            raise ValueError("network ingestion requires profiles list")
+        for profile in profiles:
+            if not isinstance(profile, dict):
+                raise ValueError("network ingestion profiles must be JSON objects")
+        return ingest_public_profiles(profiles, generated_at=self.state.now_iso())
 
     def network_config(self) -> PublicProfileConfig:
         return PublicProfileConfig(
