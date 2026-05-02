@@ -543,16 +543,32 @@ Target score: 99.
 
 Finish distribution:
 
+- release asset verifier;
+- rollback and tamper-detection rehearsal;
 - publish package registry ownership plan;
 - Homebrew tap;
-- signed artifacts and checksums;
 - SBOM/provenance;
-- install rollback;
 - dependency update and security response policy.
 
 Exit gate:
 
 - release process is reproducible by a maintainer other than the founder.
+
+Current progress:
+
+- Added `scripts/release_verify.py` to verify expected GitHub Release assets,
+  exact `SHA256SUMS` coverage, checksum integrity, nonempty artifacts, and
+  source-only exceptions when explicitly requested.
+- Added `scripts/release_rehearsal.sh` to assemble a temporary release bundle,
+  verify it, tamper with the Linux binary, and prove verification fails.
+- Wired release verification into the tag release workflow before attestation
+  and draft release upload.
+- Added release rehearsal to local `just ci`, GitHub CI, release docs,
+  distribution gates, and release template checklist.
+
+Remaining scope before Cycle 26: package-registry ownership proof, Homebrew
+tap, SBOM/provenance bundle beyond GitHub attestations, dependency-update
+policy, and real release rollback rehearsal against a draft GitHub Release.
 
 ### Cycle 26: External Review And Real-World Evidence
 

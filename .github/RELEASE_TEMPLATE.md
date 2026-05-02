@@ -24,7 +24,9 @@ just paper-api-smoke
 
 - [ ] `just ci`
 - [ ] `scripts/hardening_gate.sh`
+- [ ] `just release-rehearsal`
 - [ ] Draft GitHub Release contains the Python package, CLI binaries, paper image tarball, and `SHA256SUMS`.
+- [ ] `scripts/release_verify.py <downloaded-release-dir>` passes.
 - [ ] `shasum -a 256 -c SHA256SUMS` passes after downloading all attached release assets.
 - [ ] `gh attestation verify zero-linux -R zero-intel/zero` passes.
 - [ ] `gh attestation verify zero-macos -R zero-intel/zero` passes.

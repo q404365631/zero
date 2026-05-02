@@ -97,6 +97,8 @@ jobs:
           test -x scripts/openapi_contract_check.py
           test -x scripts/network_pages_smoke.py
           test -x scripts/package_dry_run.sh
+          test -x scripts/release_verify.py
+          test -x scripts/release_rehearsal.sh
           test -x scripts/railway_start.sh
           test -x scripts/railway_doctor.py
           test -x scripts/deployment_evidence.py
@@ -295,6 +297,13 @@ jobs:
         run: rustup show
       - name: Build package artifacts without publishing
         run: scripts/package_dry_run.sh
+
+  release-rehearsal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - name: Rehearse release assembly and verification
+        run: scripts/release_rehearsal.sh
 
   railway-smoke:
     runs-on: ubuntu-latest

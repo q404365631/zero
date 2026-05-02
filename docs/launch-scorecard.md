@@ -26,6 +26,7 @@ reserved for ZERO Intelligence.
 - Public CI for engine, CLI, docs, paper example, paper API smoke, and container smoke
 - Release workflow for Python package, CLI binaries, container image artifact, and checksums
 - Draft GitHub Release assembly with combined release checksums
+- Release verifier and tamper-detection rehearsal
 - GitHub artifact attestations for release asset provenance
 - Threat model, incident runbooks, distribution policy, and hardening gate
 - One-line CLI install path with checksum and attestation verification

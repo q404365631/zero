@@ -39,10 +39,12 @@ Before adding any package registry:
 1. `just ci` passes locally.
 2. GitHub CI, CodeQL, Secret Scan, and OpenSSF Scorecard pass on `main`.
 3. Release artifacts verify with `shasum -a 256 -c SHA256SUMS`.
-4. GitHub artifact attestations verify from a clean download directory.
-5. `docs/threat-model.md` and `docs/incident-runbooks.md` are reviewed.
-6. Rollback steps for the channel are documented in the release PR.
-7. No channel token is stored in repository files or local examples.
+4. `scripts/release_verify.py <downloaded-release-dir>` passes.
+5. `just release-rehearsal` proves tampered artifacts are rejected.
+6. GitHub artifact attestations verify from a clean download directory.
+7. `docs/threat-model.md` and `docs/incident-runbooks.md` are reviewed.
+8. Rollback steps for the channel are documented in the release PR.
+9. No channel token is stored in repository files or local examples.
 
 ## Homebrew Formula Requirements
 

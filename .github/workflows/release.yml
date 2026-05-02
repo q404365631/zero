@@ -92,6 +92,8 @@ jobs:
         run: |
           scripts/assemble_release_assets.sh release-artifacts release-dist
           ls -lh release-dist
+      - name: Verify release assets
+        run: python3 scripts/release_verify.py release-dist
       - name: Attest release assets
         uses: actions/attest@v4
         with:

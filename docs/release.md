@@ -67,6 +67,7 @@ Download the artifact bundle and verify its checksum file before running it:
 ```bash
 cd dist
 shasum -a 256 -c SHA256SUMS
+scripts/release_verify.py dist
 ```
 
 The checksum file uses the standard two-column `sha256  filename` format. A
@@ -77,6 +78,7 @@ directory and verify the combined checksum manifest:
 
 ```bash
 shasum -a 256 -c SHA256SUMS
+scripts/release_verify.py .
 ```
 
 Verify the GitHub artifact attestation for any downloaded executable:
@@ -132,6 +134,20 @@ Current package-name assumptions:
 - crates.io candidates: the `zero-*` workspace crates plus the `zero` binary crate
 - Homebrew candidate: a future `zero-intel/zero` tap or equivalent one-line installer
 
+## Release Rehearsal
+
+Run the release rehearsal before tagging:
+
+```bash
+just release-rehearsal
+```
+
+The rehearsal creates a temporary GitHub Actions-style artifact directory,
+assembles it through `scripts/assemble_release_assets.sh`, verifies the bundle
+with `scripts/release_verify.py`, then tampers with the Linux binary and proves
+verification fails. This is a rollback and integrity drill: a maintainer should
+not publish a release unless the verifier catches the tampered-artifact case.
+
 ## Current Automation
 
 `.github/workflows/release.yml` runs on tags shaped like `v*.*.*` and builds:
@@ -142,6 +158,8 @@ Current package-name assumptions:
 - SHA-256 checksum files for each artifact group
 - A draft GitHub Release containing the wheel, source distribution, CLI
   binaries, paper image tarball, and a combined `SHA256SUMS`
+- Release asset verification through `scripts/release_verify.py` before
+  attestation and draft release upload
 - GitHub artifact attestations for release assets listed in the combined
   checksum manifest
 

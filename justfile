@@ -54,6 +54,12 @@ hardening-gate:
 package-dry-run:
     scripts/package_dry_run.sh
 
+release-rehearsal:
+    scripts/release_rehearsal.sh
+
+release-verify dir:
+    scripts/release_verify.py "{{dir}}"
+
 railway-smoke:
     scripts/railway_smoke.sh
 
@@ -161,6 +167,8 @@ docs-check:
     test -x scripts/openapi_contract_check.py
     test -x scripts/network_pages_smoke.py
     test -x scripts/package_dry_run.sh
+    test -x scripts/release_verify.py
+    test -x scripts/release_rehearsal.sh
     test -x scripts/hardening_gate.sh
     test -x scripts/railway_start.sh
     test -x scripts/railway_doctor.py
@@ -191,4 +199,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke package-dry-run
+ci: lint test paper-api-smoke example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke package-dry-run release-rehearsal
