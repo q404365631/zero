@@ -104,7 +104,7 @@ contract:
 - `GET /positions`, `/risk`, `/brief`
 - `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
 - `GET /metrics`, `/immune`, `/audit/export`
-- `GET /deployment/claim`, `/network/profile`, `/network/leaderboard`
+- `GET /deployment/claim`, `/deployment/heartbeat`, `/network/profile`, `/network/leaderboard`
 - `GET /intelligence/snapshot`, `/intelligence/catalog`
 - `GET /hl/status`, `/hl/account`, `/hl/reconcile`, `/market/quote`
 - `GET /live/preflight`, `/live/cockpit`, `/live/certification`
@@ -161,11 +161,17 @@ metadata, operator audit handle, aggregate evidence counts, and signature status
 without including raw decisions, symbols, trace IDs, idempotency keys, wallet
 material, or exchange credentials.
 
+`GET /deployment/heartbeat` returns a `zero.deployment.heartbeat.v1`
+public-safe liveness packet bound to the deployment claim hash. It exposes
+paper-only, fresh, or expired dead-man state without exposing raw decisions,
+trace IDs, idempotency keys, credentials, or private runtime details.
+
 `GET /network/profile` returns a `zero.network.profile.v1` public-safe profile
 packet with aggregate behavior, verification badges, a proof hash, deployment
-claim hash, and privacy metadata. It excludes raw decisions, trace IDs,
-idempotency keys, wallet addresses, exchange order IDs, private notes, strategy
-source labels, and per-trade symbols. Publication is disabled by default.
+claim hash, deployment heartbeat hash, and privacy metadata. It excludes raw
+decisions, trace IDs, idempotency keys, wallet addresses, exchange order IDs,
+private notes, strategy source labels, and per-trade symbols. Publication is
+disabled by default.
 
 `GET /network/leaderboard` returns a `zero.network.leaderboard.v1` local row
 derived from the same redacted profile. The first leaderboard model ranks

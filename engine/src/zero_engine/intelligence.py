@@ -28,6 +28,7 @@ def intelligence_snapshot(
     metrics = profile.get("metrics", {})
     proof_hash = profile.get("verification", {}).get("proof_hash", "")
     deployment_claim_hash = profile.get("verification", {}).get("deployment_claim_hash", "")
+    deployment_heartbeat_hash = profile.get("verification", {}).get("deployment_heartbeat_hash", "")
     snapshot = {
         "schema_version": "zero.intelligence.snapshot.v1",
         "generated_at": generated_at,
@@ -42,6 +43,7 @@ def intelligence_snapshot(
             "schema_version": profile.get("schema_version"),
             "proof_hash": proof_hash,
             "deployment_claim_hash": deployment_claim_hash,
+            "deployment_heartbeat_hash": deployment_heartbeat_hash,
             "mode": profile.get("mode", "paper"),
             "verification_status": profile.get("verification", {}).get("status", "empty"),
         },

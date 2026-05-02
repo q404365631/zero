@@ -40,6 +40,7 @@ product should ingest later:
 
 - `GET /intelligence/snapshot` returns `zero.intelligence.snapshot.v1`, a
   delayed public aggregate derived from a verified ZERO Network profile.
+  Its source binds both the deployment claim hash and deployment heartbeat hash.
 - `GET /intelligence/catalog` returns `zero.intelligence.catalog.v1`, the
   commercial API, billing, scope, dataset, and rate-limit contract.
 - `POST /intelligence/export` writes an opt-in local JSONL packet when

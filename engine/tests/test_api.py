@@ -167,6 +167,11 @@ def test_paper_api_audit_export_includes_traceable_decisions(tmp_path) -> None:
     assert audit["retention"]["format"] == "append-only-jsonl"
     assert audit["deployment_claim"]["schema_version"] == "zero.deployment.claim.v1"
     assert audit["deployment_claim"]["claim_hash"].startswith("sha256:")
+    assert audit["deployment_heartbeat"]["schema_version"] == "zero.deployment.heartbeat.v1"
+    assert (
+        audit["deployment_heartbeat"]["deployment_claim_hash"]
+        == audit["deployment_claim"]["claim_hash"]
+    )
     assert audit["decisions"][0]["symbol"] == "BTC"
     assert audit["decisions"][0]["trace_id"] == "trace-test-audit"
 
@@ -368,6 +373,29 @@ def test_live_cockpit_combines_preflight_immune_certification_and_next_action() 
     assert "/kill" in payload["operator_actions"]["risk_reducing"]
 
 
+def test_deployment_heartbeat_reflects_live_dead_man_liveness() -> None:
+    adapter = RecordingExchangeAdapter()
+    executor = LiveExecutor(adapter=adapter, enabled=True, clock=lambda: FIXED_TS)
+    executor.heartbeat()
+    api = PaperApi(
+        PaperApiState(
+            live_executor=executor,
+            clock=lambda: FIXED_DT,
+            started_at=FIXED_DT,
+        )
+    )
+
+    status, heartbeat = api.get("/deployment/heartbeat", {})
+
+    assert status == 200
+    assert heartbeat["schema_version"] == "zero.deployment.heartbeat.v1"
+    assert heartbeat["liveness"]["status"] == "fresh"
+    assert heartbeat["liveness"]["live_executor_configured"] is True
+    assert heartbeat["liveness"]["dead_man_expired"] is False
+    assert heartbeat["liveness"]["last_live_heartbeat_at"] == FIXED_TS
+    assert heartbeat["liveness"]["next_required_within_s"] == 30.0
+
+
 def test_operator_context_endpoint_accepts_header_overrides() -> None:
     api = PaperApi(PaperApiState(clock=lambda: FIXED_DT, started_at=FIXED_DT))
     context = api.state.operator_context(
@@ -549,6 +577,7 @@ def test_live_kill_blocks_later_live_execute() -> None:
     assert audit_status == 200
     assert audit["operator_context"]["operator_id"] == "ops-1"
     assert audit["deployment_claim"]["operator"]["handle"] == "ops"
+    assert audit["deployment_heartbeat"]["operator"]["handle"] == "ops"
     assert audit["operator_actions"][0]["action"] == "kill"
     assert audit["operator_actions"][0]["risk_direction"] == "reduces"
     assert cockpit_status == 200

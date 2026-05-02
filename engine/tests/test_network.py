@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 from zero_engine.api import PaperApi, PaperApiState
-from zero_engine.deployment import DeploymentIdentityConfig, deployment_claim
+from zero_engine.deployment import DeploymentIdentityConfig, deployment_claim, deployment_heartbeat
 from zero_engine.journal import DecisionJournal
 from zero_engine.network import (
     PublicProfileConfig,
@@ -75,6 +75,15 @@ def test_public_profile_is_aggregate_and_private_by_default(tmp_path) -> None:
         profile["deployment_claim"]["claim_hash"]
         == profile["verification"]["deployment_claim_hash"]
     )
+    assert profile["verification"]["deployment_heartbeat_hash"].startswith("sha256:")
+    assert (
+        profile["deployment_heartbeat"]["heartbeat_hash"]
+        == profile["verification"]["deployment_heartbeat_hash"]
+    )
+    assert (
+        profile["deployment_heartbeat"]["deployment_claim_hash"]
+        == profile["deployment_claim"]["claim_hash"]
+    )
     assert profile["deployment_claim"]["signature"]["status"] == "unsigned_local"
     body = json.dumps(profile)
     assert "network-fill" not in body
@@ -106,6 +115,29 @@ def test_deployment_claim_is_public_safe_and_signature_ready(tmp_path) -> None:
     assert "api:/execute" not in body
 
 
+def test_deployment_heartbeat_is_public_safe_and_bound_to_claim(tmp_path) -> None:
+    api = seed_api(tmp_path)
+    claim_status, claim = api.get("/deployment/claim", {})
+
+    status, heartbeat = api.get("/deployment/heartbeat", {})
+
+    assert claim_status == 200
+    assert status == 200
+    assert heartbeat["schema_version"] == "zero.deployment.heartbeat.v1"
+    assert heartbeat["deployment_claim_hash"] == claim["claim_hash"]
+    assert heartbeat["heartbeat_hash"].startswith("sha256:")
+    assert heartbeat["signature"]["status"] == "unsigned_local"
+    assert heartbeat["signature"]["signed_heartbeat_hash"] == heartbeat["heartbeat_hash"]
+    assert heartbeat["liveness"]["status"] == "paper_only"
+    assert heartbeat["liveness"]["live_executor_configured"] is False
+    body = json.dumps(heartbeat)
+    assert "network-fill" not in body
+    assert "trace-network" not in body
+    assert "BTC" not in body
+    assert "ETH" not in body
+    assert "api:/execute" not in body
+
+
 def test_deployment_claim_accepts_external_signature_metadata() -> None:
     claim = deployment_claim(
         config=DeploymentIdentityConfig(
@@ -128,6 +160,29 @@ def test_deployment_claim_accepts_external_signature_metadata() -> None:
     assert claim["signature"]["signed_claim_hash"] == claim["claim_hash"]
 
 
+def test_deployment_heartbeat_accepts_external_signature_metadata() -> None:
+    heartbeat = deployment_heartbeat(
+        config=DeploymentIdentityConfig(
+            deployment_id="railway-paper-1",
+            deployment_kind="railway",
+            environment="paper",
+            owner="zero-team",
+            heartbeat_public_key="heartbeat-public",
+            heartbeat_signature="heartbeat-signature",
+            heartbeat_signer="ci",
+        ),
+        generated_at=FIXED_DT.isoformat(),
+        deployment_claim_hash="sha256:claim",
+        operator_context={"handle": "zero_team", "role": "owner", "scope": "paper"},
+        runtime={"mode": "paper", "market_source": "paper:static"},
+        liveness={"status": "fresh", "live_executor_configured": True},
+    )
+
+    assert heartbeat["heartbeat_hash"].startswith("sha256:")
+    assert heartbeat["signature"]["status"] == "signed_external"
+    assert heartbeat["signature"]["signed_heartbeat_hash"] == heartbeat["heartbeat_hash"]
+
+
 def test_network_leaderboard_uses_same_public_proof(tmp_path) -> None:
     api = seed_api(tmp_path)
 
@@ -144,6 +199,10 @@ def test_network_leaderboard_uses_same_public_proof(tmp_path) -> None:
     assert (
         leaderboard["rows"][0]["deployment_claim_hash"]
         == profile["verification"]["deployment_claim_hash"]
+    )
+    assert (
+        leaderboard["rows"][0]["deployment_heartbeat_hash"]
+        == profile["verification"]["deployment_heartbeat_hash"]
     )
     assert leaderboard["rows"][0]["decisions"] == 2
 
@@ -179,6 +238,7 @@ def test_network_publish_writes_redacted_profile_packet(tmp_path) -> None:
     written = publish_path.read_text()
     assert "public_zero" in written
     assert "deployment_claim" in written
+    assert "deployment_heartbeat" in written
     assert "network-fill" not in written
     assert "trace-network" not in written
     assert "BTC" not in written
@@ -212,6 +272,8 @@ def test_public_leaderboard_ranks_redacted_profiles(tmp_path) -> None:
     second["leaderboard_row"]["proof_hash"] = "sha256:alpha"
     second["verification"]["deployment_claim_hash"] = "sha256:claim-alpha"
     second["leaderboard_row"]["deployment_claim_hash"] = "sha256:claim-alpha"
+    second["verification"]["deployment_heartbeat_hash"] = "sha256:heartbeat-alpha"
+    second["leaderboard_row"]["deployment_heartbeat_hash"] = "sha256:heartbeat-alpha"
 
     leaderboard = public_leaderboard(
         [first, second],

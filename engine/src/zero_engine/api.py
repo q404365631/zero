@@ -15,7 +15,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Callable
 from urllib.parse import parse_qs, urlparse
 
-from zero_engine.deployment import DeploymentIdentityConfig, deployment_claim
+from zero_engine.deployment import DeploymentIdentityConfig, deployment_claim, deployment_heartbeat
 from zero_engine.hyperliquid import (
     HyperliquidInfoClient,
     HyperliquidMarketStatus,
@@ -225,6 +225,9 @@ class PaperApiState:
     deployment_public_key: str | None = None
     deployment_signature: str | None = None
     deployment_signer: str | None = None
+    deployment_heartbeat_public_key: str | None = None
+    deployment_heartbeat_signature: str | None = None
+    deployment_heartbeat_signer: str | None = None
     intelligence_public_delay_s: int = 900
     intelligence_export_path: str | None = None
     default_operator_id: str = "local-operator"
@@ -456,6 +459,7 @@ class PaperApi:
             "/market/quote": lambda: self.market_quote(query),
             "/metrics": self.metrics,
             "/deployment/claim": lambda: self.deployment_claim(operator_context),
+            "/deployment/heartbeat": lambda: self.deployment_heartbeat(operator_context),
             "/network/profile": self.network_profile,
             "/network/leaderboard": self.network_leaderboard,
             "/operator/state": self.operator_state,
@@ -1094,6 +1098,13 @@ class PaperApi:
     ) -> dict[str, Any]:
         operator_context = operator_context or self.state.operator_context()
         limit = int(first(query, "limit") or "100")
+        generated_at = self.state.now_iso()
+        claim = self.deployment_claim(operator_context, generated_at=generated_at)
+        heartbeat = self.deployment_heartbeat(
+            operator_context,
+            generated_at=generated_at,
+            deployment_claim_packet=claim,
+        )
         if self.state.engine.journal is not None:
             decisions = self.state.engine.journal.tail(limit)
             source = "journal"
@@ -1102,7 +1113,7 @@ class PaperApi:
             source = "memory"
         return {
             "schema_version": "zero.audit.v1",
-            "exported_at": self.state.now_iso(),
+            "exported_at": generated_at,
             "mode": "paper",
             "source": source,
             "limit": limit,
@@ -1123,7 +1134,8 @@ class PaperApi:
             },
             "metrics": self.metrics(),
             "recovery": self.recovery(),
-            "deployment_claim": self.deployment_claim(operator_context),
+            "deployment_claim": claim,
+            "deployment_heartbeat": heartbeat,
             "operator_actions": [
                 record.to_dict()
                 for record in self.state.operator_action_log[-limit:]
@@ -1133,13 +1145,16 @@ class PaperApi:
 
     def network_profile(self) -> dict[str, Any]:
         generated_at = self.state.now_iso()
+        claim = self.deployment_claim(generated_at=generated_at)
+        heartbeat = self.deployment_heartbeat(generated_at=generated_at, deployment_claim_packet=claim)
         return public_profile(
             self.state.engine,
             config=self.network_config(),
             generated_at=generated_at,
             mode=self.network_mode(),
             live_execution_count=self.live_execution_count(),
-            deployment_claim=self.deployment_claim(generated_at=generated_at),
+            deployment_claim=claim,
+            deployment_heartbeat=heartbeat,
         )
 
     def network_leaderboard(self) -> dict[str, Any]:
@@ -1159,13 +1174,17 @@ class PaperApi:
             display_name=display_name,
             publish_enabled=True,
         )
+        generated_at = self.state.now_iso()
+        claim = self.deployment_claim(generated_at=generated_at)
+        heartbeat = self.deployment_heartbeat(generated_at=generated_at, deployment_claim_packet=claim)
         profile = public_profile(
             self.state.engine,
             config=config,
-            generated_at=self.state.now_iso(),
+            generated_at=generated_at,
             mode=self.network_mode(),
             live_execution_count=self.live_execution_count(),
-            deployment_claim=self.deployment_claim(),
+            deployment_claim=claim,
+            deployment_heartbeat=heartbeat,
         )
         return publish_profile(
             profile,
@@ -1193,6 +1212,9 @@ class PaperApi:
             public_key=self.state.deployment_public_key,
             signature=self.state.deployment_signature,
             signer=self.state.deployment_signer,
+            heartbeat_public_key=self.state.deployment_heartbeat_public_key,
+            heartbeat_signature=self.state.deployment_heartbeat_signature,
+            heartbeat_signer=self.state.deployment_heartbeat_signer,
         )
 
     def deployment_claim(
@@ -1219,6 +1241,57 @@ class PaperApi:
                 "rejections": len(engine.rejections),
                 "live_execution_count": self.live_execution_count(),
             },
+        )
+
+    def deployment_heartbeat(
+        self,
+        operator_context: OperatorContext | None = None,
+        *,
+        generated_at: str | None = None,
+        deployment_claim_packet: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        generated_at = generated_at or self.state.now_iso()
+        operator_context = operator_context or self.state.operator_context()
+        claim = deployment_claim_packet or self.deployment_claim(
+            operator_context,
+            generated_at=generated_at,
+        )
+        executor = self.state.live_executor
+        now_ts = self.state.now().timestamp()
+        if executor is None:
+            liveness = {
+                "status": "paper_only",
+                "live_executor_configured": False,
+                "dead_man_expired": True,
+                "last_live_heartbeat_at": None,
+                "dead_man_timeout_s": None,
+                "next_required_within_s": None,
+            }
+        else:
+            last = executor.last_heartbeat_at
+            timeout = executor.policy.dead_man_timeout_s
+            next_required_within_s = None if last is None else max(0.0, round(last + timeout - now_ts, 3))
+            expired = executor.dead_man_expired()
+            liveness = {
+                "status": "expired" if expired else "fresh",
+                "live_executor_configured": True,
+                "dead_man_expired": expired,
+                "last_live_heartbeat_at": last,
+                "dead_man_timeout_s": timeout,
+                "next_required_within_s": next_required_within_s,
+            }
+        return deployment_heartbeat(
+            config=self.deployment_config(),
+            generated_at=generated_at,
+            deployment_claim_hash=str(claim["claim_hash"]),
+            operator_context=operator_context.to_dict(),
+            runtime={
+                "mode": self.network_mode(),
+                "market_source": self.state.market_source(),
+                "journal_durable": self.state.engine.recovery.durable
+                or self.state.engine.journal is not None,
+            },
+            liveness=liveness,
         )
 
     def live_execution_count(self) -> int:
@@ -1809,6 +1882,13 @@ def serve(
                     deployment_public_key=os.environ.get("ZERO_DEPLOYMENT_PUBLIC_KEY"),
                     deployment_signature=os.environ.get("ZERO_DEPLOYMENT_SIGNATURE"),
                     deployment_signer=os.environ.get("ZERO_DEPLOYMENT_SIGNER"),
+                    deployment_heartbeat_public_key=os.environ.get(
+                        "ZERO_DEPLOYMENT_HEARTBEAT_PUBLIC_KEY"
+                    ),
+                    deployment_heartbeat_signature=os.environ.get(
+                        "ZERO_DEPLOYMENT_HEARTBEAT_SIGNATURE"
+                    ),
+                    deployment_heartbeat_signer=os.environ.get("ZERO_DEPLOYMENT_HEARTBEAT_SIGNER"),
                     intelligence_public_delay_s=parse_int_env(
                         "ZERO_INTELLIGENCE_PUBLIC_DELAY_S",
                         900,

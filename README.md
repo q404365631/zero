@@ -92,6 +92,9 @@ $ curl -fsS -H 'content-type: application/json' -d '{...}' /execute
 $ curl -fsS http://127.0.0.1:8765/network/profile
 {"schema_version": "zero.network.profile.v1", "mode": "paper", "verification": {"status": "verified"}}
 
+$ curl -fsS http://127.0.0.1:8765/deployment/heartbeat
+{"schema_version": "zero.deployment.heartbeat.v1", "liveness": {"status": "paper_only"}}
+
 $ curl -fsS http://127.0.0.1:8765/intelligence/snapshot
 {"schema_version": "zero.intelligence.snapshot.v1", "access": {"class": "public_delayed", "delay_s": 900}}
 

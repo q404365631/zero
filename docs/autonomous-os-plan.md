@@ -349,11 +349,13 @@ Current status:
 - Added `zero.deployment.claim.v1` with local deployment metadata, public-safe
   operator identity, aggregate evidence counts, signature-ready claim hash, and
   explicit `unsigned_local` status unless external signing metadata is supplied.
-- `GET /deployment/claim`, `/network/profile`, `/network/leaderboard`,
-  `/intelligence/snapshot`, and `/audit/export` now share the deployment claim
-  hash so a hosted Network or Intelligence API can verify packet lineage later.
-- Remaining scope before Cycle 20: heartbeat protocol and real hosted
-  verification service design.
+- Added `zero.deployment.heartbeat.v1` with public-safe paper/live liveness,
+  dead-man freshness, heartbeat hash, and optional external signature metadata.
+- `GET /deployment/claim`, `/deployment/heartbeat`, `/network/profile`,
+  `/network/leaderboard`, `/intelligence/snapshot`, and `/audit/export` now
+  share deployment claim and heartbeat hashes so a hosted Network or
+  Intelligence API can verify packet lineage later.
+- Remaining scope before Cycle 20: real hosted verification service design.
 
 ### Cycle 20: LLM Gateway
 

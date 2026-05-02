@@ -36,6 +36,7 @@ The engine includes the resolved `zero.operator_context.v1` packet in:
 
 - `/operator/context`
 - `/deployment/claim` as a public-safe handle/role/scope/source subset
+- `/deployment/heartbeat` as the same public-safe subset bound to liveness
 - `/live/cockpit`
 - `/audit/export`
 - live control responses for `/live/heartbeat`, `/live/pause`,

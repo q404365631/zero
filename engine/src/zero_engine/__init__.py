@@ -5,6 +5,7 @@ from zero_engine.deployment import (
     DeploymentIdentityConfig,
     assert_deployment_claim_safe,
     deployment_claim,
+    deployment_heartbeat,
 )
 from zero_engine.hyperliquid import HyperliquidInfoClient, HyperliquidMarketStatus
 from zero_engine.immune import ImmuneBreaker, ImmuneReport, build_immune_report
@@ -116,6 +117,7 @@ __all__ = [
     "build_immune_report",
     "assert_deployment_claim_safe",
     "deployment_claim",
+    "deployment_heartbeat",
     "evaluate_order",
     "export_intelligence_snapshot",
     "intelligence_catalog",

@@ -12,6 +12,8 @@ credentials to ZERO.
 - Public leaderboard rows are derived from the same redacted profile packet.
 - Deployment identity is represented by a public-safe
   `zero.deployment.claim.v1` claim hash, not by custody or hosted permission.
+- Deployment liveness is represented by a public-safe
+  `zero.deployment.heartbeat.v1` heartbeat hash bound to the claim hash.
 - Raw decisions, trace IDs, idempotency keys, wallet addresses, exchange order
   IDs, strategy source labels, private notes, and per-trade symbols are excluded.
 
@@ -28,7 +30,8 @@ credentials to ZERO.
   },
   "verification": {
     "proof_hash": "sha256:...",
-    "deployment_claim_hash": "sha256:..."
+    "deployment_claim_hash": "sha256:...",
+    "deployment_heartbeat_hash": "sha256:..."
   },
   "metrics": {
     "decisions": 12,
@@ -43,6 +46,11 @@ credentials to ZERO.
 that the profile proof binds. Local deployments report
 `signature.status = unsigned_local` unless external signing metadata is provided
 through deployment environment variables.
+
+`GET /deployment/heartbeat` returns the signature-ready liveness packet that the
+profile proof also binds. It reports paper-only or live dead-man freshness
+without exposing raw decisions, trace IDs, idempotency keys, credentials, wallet
+material, or private runtime notes.
 
 `GET /network/leaderboard` returns `zero.network.leaderboard.v1` with ranked
 rows derived from the same redacted profile format.

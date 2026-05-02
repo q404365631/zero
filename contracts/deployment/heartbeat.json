@@ -1,0 +1,44 @@
+{
+  "deployment": {
+    "deployment_id": "local-paper",
+    "environment": "paper",
+    "kind": "local",
+    "owner": "local-operator",
+    "version": "0.1.1"
+  },
+  "deployment_claim_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+  "generated_at": "2026-05-01T00:00:00+00:00",
+  "heartbeat_hash": "sha256:738907e43d9a28c0e0297a4813e52b0939af9ba9bc7d2553c0c9ce57b02c26ae",
+  "liveness": {
+    "dead_man_expired": true,
+    "dead_man_timeout_s": null,
+    "last_live_heartbeat_at": null,
+    "live_executor_configured": false,
+    "next_required_within_s": null,
+    "status": "paper_only"
+  },
+  "operator": {
+    "handle": "local-operator",
+    "role": "owner",
+    "scope": "local-private",
+    "source": "runtime-default"
+  },
+  "privacy": {
+    "contains_exchange_credentials": false,
+    "contains_idempotency_tokens": false,
+    "contains_raw_decisions": false,
+    "contains_trace_tokens": false,
+    "contains_wallet_material": false,
+    "default": "public-safe-liveness"
+  },
+  "runtime": {},
+  "schema_version": "zero.deployment.heartbeat.v1",
+  "signature": {
+    "algorithm": null,
+    "public_key": null,
+    "signature": null,
+    "signed_heartbeat_hash": "sha256:738907e43d9a28c0e0297a4813e52b0939af9ba9bc7d2553c0c9ce57b02c26ae",
+    "signer": "local-runtime",
+    "status": "unsigned_local"
+  }
+}

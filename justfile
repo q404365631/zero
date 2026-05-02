@@ -137,6 +137,7 @@ docs-check:
     test -f contracts/paper-api/execute_accepted.json
     test -f contracts/paper-api/execute_rejected.json
     test -f contracts/deployment/claim.json
+    test -f contracts/deployment/heartbeat.json
     test -f contracts/network/profile.json
     test -f contracts/network/leaderboard.json
     test -f contracts/network/profile.html

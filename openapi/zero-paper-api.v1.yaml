@@ -238,6 +238,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DeploymentClaimResponse"
+  /deployment/heartbeat:
+    get:
+      tags: [network]
+      operationId: getDeploymentHeartbeat
+      summary: Public-safe local deployment heartbeat and liveness packet.
+      responses:
+        "200":
+          description: Signature-ready deployment heartbeat packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentHeartbeatResponse"
   /network/profile:
     get:
       tags: [network]
@@ -969,7 +981,7 @@ components:
       additionalProperties: false
     AuditExportResponse:
       type: object
-      required: [schema_version, exported_at, mode, source, limit, operator_context, summary, retention, metrics, recovery, deployment_claim, operator_actions, decisions]
+      required: [schema_version, exported_at, mode, source, limit, operator_context, summary, retention, metrics, recovery, deployment_claim, deployment_heartbeat, operator_actions, decisions]
       additionalProperties: true
     DeploymentClaimResponse:
       type: object
@@ -1040,6 +1052,84 @@ components:
               pattern: "^sha256:"
           additionalProperties: true
       additionalProperties: true
+    DeploymentHeartbeatResponse:
+      type: object
+      required: [schema_version, generated_at, deployment, deployment_claim_hash, operator, runtime, liveness, privacy, heartbeat_hash, signature]
+      properties:
+        schema_version:
+          const: zero.deployment.heartbeat.v1
+        generated_at:
+          type: string
+          format: date-time
+        deployment:
+          type: object
+          required: [deployment_id, kind, environment, owner, version]
+          properties:
+            deployment_id:
+              type: string
+            kind:
+              type: string
+            environment:
+              type: string
+            owner:
+              type: string
+            version:
+              type: string
+          additionalProperties: false
+        deployment_claim_hash:
+          type: string
+          pattern: "^sha256:"
+        operator:
+          type: object
+          required: [handle, role, scope, source]
+          additionalProperties: true
+        runtime:
+          type: object
+          additionalProperties: true
+        liveness:
+          type: object
+          required: [status, live_executor_configured, dead_man_expired]
+          properties:
+            status:
+              type: string
+              enum: [paper_only, fresh, expired]
+            live_executor_configured:
+              type: boolean
+            dead_man_expired:
+              type: boolean
+            last_live_heartbeat_at:
+              type: [number, "null"]
+            dead_man_timeout_s:
+              type: [number, "null"]
+            next_required_within_s:
+              type: [number, "null"]
+          additionalProperties: true
+        privacy:
+          type: object
+          additionalProperties: true
+        heartbeat_hash:
+          type: string
+          pattern: "^sha256:"
+        signature:
+          type: object
+          required: [status, algorithm, public_key, signature, signer, signed_heartbeat_hash]
+          properties:
+            status:
+              type: string
+              enum: [unsigned_local, signed_external]
+            algorithm:
+              type: [string, "null"]
+            public_key:
+              type: [string, "null"]
+            signature:
+              type: [string, "null"]
+            signer:
+              type: string
+            signed_heartbeat_hash:
+              type: string
+              pattern: "^sha256:"
+          additionalProperties: true
+      additionalProperties: true
     ExecuteRequest:
       type: object
       required: [coin, side, size]
@@ -1084,7 +1174,7 @@ components:
       additionalProperties: false
     NetworkProfileResponse:
       type: object
-      required: [schema_version, generated_at, mode, profile, metrics, verification, deployment_claim, leaderboard_row, privacy]
+      required: [schema_version, generated_at, mode, profile, metrics, verification, deployment_claim, deployment_heartbeat, leaderboard_row, privacy]
       additionalProperties: true
     NetworkLeaderboardResponse:
       type: object

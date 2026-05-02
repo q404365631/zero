@@ -36,11 +36,17 @@ def public_profile(
     mode: str = "paper",
     live_execution_count: int = 0,
     deployment_claim: dict[str, Any] | None = None,
+    deployment_heartbeat: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     cfg = config or PublicProfileConfig()
     metrics = public_metrics(engine, live_execution_count=live_execution_count)
     deployment_claim_hash = (
         str(deployment_claim.get("claim_hash", "")) if isinstance(deployment_claim, dict) else None
+    )
+    deployment_heartbeat_hash = (
+        str(deployment_heartbeat.get("heartbeat_hash", ""))
+        if isinstance(deployment_heartbeat, dict)
+        else None
     )
     proof_payload = {
         "schema_version": "zero.network.proof.v1",
@@ -48,6 +54,7 @@ def public_profile(
         "mode": mode,
         "metrics": metrics,
         "deployment_claim_hash": deployment_claim_hash,
+        "deployment_heartbeat_hash": deployment_heartbeat_hash,
     }
     proof_hash = sha256_json(proof_payload)
     profile = {
@@ -63,10 +70,12 @@ def public_profile(
             "status": "verified" if metrics["decisions"] else "empty",
             "proof_hash": proof_hash,
             "deployment_claim_hash": deployment_claim_hash,
+            "deployment_heartbeat_hash": deployment_heartbeat_hash,
             "badges": verification_badges(mode, metrics, proof_hash),
         },
         "metrics": metrics,
         "deployment_claim": deployment_claim,
+        "deployment_heartbeat": deployment_heartbeat,
         "privacy": privacy_policy(),
         "leaderboard_row": leaderboard_row(
             cfg.handle,
@@ -74,6 +83,7 @@ def public_profile(
             metrics,
             proof_hash,
             deployment_claim_hash=deployment_claim_hash,
+            deployment_heartbeat_hash=deployment_heartbeat_hash,
         ),
     }
     assert_public_profile_safe(profile)
@@ -134,6 +144,7 @@ def leaderboard_row(
     proof_hash: str,
     *,
     deployment_claim_hash: str | None = None,
+    deployment_heartbeat_hash: str | None = None,
 ) -> dict[str, Any]:
     score = min(
         100.0,
@@ -150,6 +161,7 @@ def leaderboard_row(
         "verification_score": round(score, 2),
         "proof_hash": proof_hash,
         "deployment_claim_hash": deployment_claim_hash,
+        "deployment_heartbeat_hash": deployment_heartbeat_hash,
     }
 
 
@@ -800,6 +812,7 @@ def privacy_policy() -> dict[str, Any]:
             "verification badge status",
             "proof hash",
             "deployment claim hash",
+            "deployment heartbeat hash",
         ],
         "excluded": [
             "raw decisions",
@@ -854,6 +867,9 @@ def _public_leaderboard_row(profile: dict[str, Any]) -> dict[str, Any]:
     deployment_claim_hash = profile.get("verification", {}).get("deployment_claim_hash")
     if deployment_claim_hash and row.get("deployment_claim_hash") != deployment_claim_hash:
         raise ValueError("leaderboard row deployment_claim_hash must match profile verification")
+    deployment_heartbeat_hash = profile.get("verification", {}).get("deployment_heartbeat_hash")
+    if deployment_heartbeat_hash and row.get("deployment_heartbeat_hash") != deployment_heartbeat_hash:
+        raise ValueError("leaderboard row deployment_heartbeat_hash must match profile verification")
 
     public_row = {
         "handle": handle,
@@ -868,6 +884,10 @@ def _public_leaderboard_row(profile: dict[str, Any]) -> dict[str, Any]:
     if deployment_claim_hash or row.get("deployment_claim_hash"):
         public_row["deployment_claim_hash"] = str(
             deployment_claim_hash or row.get("deployment_claim_hash")
+        )
+    if deployment_heartbeat_hash or row.get("deployment_heartbeat_hash"):
+        public_row["deployment_heartbeat_hash"] = str(
+            deployment_heartbeat_hash or row.get("deployment_heartbeat_hash")
         )
     return public_row
 

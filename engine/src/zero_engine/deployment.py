@@ -8,6 +8,7 @@ from typing import Any, Mapping
 from zero_engine.network import assert_public_profile_safe, sha256_json
 
 DEPLOYMENT_CLAIM_SCHEMA_VERSION = "zero.deployment.claim.v1"
+DEPLOYMENT_HEARTBEAT_SCHEMA_VERSION = "zero.deployment.heartbeat.v1"
 
 SAFE_TEXT_RE = re.compile(r"[^a-zA-Z0-9_.:@/-]")
 
@@ -22,6 +23,9 @@ class DeploymentIdentityConfig:
     public_key: str | None = None
     signature: str | None = None
     signer: str | None = None
+    heartbeat_public_key: str | None = None
+    heartbeat_signature: str | None = None
+    heartbeat_signer: str | None = None
 
     def __post_init__(self) -> None:
         for field_name in ("deployment_id", "deployment_kind", "environment", "owner", "version"):
@@ -62,7 +66,13 @@ def deployment_claim(
         },
     }
     claim_hash = sha256_json(body)
-    signature = _signature_claim(cfg, claim_hash)
+    signature = _signature_packet(
+        public_key=cfg.public_key,
+        signature=cfg.signature,
+        signer=cfg.signer,
+        signed_hash=claim_hash,
+        signed_hash_key="signed_claim_hash",
+    )
     claim = {
         **body,
         "claim_hash": claim_hash,
@@ -70,6 +80,55 @@ def deployment_claim(
     }
     assert_deployment_claim_safe(claim)
     return claim
+
+
+def deployment_heartbeat(
+    *,
+    config: DeploymentIdentityConfig | None = None,
+    generated_at: str,
+    deployment_claim_hash: str,
+    operator_context: Mapping[str, Any] | None = None,
+    runtime: Mapping[str, Any] | None = None,
+    liveness: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    cfg = config or DeploymentIdentityConfig()
+    body = {
+        "schema_version": DEPLOYMENT_HEARTBEAT_SCHEMA_VERSION,
+        "generated_at": generated_at,
+        "deployment": {
+            "deployment_id": _safe_text(cfg.deployment_id, default="local-paper"),
+            "kind": _safe_text(cfg.deployment_kind, default="local"),
+            "environment": _safe_text(cfg.environment, default="paper"),
+            "owner": _safe_text(cfg.owner, default="local-operator"),
+            "version": _safe_text(cfg.version, default="0.1.1"),
+        },
+        "deployment_claim_hash": _safe_text(deployment_claim_hash, default="sha256:unknown", max_len=96),
+        "operator": _operator_claim(operator_context or {}),
+        "runtime": _safe_mapping(runtime or {}),
+        "liveness": _safe_mapping(liveness or {}),
+        "privacy": {
+            "default": "public-safe-liveness",
+            "contains_exchange_credentials": False,
+            "contains_wallet_material": False,
+            "contains_raw_decisions": False,
+            "contains_trace_tokens": False,
+            "contains_idempotency_tokens": False,
+        },
+    }
+    heartbeat_hash = sha256_json(body)
+    packet = {
+        **body,
+        "heartbeat_hash": heartbeat_hash,
+        "signature": _signature_packet(
+            public_key=cfg.heartbeat_public_key,
+            signature=cfg.heartbeat_signature,
+            signer=cfg.heartbeat_signer,
+            signed_hash=heartbeat_hash,
+            signed_hash_key="signed_heartbeat_hash",
+        ),
+    }
+    assert_deployment_claim_safe(packet)
+    return packet
 
 
 def assert_deployment_claim_safe(payload: dict[str, Any]) -> None:
@@ -109,23 +168,30 @@ def _safe_mapping(values: Mapping[str, Any]) -> dict[str, Any]:
     return safe
 
 
-def _signature_claim(cfg: DeploymentIdentityConfig, claim_hash: str) -> dict[str, Any]:
-    if cfg.public_key and cfg.signature:
+def _signature_packet(
+    *,
+    public_key: str | None,
+    signature: str | None,
+    signer: str | None,
+    signed_hash: str,
+    signed_hash_key: str,
+) -> dict[str, Any]:
+    if public_key and signature:
         return {
             "status": "signed_external",
             "algorithm": "external",
-            "public_key": _safe_text(cfg.public_key, default="", max_len=512),
-            "signature": _safe_text(cfg.signature, default="", max_len=512),
-            "signer": _safe_text(cfg.signer, default="external", max_len=80),
-            "signed_claim_hash": claim_hash,
+            "public_key": _safe_text(public_key, default="", max_len=512),
+            "signature": _safe_text(signature, default="", max_len=512),
+            "signer": _safe_text(signer, default="external", max_len=80),
+            signed_hash_key: signed_hash,
         }
     return {
         "status": "unsigned_local",
         "algorithm": None,
         "public_key": None,
         "signature": None,
-        "signer": _safe_text(cfg.signer, default="local-runtime", max_len=80),
-        "signed_claim_hash": claim_hash,
+        "signer": _safe_text(signer, default="local-runtime", max_len=80),
+        signed_hash_key: signed_hash,
     }
 
 
