@@ -72,6 +72,9 @@ jobs:
           test -f examples/strategy-plugin/README.md
           test -f examples/strategy-plugin/plugin.py
           test -f examples/strategy-plugin/run.py
+          test -f examples/strategy-runner/README.md
+          test -f examples/strategy-runner/close-strength.yaml
+          test -x examples/strategy-runner/run.py
           test -f examples/market-data-adapter/README.md
           test -f examples/market-data-adapter/adapter.py
           test -f examples/market-data-adapter/run.py
@@ -115,6 +118,20 @@ jobs:
         run: |
           PYTHONPATH="$PWD/engine/src:$PWD/examples/strategy-plugin" \
             python3 examples/strategy-plugin/run.py
+
+  strategy-runner-example:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install engine
+        working-directory: engine
+        run: python -m pip install -e ".[dev]"
+      - name: Run strategy runner example
+        run: PYTHONPATH="$PWD/engine/src" python3 examples/strategy-runner/run.py
 
   market-data-adapter-example:
     runs-on: ubuntu-latest

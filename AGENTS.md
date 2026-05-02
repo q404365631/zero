@@ -25,6 +25,7 @@ Open runtime work belongs in this repo:
 - local API
 - operator terminal
 - safety gates
+- paper-first strategy runners and plugins
 - self-custodial venue adapters
 - local journals and audit exports
 - strategy and market-data extension contracts
@@ -94,12 +95,11 @@ The controlling plan is `docs/autonomous-os-plan.md`.
 The next implementation priorities are:
 
 1. autonomous runtime OODA loop;
-2. strategy runner SDK;
-3. durable runtime bus;
-4. Hyperliquid account reconciliation;
-5. live execution certification harness;
-6. immune system and circuit breakers;
-7. operator terminal live cockpit.
+2. durable runtime bus;
+3. Hyperliquid account reconciliation;
+4. live execution certification harness;
+5. immune system and circuit breakers;
+6. operator terminal live cockpit.
 
 Each cycle should update tests, docs, and scorecards with the behavior it
 actually lands.

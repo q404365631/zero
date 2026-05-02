@@ -59,6 +59,7 @@ flowchart LR
 
 - Run the local paper engine against bundled example candles.
 - Run a bounded paper OODA runtime cycle with durable cycle records.
+- Add a declarative paper strategy runner with conformance output.
 - Start a local paper API and inspect operator state.
 - Use the Rust CLI for health checks, status, replay, and supervised actions.
 - Query Hyperliquid read-only market data without exposing funds.
@@ -222,6 +223,7 @@ deployment project, secrets, exchange credentials, and runtime state.
 
 Good first contribution areas:
 
+- Declarative strategy runners that stay paper-first.
 - Strategy examples that stay paper-first.
 - Strategy plugins that return signals but leave execution and risk checks to
   ZERO.

@@ -131,6 +131,18 @@ Exit gate:
 - malformed runners fail closed;
 - strategy output cannot bypass risk evaluation.
 
+Current progress:
+
+- `StrategyRunner`, `StrategyRunnerMetadata`, and `DeclarativeStrategyRunner`
+  define a paper-first runner SDK.
+- `load_strategy_runner` loads JSON or ZERO's dependency-free YAML subset.
+- `assert_runner_conformance` emits deterministic
+  `zero.strategy_runner.conformance.v1` packets for review and CI fixtures.
+- `examples/strategy-runner` demonstrates one-file declarative strategy
+  contribution.
+- Tests prove runner output still goes through `PaperEngine.submit` and can be
+  rejected by risk limits.
+
 ### Cycle 14: Durable Runtime Bus
 
 Target score: 83.

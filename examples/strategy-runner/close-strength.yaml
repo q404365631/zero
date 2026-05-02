@@ -1,0 +1,11 @@
+name: close-strength-yaml
+version: 0.1.0
+description: Declarative close-above-open paper runner.
+paper_only: true
+symbol: BTC
+side: buy
+quantity: 0.01
+confidence: 0.8
+condition:
+  type: close_above_open
+  min_move_pct: 0.01

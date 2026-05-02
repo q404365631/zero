@@ -15,6 +15,9 @@ strategy-example:
 strategy-plugin-example:
     PYTHONPATH="$PWD/engine/src:$PWD/examples/strategy-plugin" python3 examples/strategy-plugin/run.py
 
+strategy-runner-example:
+    PYTHONPATH="$PWD/engine/src" python3 examples/strategy-runner/run.py
+
 market-data-adapter-example:
     PYTHONPATH="$PWD/engine/src:$PWD/examples/market-data-adapter" python3 examples/market-data-adapter/run.py
 
@@ -106,6 +109,9 @@ docs-check:
     test -f examples/strategy-plugin/README.md
     test -f examples/strategy-plugin/plugin.py
     test -f examples/strategy-plugin/run.py
+    test -f examples/strategy-runner/README.md
+    test -f examples/strategy-runner/close-strength.yaml
+    test -x examples/strategy-runner/run.py
     test -f examples/market-data-adapter/README.md
     test -f examples/market-data-adapter/adapter.py
     test -f examples/market-data-adapter/run.py
@@ -164,4 +170,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke example strategy-example strategy-plugin-example market-data-adapter-example runtime-loop-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke package-dry-run
+ci: lint test paper-api-smoke example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke package-dry-run
