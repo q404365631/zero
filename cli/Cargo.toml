@@ -21,7 +21,10 @@ rust-version = "1.93"
 license = "Apache-2.0"
 repository = "https://github.com/zero-intel/zero"
 homepage = "https://getzero.dev"
+documentation = "https://github.com/zero-intel/zero/tree/main/docs"
 authors = ["zero-intel"]
+keywords = ["zero", "onchain", "terminal", "automation", "trading"]
+categories = ["command-line-utilities"]
 
 [workspace.dependencies]
 # async runtime

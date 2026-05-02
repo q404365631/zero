@@ -30,6 +30,7 @@ reserved for ZERO Intelligence.
 - GitHub artifact attestations for release asset provenance
 - Threat model, incident runbooks, distribution policy, and hardening gate
 - One-line CLI install path with checksum and attestation verification
+- Registry-readiness gate for PyPI/Cargo metadata and package-channel guardrails
 - Package dry-run gate for Python artifacts and the Rust crate graph
 - Shared paper API contract fixtures pinned by Python API tests and Rust client tests
 - First-class GitHub product page with category narrative, quickstart, safety
@@ -63,8 +64,8 @@ reserved for ZERO Intelligence.
 
 - Keep the public GitHub Actions matrix green after every push
 - Publish the first release only after checksum and attestation verification pass
-- Add Homebrew or package-registry publication only after public name ownership
-  and rollback procedure are secured
+- Keep Homebrew and package-registry publication disabled until public name
+  ownership, Trusted Publishing, owner lists, and rollback procedure are secured
 
 ## Definition Of 100
 

@@ -9,7 +9,19 @@ permissions:
   contents: read
 
 jobs:
+  registry-readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Check package registry readiness without publishing
+        run: scripts/registry_readiness.py
+
   python-package:
+    needs: [registry-readiness]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6.0.2
@@ -30,6 +42,7 @@ jobs:
           path: engine/dist/*
 
   cli-binary:
+    needs: [registry-readiness]
     strategy:
       fail-fast: false
       matrix:
@@ -55,6 +68,7 @@ jobs:
           path: dist/*
 
   container-smoke:
+    needs: [registry-readiness]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6.0.2

@@ -97,6 +97,7 @@ jobs:
           test -x scripts/openapi_contract_check.py
           test -x scripts/network_pages_smoke.py
           test -x scripts/package_dry_run.sh
+          test -x scripts/registry_readiness.py
           test -x scripts/release_verify.py
           test -x scripts/release_rehearsal.sh
           test -x scripts/railway_start.sh
@@ -108,6 +109,17 @@ jobs:
           test -f docs/railway-deploy.md
           test -f .github/RELEASE_TEMPLATE.md
           python3 scripts/openapi_contract_check.py
+
+  registry-readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Check package registry readiness without publishing
+        run: scripts/registry_readiness.py
 
   strategy-plugin-example:
     runs-on: ubuntu-latest

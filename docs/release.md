@@ -120,13 +120,20 @@ specific release or `ZERO_INSTALL_DIR=/path/to/bin` to choose another location.
 Run the non-publishing package check before opening a release PR or tagging:
 
 ```bash
+just registry-readiness
 just package-dry-run
 ```
 
-The check builds the Python engine wheel and source distribution into a
-temporary directory, then runs `cargo package --workspace --no-verify` for the
-Rust crate graph using a temporary Cargo target directory. It does not require
-PyPI, crates.io, Homebrew, Docker, or GitHub publishing tokens.
+`just registry-readiness` checks PyPI metadata, Cargo registry metadata,
+per-crate publish metadata inheritance, optional live dependencies, and
+documentation guardrails. It is intentionally non-publishing. `just
+package-dry-run` then builds the Python engine wheel and source distribution
+into a temporary directory, and runs `cargo package --workspace --no-verify`
+for the Rust crate graph using a temporary Cargo target directory. Neither
+command requires PyPI, crates.io, Homebrew, Docker, or GitHub publishing tokens.
+
+PyPI should use Trusted Publishing from GitHub Actions when enabled. Do not add
+long-lived PyPI tokens to repository secrets or examples.
 
 Current package-name assumptions:
 
@@ -152,6 +159,7 @@ not publish a release unless the verifier catches the tampered-artifact case.
 
 `.github/workflows/release.yml` runs on tags shaped like `v*.*.*` and builds:
 
+- Registry-readiness preflight before package artifacts are built
 - Python wheel and source distribution for `engine/`
 - Linux and macOS CLI binaries for the `zero` crate
 - Paper-mode Docker image smoke tests and an exported image tarball

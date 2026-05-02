@@ -27,10 +27,41 @@ rollback procedure, and support expectations before enablement.
 
 | Channel | Candidate | Gate |
 |---|---|---|
-| PyPI | `zero-engine` | name ownership, trusted publishing, signed release dry run |
-| crates.io | `zero`, `zero-*` crates | namespace review, README/license metadata, tokenless publishing plan |
+| PyPI | `zero-engine` | name ownership, Trusted Publishing, signed release dry run |
+| crates.io | `zero`, `zero-*` crates | namespace review, README/license metadata, tokenless publishing plan, `cargo owner` review |
 | Homebrew | `zero-intel/zero` tap | public formula review, checksum update automation |
 | Container | `zero-intel/zero-paper` | registry ownership, provenance, paper-only labeling |
+
+## Registry Readiness Gate
+
+Run the non-publishing registry gate before a release PR, namespace request, or
+package-channel launch:
+
+```bash
+just registry-readiness
+```
+
+The gate checks PyPI metadata, Cargo workspace metadata, per-crate publish
+metadata inheritance, optional live dependencies, and documentation guardrails.
+It does not contact PyPI, crates.io, Homebrew, Docker Hub, GHCR, or any private
+registry. A passing result means the repo is structured for registry review; it
+does not mean any channel has been published.
+
+## Ownership Proof Requirements
+
+Package channels must be proven before use:
+
+- PyPI: `zero-engine` exists under a maintainer-controlled project or the
+  maintainer has a documented name-claim path. Publishing should use PyPI
+  Trusted Publishing from GitHub Actions, not a long-lived API token.
+- crates.io: every intended crate has a clear owner list, `cargo owner --list`
+  evidence after publication or reservation, and no crate name implies custody,
+  guaranteed returns, or hosted execution.
+- Homebrew: the tap repository is public, formula review is linked, and the
+  formula points to a tagged GitHub Release asset plus its checksum.
+- Container registry: the package namespace is maintainer-controlled, the image
+  name includes paper-mode labeling until live runtime evidence exists, and
+  provenance is attached to the release notes.
 
 ## Promotion Gates
 
@@ -42,9 +73,10 @@ Before adding any package registry:
 4. `scripts/release_verify.py <downloaded-release-dir>` passes.
 5. `just release-rehearsal` proves tampered artifacts are rejected.
 6. GitHub artifact attestations verify from a clean download directory.
-7. `docs/threat-model.md` and `docs/incident-runbooks.md` are reviewed.
-8. Rollback steps for the channel are documented in the release PR.
-9. No channel token is stored in repository files or local examples.
+7. `just registry-readiness` passes.
+8. `docs/threat-model.md` and `docs/incident-runbooks.md` are reviewed.
+9. Rollback steps for the channel are documented in the release PR.
+10. No channel token is stored in repository files or local examples.
 
 ## Homebrew Formula Requirements
 

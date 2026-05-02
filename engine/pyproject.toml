@@ -6,6 +6,35 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
 authors = [{ name = "ZERO contributors" }]
+keywords = [
+  "autonomous-operations",
+  "onchain",
+  "paper-trading",
+  "risk-operations",
+  "zero",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Financial and Insurance Industry",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Office/Business :: Financial",
+  "Topic :: Software Development :: Libraries :: Application Frameworks",
+  "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://getzero.dev"
+Repository = "https://github.com/zero-intel/zero"
+Documentation = "https://github.com/zero-intel/zero/tree/main/docs"
+Issues = "https://github.com/zero-intel/zero/issues"
+Changelog = "https://github.com/zero-intel/zero/tree/main/docs/releases"
 
 [project.scripts]
 zero-paper-demo = "zero_engine.demo:main"

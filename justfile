@@ -54,6 +54,9 @@ hardening-gate:
 package-dry-run:
     scripts/package_dry_run.sh
 
+registry-readiness:
+    scripts/registry_readiness.py
+
 release-rehearsal:
     scripts/release_rehearsal.sh
 
@@ -167,6 +170,7 @@ docs-check:
     test -x scripts/openapi_contract_check.py
     test -x scripts/network_pages_smoke.py
     test -x scripts/package_dry_run.sh
+    test -x scripts/registry_readiness.py
     test -x scripts/release_verify.py
     test -x scripts/release_rehearsal.sh
     test -x scripts/hardening_gate.sh
@@ -199,4 +203,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke package-dry-run release-rehearsal
+ci: lint test paper-api-smoke example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal

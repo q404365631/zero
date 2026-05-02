@@ -74,7 +74,7 @@ speed, scale, history, and reliability.
 | Security and custody | 91 | external review, key-handling drill evidence |
 | ZERO Network | 70 | hosted identity verification, public pages, production ingestion service |
 | ZERO Intelligence | 70 | production hosted service persistence, billing provider, history storage, terms |
-| Release and distribution | 90 | registries, Homebrew, release rollback rehearsal |
+| Release and distribution | 95 | external registry ownership evidence, Homebrew tap, SBOM/provenance bundle |
 | Operator docs | 98 | real exchange drill evidence |
 
 ## Execution Cycles
@@ -565,10 +565,18 @@ Current progress:
   and draft release upload.
 - Added release rehearsal to local `just ci`, GitHub CI, release docs,
   distribution gates, and release template checklist.
+- Added `scripts/registry_readiness.py` to enforce PyPI metadata, Cargo package
+  metadata inheritance, optional live dependencies, and package-channel docs
+  without publishing to external registries.
+- Wired registry readiness into local `just ci`, GitHub CI, and the tag release
+  workflow as a preflight before building release artifacts.
+- Added explicit Trusted Publishing, `cargo owner`, Homebrew formula, and
+  package publication disablement gates to release/distribution docs.
 
-Remaining scope before Cycle 26: package-registry ownership proof, Homebrew
-tap, SBOM/provenance bundle beyond GitHub attestations, dependency-update
-policy, and real release rollback rehearsal against a draft GitHub Release.
+Remaining scope before Cycle 26: external package-registry ownership evidence,
+Homebrew tap, SBOM/provenance bundle beyond GitHub attestations,
+dependency-update policy, and real release rollback rehearsal against a draft
+GitHub Release.
 
 ### Cycle 26: External Review And Real-World Evidence
 
