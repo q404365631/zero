@@ -105,7 +105,7 @@ contract:
 - `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
 - `GET /metrics`, `/immune`, `/audit/export`
 - `GET /deployment/claim`, `/deployment/heartbeat`, `/network/profile`, `/network/leaderboard`
-- `GET /intelligence/snapshot`, `/intelligence/catalog`
+- `GET /intelligence/snapshot`, `/intelligence/catalog`, `/intelligence/model-gateway`
 - `GET /hl/status`, `/hl/account`, `/hl/reconcile`, `/market/quote`
 - `GET /live/preflight`, `/live/cockpit`, `/live/certification`
 - `GET /operator/state`
@@ -194,6 +194,11 @@ API contract. The contract makes the open-core rule explicit: the runtime,
 paper mode, self-custodial operation, public profiles, public leaderboards, and
 delayed snapshots are public; realtime feeds, history, cohorts, benchmarks,
 webhooks, bulk exports, commercial redistribution, and SLOs are paid surfaces.
+
+`GET /intelligence/model-gateway` returns `zero.model_gateway.status.v1`, a
+public-safe provider and routing status packet. The default mode is
+`fail_closed`: no configured provider means no model-derived certainty. Mock
+and external providers are advisory-only and never bypass execution safety.
 
 `POST /intelligence/export` requires `{"consent": true}` and
 `ZERO_INTELLIGENCE_EXPORT_PATH`. When both are present, the runtime appends the

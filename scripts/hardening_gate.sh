@@ -28,6 +28,7 @@ rg -q "gh attestation verify zero-linux" .github/RELEASE_TEMPLATE.md
 
 python3 -m json.tool contracts/intelligence/snapshot.json >/dev/null
 python3 -m json.tool contracts/intelligence/catalog.json >/dev/null
+python3 -m json.tool contracts/intelligence/model_gateway.json >/dev/null
 python3 -m json.tool contracts/deployment/claim.json >/dev/null
 python3 -m json.tool contracts/deployment/heartbeat.json >/dev/null
 

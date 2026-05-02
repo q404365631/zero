@@ -94,6 +94,11 @@ def intelligence_catalog(*, generated_at: str, public_delay_s: int = 900) -> dic
             "runtime": "open-source",
             "network_profiles": "open",
             "leaderboards": "open",
+            "model_gateway_status": {
+                "schema_version": "zero.model_gateway.status.v1",
+                "endpoint": "GET /intelligence/model-gateway",
+                "default": "fail_closed unless an operator configures a provider",
+            },
             "delayed_snapshots": {
                 "schema_version": "zero.intelligence.snapshot.v1",
                 "delay_s": public_delay_s,

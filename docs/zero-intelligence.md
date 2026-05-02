@@ -43,6 +43,8 @@ product should ingest later:
   Its source binds both the deployment claim hash and deployment heartbeat hash.
 - `GET /intelligence/catalog` returns `zero.intelligence.catalog.v1`, the
   commercial API, billing, scope, dataset, and rate-limit contract.
+- `GET /intelligence/model-gateway` returns `zero.model_gateway.status.v1`, the
+  provider-agnostic, fail-closed model routing status for advisory intelligence.
 - `POST /intelligence/export` writes an opt-in local JSONL packet when
   `ZERO_INTELLIGENCE_EXPORT_PATH` is configured and the request includes
   `{"consent":true}`.
@@ -98,6 +100,8 @@ Primary datasets:
 - Verified live badges require proof without custody.
 - Aggregated intelligence must not expose raw private operator secrets,
   exchange credentials, private notes, or non-consented strategy details.
+- Model gateway status must not expose prompts, raw model outputs, or provider
+  secret values.
 - Paid intelligence should monetize speed, scale, history, reliability, and
   commercial access, not basic runtime use.
 - Core runtime and venue adapters should remain public. Commercial connectors

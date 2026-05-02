@@ -364,18 +364,25 @@ Target score: 95.
 Add provider-agnostic intelligence plumbing without making trading depend on a
 single model vendor:
 
-- `ModelClient` protocol;
-- Anthropic, OpenAI, Ollama, and OpenRouter adapters;
-- capability tiers for hard reasoning, fast reasoning, chat, and embeddings;
-- structured output validation and retry rules;
-- usage and cost event recording;
-- provider conformance suite.
+- Added `ModelClient` protocol boundary and provider registry.
+- Added OpenAI, Anthropic, Ollama, and OpenRouter provider families as
+  registered optional provider surfaces.
+- Added capability tiers for hard reasoning, fast reasoning, chat, embeddings,
+  and structured output.
+- Added deterministic mock provider for CI and local conformance.
+- Added structured output validation, fail-closed evaluation, and usage/cost
+  event recording.
+- Added `GET /intelligence/model-gateway` plus OpenAPI, fixture, smoke checks,
+  and docs.
 
 Exit gate:
 
 - the runtime can evaluate through mock/local providers in CI;
 - live providers are optional and configured per operator;
 - model failure degrades safely instead of inventing certainty.
+
+Remaining scope before Cycle 21: implement actual external provider HTTP
+adapters and retry policies behind the same fail-closed contract.
 
 ### Cycle 21: ZERO Network Ingestion And Anti-Gaming
 

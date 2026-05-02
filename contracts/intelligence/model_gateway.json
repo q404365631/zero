@@ -1,0 +1,105 @@
+{
+  "default_provider": "none",
+  "generated_at": "2026-05-01T00:00:00+00:00",
+  "mode": "fail_closed",
+  "privacy": {
+    "contains_api_keys": false,
+    "contains_exchange_credentials": false,
+    "contains_wallet_material": false,
+    "prompts_included": false,
+    "raw_model_outputs_included": false
+  },
+  "providers": [
+    {
+      "capabilities": [],
+      "configured": false,
+      "live_network": false,
+      "local": true,
+      "model": "none",
+      "network_allowed": false,
+      "provider": "none",
+      "required_env": []
+    },
+    {
+      "capabilities": [
+        "hard_reasoning",
+        "fast_reasoning",
+        "chat",
+        "embeddings",
+        "structured_output"
+      ],
+      "configured": false,
+      "live_network": true,
+      "local": false,
+      "model": "openai:operator-configured",
+      "network_allowed": false,
+      "provider": "openai",
+      "required_env": [
+        "OPENAI_API_KEY"
+      ]
+    },
+    {
+      "capabilities": [
+        "hard_reasoning",
+        "fast_reasoning",
+        "chat",
+        "structured_output"
+      ],
+      "configured": false,
+      "live_network": true,
+      "local": false,
+      "model": "anthropic:operator-configured",
+      "network_allowed": false,
+      "provider": "anthropic",
+      "required_env": [
+        "ANTHROPIC_API_KEY"
+      ]
+    },
+    {
+      "capabilities": [
+        "fast_reasoning",
+        "chat",
+        "embeddings",
+        "structured_output"
+      ],
+      "configured": false,
+      "live_network": true,
+      "local": false,
+      "model": "ollama:operator-configured",
+      "network_allowed": false,
+      "provider": "ollama",
+      "required_env": [
+        "OLLAMA_BASE_URL"
+      ]
+    },
+    {
+      "capabilities": [
+        "hard_reasoning",
+        "fast_reasoning",
+        "chat",
+        "structured_output"
+      ],
+      "configured": false,
+      "live_network": true,
+      "local": false,
+      "model": "openrouter:operator-configured",
+      "network_allowed": false,
+      "provider": "openrouter",
+      "required_env": [
+        "OPENROUTER_API_KEY"
+      ]
+    }
+  ],
+  "routing": {
+    "chat": null,
+    "fast_reasoning": null,
+    "hard_reasoning": null,
+    "structured_output": null
+  },
+  "schema_version": "zero.model_gateway.status.v1",
+  "usage": {
+    "events": 0,
+    "recent": [],
+    "total_estimated_cost_usd": 0
+  }
+}

@@ -318,6 +318,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/IntelligenceCatalogResponse"
+  /intelligence/model-gateway:
+    get:
+      tags: [intelligence]
+      operationId: getIntelligenceModelGateway
+      summary: Public-safe model gateway provider and fail-closed routing status.
+      responses:
+        "200":
+          description: Model gateway status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelGatewayStatusResponse"
   /intelligence/export:
     post:
       tags: [intelligence]
@@ -1216,6 +1228,39 @@ components:
     IntelligenceCatalogResponse:
       type: object
       required: [schema_version, generated_at, positioning, public, commercial, hosted_api_contract, data_rules]
+      additionalProperties: true
+    ModelGatewayStatusResponse:
+      type: object
+      required: [schema_version, generated_at, mode, default_provider, routing, providers, usage, privacy]
+      properties:
+        schema_version:
+          const: zero.model_gateway.status.v1
+        generated_at:
+          type: string
+          format: date-time
+        mode:
+          type: string
+          enum: [fail_closed, local_ready]
+        default_provider:
+          type: string
+        routing:
+          type: object
+          additionalProperties:
+            type: [string, "null"]
+        providers:
+          type: array
+          items:
+            type: object
+            required: [provider, model, configured, local, live_network, network_allowed, capabilities, required_env]
+            additionalProperties: true
+        usage:
+          type: object
+          required: [events, total_estimated_cost_usd, recent]
+          additionalProperties: true
+        privacy:
+          type: object
+          required: [prompts_included, raw_model_outputs_included, contains_api_keys, contains_exchange_credentials, contains_wallet_material]
+          additionalProperties: true
       additionalProperties: true
     HyperliquidStatusResponse:
       type: object

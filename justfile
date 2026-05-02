@@ -98,6 +98,7 @@ docs-check:
     test -f docs/live-cockpit.md
     test -f docs/operator-context.md
     test -f docs/deployment-identity.md
+    test -f docs/model-gateway.md
     test -f docs/operator-isolation.md
     test -f docs/immune-system.md
     test -f docs/production-readiness.md
@@ -145,6 +146,7 @@ docs-check:
     test -f contracts/network/index.html
     test -f contracts/intelligence/snapshot.json
     test -f contracts/intelligence/catalog.json
+    test -f contracts/intelligence/model_gateway.json
     test -f openapi/zero-paper-api.v1.yaml
     test -x scripts/assemble_release_assets.sh
     test -x scripts/install.sh

@@ -289,6 +289,7 @@ invariants.
 - [Hyperliquid Read-only](docs/hyperliquid-readonly.md)
 - [ZERO Network](docs/zero-network.md)
 - [ZERO Intelligence](docs/zero-intelligence.md)
+- [Model Gateway](docs/model-gateway.md)
 - [Production Readiness](docs/production-readiness.md)
 - [Autonomous OS Plan](docs/autonomous-os-plan.md)
 - [Agentic Contribution](docs/agentic-contribution.md)

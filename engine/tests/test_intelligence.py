@@ -77,6 +77,7 @@ def test_intelligence_catalog_names_commercial_metering_without_gating_runtime()
     assert status == 200
     assert catalog["schema_version"] == "zero.intelligence.catalog.v1"
     assert catalog["public"]["runtime"] == "open-source"
+    assert catalog["public"]["model_gateway_status"]["schema_version"] == "zero.model_gateway.status.v1"
     assert "local runtime use" in catalog["commercial"]["not_metered_by"]
     assert "freshness" in catalog["commercial"]["metered_by"]
     assert catalog["hosted_api_contract"]["auth"] == "bearer API key"

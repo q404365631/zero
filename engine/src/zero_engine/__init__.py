@@ -21,6 +21,12 @@ from zero_engine.live_certification import (
     LiveCertificationReport,
     run_live_certification,
 )
+from zero_engine.model_gateway import (
+    ModelGateway,
+    ModelGatewayConfig,
+    ModelUsageEvent,
+    validate_structured_output,
+)
 from zero_engine.market import (
     Candle,
     JsonlCandleAdapter,
@@ -90,6 +96,9 @@ __all__ = [
     "LiveExecutor",
     "MarketDataAdapter",
     "MarketDataAdapterMetadata",
+    "ModelGateway",
+    "ModelGatewayConfig",
+    "ModelUsageEvent",
     "MomentumStrategy",
     "OrderIntent",
     "PaperEngine",
@@ -140,6 +149,7 @@ __all__ = [
     "publish_profile",
     "run_live_certification",
     "reconcile_positions",
+    "validate_structured_output",
     "validate_strategy_plugin",
     "validate_market_data_adapter",
     "validate_strategy_runner",

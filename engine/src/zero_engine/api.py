@@ -34,6 +34,7 @@ from zero_engine.intelligence import (
 from zero_engine.journal import DecisionJournal
 from zero_engine.live import HyperliquidSdkAdapter, LiveExecutionPolicy, LiveExecutor
 from zero_engine.live_certification import run_live_certification
+from zero_engine.model_gateway import ModelGateway, ModelGatewayConfig
 from zero_engine.models import OrderIntent, Position, Side
 from zero_engine.network import (
     PublicProfileConfig,
@@ -230,6 +231,12 @@ class PaperApiState:
     deployment_heartbeat_signer: str | None = None
     intelligence_public_delay_s: int = 900
     intelligence_export_path: str | None = None
+    model_gateway_provider: str = "none"
+    model_gateway_model: str | None = None
+    model_gateway_mock_enabled: bool = False
+    model_gateway_allow_network: bool = False
+    model_gateway_configured_providers: frozenset[str] = frozenset()
+    model_gateway_instance: ModelGateway | None = None
     default_operator_id: str = "local-operator"
     default_operator_handle: str = "local-operator"
     default_operator_role: str = "owner"
@@ -453,6 +460,7 @@ class PaperApi:
             "/immune": self.immune,
             "/live/cockpit": lambda: self.live_cockpit(operator_context),
             "/intelligence/catalog": self.intelligence_catalog,
+            "/intelligence/model-gateway": self.intelligence_model_gateway,
             "/intelligence/snapshot": self.intelligence_snapshot,
             "/live/certification": self.live_certification,
             "/live/preflight": self.live_preflight,
@@ -1312,6 +1320,9 @@ class PaperApi:
             public_delay_s=self.state.intelligence_public_delay_s,
         )
 
+    def intelligence_model_gateway(self) -> dict[str, Any]:
+        return self.model_gateway().status(generated_at=self.state.now_iso())
+
     def intelligence_export(self, payload: dict[str, Any]) -> dict[str, Any]:
         return export_intelligence_snapshot(
             self.intelligence_snapshot(),
@@ -1324,6 +1335,19 @@ class PaperApi:
             public_delay_s=self.state.intelligence_public_delay_s,
             export_path=self.state.intelligence_export_path,
         )
+
+    def model_gateway(self) -> ModelGateway:
+        if self.state.model_gateway_instance is None:
+            self.state.model_gateway_instance = ModelGateway(
+                ModelGatewayConfig(
+                    provider=self.state.model_gateway_provider,
+                    model=self.state.model_gateway_model,
+                    mock_enabled=self.state.model_gateway_mock_enabled,
+                    allow_network=self.state.model_gateway_allow_network,
+                    configured_providers=self.state.model_gateway_configured_providers,
+                )
+            )
+        return self.state.model_gateway_instance
 
     def hl_status(self, query: dict[str, list[str]]) -> dict[str, Any]:
         if self.state.hyperliquid is None:
@@ -1894,6 +1918,11 @@ def serve(
                         900,
                     ),
                     intelligence_export_path=os.environ.get("ZERO_INTELLIGENCE_EXPORT_PATH"),
+                    model_gateway_provider=os.environ.get("ZERO_MODEL_PROVIDER", "none"),
+                    model_gateway_model=os.environ.get("ZERO_MODEL_NAME"),
+                    model_gateway_mock_enabled=parse_bool_env("ZERO_MODEL_MOCK_ENABLED", False),
+                    model_gateway_allow_network=parse_bool_env("ZERO_MODEL_ALLOW_NETWORK", False),
+                    model_gateway_configured_providers=configured_model_providers(),
                     default_operator_id=os.environ.get("ZERO_OPERATOR_ID", "local-operator"),
                     default_operator_handle=os.environ.get("ZERO_OPERATOR_HANDLE", "local-operator"),
                     default_operator_role=os.environ.get("ZERO_OPERATOR_ROLE", "owner"),
@@ -1934,6 +1963,19 @@ def parse_bool_env(name: str, default: bool) -> bool:
     if raw is None:
         return default
     return raw.lower() in {"1", "true", "yes", "on"}
+
+
+def configured_model_providers() -> frozenset[str]:
+    providers: set[str] = set()
+    if os.environ.get("OPENAI_API_KEY"):
+        providers.add("openai")
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        providers.add("anthropic")
+    if os.environ.get("OLLAMA_BASE_URL"):
+        providers.add("ollama")
+    if os.environ.get("OPENROUTER_API_KEY"):
+        providers.add("openrouter")
+    return frozenset(providers)
 
 
 def build_live_executor(dead_man_timeout_s: float) -> LiveExecutor | None:
