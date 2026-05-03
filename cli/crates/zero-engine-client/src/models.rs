@@ -254,7 +254,7 @@ pub struct LiveCanaryPolicy {
     pub phases: Vec<LiveCanaryPolicyPhase>,
     pub recommendation: LiveCanaryRecommendation,
     pub operator_context: OperatorContext,
-    pub request: BTreeMap<String, Value>,
+    pub request: Option<BTreeMap<String, Value>>,
     pub privacy: BTreeMap<String, Value>,
     #[serde(flatten)]
     pub extra: BTreeMap<String, Value>,

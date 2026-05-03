@@ -180,6 +180,7 @@ async fn live_canary_policy_decodes_public_claim_boundary() {
     );
     assert_eq!(policy.recommendation.risk_direction, "none");
     assert_eq!(policy.operator_context.handle, "mock-operator");
+    assert!(policy.request.is_some());
     assert!(
         policy
             .phases
@@ -187,6 +188,53 @@ async fn live_canary_policy_decodes_public_claim_boundary() {
             .any(|phase| phase.name == "qualification" && phase.status == "pass")
     );
     mock.shutdown().await;
+}
+
+#[test]
+fn live_canary_policy_decodes_null_request_from_runtime_readiness() {
+    let policy: zero_engine_client::LiveCanaryPolicy = serde_json::from_value(serde_json::json!({
+        "schema_version": "zero.live_canary_policy.v1",
+        "policy_version": "zero.live_canary_policy.public.v1",
+        "generated_at": "2026-05-03T22:59:16Z",
+        "mode": "runtime-readiness",
+        "summary": {
+            "ready_for_canary": false,
+            "policy_armed": false,
+            "live_order_attempted": false,
+            "live_order_accepted": false,
+            "receipts_accepted": 0,
+            "exchange_evidence_attached": false,
+            "publishable_canary_evidence": false,
+            "refusal_evidence_qualified": false,
+            "qualified": false,
+            "next_step": "fix_live_preflight_before_canary"
+        },
+        "policy": {},
+        "phases": [],
+        "recommendation": {
+            "action": "fix_live_preflight_before_canary",
+            "risk_direction": "down",
+            "reason": "preflight is not ready"
+        },
+        "operator_context": {
+            "schema_version": "zero.operator_context.v1",
+            "handle": "local-operator",
+            "operator_id": "local-operator",
+            "role": "owner",
+            "scope": "local-private",
+            "source": "runtime-default"
+        },
+        "request": null,
+        "privacy": {}
+    }))
+    .expect("runtime readiness canary policy with null request decodes");
+
+    assert_eq!(policy.mode, "runtime-readiness");
+    assert!(policy.request.is_none());
+    assert_eq!(
+        policy.recommendation.action,
+        "fix_live_preflight_before_canary"
+    );
 }
 
 #[tokio::test]

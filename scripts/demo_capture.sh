@@ -106,3 +106,19 @@ curl -fsS "${API}/intelligence/snapshot" | "${PYTHON_BIN}" -m json.tool
 section "Live Preflight"
 cmd "curl -fsS ${API}/live/preflight | python3 -m json.tool"
 curl -fsS "${API}/live/preflight" | "${PYTHON_BIN}" -m json.tool
+
+section "Live Cockpit"
+cmd "zero --api ${API} run live-cockpit"
+run_zero run live-cockpit | redact
+
+section "Live Receipts"
+cmd "zero --api ${API} run live-receipts"
+run_zero run live-receipts | redact
+
+section "Live Canary Policy"
+cmd "zero --api ${API} run live-canary"
+run_zero run live-canary | redact
+
+section "Runtime Parity"
+cmd "zero --api ${API} run runtime-parity"
+run_zero run runtime-parity | redact

@@ -22,7 +22,9 @@ reserved for ZERO Intelligence.
   hosted-compatible `/v1/intelligence/*` reference API, webhook signature
   fixtures, rate-limit headers, and local export contracts
 - Rust operator CLI with doctor, TUI, command tests, and safety invariants
-- Redacted CLI quickstart capture for doctor, status, and risk inspection
+- Redacted CLI quickstart capture for doctor, status, risk inspection, live
+  cockpit refusal, receipt summary, canary-policy state, and runtime-parity
+  proof
 - Public CI for engine, CLI, docs, paper example, paper API smoke, and container smoke
 - Release workflow for Python package, CLI binaries, container image artifact, and checksums
 - Draft GitHub Release assembly with combined release checksums
@@ -49,7 +51,7 @@ reserved for ZERO Intelligence.
   model, open-core boundary, capability boundary, operator proof path, and
   contributor paths
 - First-10-minutes guide and reproducible terminal demo capture for source and
-  installed release binaries
+  installed release binaries, including the live cockpit/readiness boundary
 - Fresh source-tree rehearsal that copies the publishable checkout into a
   temporary directory, reruns hardening, and smokes the paper API through the
   CLI

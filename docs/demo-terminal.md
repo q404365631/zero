@@ -20,7 +20,8 @@ The script:
 - submits a simulated paper order;
 - prints a redacted ZERO Network profile packet;
 - prints a delayed ZERO Intelligence snapshot;
-- prints live preflight refusal state.
+- prints live preflight refusal state;
+- prints live cockpit, receipt, canary-policy, and runtime-parity readouts.
 
 It uses `cargo run` by default so contributors can run it from source. To use a
 release binary:
@@ -44,7 +45,8 @@ The demo should show five facts in this order:
 3. Status and risk are explicit.
 4. Execution is simulated unless self-custodial live mode is deliberately
    configured.
-5. Public proof and intelligence packets are aggregate and redacted.
+5. The live cockpit refuses risk by default and names the next operator action.
+6. Public proof and intelligence packets are aggregate and redacted.
 
 ## Release Demo Checklist
 
@@ -57,6 +59,7 @@ Before using the demo in a public release or launch post:
   public proof or intelligence payloads.
 - [ ] The transcript still says paper mode is the default.
 - [ ] The live preflight path still refuses by default.
+- [ ] The live cockpit path still reports `live_mode=refused` by default.
 
 ## Copy For Maintainers
 
@@ -64,7 +67,8 @@ Short caption:
 
 ```text
 ZERO running locally in paper mode: inspectable runtime state, explicit risk,
-simulated execution, and public-safe proof packets.
+simulated execution, a live cockpit that refuses risk by default, and
+public-safe proof packets.
 ```
 
 Long caption:
@@ -72,6 +76,7 @@ Long caption:
 ```text
 This is ZERO's first-run path. It starts a local paper runtime, inspects it from
 the Rust operator terminal, submits a simulated order through the safety path,
-and prints redacted Network and Intelligence payloads. No exchange credentials
-or hosted control plane are required.
+prints the live cockpit/readiness boundary, and emits redacted Network and
+Intelligence payloads. No exchange credentials or hosted control plane are
+required.
 ```

@@ -76,7 +76,47 @@ ZERO has three non-negotiable product rules:
 - Operators keep custody; live-capital paths are local, explicit, and gated.
 - Public reputation is built from redacted proof, not screenshots or claims.
 
-## Current Launch Status
+## Run ZERO In Two Minutes
+
+ZERO's first-run path is local, paper-first, and does not need exchange
+credentials:
+
+```bash
+git clone https://github.com/zero-intel/zero.git
+cd zero
+just bootstrap
+just paper-api
+```
+
+In another terminal:
+
+```bash
+cd zero/cli
+cargo run -q -p zero -- --api http://127.0.0.1:8765
+```
+
+Inside the terminal, press `Ctrl+5` or run `/cockpit-mode` for the live
+cockpit. In paper/default mode it should refuse live risk and show the reason:
+
+```text
+live cockpit
+live_mode=refused  ready=false  risk_allowed=false  controls_ready=false
+next: fix preflight check live_executor: live executor not configured
+
+operator: handle=local-operator  role=owner  scope=local-private
+preflight: passed=2/10 failed=8
+immune: open=2 risk_blocking=2
+reconciliation: not_configured risk_allowed=false
+receipts: total=0 accepted=0 refused=0 exchange_error=0
+
+actions: reduce=/pause-entries /kill /flatten-all  resume=/resume-entries
+```
+
+That refusal is the product boundary working: the public runtime can be
+inspected, rehearsed, and extended without pretending to be a hosted custody
+service or an unattended live-capital promise.
+
+## Launch Status
 
 This repository is the public product page and open-core engineering home for
 ZERO. It is useful today for paper-mode runtime work, operator-terminal
@@ -224,7 +264,8 @@ configuration; it is not part of public CI.
 ## See It Run
 
 This is a shortened excerpt from `scripts/demo_capture.sh`, the maintained
-local paper-mode demo:
+local paper-mode demo. It demonstrates the terminal flow without launching the
+interactive TUI:
 
 ```text
 $ zero --api http://127.0.0.1:8765 doctor
@@ -257,14 +298,14 @@ $ curl -fsS http://127.0.0.1:8765/live/preflight
 $ zero --api http://127.0.0.1:8765 run live-cockpit
 live-cockpit: live_mode=refused  ready=false  risk_allowed=false
 
-$ zero --api http://127.0.0.1:8765 run runtime-parity
-runtime-parity: ok=true  production_ooda=true  paper_only=true  live_trading_claimed=false
-
 $ zero --api http://127.0.0.1:8765 run live-receipts
 live-receipts: status=empty  total=0  accepted=0  refused=0  exchange_error=0
 
 $ zero --api http://127.0.0.1:8765 run live-canary
-live-canary: ready=false  armed=false  qualified=true  publishable=false  accepted_live=false
+live-canary: ready=false  armed=false  qualified=false  publishable=false  accepted_live=false
+
+$ zero --api http://127.0.0.1:8765 run runtime-parity
+runtime-parity: ok=true  production_ooda=true  paper_only=true  live_trading_claimed=false
 
 $ curl -fsS http://127.0.0.1:8765/operator/context
 {"schema_version": "zero.operator_context.v1", "handle": "local-operator", "scope": "local-private"}
