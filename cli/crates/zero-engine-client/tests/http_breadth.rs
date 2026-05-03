@@ -179,6 +179,32 @@ async fn live_receipts_decode_public_safe_receipt_bundle() {
 }
 
 #[tokio::test]
+async fn runtime_parity_decodes_production_ooda_boundary() {
+    let (mock, http) = client().await;
+    let report = http.runtime_parity().await.expect("runtime parity");
+
+    assert_eq!(report.schema_version, "zero.runtime.production_parity.v1");
+    assert!(report.ok);
+    assert!(report.paper_only);
+    assert!(!report.places_live_orders);
+    assert_eq!(report.paper.decisions, 4);
+    assert_eq!(report.paper.fills, 2);
+    assert_eq!(report.paper.rejections, 2);
+    assert_eq!(report.live_shadow.mode, "disabled-fail-closed");
+    assert_eq!(report.live_shadow.refused, 4);
+    assert_eq!(report.live_shadow.accepted, 0);
+    assert!((report.feedback.rejection_rate - 0.5).abs() < f64::EPSILON);
+    assert_eq!(
+        report
+            .claim_boundary
+            .get("live_trading_claimed")
+            .and_then(serde_json::Value::as_bool),
+        Some(false)
+    );
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn immune_decodes_risk_blocking_breakers() {
     let (mock, http) = client().await;
     let report = http.immune().await.expect("immune");

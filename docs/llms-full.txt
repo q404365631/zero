@@ -253,6 +253,9 @@ $ curl -fsS http://127.0.0.1:8765/live/preflight
 $ zero --api http://127.0.0.1:8765 run live-cockpit
 live-cockpit: live_mode=refused  ready=false  risk_allowed=false
 
+$ zero --api http://127.0.0.1:8765 run runtime-parity
+runtime-parity: ok=true  production_ooda=true  paper_only=true  live_trading_claimed=false
+
 $ curl -fsS http://127.0.0.1:8765/operator/context
 {"schema_version": "zero.operator_context.v1", "handle": "local-operator", "scope": "local-private"}
 
@@ -3271,7 +3274,7 @@ end.
 |---|---:|---|
 | Public repo hygiene | 100 | Strong CI, release artifacts, governance, docs, clean boundaries, first-class GitHub product page, first-10-minutes guide, reproducible demo capture, fresh source-tree rehearsal, threat model, incident runbooks, distribution policy, hardening gate, and public-readiness gate. |
 | Product narrative | 99 | Clear category around autonomous operating systems for self-custodial onchain operations, with public runtime, terminal, evolution, network, intelligence, capability boundary, and operator proof path separated cleanly. |
-| CLI readiness | 99 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, `/live-cockpit`, `/live-certify`, `/immune`, friction-gated `/resume-entries`, friction-gated engine-backed `/execute` with receipt-hash rendering, operator-context audit headers, operator-local runtime partitions, a one-command live canary operator evidence workflow, canary policy renderer, and a verified read-only live cockpit drill bundle exist. Remaining full-screen TUI cockpit layout and real canary evidence are external. |
+| CLI readiness | 99 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, `/live-cockpit`, `/live-certify`, `/runtime-parity`, `/immune`, friction-gated `/resume-entries`, friction-gated engine-backed `/execute` with receipt-hash rendering, operator-context audit headers, operator-local runtime partitions, a one-command live canary operator evidence workflow, canary policy renderer, and a verified read-only live cockpit drill bundle exist. Remaining full-screen TUI cockpit layout and real canary evidence are external. |
 | Engine runtime | 100 | Deterministic paper runtime, bounded OODA cycle records, strategy runner SDK, declarative paper strategies, public lens/layer/modifier decision stack, append-only decision journal, durable runtime bus contracts, restart replay, read-only Hyperliquid info adapter, live-mid paper execution, traceable audit export, production-parity OODA reports, disabled live-shadow fail-closed evidence, rejection/execution-quality feedback, live custody preflight, account reconciliation, dry-run live certification, immune breaker packets, live execution receipt packets, maintained live canary rehearsal collector, verifier, exchange-evidence normalizer, live canary policy lifecycle, operator report workflow, and operator report verifier, public-safe signed live evidence packets, fail-closed model gateway plumbing, and live-executor interfaces exist. Real exchange canary proof remains operator-owned external evidence. |
 | Self-evolution loop | 92 | Local memory, genesis proposal core, paper-only research command chain, public decision-stack review, production-parity OODA reports, and paper-first evolve gates are now implemented with typed public-safe entries, append-only JSONL journals, generated `knowledge.md`, `/memory`, `/genesis`, `/research`, `/runtime/parity`, `/decision/stack`, `/evolve`, fixture-backed CLI extraction/classification/research/decision-stack/parity output, guardian sample floors, protected path escalation, hunt/edge/convergence/thesis/score/meta/sharpen reports, lenses/layers/modifiers, red-team review, sandbox candidate mutation, deterministic paper canary, calibration, promotion plan, rollback plan, promotion verification, exact-phrase local apply, apply receipts, rollback receipts, and expanded read-only MCP status/parity/health/journal/rejection/memory/immune/backtest/evidence/safety surfaces. Protected live-code evolution remains human-reviewed. |
 | Safety and risk | 94 | CLI risk asymmetry, local custody validation, dry-run order validation, preflight refusal, account-reconciliation gate, live-submit idempotency model, no-retry exchange-error records, dry-run live certification drills, `zero.immune.v1` breakers, dead-man heartbeat contract, max notional/loss/order-rate policy, pause, kill, reduce-only flatten, fail-closed canary rehearsal, canary policy qualification, hash-only live evidence capture, verified cockpit drill tamper rejection, threat model, and P0/P1 runbooks exist. Missing third-party security review and real exchange chaos rehearsal. |
@@ -3318,11 +3321,11 @@ public-runtime contracts.
 |---|---:|---|
 | Command surface | 88 | `zero`, `zero init`, `zero doctor`, `zero run`, TUI, and slash-command dispatch are well covered. |
 | Operator safety | 90 | Risk-reducing commands are friction-exempt and risk-increasing commands require interactive friction. |
-| Engine integration | 90 | HTTP, WebSocket, mock engine, contract tests, production-parity OODA reports, and live risk-reducer endpoints exist. Real accepted canary evidence remains external. |
+| Engine integration | 94 | HTTP, WebSocket, mock engine, contract tests, Rust client decoding for production-parity OODA reports, `/runtime-parity` operator rendering, and live risk-reducer endpoints exist. Real accepted canary evidence remains external. |
 | Install path | 94 | Release installer exists with checksum and attestation verification, and `v0.1.1` was installed from the public GitHub Release into a temporary bin directory. Homebrew formula rendering exists from release checksums, while Homebrew/package registries remain blocked until ownership is secured. |
 | Diagnostics | 96 | Doctor, JSON output, exit codes, rate-budget checks, operator/credential partition checks, live-preflight diagnostics, live-cockpit next-action/operator rendering, Railway remote doctor, paid-scope fail-closed checks, and live-control refusals are strong. Railway remote-log automation is still missing. |
 | TUI production UX | 82 | Snapshot coverage and status honesty are strong. Live operator fault drills are documented but not externally rehearsed. |
-| Non-interactive automation | 86 | `zero run` covers cockpit, breaker, certification, account truth, and risk-reducer workflows while intentionally gating risk-increasing commands. Needs production examples. |
+| Non-interactive automation | 90 | `zero run` covers cockpit, runtime parity, breaker, certification, account truth, and risk-reducer workflows while intentionally gating risk-increasing commands. Needs external production examples. |
 | Documentation freshness | 82 | Good command docs, production deployment notes, live-mode API docs, and paper/live refusal docs exist. Incident docs remain thin. |
 
 **CLI readiness: 99/100.**
@@ -3911,6 +3914,8 @@ ZERO reaches 100/100 when a serious operator can:
 - run paper mode on live Hyperliquid market data;
 - run a continuous OODA loop with strategy runners, risk gates, execution
   policy, and immune controls;
+- verify production-parity OODA behavior from the operator terminal with
+  `/runtime-parity`;
 - inspect every accepted and rejected decision through the terminal;
 - switch to live Hyperliquid execution only after local custody, journal,
   risk, liveness, and emergency controls pass;
@@ -4929,14 +4934,29 @@ Implemented in `engine/src/zero_engine/runtime.py`:
   `zero_get_runtime_parity`, `zero://runtime/parity`, OpenAPI, and a pinned
   contract fixture.
 
+### Cycle 38: Operator CLI Runtime-Parity Surface
+
+Implemented in `cli/crates/zero-engine-client` and `cli/crates/zero-commands`:
+
+- added typed Rust decoding for `GET /runtime/parity`;
+- added the neutral `/runtime-parity` slash command, with aliases `/parity`,
+  `/ooda-parity`, and `/production-parity`;
+- rendered the public-safe boundary an operator needs to see: paper cycles,
+  fills, rejections, disabled live-shadow refusals, zero adapter orders,
+  rejection-rate feedback, certification status, and the no-live-trading claim
+  boundary;
+- extended the mock engine and dispatcher/client tests so the terminal cannot
+  drift from the API contract.
+
 ## Revised Score
 
 Public repo readiness remains **100/100** as a launch artifact.
 
 Full ZERO operating-system readiness is **100/100** as a public repo contract
-after Cycle 37. The score increased because the public runtime now has an
+after Cycle 38. The score increased because the public runtime now has an
 executable production-parity OODA report, rejection/execution-quality feedback,
-and live-shadow fail-closed evidence in addition to local evolve apply/rollback.
+live-shadow fail-closed evidence, and a first-class operator CLI renderer for
+that proof in addition to local evolve apply/rollback.
 
 The remaining work is no longer missing public-runtime shape. It is external
 product proof and launch operation:

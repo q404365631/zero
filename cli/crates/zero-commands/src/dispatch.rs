@@ -599,6 +599,7 @@ async fn run(ctx: &DispatchContext, cmd: &Command) -> DispatchOutput {
         Command::LiveCertify => live_certify_cmd(ctx).await,
         Command::LiveCockpit => live_cockpit_cmd(ctx).await,
         Command::LiveEvidence => live_evidence_cmd(ctx).await,
+        Command::RuntimeParity => runtime_parity_cmd(ctx).await,
         Command::Immune => immune_cmd(ctx).await,
         Command::Quote { symbol } => quote_cmd(ctx, symbol.as_deref()).await,
         Command::Regime { coin } => regime_cmd(ctx, coin.as_deref()).await,
@@ -1186,6 +1187,73 @@ async fn live_evidence_cmd(ctx: &DispatchContext) -> DispatchOutput {
     out
 }
 
+async fn runtime_parity_cmd(ctx: &DispatchContext) -> DispatchOutput {
+    let mut out = DispatchOutput::default();
+    let Some(http) = require_http(ctx, &mut out) else {
+        return out;
+    };
+    match http.runtime_parity().await {
+        Ok(report) => {
+            let production_ooda = json_bool(&report.claim_boundary, "production_ooda_parity");
+            let live_claimed = json_bool(&report.claim_boundary, "live_trading_claimed");
+            let canary_required = json_bool(
+                &report.claim_boundary,
+                "operator_owned_canary_required_for_live_claim",
+            );
+            let protected_live_code = json_bool(
+                &report.claim_boundary,
+                "protected_live_code_evolution_allowed",
+            );
+            let top_reason = report
+                .feedback
+                .by_rejection_reason
+                .iter()
+                .max_by_key(|(_, count)| *count)
+                .map_or("none", |(reason, _)| reason.as_str());
+            out.lines.push(OutputLine::command(format!(
+                "runtime-parity: ok={}  production_ooda={}  paper_only={}  live_trading_claimed={}",
+                report.ok, production_ooda, report.paper_only, live_claimed
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  paper: cycles={}/{} decisions={} fills={} rejections={} open_positions={}",
+                report.cycles_run,
+                report.cycles_requested,
+                report.paper.decisions,
+                report.paper.fills,
+                report.paper.rejections,
+                report.paper.open_positions
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  live-shadow: mode={} refused={} accepted={} adapter_orders={} places_live_orders={}",
+                report.live_shadow.mode,
+                report.live_shadow.refused,
+                report.live_shadow.accepted,
+                report.live_shadow.adapter_orders_placed,
+                report.places_live_orders
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  feedback: rejection_rate={:.2}% sample={} top_rejection={}",
+                report.feedback.rejection_rate * 100.0,
+                report.feedback.sample_size,
+                top_reason
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  boundary: operator_owned_canary_required={canary_required} protected_live_code_evolution={protected_live_code}"
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  certification: passed={} live_start_certified={} mode={}",
+                report.certification.passed,
+                report.certification.live_start_certified,
+                report.certification.mode
+            )));
+        }
+        Err(e) => out
+            .lines
+            .push(OutputLine::alert(format!("runtime-parity: {e}"))),
+    }
+    out
+}
+
 async fn immune_cmd(ctx: &DispatchContext) -> DispatchOutput {
     let mut out = DispatchOutput::default();
     let Some(http) = require_http(ctx, &mut out) else {
@@ -1223,6 +1291,12 @@ fn json_u64(map: &std::collections::BTreeMap<String, serde_json::Value>, key: &s
     map.get(key)
         .and_then(serde_json::Value::as_u64)
         .unwrap_or(0)
+}
+
+fn json_bool(map: &std::collections::BTreeMap<String, serde_json::Value>, key: &str) -> bool {
+    map.get(key)
+        .and_then(serde_json::Value::as_bool)
+        .unwrap_or(false)
 }
 
 async fn quote_cmd(ctx: &DispatchContext, symbol: Option<&str>) -> DispatchOutput {

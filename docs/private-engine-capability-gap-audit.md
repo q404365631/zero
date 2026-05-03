@@ -377,14 +377,29 @@ Implemented in `engine/src/zero_engine/runtime.py`:
   `zero_get_runtime_parity`, `zero://runtime/parity`, OpenAPI, and a pinned
   contract fixture.
 
+### Cycle 38: Operator CLI Runtime-Parity Surface
+
+Implemented in `cli/crates/zero-engine-client` and `cli/crates/zero-commands`:
+
+- added typed Rust decoding for `GET /runtime/parity`;
+- added the neutral `/runtime-parity` slash command, with aliases `/parity`,
+  `/ooda-parity`, and `/production-parity`;
+- rendered the public-safe boundary an operator needs to see: paper cycles,
+  fills, rejections, disabled live-shadow refusals, zero adapter orders,
+  rejection-rate feedback, certification status, and the no-live-trading claim
+  boundary;
+- extended the mock engine and dispatcher/client tests so the terminal cannot
+  drift from the API contract.
+
 ## Revised Score
 
 Public repo readiness remains **100/100** as a launch artifact.
 
 Full ZERO operating-system readiness is **100/100** as a public repo contract
-after Cycle 37. The score increased because the public runtime now has an
+after Cycle 38. The score increased because the public runtime now has an
 executable production-parity OODA report, rejection/execution-quality feedback,
-and live-shadow fail-closed evidence in addition to local evolve apply/rollback.
+live-shadow fail-closed evidence, and a first-class operator CLI renderer for
+that proof in addition to local evolve apply/rollback.
 
 The remaining work is no longer missing public-runtime shape. It is external
 product proof and launch operation:

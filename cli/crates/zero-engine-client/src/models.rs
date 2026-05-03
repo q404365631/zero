@@ -240,6 +240,71 @@ pub struct LiveEvidenceArtifact {
     pub extra: BTreeMap<String, Value>,
 }
 
+// ─── /runtime/parity ──────────────────────────────────────────────
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[allow(clippy::struct_excessive_bools)] // mirrors the public claim-boundary packet.
+#[serde(default)]
+pub struct RuntimeParity {
+    pub schema_version: String,
+    pub available: bool,
+    pub ok: bool,
+    pub mode: String,
+    pub source: Option<String>,
+    pub generated_at: Option<String>,
+    pub cycles_requested: u64,
+    pub cycles_run: u64,
+    pub paper_only: bool,
+    pub places_live_orders: bool,
+    pub paper: RuntimeParityPaper,
+    pub live_shadow: RuntimeParityLiveShadow,
+    pub feedback: RuntimeParityFeedback,
+    pub certification: LiveCertification,
+    pub checks: BTreeMap<String, Value>,
+    pub claim_boundary: BTreeMap<String, Value>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct RuntimeParityPaper {
+    pub decisions: u64,
+    pub fills: u64,
+    pub rejections: u64,
+    pub open_positions: u64,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct RuntimeParityLiveShadow {
+    pub mode: String,
+    pub accepted: u64,
+    pub refused: u64,
+    pub adapter_orders_placed: u64,
+    pub records: Vec<Value>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct RuntimeParityFeedback {
+    pub schema_version: String,
+    pub cycles: u64,
+    pub sample_size: u64,
+    pub fills: u64,
+    pub rejections: u64,
+    pub rejection_rate: f64,
+    pub by_rejection_reason: BTreeMap<String, u64>,
+    pub by_rejection_symbol: BTreeMap<String, u64>,
+    pub items: Vec<Value>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
 // ─── /live/receipts ───────────────────────────────────────────────
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

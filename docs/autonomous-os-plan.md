@@ -21,6 +21,8 @@ ZERO reaches 100/100 when a serious operator can:
 - run paper mode on live Hyperliquid market data;
 - run a continuous OODA loop with strategy runners, risk gates, execution
   policy, and immune controls;
+- verify production-parity OODA behavior from the operator terminal with
+  `/runtime-parity`;
 - inspect every accepted and rejected decision through the terminal;
 - switch to live Hyperliquid execution only after local custody, journal,
   risk, liveness, and emergency controls pass;

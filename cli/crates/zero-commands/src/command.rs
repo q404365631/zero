@@ -94,6 +94,8 @@ pub enum Command {
     LiveCockpit,
     /// `/live-evidence` — hash-only signed canary evidence bundle.
     LiveEvidence,
+    /// `/runtime-parity` — production-parity OODA report with live-shadow refusal.
+    RuntimeParity,
     /// `/immune` — risk-blocking immune and circuit-breaker state.
     Immune,
     /// `/quote <coin>` — active paper quote source for a symbol.
@@ -525,6 +527,7 @@ impl Command {
             | Self::LiveCertify
             | Self::LiveCockpit
             | Self::LiveEvidence
+            | Self::RuntimeParity
             | Self::Immune
             | Self::Quote { .. }
             | Self::Regime { .. }
@@ -628,6 +631,7 @@ impl Command {
             Self::LiveCertify => "/live-certify",
             Self::LiveCockpit => "/live-cockpit",
             Self::LiveEvidence => "/live-evidence",
+            Self::RuntimeParity => "/runtime-parity",
             Self::Immune => "/immune",
             Self::Quote { .. } => "/quote",
             Self::Regime { .. } => "/regime",
@@ -758,6 +762,11 @@ pub const COMMAND_CATALOG: &[CommandInfo] = &[
     CommandInfo {
         name: "/live-evidence",
         summary: "hash-only live evidence bundle",
+        risk: RiskDirection::Neutral,
+    },
+    CommandInfo {
+        name: "/runtime-parity",
+        summary: "production-parity OODA report",
         risk: RiskDirection::Neutral,
     },
     CommandInfo {
@@ -997,6 +1006,7 @@ pub fn resolve(line: &ParsedLine) -> Option<Command> {
         "live-certify" | "certify-live" | "live-certification" => Command::LiveCertify,
         "live-cockpit" | "cockpit" | "live" => Command::LiveCockpit,
         "live-evidence" | "evidence" | "canary-evidence" => Command::LiveEvidence,
+        "runtime-parity" | "parity" | "ooda-parity" | "production-parity" => Command::RuntimeParity,
         "immune" | "breakers" | "circuit-breakers" => Command::Immune,
         "quote" | "price" => Command::Quote {
             symbol: line.args.first().cloned(),
@@ -1451,6 +1461,7 @@ mod tests {
         assert_eq!(Command::LiveCertify.risk(), RiskDirection::Neutral);
         assert_eq!(Command::LiveCockpit.risk(), RiskDirection::Neutral);
         assert_eq!(Command::LiveEvidence.risk(), RiskDirection::Neutral);
+        assert_eq!(Command::RuntimeParity.risk(), RiskDirection::Neutral);
         assert_eq!(Command::Immune.risk(), RiskDirection::Neutral);
         assert_eq!(
             Command::Quote { symbol: None }.risk(),
@@ -1502,6 +1513,9 @@ mod tests {
         assert_eq!(r("/cockpit"), Some(Command::LiveCockpit));
         assert_eq!(r("/live-evidence"), Some(Command::LiveEvidence));
         assert_eq!(r("/canary-evidence"), Some(Command::LiveEvidence));
+        assert_eq!(r("/runtime-parity"), Some(Command::RuntimeParity));
+        assert_eq!(r("/parity"), Some(Command::RuntimeParity));
+        assert_eq!(r("/production-parity"), Some(Command::RuntimeParity));
         assert_eq!(r("/immune"), Some(Command::Immune));
         assert_eq!(r("/breakers"), Some(Command::Immune));
         assert_eq!(r("/resume-entries"), Some(Command::ResumeEntries));

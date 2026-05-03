@@ -333,6 +333,7 @@ fn router(shared: AppState) -> Router<AppState> {
         .route("/live/cockpit", get(live_cockpit))
         .route("/live/certification", get(live_certification))
         .route("/live/evidence", get(live_evidence))
+        .route("/runtime/parity", get(runtime_parity))
         .route("/live/receipts", get(live_receipts))
         .route("/live/preflight", get(live_preflight))
         .route("/market/quote", get(market_quote))
@@ -892,6 +893,73 @@ async fn live_evidence() -> Json<serde_json::Value> {
             "signer": "mock-runtime",
             "signed_evidence_hash": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
             "key_material_included": false
+        }
+    }))
+}
+
+async fn runtime_parity() -> Json<serde_json::Value> {
+    Json(json!({
+        "schema_version": "zero.runtime.production_parity.v1",
+        "available": true,
+        "ok": true,
+        "mode": "production-parity",
+        "source": "bundled-paper-scenario",
+        "generated_at": chrono_utc_now_iso(),
+        "cycles_requested": 4,
+        "cycles_run": 4,
+        "paper_only": true,
+        "places_live_orders": false,
+        "paper": {
+            "decisions": 4,
+            "fills": 2,
+            "rejections": 2,
+            "open_positions": 1
+        },
+        "live_shadow": {
+            "mode": "disabled-fail-closed",
+            "accepted": 0,
+            "refused": 4,
+            "adapter_orders_placed": 0,
+            "records": []
+        },
+        "feedback": {
+            "schema_version": "zero.runtime.feedback.v1",
+            "cycles": 4,
+            "sample_size": 4,
+            "fills": 2,
+            "rejections": 2,
+            "rejection_rate": 0.5,
+            "by_rejection_reason": {"order notional exceeds limit": 2},
+            "by_rejection_symbol": {"ETH": 1, "SOL": 1},
+            "items": []
+        },
+        "certification": {
+            "schema_version": "zero.live_certification.v1",
+            "mode": "dry_run",
+            "passed": true,
+            "live_start_certified": true,
+            "summary": {
+                "total": 10,
+                "passed": 10,
+                "failed": 0,
+                "orders_placed_live": 0
+            },
+            "drills": [],
+            "evidence_requirements": ["operator-owned live canary evidence for live claims"]
+        },
+        "checks": {
+            "paper_boundary": true,
+            "phase_order": true,
+            "live_shadow_fail_closed": true,
+            "live_adapter_no_orders": true,
+            "operator_owned_canary_required": true
+        },
+        "claim_boundary": {
+            "production_ooda_parity": true,
+            "live_trading_claimed": false,
+            "operator_owned_canary_required_for_live_claim": true,
+            "protected_live_code_evolution_allowed": false,
+            "remote_push_allowed": false
         }
     }))
 }

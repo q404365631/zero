@@ -199,6 +199,42 @@ async fn live_evidence_renders_hash_only_bundle() {
 }
 
 #[tokio::test]
+async fn runtime_parity_renders_production_ooda_boundary() {
+    let (mock, ctx) = ctx_with_mock().await;
+    let out = dispatch(&ctx, "/runtime-parity").await.unwrap().unwrap();
+
+    assert_eq!(out.risk, Some(RiskDirection::Neutral));
+    let OutputLine::Command(s) = &out.lines[0] else {
+        panic!("expected Command, got {:?}", out.lines);
+    };
+    assert!(s.contains("runtime-parity:"), "parity row: {s}");
+    assert!(s.contains("ok=true"), "ok field: {s}");
+    assert!(
+        s.contains("production_ooda=true"),
+        "production parity field: {s}"
+    );
+    assert!(
+        s.contains("live_trading_claimed=false"),
+        "live claim boundary: {s}"
+    );
+    assert!(
+        out.lines.iter().any(
+            |line| matches!(line, OutputLine::System(s) if s.contains("live-shadow: mode=disabled-fail-closed") && s.contains("adapter_orders=0"))
+        ),
+        "live-shadow row missing: {:?}",
+        out.lines
+    );
+    assert!(
+        out.lines.iter().any(
+            |line| matches!(line, OutputLine::System(s) if s.contains("operator_owned_canary_required=true"))
+        ),
+        "canary boundary missing: {:?}",
+        out.lines
+    );
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn immune_renders_risk_blocking_breakers() {
     let (mock, ctx) = ctx_with_mock().await;
     let out = dispatch(&ctx, "/immune").await.unwrap().unwrap();
