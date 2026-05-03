@@ -82,7 +82,7 @@ speed, scale, history, and reliability.
 | Self-evolution loop | 100 | public memory, research command chain, genesis proposal classification, production-parity OODA reports, local apply, rollback, and paper-first evolve gates exist; protected live-code evolution remains human-reviewed by design |
 | Safety and risk | 94 | real exchange chaos drills, external review |
 | API contracts | 100 | public runtime contracts are complete; hosted compatibility is commercial launch work |
-| Deployment | 94 | live Railway proof, external production log-drain/public-signing evidence |
+| Deployment | 95 | live Railway proof, external production log-drain/public-signing evidence |
 | Observability and audit | 97 | signed bundles, metrics backend, log drains |
 | Security and custody | 91 | external review, key-handling drill evidence |
 | ZERO Network | 70 | hosted identity verification, public pages, production ingestion service |
@@ -567,12 +567,16 @@ Current progress:
 - Local paper API smoke and Railway smoke now execute the same doctor and
   evidence collector, failing CI on any failed deployment check or leaked trace
   data in the evidence pack.
+- Added `scripts/deployment_rollback_rehearsal.py`, a plan-only rollback
+  rehearsal that verifies current and rollback-target evidence packs, proves
+  public paper services remain fail-closed, and emits a hashable rollback plan
+  with optional HMAC signature.
 - Railway deployment docs and the P1 incident runbook now start from the doctor
   report, verifier, and deployment evidence pack instead of ad hoc curl-only
   checks.
 
 Remaining scope before Cycle 25: real deployed Railway proof, external log-drain
-evidence, rollback rehearsal, and public signing/identity evidence.
+evidence, and public signing/identity evidence.
 
 ### Cycle 25: Release, Registry, And Supply Chain
 

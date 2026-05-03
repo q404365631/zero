@@ -67,11 +67,16 @@ records reconcile, and the remediation commit passes `just ci`.
    `/data/decisions.jsonl`.
 4. Inspect restart count and deployment logs.
 5. Run `scripts/railway_smoke.sh` against the candidate image before promoting.
+6. If rolling back, verify the current and previous evidence folders with
+   `scripts/deployment_rollback_rehearsal.py CURRENT --previous-bundle PREVIOUS
+   --require-signature`, then capture and verify fresh evidence after Railway
+   serves the rollback target.
 
 Exit gate: the deployment evidence `manifest.json` shows zero failed doctor
 checks, `/health`, `/v2/status`, `/metrics`, `/network/profile`, and
-`/intelligence/snapshot` return public-safe packets, checksums are present, and
-live mode remains refused on public paper deployments.
+`/intelligence/snapshot` return public-safe packets, checksums and rollback
+rehearsal are present, and live mode remains refused on public paper
+deployments.
 
 ## P1: Journal Recovery Failure
 

@@ -214,6 +214,13 @@ python3 -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((
   "${EVIDENCE_DIR}"
 python3 scripts/deployment_evidence_verify.py "${EVIDENCE_DIR}" \
   --forbid-token railway-smoke >/tmp/zero-railway-deployment-evidence-verify.txt
+ROLLBACK_REHEARSAL_DIR="$(mktemp -d)"
+python3 scripts/deployment_rollback_rehearsal.py "${EVIDENCE_DIR}" \
+  --previous-bundle "${EVIDENCE_DIR}" \
+  --forbid-token railway-smoke \
+  --output "${ROLLBACK_REHEARSAL_DIR}" >/tmp/zero-railway-deployment-rollback-rehearsal.txt
+python3 -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); r=json.loads((d/"rollback_rehearsal.json").read_text(encoding="utf-8")); assert r["schema_version"] == "zero.deployment_rollback_rehearsal.v1"; assert r["ok"] is True; assert r["rollback_plan"]["rollback_ready"] is True; assert r["rollback_plan"]["remote_mutation_performed"] is False; assert r["current"]["evidence_verification"]["ok"] is True; assert (d/"SHA256SUMS").is_file()' \
+  "${ROLLBACK_REHEARSAL_DIR}"
 
 docker rm -f "${CONTAINER_NAME}" >/dev/null
 start_container

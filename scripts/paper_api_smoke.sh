@@ -233,6 +233,19 @@ ZERO_RAILWAY_LOG_COMMAND="${RAILWAY_LOG_CMD}" \
   --forbid-token smoke-intelligence-token \
   --forbid-token smoke-deployment-evidence-signing-key \
   --forbid-token railway-secret >/tmp/zero-paper-api-deployment-evidence-logs-verify.txt
+ROLLBACK_REHEARSAL_DIR="$(mktemp -d)"
+"${PYTHON_BIN}" scripts/deployment_rollback_rehearsal.py "${RAILWAY_LOG_EVIDENCE_DIR}" \
+  --previous-bundle "${RAILWAY_LOG_EVIDENCE_DIR}" \
+  --signing-key smoke-deployment-evidence-signing-key \
+  --signer ci-smoke \
+  --require-signature \
+  --forbid-token smoke-railway-log-token \
+  --forbid-token smoke-intelligence-token \
+  --forbid-token smoke-deployment-evidence-signing-key \
+  --forbid-token railway-secret \
+  --output "${ROLLBACK_REHEARSAL_DIR}" >/tmp/zero-paper-api-deployment-rollback-rehearsal.txt
+"${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); r=json.loads((d/"rollback_rehearsal.json").read_text(encoding="utf-8")); s=json.loads((d/"ROLLBACK_REHEARSAL_SIGNATURE.json").read_text(encoding="utf-8")); shas=(d/"SHA256SUMS").read_text(encoding="utf-8"); assert r["schema_version"] == "zero.deployment_rollback_rehearsal.v1"; assert r["ok"] is True; assert r["rollback_plan"]["rollback_ready"] is True; assert r["rollback_plan"]["remote_mutation_performed"] is False; assert r["current"]["evidence_verification"]["signature_present"] is True; assert s["schema_version"] == "zero.deployment_rollback_rehearsal_signature.v1"; assert s["key_material_included"] is False; assert "ROLLBACK_REHEARSAL_SIGNATURE.json" in shas; assert "smoke-deployment-evidence-signing-key" not in json.dumps(s)' \
+  "${ROLLBACK_REHEARSAL_DIR}"
 rm -f "${RAILWAY_LOG_CMD}"
 
 CANARY_DIR="$(mktemp -d)"

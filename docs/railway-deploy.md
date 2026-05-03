@@ -156,6 +156,27 @@ The signature is an operator-owned HMAC-SHA256 promotion record over
 after local signing; it is not a public identity system or a replacement for a
 future external signing service.
 
+## Rollback Rehearsal
+
+Before a public demo, keep one evidence pack for the current deployment and one
+for the previous known-good deployment. Rehearse the rollback plan without
+mutating Railway:
+
+```bash
+scripts/deployment_rollback_rehearsal.py \
+  artifacts/deployment-evidence/current \
+  --previous-bundle artifacts/deployment-evidence/previous \
+  --signing-key "$ZERO_DEPLOYMENT_EVIDENCE_SIGNING_KEY" \
+  --require-signature
+```
+
+The rehearsal writes `rollback_rehearsal.json`, `SHA256SUMS`, and optional
+`ROLLBACK_REHEARSAL_SIGNATURE.json`. It verifies both evidence packs, checks
+that the public paper service remains `live_mode=refused`, confirms the
+rollback target is health-checkable, and records the exact post-rollback proof
+steps. The script is intentionally plan-only; it never calls Railway and never
+changes a deployment.
+
 ## Journal Recovery
 
 The paper journal is append-only JSONL. With the volume mounted at `/data`, a

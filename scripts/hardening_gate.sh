@@ -208,6 +208,7 @@ bash -n scripts/stale_artifact_check.sh
 python3 -m py_compile scripts/railway_doctor.py
 python3 -m py_compile scripts/deployment_evidence.py
 python3 -m py_compile scripts/deployment_evidence_verify.py
+python3 -m py_compile scripts/deployment_rollback_rehearsal.py
 python3 -m py_compile scripts/release_verify.py
 python3 -m py_compile scripts/release_evidence.py
 python3 -m py_compile scripts/registry_readiness.py
