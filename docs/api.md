@@ -359,6 +359,12 @@ refreshes `SHA256SUMS`. `scripts/live_canary_verify.py DIR
 --require-exchange-evidence` then fails unless the packet is present and every
 accepted ZERO receipt has exchange-side evidence.
 
+`scripts/live_canary_operator.py URL --mode refusal` wraps the full public-safe
+operator workflow: collect rehearsal bundle, attach exchange evidence, run the
+verifier, and write `operator_report.json`. For accepted live canary receipts,
+the operator workflow refuses to produce a passing report unless a matching
+Hyperliquid order/fill export is attached.
+
 `GET /operator/context` returns the operator audit identity currently attached
 to requests. The engine resolves it from `X-Zero-Operator-*` headers,
 `ZERO_OPERATOR_*` environment variables, or the local default. Live control

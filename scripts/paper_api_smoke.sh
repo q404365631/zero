@@ -206,6 +206,13 @@ rm -f "${EXCHANGE_SOURCE}"
   --require-mode refusal \
   --require-exchange-evidence \
   --forbid-token smoke-live-canary-refusal >/tmp/zero-paper-api-live-canary-verify.txt
+OPERATOR_DIR="$(mktemp -d)"
+"${PYTHON_BIN}" scripts/live_canary_operator.py "${API}" \
+  --mode refusal \
+  --idempotency-key smoke-live-canary-operator-refusal \
+  --output "${OPERATOR_DIR}" >/tmp/zero-paper-api-live-canary-operator.txt
+"${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); r=json.loads((d/"operator_report.json").read_text(encoding="utf-8")); body=json.dumps(r); assert r["schema_version"] == "zero.live_canary_operator.v1"; assert r["ok"] is True; assert r["summary"]["exchange_evidence_attached"] is True; assert r["summary"]["auto_empty_exchange_export"] is True; assert (d/"bundle"/"exchange_evidence.json").is_file(); assert "smoke-live-canary-operator-refusal" not in body' \
+  "${OPERATOR_DIR}"
 
 (
   cd "${ROOT}/cli"

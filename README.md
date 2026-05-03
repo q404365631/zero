@@ -87,6 +87,8 @@ flowchart LR
   incident evidence.
 - Attach public-safe exchange-side order/fill evidence to canary bundles and
   verify it against ZERO live receipts without exposing raw venue payloads.
+- Run a one-command live canary operator workflow that collects, attaches,
+  verifies, and reports public-safe evidence.
 - Package release assets with checksums.
 - Deploy the paper runtime on Railway or Docker.
 - Generate public-safe Network index, profile pages, leaderboard pages, and
@@ -148,6 +150,9 @@ zero live canary exchange evidence: wrote artifacts/live-canary-rehearsal/.../ex
 
 $ scripts/live_canary_verify.py artifacts/live-canary-rehearsal/... --require-mode refusal --require-exchange-evidence
 zero live canary verify: ok=True checks=... fail=0
+
+$ scripts/live_canary_operator.py http://127.0.0.1:8765 --mode refusal
+zero live canary operator: ok=True bundle=artifacts/live-canary-operator/.../bundle exchange=True report=artifacts/live-canary-operator/.../operator_report.json
 
 $ curl -fsS http://127.0.0.1:8765/immune
 {"schema_version": "zero.immune.v1", "risk_increasing_allowed": false}
@@ -320,6 +325,7 @@ invariants.
 - [Operator Context](docs/operator-context.md)
 - [Deployment Identity](docs/deployment-identity.md)
 - [Live Evidence](docs/live-evidence.md)
+- [Live Canary Operator](docs/live-canary-operator.md)
 - [Operator Isolation](docs/operator-isolation.md)
 - [Strategy Plugins](docs/strategy-plugins.md)
 - [Market Data Adapters](docs/market-data-adapters.md)

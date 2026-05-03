@@ -60,3 +60,8 @@ The generated `exchange_evidence.json` includes normalized order/fill facts,
 hashes of raw records and venue identifiers, a source-file hash, receipt
 matches, and checksum updates. It does not include wallet addresses, raw order
 IDs, raw client order IDs, or raw venue payloads.
+
+`scripts/live_canary_operator.py` is the higher-level workflow for operators.
+It collects or finalizes the bundle, attaches exchange evidence, runs the
+verifier, and writes `operator_report.json` with public-safe status and next
+actions.

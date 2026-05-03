@@ -85,6 +85,26 @@ The exchange evidence packet hashes the raw export and venue identifiers,
 omits raw wallet/order/client-order data, and matches accepted ZERO receipts by
 symbol, side, and quantity.
 
+For the one-command refusal proof used by public paper deployments:
+
+```bash
+scripts/live_canary_operator.py http://127.0.0.1:8765 --mode refusal
+```
+
+For a real canary, use the operator command after exporting exchange records:
+
+```bash
+scripts/live_canary_operator.py \
+  --bundle artifacts/live-canary-rehearsal/<timestamp> \
+  --mode canary \
+  --exchange-export hyperliquid-export.json \
+  --require-live-accepted \
+  --require-exchange-evidence
+```
+
+The operator report exits nonzero if accepted live receipts exist without
+matching exchange-side evidence.
+
 For an operator-owned real canary, the command is intentionally explicit:
 
 ```bash
