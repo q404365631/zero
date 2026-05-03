@@ -1,0 +1,111 @@
+{
+  "accepted_candidates": 1,
+  "applies_to_checkout": false,
+  "build": {
+    "applies_to_checkout": false,
+    "branch_name": "codex/evolve/document-strategy-runner-acceptance-floor-genesis-acce",
+    "checks": {
+      "proposal_accepted": true,
+      "protected_classes_empty": true,
+      "target_paths_allowed": true
+    },
+    "generated_at": "2026-05-01T00:00:00Z",
+    "mode": "paper-only",
+    "patch_hash": "sha256:1b47c6fd03705246a2d7a6ca2d00c62f5c92cc1a7a0d8413714b677935a53b6b",
+    "patch_path": "/tmp/zero-evolve-snapshot/worktree/candidate.patch",
+    "proposal_id": "sha256:genesis-accepted-docs",
+    "pushes_to_remote": false,
+    "sandbox_dir": "/tmp/zero-evolve-snapshot/worktree",
+    "schema_version": "zero.evolve.build.v1",
+    "target_paths": [
+      "docs/strategy-plugins.md",
+      "examples/strategy-runner/README.md"
+    ]
+  },
+  "calibration": {
+    "drift": {
+      "decisions": 0,
+      "fills": 0,
+      "open_positions": 0,
+      "rejections": 0
+    },
+    "gate": "zero-drift-against-deterministic-paper-baseline",
+    "generated_at": "2026-05-01T00:00:00Z",
+    "mode": "paper",
+    "passed": true,
+    "schema_version": "zero.evolve.calibration.v1"
+  },
+  "generated_at": "2026-05-01T00:00:00Z",
+  "input_decisions": 3,
+  "mode": "paper-only",
+  "paper_canary": {
+    "baseline": {
+      "decisions": 4,
+      "fills": 2,
+      "open_positions": 1,
+      "rejections": 2
+    },
+    "decisions": 4,
+    "fills": 2,
+    "generated_at": "2026-05-01T00:00:00Z",
+    "mode": "paper",
+    "open_positions": 1,
+    "rejections": 2,
+    "scenario": "paper-launch-smoke",
+    "schema_version": "zero.evolve.paper_canary.v1"
+  },
+  "policy": {
+    "allowed_patch_roots": [
+      "docs/",
+      "examples/"
+    ],
+    "forbidden_patch_roots": [
+      "engine/src/zero_engine/live.py",
+      "engine/src/zero_engine/hyperliquid.py",
+      "engine/src/zero_engine/immune.py",
+      "engine/src/zero_engine/safety.py",
+      "cli/crates/zero-commands/src/dispatch.rs"
+    ],
+    "promotion_is_local_only": true,
+    "remote_push_allowed": false,
+    "requires_accepted_genesis_decision": true,
+    "requires_calibration_pass": true,
+    "requires_paper_canary": true,
+    "requires_red_team_pass": true,
+    "schema_version": "zero.evolve.policy.v1"
+  },
+  "promotion": {
+    "gates": {
+      "build": true,
+      "calibration": true,
+      "human_approval": false,
+      "paper_canary": true,
+      "red_team": true
+    },
+    "generated_at": "2026-05-01T00:00:00Z",
+    "mode": "local-only",
+    "promotable_after_human_review": true,
+    "promoted": false,
+    "pushes_to_remote": false,
+    "reason": "all automated paper gates passed; human approval still required",
+    "requires_human_approval": true,
+    "schema_version": "zero.evolve.promotion.v1"
+  },
+  "pushes_to_remote": false,
+  "red_team": {
+    "findings": [],
+    "generated_at": "2026-05-01T00:00:00Z",
+    "mode": "paper-only",
+    "policy": {
+      "forbidden_private_material": true,
+      "protected_paths_blocked": true,
+      "remote_push_blocked": true
+    },
+    "proposal_id": "sha256:genesis-accepted-docs",
+    "schema_version": "zero.evolve.red_team.v1",
+    "verdict": "pass"
+  },
+  "schema_version": "zero.evolve.snapshot.v1",
+  "selected_proposal_id": "sha256:genesis-accepted-docs",
+  "source": "fixture-genesis-proposals"
+}

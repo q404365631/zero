@@ -42,6 +42,7 @@ zero-paper-api = "zero_engine.api:main"
 zero-engine-run = "zero_engine.runtime:main"
 zero-memory = "zero_engine.memory:main"
 zero-genesis = "zero_engine.genesis:main"
+zero-evolve = "zero_engine.evolve:main"
 zero-mcp = "zero_engine.mcp:main"
 
 [project.optional-dependencies]

@@ -51,10 +51,16 @@ REQUESTS: tuple[dict[str, Any], ...] = (
         "method": "tools/call",
         "params": {"name": "zero_get_genesis_proposals", "arguments": {}},
     },
-    {"jsonrpc": "2.0", "id": 8, "method": "resources/list", "params": {}},
     {
         "jsonrpc": "2.0",
         "id": 9,
+        "method": "tools/call",
+        "params": {"name": "zero_get_evolve_status", "arguments": {}},
+    },
+    {"jsonrpc": "2.0", "id": 10, "method": "resources/list", "params": {}},
+    {
+        "jsonrpc": "2.0",
+        "id": 11,
         "method": "resources/read",
         "params": {"uri": "zero://proof/demo"},
     },
@@ -107,7 +113,13 @@ def validate(entries: list[dict[str, Any]]) -> None:
     if genesis["applies_code_changes"] is not False or genesis["paper_only"] is not True:
         raise RuntimeError("transcript genesis proposals must remain plan-only and paper-only")
 
-    proof_response = entries[7]["response"]
+    evolve_response = entries[6]["response"]
+    evolve_text = evolve_response["result"]["content"][0]["text"]
+    evolve = json.loads(evolve_text)
+    if evolve["pushes_to_remote"] is not False or evolve["paper_only"] is not True:
+        raise RuntimeError("transcript evolve status must remain paper-only and local-only")
+
+    proof_response = entries[8]["response"]
     proof_text = proof_response["result"]["contents"][0]["text"]
     proof = json.loads(proof_text)
     boundary = proof["claim_boundary"]

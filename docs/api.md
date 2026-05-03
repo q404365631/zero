@@ -103,7 +103,7 @@ contract:
 - `GET /`, `/health`, `/v2/status`
 - `GET /positions`, `/risk`, `/brief`
 - `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
-- `GET /metrics`, `/immune`, `/memory`, `/genesis`, `/audit/export`
+- `GET /metrics`, `/immune`, `/memory`, `/genesis`, `/evolve`, `/audit/export`
 - `GET /deployment/claim`, `/deployment/heartbeat`, `/network/profile`, `/network/leaderboard`
 - `GET /intelligence/snapshot`, `/intelligence/catalog`, `/intelligence/commercial`, `/intelligence/model-gateway`
 - `GET /v1/intelligence/snapshots`, `/v1/intelligence/history`, `/v1/intelligence/cohorts`, `/v1/intelligence/benchmarks`
@@ -168,6 +168,12 @@ snapshot demonstrates one accepted proposal, one rejected proposal with
 insufficient sample size, and one escalated proposal touching protected live
 execution paths. Protected execution, sizing, stops, circuit breaker, live
 adapter, and immune-core proposals require human review.
+
+`GET /evolve` returns a `zero.evolve.snapshot.v1` paper-only view of the
+builder, red-team, paper-canary, calibration, and promotion gates. It never
+mutates the checkout, pushes a branch, deploys a service, or promotes a change.
+The fixture-backed snapshot selects the accepted genesis docs/example proposal
+and proves that promotion remains local-only and human-approved.
 
 `GET /audit/export?limit=100` returns a structured `zero.audit.v1` export with
 runtime summary, retention/redaction metadata, metrics, recovery state, and the

@@ -220,6 +220,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GenesisSnapshotResponse"
+  /evolve:
+    get:
+      tags: [audit]
+      operationId: getEvolve
+      summary: Paper-only evolve gate status.
+      responses:
+        "200":
+          description: Evolve gate snapshot.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvolveSnapshotResponse"
   /metrics:
     get:
       tags: [audit]
@@ -1295,9 +1307,61 @@ components:
           required: [contains_live_prices, contains_wallet_material, contains_exchange_order_ids, contains_private_keys]
           additionalProperties: true
       additionalProperties: false
+    EvolveSnapshotResponse:
+      type: object
+      required: [schema_version, generated_at, source, mode, applies_to_checkout, pushes_to_remote, input_decisions, selected_proposal_id, accepted_candidates, build, red_team, paper_canary, calibration, promotion, policy]
+      properties:
+        schema_version:
+          type: string
+          const: zero.evolve.snapshot.v1
+        generated_at:
+          type: string
+          format: date-time
+        source:
+          type: string
+        mode:
+          type: string
+          const: paper-only
+        applies_to_checkout:
+          type: boolean
+          const: false
+        pushes_to_remote:
+          type: boolean
+          const: false
+        input_decisions:
+          type: integer
+        selected_proposal_id:
+          type: string
+          nullable: true
+        accepted_candidates:
+          type: integer
+        build:
+          type: object
+          nullable: true
+          additionalProperties: true
+        red_team:
+          type: object
+          nullable: true
+          additionalProperties: true
+        paper_canary:
+          type: object
+          required: [schema_version, generated_at, mode, scenario, decisions, fills, rejections, open_positions, baseline]
+          additionalProperties: true
+        calibration:
+          type: object
+          required: [schema_version, generated_at, mode, passed, drift, gate]
+          additionalProperties: true
+        promotion:
+          type: object
+          required: [schema_version, generated_at, mode, promotable_after_human_review, promoted, pushes_to_remote, requires_human_approval, gates, reason]
+          additionalProperties: true
+        policy:
+          type: object
+          additionalProperties: true
+      additionalProperties: false
     MetricsResponse:
       type: object
-      required: [schema_version, generated_at, mode, runtime, api, engine, immune, recovery, memory, genesis]
+      required: [schema_version, generated_at, mode, runtime, api, engine, immune, recovery, memory, genesis, evolve]
       properties:
         schema_version:
           type: string
@@ -1325,6 +1389,9 @@ components:
           type: object
           additionalProperties: true
         genesis:
+          type: object
+          additionalProperties: true
+        evolve:
           type: object
           additionalProperties: true
       additionalProperties: false

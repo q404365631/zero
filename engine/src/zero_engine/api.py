@@ -13,10 +13,12 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from typing import Any, Callable
 from urllib.parse import parse_qs, urlparse
 
 from zero_engine.deployment import DeploymentIdentityConfig, deployment_claim, deployment_heartbeat
+from zero_engine.evolve import snapshot_from_fixture as evolve_snapshot_from_fixture
 from zero_engine.genesis import GenesisJournal, Proposal, snapshot_from_proposals
 from zero_engine.hyperliquid import (
     HyperliquidInfoClient,
@@ -556,6 +558,7 @@ class PaperApi:
             "/rejections": lambda: self.rejections(query),
             "/journal": lambda: self.journal(query),
             "/genesis": self.genesis,
+            "/evolve": self.evolve,
             "/audit/export": lambda: self.audit_export(query, operator_context),
             "/hl/account": self.hl_account,
             "/hl/reconcile": self.hl_reconcile,
@@ -1371,6 +1374,7 @@ class PaperApi:
             "recovery": self.recovery(),
             "memory": self.memory({"limit": ["0"]})["stats"],
             "genesis": self.genesis()["stats"],
+            "evolve": self.evolve()["promotion"],
         }
 
     def audit_export(
@@ -1418,6 +1422,7 @@ class PaperApi:
             "recovery": self.recovery(),
             "memory": self.memory({"limit": [str(limit)]}),
             "genesis": self.genesis(),
+            "evolve": self.evolve(),
             "deployment_claim": claim,
             "deployment_heartbeat": heartbeat,
             "operator_actions": [
@@ -1475,6 +1480,9 @@ class PaperApi:
 
             return status_snapshot(journal=self.state.genesis_journal, now=self.state.now())
         return snapshot_from_proposals(GENESIS_FIXTURE_PROPOSALS, now=self.state.now())
+
+    def evolve(self) -> dict[str, Any]:
+        return evolve_snapshot_from_fixture(Path(__file__).resolve().parents[3], now=self.state.now())
 
     def network_profile(self) -> dict[str, Any]:
         generated_at = self.state.now_iso()

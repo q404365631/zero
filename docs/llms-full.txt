@@ -21,6 +21,7 @@ Use this bundle for retrieval and coding agents. It is not evidence of live trad
 - `docs/api.md`
 - `docs/memory-core.md`
 - `docs/genesis.md`
+- `docs/evolve.md`
 - `docs/mcp.md`
 - `docs/mcp/transcript.jsonl`
 - `docs/api-compatibility.md`
@@ -112,7 +113,7 @@ guarded by preflight checks.
 | --- | --- | --- |
 | ZERO Runtime | Python engine for paper execution, live-readiness contracts, journals, safety gates, strategy adapters, venue adapter interfaces, and canary evidence. | Open source |
 | ZERO Terminal | Rust CLI/TUI for setup, diagnostics, state inspection, replay, live cockpit views, and supervised actions. | Open source |
-| ZERO Evolution | Local memory, genesis proposals, guardian review, red-team, paper canaries, calibration, and evolve loops that let ZERO improve under review. | Memory and genesis open; remaining loop in progress |
+| ZERO Evolution | Local memory, genesis proposals, guardian review, red-team, paper canaries, calibration, and evolve loops that let ZERO improve under review. | Memory, genesis, and paper-only evolve gates open; remaining promotion loop in progress |
 | ZERO Network | Public-safe profiles, leaderboards, verification badges, and proof packets. | Open source contracts |
 | ZERO Intelligence | Delayed public snapshots plus commercial realtime APIs, history, cohorts, webhooks, exports, and SLAs. | Open contracts + paid access |
 
@@ -124,7 +125,7 @@ guarded by preflight checks.
 | Live market data | Runnable now through read-only Hyperliquid public info calls when enabled. |
 | Live readiness | Runnable now as local preflight, cockpit, certification, reconciliation, immune, receipt, and evidence contracts. |
 | Live execution | Code boundary exists, but live capital remains operator-owned and gated until local custody, preflight, journal, kill-switch, reconciliation, and canary evidence pass. |
-| Self-evolution | Local memory and genesis proposal core exist now with redacted extraction, append-only journals, guardian classification, API readouts, and MCP snapshots. Builder/evolve, red-team, paper canary, calibration, and promotion gates remain planned public extraction. |
+| Self-evolution | Local memory, genesis proposal core, and paper-only evolve gates exist now with redacted extraction, append-only journals, guardian classification, red-team review, paper canary, calibration, API readouts, and MCP snapshots. Real mutation, promotion, rollback, and broader research loops remain planned public extraction. |
 | Public proof | Runnable now through redacted Network contracts, canary bundles, exchange-evidence normalization, recursive checksums, and operator report verification. |
 | Commercial API | Contracted now as ZERO Intelligence; production hosted persistence, billing, warehouse history, and SLAs are commercial work. |
 
@@ -147,6 +148,8 @@ flowchart LR
   `knowledge.md`.
 - Classify fixture-backed genesis proposals as accepted, rejected, or escalated
   without applying code changes.
+- Run the paper-only evolve harness for accepted genesis proposals without
+  mutating the checkout or pushing a branch.
 - Add a declarative paper strategy runner with conformance output.
 - Start a local paper API and inspect operator state.
 - Use the Rust CLI for health checks, status, replay, and supervised actions.
@@ -172,10 +175,11 @@ flowchart LR
   Intelligence contract artifacts.
 
 The self-evolving loop that makes ZERO a complete autonomous operating system
-is now partially implemented: local memory and genesis proposal classification
-exist, while builder/evolve, red-team, paper canary, calibration, and promotion
-gates remain first-class public extraction targets. See
-[Memory Core](docs/memory-core.md), [Genesis](docs/genesis.md), and
+is now partially implemented: local memory, genesis proposal classification,
+and paper-only evolve gates exist, while real mutation, promotion, rollback,
+and broader research loops remain first-class public extraction targets. See
+[Memory Core](docs/memory-core.md), [Genesis](docs/genesis.md),
+[Evolve Harness](docs/evolve.md), and
 [Private Engine Capability Gap Audit](docs/private-engine-capability-gap-audit.md).
 
 ## Operator Proof Path
@@ -239,6 +243,9 @@ $ curl -fsS http://127.0.0.1:8765/memory
 
 $ curl -fsS http://127.0.0.1:8765/genesis
 {"schema_version": "zero.genesis.snapshot.v1", "mode": "plan-only"}
+
+$ curl -fsS http://127.0.0.1:8765/evolve
+{"schema_version": "zero.evolve.snapshot.v1", "mode": "paper-only"}
 
 $ curl -fsS http://127.0.0.1:8765/hl/reconcile
 {"schema_version": "zero.reconciliation.v1", "status": "not_configured", "risk_increasing_allowed": false}
@@ -457,6 +464,7 @@ Machine-readable entrypoints:
 - [OpenAPI Contract](openapi/zero-paper-api.v1.yaml)
 - [Memory Core](docs/memory-core.md)
 - [Genesis](docs/genesis.md)
+- [Evolve Harness](docs/evolve.md)
 - [MCP Server](docs/mcp.md)
 - [MCP Transcript](docs/mcp/transcript.jsonl)
 
@@ -556,6 +564,7 @@ Open runtime work belongs in this repo:
 - self-custodial venue adapters
 - local journals and audit exports
 - local memory and genesis proposal classification
+- paper-only evolve gates
 - strategy and market-data extension contracts
 - public Network contracts and delayed public Intelligence snapshots
 
@@ -576,9 +585,9 @@ Do not make the open runtime depend on a ZERO-hosted control plane.
   back to this file.
 - `docs/llms.txt` is the docs index for LLM retrieval.
 - `docs/llms-full.txt` is generated by `scripts/generate_llms_full.py`.
-- `zero-mcp` exposes read-only paper, strategy, memory, genesis, position, and
-  proof-pack inspection tools. It must not expose live execution or order
-  placement.
+- `zero-mcp` exposes read-only paper, strategy, memory, genesis, evolve,
+  position, and proof-pack inspection tools. It must not expose live execution
+  or order placement.
 
 ## Safety Rules
 
@@ -963,6 +972,7 @@ Out of scope:
 - [Runtime Bus](runtime-bus.md)
 - [Memory Core](memory-core.md)
 - [Genesis](genesis.md)
+- [Evolve Harness](evolve.md)
 - [API](api.md)
 - [MCP Server](mcp.md)
 - [MCP Transcript](mcp/transcript.jsonl)
@@ -1413,9 +1423,10 @@ runtime journal -> memory -> knowledge -> genesis proposal -> guardian
 The public repo now implements the first part of this loop: local memory
 extraction, append-only memory JSONL, active-memory expiry, generated
 `knowledge.md`, `/memory`, read-only MCP memory snapshots, genesis proposal
-classification, append-only genesis journals, `/genesis`, and read-only MCP
-genesis snapshots. Builder/red-team, paper canary, calibration, and
-promote/rollback are tracked as public extraction targets in
+classification, append-only genesis journals, `/genesis`, read-only MCP
+genesis snapshots, paper-only evolve gate runs, `/evolve`, and read-only MCP
+evolve status. Real mutation, promotion, and rollback are tracked as public
+extraction targets in
 [Private Engine Capability Gap Audit](private-engine-capability-gap-audit.md).
 Local memory, genesis, and evolve belong in open source because they are part
 of a self-custodial operator's runtime. Commercial ZERO Intelligence begins
@@ -1633,7 +1644,7 @@ contract:
 - `GET /`, `/health`, `/v2/status`
 - `GET /positions`, `/risk`, `/brief`
 - `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
-- `GET /metrics`, `/immune`, `/memory`, `/genesis`, `/audit/export`
+- `GET /metrics`, `/immune`, `/memory`, `/genesis`, `/evolve`, `/audit/export`
 - `GET /deployment/claim`, `/deployment/heartbeat`, `/network/profile`, `/network/leaderboard`
 - `GET /intelligence/snapshot`, `/intelligence/catalog`, `/intelligence/commercial`, `/intelligence/model-gateway`
 - `GET /v1/intelligence/snapshots`, `/v1/intelligence/history`, `/v1/intelligence/cohorts`, `/v1/intelligence/benchmarks`
@@ -1698,6 +1709,12 @@ snapshot demonstrates one accepted proposal, one rejected proposal with
 insufficient sample size, and one escalated proposal touching protected live
 execution paths. Protected execution, sizing, stops, circuit breaker, live
 adapter, and immune-core proposals require human review.
+
+`GET /evolve` returns a `zero.evolve.snapshot.v1` paper-only view of the
+builder, red-team, paper-canary, calibration, and promotion gates. It never
+mutates the checkout, pushes a branch, deploys a service, or promotes a change.
+The fixture-backed snapshot selects the accepted genesis docs/example proposal
+and proves that promotion remains local-only and human-approved.
 
 `GET /audit/export?limit=100` returns a structured `zero.audit.v1` export with
 runtime summary, retention/redaction metadata, metrics, recovery state, and the
@@ -2254,6 +2271,92 @@ red-team, canary, and calibration loops are separate cycles with stricter gates.
 ````
 
 
+## Source: `docs/evolve.md`
+
+````markdown
+# Evolve Harness
+
+ZERO Evolve is the paper-only builder, red-team, canary, and calibration
+harness for the public self-evolution loop. It consumes accepted genesis
+decisions and produces local evidence before any human considers promotion.
+
+The public harness does not mutate the checkout, push branches, deploy services,
+or change live trading code. It writes a sandbox artifact that describes the
+candidate branch, candidate patch, red-team verdict, paper canary result,
+calibration result, and local-only promotion decision.
+
+## Contract
+
+The run artifact uses `zero.evolve.run.v1`.
+
+Each run includes:
+
+- selected accepted genesis proposal;
+- local sandbox and candidate patch manifest;
+- red-team review;
+- deterministic paper canary;
+- calibration against the fixture baseline;
+- promotion decision that always requires human approval.
+
+Promotion is local-only. `pushes_to_remote=false` and `promoted=false` are
+part of the public contract.
+
+## Policy
+
+The public harness allows generated candidate patches only under:
+
+- `docs/`
+- `examples/`
+
+It blocks protected runtime paths including live adapters, Hyperliquid adapter,
+immune core, safety code, and CLI live dispatch. Protected proposals must stay
+at the genesis escalation stage until reviewed by a human.
+
+## Run
+
+From a source checkout:
+
+```bash
+PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.genesis plan \
+  --proposals examples/genesis/proposals.jsonl \
+  --journal artifacts/evolve/genesis.jsonl \
+  --now 2026-05-01T00:00:00Z
+
+PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.evolve run \
+  --genesis-journal artifacts/evolve/genesis.jsonl \
+  --output artifacts/evolve \
+  --repo-root "$PWD" \
+  --now 2026-05-01T00:00:00Z
+
+PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.evolve status \
+  --run artifacts/evolve/evolve-run.json \
+  --now 2026-05-01T00:00:00Z
+```
+
+After package install, the console script is:
+
+```bash
+zero-evolve run --proposals examples/genesis/proposals.jsonl --output artifacts/evolve
+```
+
+The API exposes a fixture-backed snapshot:
+
+```bash
+curl -fsS http://127.0.0.1:8765/evolve
+```
+
+The MCP server exposes `zero_get_evolve_status` and the
+`zero://evolve/status` resource. Both are read-only and fixture-backed.
+
+## Boundary
+
+Evolve is not autonomous deployment. It is the evidence layer before a human
+review. A future promote command must remain local by default, require explicit
+human approval, and refuse remote push or live-code mutation unless a stricter
+release policy is added.
+````
+
+
 ## Source: `docs/mcp.md`
 
 ````markdown
@@ -2262,8 +2365,8 @@ red-team, canary, and calibration loops are separate cycles with stricter gates.
 `zero-mcp` is a dependency-free, stdio MCP-compatible server for coding agents
 and operator tooling. It exposes only public-safe, read-only ZERO surfaces:
 bundled strategies, deterministic paper results, paper position state, local
-memory snapshots, genesis proposal classifications, and the demo proof-pack
-manifest.
+memory snapshots, genesis proposal classifications, evolve gate status, and
+the demo proof-pack manifest.
 
 It does not expose live execution, order placement, approval, wallet, secret, or
 venue-write tools. The server is for inspection and local development until live
@@ -2304,7 +2407,8 @@ PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
 See [`docs/mcp/transcript.jsonl`](mcp/transcript.jsonl). It proves that a
 coding agent can initialize the server, list tools, inspect bundled strategies,
 replay deterministic paper results, inspect redacted local memory, inspect
-plan-only genesis proposals, list resources, and read the proof pack without gaining any live execution
+plan-only genesis proposals, inspect paper-only evolve gates, list resources,
+and read the proof pack without gaining any live execution
 capability.
 
 ## Tools
@@ -2317,6 +2421,7 @@ capability.
 | `zero_get_proof_pack` | Returns the public-safe demo proof-pack manifest. |
 | `zero_get_memory_snapshot` | Returns public-safe memory extracted from bundled paper decisions. |
 | `zero_get_genesis_proposals` | Returns plan-only genesis proposal classifications. |
+| `zero_get_evolve_status` | Returns paper-only builder/red-team/canary/calibration gate status. |
 
 All tools are read-only. None can place, approve, cancel, or route live orders.
 
@@ -2329,6 +2434,7 @@ All tools are read-only. None can place, approve, cancel, or route live orders.
 | `zero://proof/demo` | Demo proof-pack manifest. |
 | `zero://memory/snapshot` | Public-safe local memory extracted from bundled paper decisions. |
 | `zero://genesis/proposals` | Plan-only genesis proposal classifications. |
+| `zero://evolve/status` | Paper-only evolve gate status. |
 
 ## Smoke Contract
 
@@ -2340,6 +2446,7 @@ All tools are read-only. None can place, approve, cancel, or route live orders.
   keys.
 - Genesis output never applies code changes and protected path proposals are
   escalated for human review.
+- Evolve output never pushes or promotes; human approval is still required.
 - The demo proof pack does not claim live trading or paper/live correlation.
 - The public source checkout contains the bundled proof and paper artifacts.
 
@@ -2352,13 +2459,14 @@ cannot silently drift into a write-capable trading interface.
 
 ````markdown
 {"request":{"id":1,"jsonrpc":"2.0","method":"initialize","params":{"capabilities":{},"clientInfo":{"name":"zero-public-transcript","version":"0.1.0"},"protocolVersion":"2025-06-18"}},"response":{"id":1,"jsonrpc":"2.0","result":{"capabilities":{"resources":{"listChanged":false,"subscribe":false},"tools":{"listChanged":false}},"protocolVersion":"2025-06-18","serverInfo":{"name":"zero-mcp","version":"0.1.1"}}}}
-{"request":{"id":2,"jsonrpc":"2.0","method":"tools/list","params":{}},"response":{"id":2,"jsonrpc":"2.0","result":{"tools":[{"description":"Read-only list of bundled paper strategies and contributor examples.","inputSchema":{"additionalProperties":false,"properties":{},"type":"object"},"name":"zero_list_strategies"},{"description":"Read-only replay of the deterministic bundled paper scenario.","inputSchema":{"additionalProperties":false,"properties":{},"type":"object"},"name":"zero_get_paper_results"},{"description":"Read-only paper position state derived from the bundled scenario.","inputSchema":{"additionalProperties":false,"properties":{},"type":"object"},"name":"zero_get_position_state"},{"description":"Read-only public-safe demo proof-pack manifest.","inputSchema":{"additionalProperties":false,"properties":{},"type":"object"},"name":"zero_get_proof_pack"},{"description":"Read-only public-safe local memory snapshot from bundled paper decisions.","inputSchema":{"additionalProperties":false,"properties":{},"type":"object"},"name":"zero_get_memory_snapshot"},{"description":"Read-only plan-only genesis proposal classifications.","inputSchema":{"additionalProperties":false,"properties":{},"type":"object"},"name":"zero_get_genesis_proposals"}]}}}
+{"request":{"id":2,"jsonrpc":"2.0","method":"tools/list","params":{}},"response":{"id":2,"jsonrpc":"2.0","result":{"tools":[{"description":"Read-only list of bundled paper strategies and contributor examples.","inputSchema":{"additionalProperties":false,"properties":{},"type":"object"},"name":"zero_list_strategies"},{"description":"Read-only replay of the deterministic bundled paper scenario.","inputSchema":{"additionalProperties":false,"properties":{},"type":"object"},"name":"zero_get_paper_results"},{"description":"Read-only paper position state derived from the bundled scenario.","inputSchema":{"additionalProperties":false,"properties":{},"type":"object"},"name":"zero_get_position_state"},{"description":"Read-only public-safe demo proof-pack manifest.","inputSchema":{"additionalProperties":false,"properties":{},"type":"object"},"name":"zero_get_proof_pack"},{"description":"Read-only public-safe local memory snapshot from bundled paper decisions.","inputSchema":{"additionalProperties":false,"properties":{},"type":"object"},"name":"zero_get_memory_snapshot"},{"description":"Read-only plan-only genesis proposal classifications.","inputSchema":{"additionalProperties":false,"properties":{},"type":"object"},"name":"zero_get_genesis_proposals"},{"description":"Read-only paper-only evolve gate status.","inputSchema":{"additionalProperties":false,"properties":{},"type":"object"},"name":"zero_get_evolve_status"}]}}}
 {"request":{"id":3,"jsonrpc":"2.0","method":"tools/call","params":{"arguments":{},"name":"zero_list_strategies"}},"response":{"id":3,"jsonrpc":"2.0","result":{"content":[{"text":"{\n  \"mode\": \"paper\",\n  \"schema_version\": \"zero.mcp.strategies.v1\",\n  \"strategies\": [\n    {\n      \"description\": \"Built-in candle close/open momentum strategy signal.\",\n      \"kind\": \"built_in\",\n      \"name\": \"momentum-close-above-open\",\n      \"paper_only\": true,\n      \"path\": \"engine/src/zero_engine/strategy.py\"\n    },\n    {\n      \"description\": \"Declarative close-above-open paper runner.\",\n      \"kind\": \"declarative_runner\",\n      \"name\": \"close-strength-yaml\",\n      \"paper_only\": true,\n      \"path\": \"examples/strategy-runner/close-strength.yaml\",\n      \"version\": \"0.1.0\"\n    },\n    {\n      \"description\": \"Smallest contributor path for a deterministic paper strategy plugin.\",\n      \"kind\": \"strategy_plugin_example\",\n      \"name\": \"close-strength\",\n      \"paper_only\": true,\n      \"path\": \"examples/strategy-plugin/plugin.py\",\n      \"version\": \"0.1.0\"\n    }\n  ]\n}","type":"text"}],"isError":false}}}
 {"request":{"id":4,"jsonrpc":"2.0","method":"tools/call","params":{"arguments":{},"name":"zero_get_paper_results"}},"response":{"id":4,"jsonrpc":"2.0","result":{"content":[{"text":"{\n  \"decisions\": [\n    {\n      \"allowed\": true,\n      \"as_of\": 1777646400.0,\n      \"confidence\": 0.84,\n      \"notional_usd\": 400.0,\n      \"price\": 40000.0,\n      \"quantity\": 0.01,\n      \"reason\": \"allowed\",\n      \"reduce_only\": false,\n      \"side\": \"buy\",\n      \"source\": \"scenario:paper-launch-smoke\",\n      \"symbol\": \"BTC\"\n    },\n    {\n      \"allowed\": false,\n      \"as_of\": 1777646400.0,\n      \"confidence\": 0.93,\n      \"notional_usd\": 3000.0,\n      \"price\": 3000.0,\n      \"quantity\": 1.0,\n      \"reason\": \"order notional exceeds limit\",\n      \"reduce_only\": false,\n      \"side\": \"buy\",\n      \"source\": \"scenario:paper-launch-smoke\",\n      \"symbol\": \"ETH\"\n    },\n    {\n      \"allowed\": true,\n      \"as_of\": 1777646400.0,\n      \"confidence\": 0.1,\n      \"notional_usd\": 202.5,\n      \"price\": 40500.0,\n      \"quantity\": 0.005,\n      \"reason\": \"reduce-only orders bypass risk-increasing friction\",\n      \"reduce_only\": true,\n      \"side\": \"sell\",\n      \"source\": \"scenario:paper-launch-smoke\",\n      \"symbol\": \"BTC\"\n    },\n    {\n      \"allowed\": false,\n      \"as_of\": 1777646400.0,\n      \"confidence\": 0.95,\n      \"notional_usd\": 1400.0,\n      \"price\": 140.0,\n      \"quantity\": 10.0,\n      \"reason\": \"order notional exceeds limit\",\n      \"reduce_only\": false,\n      \"side\": \"buy\",\n      \"source\": \"scenario:paper-launch-smoke\",\n      \"symbol\": \"SOL\"\n    }\n  ],\n  \"fills\": 2,\n  \"market\": {\n    \"BTC\": {\n      \"as_of\": \"2026-05-01T00:05:00Z\",\n      \"last\": 40500.0\n    },\n    \"ETH\": {\n      \"as_of\": \"2026-05-01T00:00:00Z\",\n      \"last\": 3000.0\n    },\n    \"SOL\": {\n      \"as_of\": \"2026-05-01T00:00:00Z\",\n      \"last\": 140.0\n    }\n  },\n  \"mode\": \"paper\",\n  \"paper_only\": true,\n  \"positions\": {\n    \"BTC\": {\n      \"avg_price\": 40000.0,\n      \"notional_usd\": 200.0,\n      \"quantity\": 0.005\n    }\n  },\n  \"rejections\": 2,\n  \"scenario\": \"paper-launch-smoke\",\n  \"schema_version\": \"zero.mcp.paper_results.v1\"\n}","type":"text"}],"isError":false}}}
 {"request":{"id":5,"jsonrpc":"2.0","method":"tools/call","params":{"arguments":{},"name":"zero_get_memory_snapshot"}},"response":{"id":5,"jsonrpc":"2.0","result":{"content":[{"text":"{\n  \"entries\": [\n    {\n      \"confidence\": 0.8,\n      \"created_at\": \"2026-05-01T14:40:00Z\",\n      \"evidence_hash\": \"sha256:48f53b6ebbcdca941af84ba5e0007d4c9b5dd3d2d588e4533a9eba35e9790131\",\n      \"expires_at\": \"2026-05-08T14:40:00Z\",\n      \"id\": \"sha256:334189ecdb8a7ae713dc35ae1004b0597144b82a15babc64699faf0ef6dee363\",\n      \"kind\": \"signal\",\n      \"metadata\": {\n        \"allowed\": true,\n        \"reason_class\": \"allowed\",\n        \"reduce_only\": false,\n        \"source_class\": \"fixture-scenario\"\n      },\n      \"schema_version\": \"zero.memory.entry.v1\",\n      \"scope\": \"local-private\",\n      \"source\": \"fixture-scenario\",\n      \"subject\": \"BTC\",\n      \"summary\": \"Accepted paper decision for BTC; risk gate reported allowed.\",\n      \"tags\": [\n        \"paper\",\n        \"risk\",\n        \"accepted\"\n      ]\n    },\n    {\n      \"confidence\": 0.9,\n      \"created_at\": \"2026-05-01T14:40:00Z\",\n      \"evidence_hash\": \"sha256:875ba3e1ac0e2d0a61c21d2d88ccdea4029f3661d1bbc4204e229e5d7a7e1a6c\",\n      \"expires_at\": \"2026-07-30T14:40:00Z\",\n      \"id\": \"sha256:604efd749a09e2a3adcbf5926225201002e864a7261ef7acc32e37a615ff9c38\",\n      \"kind\": \"strategy_reference\",\n      \"metadata\": {\n        \"allowed\": false,\n        \"reason_class\": \"order notional exceeds limit\",\n        \"reduce_only\": false,\n        \"source_class\": \"fixture-scenario\"\n      },\n      \"schema_version\": \"zero.memory.entry.v1\",\n      \"scope\": \"local-private\",\n      \"source\": \"fixture-scenario\",\n      \"subject\": \"ETH\",\n      \"summary\": \"Rejected ETH by risk gate: order notional exceeds limit.\",\n      \"tags\": [\n        \"paper\",\n        \"risk\",\n        \"rejected\"\n      ]\n    },\n    {\n      \"confidence\": 0.8,\n      \"created_at\": \"2026-05-01T14:40:00Z\",\n      \"evidence_hash\": \"sha256:79ea6b6e3fbfe5d6ca285170fda22dc0ff2c0bfa868943d74f243ffc1e6b0824\",\n      \"expires_at\": \"2026-05-08T14:40:00Z\",\n      \"id\": \"sha256:730aaf092fd51e4f7b6126e1685f67ef95be1a115810ed739ced3dce7d8e0c6c\",\n      \"kind\": \"signal\",\n      \"metadata\": {\n        \"allowed\": true,\n        \"reason_class\": \"reduce-only orders bypass risk-increasing friction\",\n        \"reduce_only\": true,\n        \"source_class\": \"fixture-scenario\"\n      },\n      \"schema_version\": \"zero.memory.entry.v1\",\n      \"scope\": \"local-private\",\n      \"source\": \"fixture-scenario\",\n      \"subject\": \"BTC\",\n      \"summary\": \"Accepted paper decision for BTC; risk gate reported reduce-only orders bypass risk-increasing friction.\",\n      \"tags\": [\n        \"paper\",\n        \"risk\",\n        \"accepted\"\n      ]\n    },\n    {\n      \"confidence\": 0.9,\n      \"created_at\": \"2026-05-01T14:40:00Z\",\n      \"evidence_hash\": \"sha256:99e22fde0927b65881990b4355ea37e37eb418a29a062613201b7958ded6c857\",\n      \"expires_at\": \"2026-07-30T14:40:00Z\",\n      \"id\": \"sha256:b464fb6986797153647272fd4f3471d7c4af5f6ee4e0d36669e0404afd5bccc0\",\n      \"kind\": \"strategy_reference\",\n      \"metadata\": {\n        \"allowed\": false,\n        \"reason_class\": \"order notional exceeds limit\",\n        \"reduce_only\": false,\n        \"source_class\": \"fixture-scenario\"\n      },\n      \"schema_version\": \"zero.memory.entry.v1\",\n      \"scope\": \"local-private\",\n      \"source\": \"fixture-scenario\",\n      \"subject\": \"SOL\",\n      \"summary\": \"Rejected SOL by risk gate: order notional exceeds limit.\",\n      \"tags\": [\n        \"paper\",\n        \"risk\",\n        \"rejected\"\n      ]\n    }\n  ],\n  \"generated_at\": \"2026-05-01T14:40:00Z\",\n  \"mode\": \"paper\",\n  \"paper_only\": true,\n  \"schema_version\": \"zero.mcp.memory_snapshot.v1\",\n  \"source\": \"bundled-paper-scenario\",\n  \"stats\": {\n    \"active_entries\": 4,\n    \"by_kind\": {\n      \"operator\": 0,\n      \"regime\": 0,\n      \"signal\": 2,\n      \"strategy_reference\": 2\n    },\n    \"privacy\": {\n      \"contains_exchange_order_ids\": false,\n      \"contains_live_prices\": false,\n      \"contains_private_keys\": false,\n      \"contains_wallet_material\": false\n    }\n  }\n}","type":"text"}],"isError":false}}}
 {"request":{"id":7,"jsonrpc":"2.0","method":"tools/call","params":{"arguments":{},"name":"zero_get_genesis_proposals"}},"response":{"id":7,"jsonrpc":"2.0","result":{"content":[{"text":"{\n  \"applies_code_changes\": false,\n  \"decisions\": [\n    {\n      \"decided_at\": \"2026-05-01T14:40:00Z\",\n      \"decision\": \"accepted\",\n      \"id\": \"sha256:e7113a8b622fc0354884f4ed30520c467ecdaee17ae56e1d38724569ce599dc5\",\n      \"min_sample_size\": 30,\n      \"policy_version\": \"zero.genesis.guardian_policy.v1\",\n      \"proposal\": {\n        \"created_at\": \"2026-05-01T00:00:00Z\",\n        \"effective_risk_tier\": \"medium\",\n        \"evidence_refs\": [\n          \"docs/proof/demo/proof-pack.json\",\n          \"examples/strategy-runner/close-strength.yaml\"\n        ],\n        \"id\": \"sha256:genesis-accepted-docs\",\n        \"metadata\": {\n          \"owner\": \"public-runtime\",\n          \"source_class\": \"fixture-paper\"\n        },\n        \"protected_classes\": [],\n        \"revert_plan\": \"Revert the documentation update and keep the runner fixture unchanged.\",\n        \"risk_tier\": \"medium\",\n        \"sample_size\": 42,\n        \"schema_version\": \"zero.genesis.proposal.v1\",\n        \"summary\": \"Promote the fixture-backed strategy runner acceptance floor into contributor docs after stable paper evidence.\",\n        \"target_paths\": [\n          \"docs/strategy-plugins.md\",\n          \"examples/strategy-runner/README.md\"\n        ],\n        \"title\": \"Document strategy-runner acceptance floor\"\n      },\n      \"proposal_id\": \"sha256:genesis-accepted-docs\",\n      \"reason\": \"guardian requirements satisfied for non-protected proposal\",\n      \"required_human_review\": false,\n      \"schema_version\": \"zero.genesis.guardian.v1\"\n    },\n    {\n      \"decided_at\": \"2026-05-01T14:40:00Z\",\n      \"decision\": \"rejected\",\n      \"id\": \"sha256:ca0982abaa110c511967e36f9b3c52306b1bacb37ebb569927ddadb57fa549f6\",\n      \"min_sample_size\": 5,\n      \"policy_version\": \"zero.genesis.guardian_policy.v1\",\n      \"proposal\": {\n        \"created_at\": \"2026-05-01T00:00:00Z\",\n        \"effective_risk_tier\": \"low\",\n        \"evidence_refs\": [\n          \"examples/memory-core/decisions.jsonl\"\n        ],\n        \"id\": \"sha256:genesis-rejected-sample\",\n        \"metadata\": {\n          \"owner\": \"public-runtime\",\n          \"source_class\": \"fixture-paper\"\n        },\n        \"protected_classes\": [],\n        \"revert_plan\": \"Remove the cohort note if the fixture does not reproduce.\",\n        \"risk_tier\": \"low\",\n        \"sample_size\": 2,\n        \"schema_version\": \"zero.genesis.proposal.v1\",\n        \"summary\": \"Add a new cohort note before enough fixture decisions exist to justify it.\",\n        \"target_paths\": [\n          \"docs/memory-core.md\"\n        ],\n        \"title\": \"Relax docs wording for a new rejection cohort\"\n      },\n      \"proposal_id\": \"sha256:genesis-rejected-sample\",\n      \"reason\": \"missing guardian requirements: sample_size>=5\",\n      \"required_human_review\": false,\n      \"schema_version\": \"zero.genesis.guardian.v1\"\n    },\n    {\n      \"decided_at\": \"2026-05-01T14:40:00Z\",\n      \"decision\": \"escalated\",\n      \"id\": \"sha256:cae78f5387ce6fae173adb656c0d26f325b34581720359327a18fab8f095f92e\",\n      \"min_sample_size\": 100,\n      \"policy_version\": \"zero.genesis.guardian_policy.v1\",\n      \"proposal\": {\n        \"created_at\": \"2026-05-01T00:00:00Z\",\n        \"effective_risk_tier\": \"protected\",\n        \"evidence_refs\": [\n          \"docs/live-certification.md\",\n          \"docs/live-evidence.md\"\n        ],\n        \"id\": \"sha256:genesis-escalated-live\",\n        \"metadata\": {\n          \"owner\": \"public-runtime\",\n          \"source_class\": \"fixture-paper\"\n        },\n        \"protected_classes\": [\n          \"execution\",\n          \"live_adapters\"\n        ],\n        \"revert_plan\": \"Revert the retry behavior and keep the previous live preflight gate.\",\n        \"risk_tier\": \"medium\",\n        \"sample_size\": 140,\n        \"schema_version\": \"zero.genesis.proposal.v1\",\n        \"summary\": \"Change live adapter retry behavior from observed operator evidence.\",\n        \"target_paths\": [\n          \"engine/src/zero_engine/live.py\"\n        ],\n        \"title\": \"Tune live adapter retry behavior\"\n      },\n      \"proposal_id\": \"sha256:genesis-escalated-live\",\n      \"reason\": \"protected path classes require human review: execution, live_adapters\",\n      \"required_human_review\": true,\n      \"schema_version\": \"zero.genesis.guardian.v1\"\n    }\n  ],\n  \"generated_at\": \"2026-05-01T14:40:00Z\",\n  \"guardian_policy\": {\n    \"high_risk_requires_human_review\": true,\n    \"min_sample_size\": {\n      \"high\": 100,\n      \"low\": 5,\n      \"medium\": 30,\n      \"protected\": 100\n    },\n    \"protected_path_classes\": {\n      \"circuit_breakers\": [\n        \"engine/src/zero_engine/immune.py\",\n        \"circuit\",\n        \"breaker\"\n      ],\n      \"execution\": [\n        \"engine/src/zero_engine/live.py\",\n        \"cli/crates/zero-commands/src/dispatch.rs\"\n      ],\n      \"immune_core\": [\n        \"engine/src/zero_engine/immune.py\",\n        \"immune\"\n      ],\n      \"live_adapters\": [\n        \"engine/src/zero_engine/hyperliquid.py\",\n        \"engine/src/zero_engine/live.py\",\n        \"hyperliquid\"\n      ],\n      \"sizing\": [\n        \"engine/src/zero_engine/safety.py\",\n        \"engine/src/zero_engine/models.py\"\n      ],\n      \"stops\": [\n        \"stop\",\n        \"trailing\",\n        \"drawdown\"\n      ]\n    },\n    \"protected_paths_require_human_review\": true,\n    \"requires_evidence_refs\": true,\n    \"requires_revert_plan\": true,\n    \"schema_version\": \"zero.genesis.guardian_policy.v1\"\n  },\n  \"mode\": \"plan-only\",\n  \"paper_only\": true,\n  \"privacy\": {\n    \"contains_exchange_order_ids\": false,\n    \"contains_live_prices\": false,\n    \"contains_private_keys\": false,\n    \"contains_wallet_material\": false\n  },\n  \"schema_version\": \"zero.mcp.genesis_proposals.v1\",\n  \"source\": \"fixture-proposals\",\n  \"stats\": {\n    \"by_decision\": {\n      \"accepted\": 1,\n      \"escalated\": 1,\n      \"rejected\": 1\n    },\n    \"generated_at\": \"2026-05-01T14:40:00Z\",\n    \"human_review_required\": 1,\n    \"protected_classes\": [\n      \"execution\",\n      \"live_adapters\"\n    ],\n    \"schema_version\": \"zero.genesis.summary.v1\",\n    \"total_decisions\": 3\n  }\n}","type":"text"}],"isError":false}}}
-{"request":{"id":8,"jsonrpc":"2.0","method":"resources/list","params":{}},"response":{"id":8,"jsonrpc":"2.0","result":{"resources":[{"description":"The deterministic paper scenario used by examples and MCP tools.","mimeType":"application/json","name":"Bundled Paper Scenario","uri":"zero://paper/scenario"},{"description":"Read-only paper replay result generated from the bundled scenario.","mimeType":"application/json","name":"Bundled Paper Results","uri":"zero://paper/results"},{"description":"Public-safe demo proof-pack manifest.","mimeType":"application/json","name":"Demo Proof Pack","uri":"zero://proof/demo"},{"description":"Public-safe local memory extracted from bundled paper decisions.","mimeType":"application/json","name":"Demo Memory Snapshot","uri":"zero://memory/snapshot"},{"description":"Plan-only genesis proposal classifications for coding agents.","mimeType":"application/json","name":"Demo Genesis Proposals","uri":"zero://genesis/proposals"}]}}}
-{"request":{"id":9,"jsonrpc":"2.0","method":"resources/read","params":{"uri":"zero://proof/demo"}},"response":{"id":9,"jsonrpc":"2.0","result":{"contents":[{"mimeType":"application/json","text":"{\n  \"artifacts\": {\n    \"candles_jsonl\": \"sha256:c263d1ba3646f7b849112812a32da77fdd4e9fd33f9f091637e2d7e5622bb23a\",\n    \"demo_readme\": \"sha256:50538d70e490c58ebe74548e59b5c377ef3d31de82bea9d379949d63e21d107b\",\n    \"paper_decisions_csv\": \"sha256:e27e0dac3bfc686f54a1e51c99b6daccabbb49a335924b9160c0b07ddcabb497\",\n    \"paper_proof_svg\": \"sha256:53c87e12d4cf4822e5539b7cf264c294f004d713cd9b5e968806c1e151df3b56\",\n    \"scenario_json\": \"sha256:93290634b70d88df5c69755e2f1da17ae9f034c561b461d6c5fcd1c3b4bbbe8f\"\n  },\n  \"claim_boundary\": {\n    \"live_trading_claimed\": false,\n    \"paper_mode_verified\": true,\n    \"paper_vs_live_correlation_claimed\": false,\n    \"pnl_claimed\": false\n  },\n  \"generated_at\": \"2026-05-01T00:00:00Z\",\n  \"live_correlation\": {\n    \"r_squared\": null,\n    \"reason\": \"requires signed paper/live records and exchange-side evidence\",\n    \"status\": \"unavailable\"\n  },\n  \"mode\": \"paper\",\n  \"name\": \"demo-paper-launch-smoke\",\n  \"paper\": {\n    \"decisions\": 4,\n    \"fills\": 2,\n    \"open_positions\": 1,\n    \"rejections\": 2,\n    \"scenario\": \"paper-launch-smoke\",\n    \"symbols\": [\n      \"BTC\",\n      \"ETH\",\n      \"SOL\"\n    ]\n  },\n  \"privacy\": {\n    \"contains_exchange_credentials\": false,\n    \"contains_private_notes\": false,\n    \"contains_raw_exchange_order_ids\": false,\n    \"contains_wallet_material\": false\n  },\n  \"proof_hash\": \"sha256:6b56436ec3003c2c6557f57f08e6d127e1e30a77451384cd3ed5b15f6c751ceb\",\n  \"schema_version\": \"zero.proof_pack.v1\"\n}","uri":"zero://proof/demo"}]}}}
+{"request":{"id":9,"jsonrpc":"2.0","method":"tools/call","params":{"arguments":{},"name":"zero_get_evolve_status"}},"response":{"id":9,"jsonrpc":"2.0","result":{"content":[{"text":"{\n  \"accepted_candidates\": 1,\n  \"applies_to_checkout\": false,\n  \"build\": {\n    \"applies_to_checkout\": false,\n    \"branch_name\": \"codex/evolve/document-strategy-runner-acceptance-floor-genesis-acce\",\n    \"checks\": {\n      \"proposal_accepted\": true,\n      \"protected_classes_empty\": true,\n      \"target_paths_allowed\": true\n    },\n    \"generated_at\": \"2026-05-01T14:40:00Z\",\n    \"mode\": \"paper-only\",\n    \"patch_hash\": \"sha256:1b47c6fd03705246a2d7a6ca2d00c62f5c92cc1a7a0d8413714b677935a53b6b\",\n    \"patch_path\": \"/tmp/zero-evolve-snapshot/worktree/candidate.patch\",\n    \"proposal_id\": \"sha256:genesis-accepted-docs\",\n    \"pushes_to_remote\": false,\n    \"sandbox_dir\": \"/tmp/zero-evolve-snapshot/worktree\",\n    \"schema_version\": \"zero.evolve.build.v1\",\n    \"target_paths\": [\n      \"docs/strategy-plugins.md\",\n      \"examples/strategy-runner/README.md\"\n    ]\n  },\n  \"calibration\": {\n    \"drift\": {\n      \"decisions\": 0,\n      \"fills\": 0,\n      \"open_positions\": 0,\n      \"rejections\": 0\n    },\n    \"gate\": \"zero-drift-against-deterministic-paper-baseline\",\n    \"generated_at\": \"2026-05-01T14:40:00Z\",\n    \"mode\": \"paper\",\n    \"passed\": true,\n    \"schema_version\": \"zero.evolve.calibration.v1\"\n  },\n  \"generated_at\": \"2026-05-01T14:40:00Z\",\n  \"input_decisions\": 3,\n  \"mode\": \"paper-only\",\n  \"paper_canary\": {\n    \"baseline\": {\n      \"decisions\": 4,\n      \"fills\": 2,\n      \"open_positions\": 1,\n      \"rejections\": 2\n    },\n    \"decisions\": 4,\n    \"fills\": 2,\n    \"generated_at\": \"2026-05-01T14:40:00Z\",\n    \"mode\": \"paper\",\n    \"open_positions\": 1,\n    \"rejections\": 2,\n    \"scenario\": \"paper-launch-smoke\",\n    \"schema_version\": \"zero.evolve.paper_canary.v1\"\n  },\n  \"paper_only\": true,\n  \"policy\": {\n    \"allowed_patch_roots\": [\n      \"docs/\",\n      \"examples/\"\n    ],\n    \"forbidden_patch_roots\": [\n      \"engine/src/zero_engine/live.py\",\n      \"engine/src/zero_engine/hyperliquid.py\",\n      \"engine/src/zero_engine/immune.py\",\n      \"engine/src/zero_engine/safety.py\",\n      \"cli/crates/zero-commands/src/dispatch.rs\"\n    ],\n    \"promotion_is_local_only\": true,\n    \"remote_push_allowed\": false,\n    \"requires_accepted_genesis_decision\": true,\n    \"requires_calibration_pass\": true,\n    \"requires_paper_canary\": true,\n    \"requires_red_team_pass\": true,\n    \"schema_version\": \"zero.evolve.policy.v1\"\n  },\n  \"promotion\": {\n    \"gates\": {\n      \"build\": true,\n      \"calibration\": true,\n      \"human_approval\": false,\n      \"paper_canary\": true,\n      \"red_team\": true\n    },\n    \"generated_at\": \"2026-05-01T14:40:00Z\",\n    \"mode\": \"local-only\",\n    \"promotable_after_human_review\": true,\n    \"promoted\": false,\n    \"pushes_to_remote\": false,\n    \"reason\": \"all automated paper gates passed; human approval still required\",\n    \"requires_human_approval\": true,\n    \"schema_version\": \"zero.evolve.promotion.v1\"\n  },\n  \"pushes_to_remote\": false,\n  \"red_team\": {\n    \"findings\": [],\n    \"generated_at\": \"2026-05-01T14:40:00Z\",\n    \"mode\": \"paper-only\",\n    \"policy\": {\n      \"forbidden_private_material\": true,\n      \"protected_paths_blocked\": true,\n      \"remote_push_blocked\": true\n    },\n    \"proposal_id\": \"sha256:genesis-accepted-docs\",\n    \"schema_version\": \"zero.evolve.red_team.v1\",\n    \"verdict\": \"pass\"\n  },\n  \"schema_version\": \"zero.mcp.evolve_status.v1\",\n  \"selected_proposal_id\": \"sha256:genesis-accepted-docs\",\n  \"source\": \"fixture-genesis-proposals\"\n}","type":"text"}],"isError":false}}}
+{"request":{"id":10,"jsonrpc":"2.0","method":"resources/list","params":{}},"response":{"id":10,"jsonrpc":"2.0","result":{"resources":[{"description":"The deterministic paper scenario used by examples and MCP tools.","mimeType":"application/json","name":"Bundled Paper Scenario","uri":"zero://paper/scenario"},{"description":"Read-only paper replay result generated from the bundled scenario.","mimeType":"application/json","name":"Bundled Paper Results","uri":"zero://paper/results"},{"description":"Public-safe demo proof-pack manifest.","mimeType":"application/json","name":"Demo Proof Pack","uri":"zero://proof/demo"},{"description":"Public-safe local memory extracted from bundled paper decisions.","mimeType":"application/json","name":"Demo Memory Snapshot","uri":"zero://memory/snapshot"},{"description":"Plan-only genesis proposal classifications for coding agents.","mimeType":"application/json","name":"Demo Genesis Proposals","uri":"zero://genesis/proposals"},{"description":"Paper-only builder, red-team, canary, and calibration status.","mimeType":"application/json","name":"Demo Evolve Status","uri":"zero://evolve/status"}]}}}
+{"request":{"id":11,"jsonrpc":"2.0","method":"resources/read","params":{"uri":"zero://proof/demo"}},"response":{"id":11,"jsonrpc":"2.0","result":{"contents":[{"mimeType":"application/json","text":"{\n  \"artifacts\": {\n    \"candles_jsonl\": \"sha256:c263d1ba3646f7b849112812a32da77fdd4e9fd33f9f091637e2d7e5622bb23a\",\n    \"demo_readme\": \"sha256:50538d70e490c58ebe74548e59b5c377ef3d31de82bea9d379949d63e21d107b\",\n    \"paper_decisions_csv\": \"sha256:e27e0dac3bfc686f54a1e51c99b6daccabbb49a335924b9160c0b07ddcabb497\",\n    \"paper_proof_svg\": \"sha256:53c87e12d4cf4822e5539b7cf264c294f004d713cd9b5e968806c1e151df3b56\",\n    \"scenario_json\": \"sha256:93290634b70d88df5c69755e2f1da17ae9f034c561b461d6c5fcd1c3b4bbbe8f\"\n  },\n  \"claim_boundary\": {\n    \"live_trading_claimed\": false,\n    \"paper_mode_verified\": true,\n    \"paper_vs_live_correlation_claimed\": false,\n    \"pnl_claimed\": false\n  },\n  \"generated_at\": \"2026-05-01T00:00:00Z\",\n  \"live_correlation\": {\n    \"r_squared\": null,\n    \"reason\": \"requires signed paper/live records and exchange-side evidence\",\n    \"status\": \"unavailable\"\n  },\n  \"mode\": \"paper\",\n  \"name\": \"demo-paper-launch-smoke\",\n  \"paper\": {\n    \"decisions\": 4,\n    \"fills\": 2,\n    \"open_positions\": 1,\n    \"rejections\": 2,\n    \"scenario\": \"paper-launch-smoke\",\n    \"symbols\": [\n      \"BTC\",\n      \"ETH\",\n      \"SOL\"\n    ]\n  },\n  \"privacy\": {\n    \"contains_exchange_credentials\": false,\n    \"contains_private_notes\": false,\n    \"contains_raw_exchange_order_ids\": false,\n    \"contains_wallet_material\": false\n  },\n  \"proof_hash\": \"sha256:6b56436ec3003c2c6557f57f08e6d127e1e30a77451384cd3ed5b15f6c751ceb\",\n  \"schema_version\": \"zero.proof_pack.v1\"\n}","uri":"zero://proof/demo"}]}}}
 ````
 
 
@@ -2902,9 +3010,9 @@ end.
 | Product narrative | 99 | Clear category around autonomous operating systems for self-custodial onchain operations, with public runtime, terminal, evolution, network, intelligence, capability boundary, and operator proof path separated cleanly. |
 | CLI readiness | 99 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, `/live-cockpit`, `/live-certify`, `/immune`, friction-gated `/resume-entries`, friction-gated engine-backed `/execute` with receipt-hash rendering, operator-context audit headers, operator-local runtime partitions, a one-command live canary operator evidence workflow, and a verified read-only live cockpit drill bundle exist. Remaining full-screen TUI cockpit layout and real canary evidence are external. |
 | Engine runtime | 91 | Deterministic paper runtime, bounded OODA cycle records, strategy runner SDK, declarative paper strategies, append-only decision journal, durable runtime bus contracts, restart replay, read-only Hyperliquid info adapter, live-mid paper execution, traceable audit export, live custody preflight, account reconciliation, dry-run live certification, immune breaker packets, live execution receipt packets, maintained live canary rehearsal collector, verifier, exchange-evidence normalizer, operator report workflow, and operator report verifier, public-safe signed live evidence packets, fail-closed model gateway plumbing, and live-executor interfaces exist. Still missing public production OODA parity and real exchange canary proof from an operator-owned run. |
-| Self-evolution loop | 45 | Local memory and genesis proposal core are now implemented with typed public-safe entries, append-only JSONL journals, generated `knowledge.md`, `/memory`, `/genesis`, fixture-backed CLI extraction/classification, guardian sample floors, protected path escalation, and read-only MCP snapshots. Builder/evolve, red-team, paper canaries, calibration, and promote/rollback gates remain. |
+| Self-evolution loop | 55 | Local memory, genesis proposal core, and paper-only evolve gates are now implemented with typed public-safe entries, append-only JSONL journals, generated `knowledge.md`, `/memory`, `/genesis`, `/evolve`, fixture-backed CLI extraction/classification, guardian sample floors, protected path escalation, red-team review, deterministic paper canary, calibration, and read-only MCP snapshots. Real mutation, promotion, rollback, and broader research loops remain. |
 | Safety and risk | 93 | CLI risk asymmetry, local custody validation, dry-run order validation, preflight refusal, account-reconciliation gate, live-submit idempotency model, no-retry exchange-error records, dry-run live certification drills, `zero.immune.v1` breakers, dead-man heartbeat contract, max notional/loss/order-rate policy, pause, kill, reduce-only flatten, fail-closed canary rehearsal, hash-only live evidence capture, verified cockpit drill tamper rejection, threat model, and P0/P1 runbooks exist. Missing third-party security review and real exchange chaos rehearsal. |
-| API contracts | 99 | Paper fixtures are pinned across Python and Rust, OpenAPI documents the local paper runtime, compatibility rules are explicit, `/memory` exposes redacted local learning, `/genesis` exposes plan-only proposal classification, `/operator/context` exposes audit identity, `/deployment/claim` exposes signature-ready runtime identity, `/deployment/heartbeat` exposes signature-ready public liveness, `/hl/status` exposes read-only market status, `/hl/account` and `/hl/reconcile` expose account truth, `/immune` exposes risk-blocking breaker state, `/live/cockpit` exposes consolidated live operator state, `/live/certification` exposes dry-run safety evidence, `/live/receipts` exposes public-safe local execution receipts, `/live/evidence` exposes a hash-only signed canary evidence bundle, `/market/quote` names the active price source, `/health` plus `/v2/status` expose recovery state, `/metrics` plus `/audit/export` expose observable runtime state, `/network/*` exposes public proof packets and hosted-compatible ingestion, `/intelligence/*` exposes delayed intelligence, model gateway status, model gateway health, model gateway audit, and billing-ready commercial API contracts, `/v1/intelligence/*` exposes hosted-compatible auth, scopes, rate-limit headers, usage events, webhook signatures, and export jobs, `/live/preflight` exposes a non-secret live-readiness gate, and `POST /live/*` controls are typed in the CLI. Missing production hosted compatibility policy. |
+| API contracts | 99 | Paper fixtures are pinned across Python and Rust, OpenAPI documents the local paper runtime, compatibility rules are explicit, `/memory` exposes redacted local learning, `/genesis` exposes plan-only proposal classification, `/evolve` exposes paper-only evolve gates, `/operator/context` exposes audit identity, `/deployment/claim` exposes signature-ready runtime identity, `/deployment/heartbeat` exposes signature-ready public liveness, `/hl/status` exposes read-only market status, `/hl/account` and `/hl/reconcile` expose account truth, `/immune` exposes risk-blocking breaker state, `/live/cockpit` exposes consolidated live operator state, `/live/certification` exposes dry-run safety evidence, `/live/receipts` exposes public-safe local execution receipts, `/live/evidence` exposes a hash-only signed canary evidence bundle, `/market/quote` names the active price source, `/health` plus `/v2/status` expose recovery state, `/metrics` plus `/audit/export` expose observable runtime state, `/network/*` exposes public proof packets and hosted-compatible ingestion, `/intelligence/*` exposes delayed intelligence, model gateway status, model gateway health, model gateway audit, and billing-ready commercial API contracts, `/v1/intelligence/*` exposes hosted-compatible auth, scopes, rate-limit headers, usage events, webhook signatures, and export jobs, `/live/preflight` exposes a non-secret live-readiness gate, and `POST /live/*` controls are typed in the CLI. Missing production hosted compatibility policy. |
 | Deployment | 89 | Docker path, Railway config, healthcheck, restart policy, `PORT`-aware start script, durable journal replay, traceable paper decisions, Railway remote doctor, redacted deployment evidence pack, Railway smoke test, and Railway incident runbook exist. Missing live deployed project proof and authenticated remote log capture evidence. |
 | Observability and audit | 100 | HTTP trace IDs, operator context packets, operator-local state partitions, live-control action logs, traced paper decisions, metrics, idempotency counters, replay counts, retention/redaction metadata, structured audit export, checksum-chained runtime events, local state snapshots, immune breaker packets, Hyperliquid reconciliation packets, live cockpit packets, live execution receipt hashes, dry-run live certification packets, hash-only signed live evidence bundles, live canary bundle verification, live cockpit drill replay verification, live cockpit drill tamper rehearsal, public-safe exchange evidence attachment, public-safe operator reports, recursive operator evidence checksums, operator report verification, model gateway health packets, model gateway audit bundles, deployment evidence manifests, and required incident artifacts are documented. Remaining production work is external log drains/signing, not public-runtime audit shape. |
 | Security and custody | 92 | No secrets needed for first run; Hyperliquid private keys have operator-scoped keychain/env helpers, redaction tests, a non-secret preflight gate, optional SDK-backed live adapter, threat model, secret-leak runbook, dependency policy, SBOM/provenance metadata, and release provenance policy. Missing external security review. |
@@ -2922,7 +3030,7 @@ the full operating-system/product score: external security review, human
 fresh-clone feedback from at least one serious engineer, and a real
 operator-owned live canary evidence bundle.
 
-**Full ZERO operating-system readiness: 91/100.**
+**Full ZERO operating-system readiness: 93/100.**
 
 It is still not a hosted custody product, and real capital operation remains
 self-custodial and operator-owned. The public repo must not imply that a new
@@ -2933,7 +3041,7 @@ documented in [Private Engine Capability Gap Audit](private-engine-capability-ga
 For the larger target, ZERO is not yet 100/100 as a complete autonomous
 operating system. The remaining work is tracked in the
 [ZERO Autonomous OS Completion Plan](autonomous-os-plan.md): public
-builder/evolve, production strategy runners, durable runtime bus,
+real mutation/promotion, production strategy runners, durable runtime bus,
 Hyperliquid reconciliation, live execution certification, immune controls,
 terminal live cockpit, signed deployment identity verification, LLM gateway,
 hosted Network ingestion, ZERO Intelligence API, deployment evidence,
@@ -2981,7 +3089,7 @@ ZERO is 100/100 when a new serious operator can:
 
 ## Execution Cycles
 
-Forecast after Cycle 29: **6 major cycles remain before the public
+Forecast after Cycle 30: **5 major cycles remain before the public
 repo should be treated as the complete ZERO autonomous operating system.** The
 repo can be upgraded publicly before those cycles finish, but the README and
 docs must keep the paper/live and self-evolution boundaries honest.
@@ -3361,7 +3469,8 @@ marketing copy. The first public impression should be:
 - Keep local memory, genesis, evolve, guardian review, paper canary, and
   calibration loops open because they are part of the self-custodial runtime.
   Local memory is already open in [Memory Core](memory-core.md), and genesis
-  proposal classification is open in [Genesis](genesis.md).
+  proposal classification is open in [Genesis](genesis.md). Paper-only evolve
+  gates are open in [Evolve Harness](evolve.md).
 - Do not imply guaranteed returns, hosted custody, or unattended live safety.
 
 ## Public Launch Surface
@@ -3370,7 +3479,7 @@ marketing copy. The first public impression should be:
 | --- | --- |
 | Runtime | Paper engine, local API, durable journal, runtime bus, strategy runners, safety gates, read-only Hyperliquid data, and live-readiness contracts. |
 | Terminal | Doctor, status, risk, replay, cockpit/readiness views, and friction-preserving risk controls. |
-| Evolution | Local memory and genesis proposal core now exist; builder/evolve, red-team review, paper canary, calibration, and promote/rollback gates remain. |
+| Evolution | Local memory, genesis proposal core, and paper-only evolve gates now exist; real mutation, promotion, rollback, and broader research loops remain. |
 | Network | Redacted local proof packets, profile contracts, leaderboard contracts, and static page examples. |
 | Intelligence | Delayed public snapshots, catalog contracts, commercial API contracts, rate-limit and webhook fixtures, and clear subscription boundary. |
 | Contribution | Agent guide, scoped backlog, issue forms, PR template, safety review path, and one-command gates. |
@@ -3582,7 +3691,7 @@ speed, scale, history, and reliability.
 | Product narrative | 98 | keep narrative aligned as runtime becomes real |
 | CLI readiness | 97 | richer TUI cockpit layout, operator automation examples |
 | Engine runtime | 90 | live canary evidence, richer exchange history reconciliation |
-| Self-evolution loop | 45 | public memory and genesis proposal classification exist; builder/evolve, red-team, paper canary, calibration, and promote/rollback gates remain |
+| Self-evolution loop | 55 | public memory, genesis proposal classification, and paper-only evolve gates exist; real mutation, promotion, rollback, and broader research loops remain |
 | Safety and risk | 94 | real exchange chaos drills, external review |
 | API contracts | 98 | signed live runtime packets, production hosted compatibility policy |
 | Deployment | 89 | live Railway proof, authenticated remote log evidence |
@@ -4230,7 +4339,7 @@ local genesis, or the operator terminal as proprietary features.
 
 | Area | Internal capability | Public state | Gap |
 | --- | --- | --- | --- |
-| Self-evolution | Memory extracts rules, genesis proposes/builds changes, red-team attacks diffs, canary/calibration gates promotion. | Memory core and genesis proposal classification are now present as public subsystems. | Add builder/evolve modules, red-team/canary/calibration gates, and paper-only tests. |
+| Self-evolution | Memory extracts rules, genesis proposes/builds changes, red-team attacks diffs, canary/calibration gates promotion. | Memory core, genesis proposal classification, and paper-only evolve gates are now present as public subsystems. | Add real mutation/promotion, rollback, broader research commands, and paper-only tests. |
 | Research command chain | Hunt, edge, convergence, thesis, score, meta, and sharpen form a learning/research loop. | Public docs mention autonomous OS, but not the full command chain. | Add public command contracts and deterministic fixture-backed reports. |
 | Real decision engine | Multi-lens evaluation, layered signals, risk gates, sizing modifiers, and rejection learning. | Public runtime has paper engine, runners, safety, and live-readiness primitives. | Port lens/layer/modifier interfaces and fixtures before porting live behavior. |
 | MCP surface | Internal MCP can inspect and operate many engine surfaces. | Public MCP exposes a minimal read-only paper demo. | Expand read-only and risk-reducing local MCP tools with explicit safety classes. |
@@ -4325,6 +4434,17 @@ Exit gate:
   canary/calibration evidence.
 - promotion is local-only and never pushes automatically.
 
+Current public status:
+
+- Implemented in `engine/src/zero_engine/evolve.py`.
+- Covered by `engine/tests/test_evolve.py`, API tests, MCP tests, and
+  `just evolve-example`.
+- `/evolve`, `zero_get_evolve_status`, and `zero://evolve/status` expose
+  paper-only gate status.
+- The public harness writes sandbox artifacts but does not mutate the checkout,
+  promote, deploy, or push.
+- Documented in [Evolve Harness](evolve.md).
+
 ### Cycle 31: Research Command Chain
 
 Add fixture-backed public versions of the internal research loop:
@@ -4397,14 +4517,14 @@ Exit gate:
 
 Public repo readiness remains **100/100** as a launch artifact.
 
-Full ZERO operating-system readiness is **91/100** after Cycle 29. The score
-increased because public genesis proposal classification now exists as code,
-tests, docs, API readouts, and MCP snapshots. The remaining self-evolution loop
-is still core product architecture, not polish.
+Full ZERO operating-system readiness is **93/100** after Cycle 30. The score
+increased because public evolve gate evidence now exists as code, tests, docs,
+API readouts, and MCP snapshots. The remaining self-evolution loop is still
+core product architecture, not polish.
 
 The path back to 100/100 is now clearer:
 
-1. public builder/evolve loop;
+1. real mutation/promotion and rollback loop;
 2. fixture-backed research command chain;
 3. real lens/layer/modifier decision interfaces;
 4. expanded agent/MCP operation surface;

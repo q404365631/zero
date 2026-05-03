@@ -73,7 +73,7 @@ speed, scale, history, and reliability.
 | Product narrative | 98 | keep narrative aligned as runtime becomes real |
 | CLI readiness | 97 | richer TUI cockpit layout, operator automation examples |
 | Engine runtime | 90 | live canary evidence, richer exchange history reconciliation |
-| Self-evolution loop | 45 | public memory and genesis proposal classification exist; builder/evolve, red-team, paper canary, calibration, and promote/rollback gates remain |
+| Self-evolution loop | 55 | public memory, genesis proposal classification, and paper-only evolve gates exist; real mutation, promotion, rollback, and broader research loops remain |
 | Safety and risk | 94 | real exchange chaos drills, external review |
 | API contracts | 98 | signed live runtime packets, production hosted compatibility policy |
 | Deployment | 89 | live Railway proof, authenticated remote log evidence |

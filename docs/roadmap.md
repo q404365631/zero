@@ -16,12 +16,13 @@
 - Private engine capability gap audit
 - Public Memory Core
 - Public Genesis Proposal Core
+- Public Evolve Harness
 
 ## Near Term
 
 - Autonomous runtime loop and durable runtime bus
-- Public builder/evolve self-evolution loop
-- Red-team, paper canary, calibration, and promote/rollback gates
+- Real mutation, promotion, and rollback loop
+- Broader research command chain and promote/rollback gates
 - Research command chain: hunt, edge, convergence, thesis, score, meta, sharpen
 - Strategy runner SDK
 - Hyperliquid account reconciliation

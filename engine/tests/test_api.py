@@ -176,6 +176,7 @@ def test_paper_api_metrics_tracks_requests_and_execute_outcomes() -> None:
     assert metrics["engine"]["fills"] == 1
     assert metrics["engine"]["acceptance_rate"] == 1.0
     assert metrics["genesis"]["total_decisions"] == 3
+    assert metrics["evolve"]["pushes_to_remote"] is False
 
 
 def test_paper_api_exposes_plan_only_genesis_snapshot() -> None:
@@ -192,6 +193,19 @@ def test_paper_api_exposes_plan_only_genesis_snapshot() -> None:
     }
     assert payload["guardian_policy"]["protected_paths_require_human_review"] is True
     assert payload["decisions"][2]["required_human_review"] is True
+
+
+def test_paper_api_exposes_paper_only_evolve_snapshot() -> None:
+    status, payload = PaperApi(PaperApiState(clock=lambda: FIXED_DT)).get("/evolve", {})
+
+    assert status == 200
+    assert payload["schema_version"] == "zero.evolve.snapshot.v1"
+    assert payload["mode"] == "paper-only"
+    assert payload["applies_to_checkout"] is False
+    assert payload["pushes_to_remote"] is False
+    assert payload["red_team"]["verdict"] == "pass"
+    assert payload["calibration"]["passed"] is True
+    assert payload["promotion"]["requires_human_approval"] is True
 
 
 def test_paper_api_audit_export_includes_traceable_decisions(tmp_path) -> None:
