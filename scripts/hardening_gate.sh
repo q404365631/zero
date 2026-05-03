@@ -126,8 +126,19 @@ contains "read-only" docs/mcp.md
 contains "zero-mcp" docs/mcp.md
 contains "zero_get_paper_results" docs/mcp/transcript.jsonl
 contains "zero_get_memory_snapshot" docs/mcp/transcript.jsonl
+contains "zero_get_runtime_status" docs/mcp/transcript.jsonl
+contains "zero_get_health" docs/mcp/transcript.jsonl
+contains "zero_get_journal_tail" docs/mcp/transcript.jsonl
+contains "zero_get_rejection_audit" docs/mcp/transcript.jsonl
+contains "zero_get_memory_stats" docs/mcp/transcript.jsonl
+contains "zero_get_immune_status" docs/mcp/transcript.jsonl
+contains "zero_get_backtest_report" docs/mcp/transcript.jsonl
+contains "zero_get_evidence_bundle" docs/mcp/transcript.jsonl
+contains "zero_get_safety_catalog" docs/mcp/transcript.jsonl
+contains "read_only_public" docs/mcp/transcript.jsonl
 contains "zero://proof/demo" docs/mcp/transcript.jsonl
 contains "zero://memory/snapshot" docs/mcp/transcript.jsonl
+contains "zero://mcp/safety" docs/mcp/transcript.jsonl
 contains "zero.memory.entry.v1" docs/memory-core.md
 contains "Machine-readable entrypoints" README.md
 contains "Stewardship Pledge" GOVERNANCE.md

@@ -130,7 +130,7 @@ echo "-- public product honesty"
 file_contains "Autonomous operating system for self-custodial onchain operations" README.md
 file_contains "paper mode" README.md
 file_contains "Self-evolution" docs/private-engine-capability-gap-audit.md
-file_contains "Full ZERO operating-system readiness: 95/100" docs/production-readiness.md
+file_contains "Full ZERO operating-system readiness: 96/100" docs/production-readiness.md
 file_contains "zero.memory.entry.v1" docs/memory-core.md
 file_contains "zero.genesis.proposal.v1" docs/genesis.md
 file_contains "zero.evolve.run.v1" docs/evolve.md

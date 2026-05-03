@@ -2,10 +2,12 @@
 
 `zero-mcp` is a dependency-free, stdio MCP-compatible server for coding agents
 and operator tooling. It exposes only public-safe, read-only ZERO surfaces:
-bundled strategies, deterministic paper results, paper position state, local
-memory snapshots, genesis proposal classifications, evolve gate status, and
-research command-chain reports, the public decision stack, and the demo
-proof-pack manifest.
+bundled strategies, deterministic paper results, paper position state, runtime
+status, health, journal tail, rejection audit, local memory snapshots and stats,
+genesis proposal classifications, evolve gate status, research command-chain
+reports, the public decision stack, immune status, deterministic backtest
+summary, hash-only evidence bundle, safety catalog, and the demo proof-pack
+manifest.
 
 It does not expose live execution, order placement, approval, wallet, secret, or
 venue-write tools. The server is for inspection and local development until live
@@ -45,26 +47,38 @@ PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
 
 See [`docs/mcp/transcript.jsonl`](mcp/transcript.jsonl). It proves that a
 coding agent can initialize the server, list tools, inspect bundled strategies,
-replay deterministic paper results, inspect redacted local memory, inspect
-plan-only genesis proposals, inspect paper-only evolve gates, list resources,
+replay deterministic paper results, inspect redacted local memory and aggregate
+stats, inspect plan-only genesis proposals, inspect paper-only evolve gates,
 inspect paper-only research reports, inspect the lens/layer/modifier decision
-stack, and read the proof pack without gaining any live execution capability.
+stack, inspect journal/rejection/immune/evidence/backtest surfaces, list
+resources, and read the proof pack without gaining any live execution
+capability.
 
 ## Tools
 
-| Tool | Purpose |
-| --- | --- |
-| `zero_list_strategies` | Lists bundled paper strategies and contributor examples. |
-| `zero_get_paper_results` | Replays the deterministic bundled paper scenario. |
-| `zero_get_position_state` | Returns paper position state derived from the scenario. |
-| `zero_get_proof_pack` | Returns the public-safe demo proof-pack manifest. |
-| `zero_get_memory_snapshot` | Returns public-safe memory extracted from bundled paper decisions. |
-| `zero_get_genesis_proposals` | Returns plan-only genesis proposal classifications. |
-| `zero_get_evolve_status` | Returns paper-only builder/red-team/canary/calibration gate status. |
-| `zero_get_research_report` | Returns paper-only hunt/edge/convergence/thesis/score/meta/sharpen reports. |
-| `zero_get_decision_stack` | Returns the public paper-only lens/layer/modifier decision stack. |
+| Tool | Safety class | Purpose |
+| --- | --- | --- |
+| `zero_list_strategies` | `read_only_public` | Lists bundled paper strategies and contributor examples. |
+| `zero_get_runtime_status` | `read_only_public` | Returns paper runtime status derived from the bundled scenario. |
+| `zero_get_health` | `read_only_public` | Returns paper runtime health, dependencies, and breaker status. |
+| `zero_get_paper_results` | `read_only_public` | Replays the deterministic bundled paper scenario. |
+| `zero_get_position_state` | `read_only_public` | Returns paper position state derived from the scenario. |
+| `zero_get_journal_tail` | `read_only_public` | Returns the paper decision journal tail from the bundled scenario. |
+| `zero_get_rejection_audit` | `read_only_public` | Returns rejection counts grouped by paper stage and reason. |
+| `zero_get_proof_pack` | `read_only_public` | Returns the public-safe demo proof-pack manifest. |
+| `zero_get_memory_snapshot` | `read_only_public` | Returns public-safe memory extracted from bundled paper decisions. |
+| `zero_get_memory_stats` | `read_only_public` | Returns aggregate memory stats without entry bodies. |
+| `zero_get_genesis_proposals` | `read_only_public` | Returns plan-only genesis proposal classifications. |
+| `zero_get_evolve_status` | `read_only_public` | Returns paper-only builder/red-team/canary/calibration gate status. |
+| `zero_get_research_report` | `read_only_public` | Returns paper-only hunt/edge/convergence/thesis/score/meta/sharpen reports. |
+| `zero_get_decision_stack` | `read_only_public` | Returns the public paper-only lens/layer/modifier decision stack. |
+| `zero_get_immune_status` | `read_only_public` | Returns paper immune breaker and risk-allowance status. |
+| `zero_get_backtest_report` | `read_only_public` | Returns a deterministic paper backtest summary without PnL claims. |
+| `zero_get_evidence_bundle` | `read_only_public` | Returns a hash-only public-safe evidence bundle. |
+| `zero_get_safety_catalog` | `read_only_public` | Returns the MCP safety classification for every public tool. |
 
-All tools are read-only. None can place, approve, cancel, or route live orders.
+All tools declare `canPlaceOrders=false`, `canChangeRuntimeState=false`, and
+`canReadSecrets=false`. None can place, approve, cancel, or route live orders.
 
 ## Resources
 
@@ -72,18 +86,29 @@ All tools are read-only. None can place, approve, cancel, or route live orders.
 | --- | --- |
 | `zero://paper/scenario` | Bundled deterministic paper scenario. |
 | `zero://paper/results` | Generated paper replay result. |
+| `zero://runtime/status` | Paper runtime status. |
+| `zero://runtime/health` | Paper runtime health, dependencies, and breakers. |
+| `zero://journal/tail` | Paper decision journal tail. |
+| `zero://rejections/audit` | Paper rejection audit grouped by stage and reason. |
 | `zero://proof/demo` | Demo proof-pack manifest. |
 | `zero://memory/snapshot` | Public-safe local memory extracted from bundled paper decisions. |
+| `zero://memory/stats` | Aggregate memory stats without entry bodies. |
 | `zero://genesis/proposals` | Plan-only genesis proposal classifications. |
 | `zero://evolve/status` | Paper-only evolve gate status. |
 | `zero://research/report` | Paper-only research command-chain report. |
 | `zero://decision/stack` | Public paper-only lens/layer/modifier decision stack. |
+| `zero://immune/status` | Paper immune breaker status. |
+| `zero://backtest/report` | Deterministic paper backtest report without PnL claims. |
+| `zero://evidence/bundle` | Hash-only public-safe evidence bundle. |
+| `zero://mcp/safety` | Safety classification for every public MCP tool. |
 
 ## Smoke Contract
 
 `zero-mcp --smoke` verifies that:
 
 - The exposed tool set contains no live execution tools.
+- Every tool declares `read_only_public` safety metadata and cannot place
+  orders, change runtime state, or read secrets.
 - Every tool returns a JSON object.
 - Memory output does not expose prices, wallet material, exchange order ids, or
   keys.

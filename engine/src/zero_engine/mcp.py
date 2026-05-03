@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, TextIO
 
 from zero_engine import PaperEngine, load_scenario, load_strategy_runner, parse_scenario
+from zero_engine.api import PaperApi, PaperApiState
 from zero_engine.decision import fixture_stack
 from zero_engine.evolve import snapshot_from_fixture as evolve_snapshot_from_fixture
 from zero_engine.genesis import Proposal, load_proposals, snapshot_from_proposals
@@ -26,6 +27,22 @@ JsonMap = dict[str, Any]
 
 def parse_mcp_time() -> datetime:
     return datetime.fromtimestamp(PAPER_TS, UTC)
+
+
+READ_ONLY_SAFETY: JsonMap = {
+    "safetyClass": "read_only_public",
+    "riskDirection": "none",
+    "requiresOperatorApproval": False,
+    "canPlaceOrders": False,
+    "canChangeRuntimeState": False,
+    "canReadSecrets": False,
+    "annotations": {
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+}
 
 EMBEDDED_SCENARIO: JsonMap = {
     "name": "paper-launch-smoke",
@@ -218,6 +235,21 @@ def run_paper_scenario() -> JsonMap:
     }
 
 
+def demo_api() -> PaperApi:
+    scenario = load_demo_scenario()
+    engine = PaperEngine(limits=scenario.limits, clock=lambda: PAPER_TS)
+    for order in scenario.orders:
+        engine.submit(order, source=f"scenario:{scenario.name}")
+    now = parse_mcp_time()
+    return PaperApi(
+        PaperApiState(
+            engine=engine,
+            clock=lambda: now,
+            started_at=now,
+        )
+    )
+
+
 def list_strategies() -> JsonMap:
     root = find_repo_root()
     runner = None
@@ -270,6 +302,117 @@ def get_position_state() -> JsonMap:
         "paper_only": True,
         "scenario": paper["scenario"],
         "positions": paper["positions"],
+    }
+
+
+def get_runtime_status() -> JsonMap:
+    return {
+        **demo_api().v2_status(),
+        "schema_version": "zero.mcp.runtime_status.v1",
+        "mode": "paper",
+        "paper_only": True,
+    }
+
+
+def get_health_status() -> JsonMap:
+    return {
+        **demo_api().health(),
+        "schema_version": "zero.mcp.health_status.v1",
+        "mode": "paper",
+        "paper_only": True,
+    }
+
+
+def get_journal_tail() -> JsonMap:
+    payload = demo_api().journal({"limit": ["10"]})
+    return {
+        "schema_version": "zero.mcp.journal_tail.v1",
+        "mode": "paper",
+        "paper_only": True,
+        "source": "bundled-paper-scenario",
+        **payload,
+    }
+
+
+def get_rejection_audit() -> JsonMap:
+    payload = demo_api().rejections({"limit": ["20"]})
+    by_reason: dict[str, int] = {}
+    by_stage: dict[str, int] = {}
+    for rejection in payload["rejections"]:
+        reason = str(rejection.get("reason", "unknown"))
+        stage = str(rejection.get("stage", "unknown"))
+        by_reason[reason] = by_reason.get(reason, 0) + 1
+        by_stage[stage] = by_stage.get(stage, 0) + 1
+    return {
+        "schema_version": "zero.mcp.rejection_audit.v1",
+        "mode": "paper",
+        "paper_only": True,
+        "source": "bundled-paper-scenario",
+        "summary": {
+            "rejections": len(payload["rejections"]),
+            "by_stage": dict(sorted(by_stage.items())),
+            "by_reason": dict(sorted(by_reason.items())),
+        },
+        "rejections": payload["rejections"],
+    }
+
+
+def get_memory_stats() -> JsonMap:
+    snapshot = get_memory_snapshot()
+    return {
+        "schema_version": "zero.mcp.memory_stats.v1",
+        "mode": "paper",
+        "paper_only": True,
+        "source": snapshot["source"],
+        "stats": snapshot["stats"],
+    }
+
+
+def get_immune_status() -> JsonMap:
+    payload = demo_api().immune()
+    return {
+        **payload,
+        "schema_version": "zero.mcp.immune_status.v1",
+        "paper_only": True,
+    }
+
+
+def get_backtest_report() -> JsonMap:
+    paper = run_paper_scenario()
+    decisions = paper["decisions"]
+    accepted = len([record for record in decisions if record["allowed"]])
+    rejected = len(decisions) - accepted
+    return {
+        "schema_version": "zero.mcp.backtest_report.v1",
+        "mode": "paper",
+        "paper_only": True,
+        "scenario": paper["scenario"],
+        "claim_boundary": {
+            "paper_mode_verified": True,
+            "live_trading_claimed": False,
+            "pnl_claimed": False,
+        },
+        "summary": {
+            "decisions": len(decisions),
+            "fills": paper["fills"],
+            "rejections": rejected,
+            "acceptance_rate": round(accepted / len(decisions), 4) if decisions else 0.0,
+            "symbols": sorted(paper["market"].keys()),
+        },
+        "notes": [
+            "deterministic paper fixture only",
+            "not a profitability claim",
+            "use strategy examples for contributor conformance",
+        ],
+    }
+
+
+def get_evidence_bundle() -> JsonMap:
+    payload = demo_api().live_evidence()
+    return {
+        **payload,
+        "schema_version": "zero.mcp.evidence_bundle.v1",
+        "paper_only": True,
     }
 
 
@@ -356,6 +499,27 @@ def get_decision_stack() -> JsonMap:
     }
 
 
+def safety_catalog() -> JsonMap:
+    tools = tool_definitions()
+    return {
+        "schema_version": "zero.mcp.safety_catalog.v1",
+        "default": "read_only_public",
+        "risk_increasing_tools": [],
+        "risk_reducing_tools": [],
+        "read_only_tools": [
+            {
+                "name": tool["name"],
+                "safetyClass": tool["safetyClass"],
+                "riskDirection": tool["riskDirection"],
+                "canPlaceOrders": tool["canPlaceOrders"],
+                "canChangeRuntimeState": tool["canChangeRuntimeState"],
+                "requiresOperatorApproval": tool["requiresOperatorApproval"],
+            }
+            for tool in tools
+        ],
+    }
+
+
 def get_proof_pack() -> JsonMap:
     root = find_repo_root()
     if root is None:
@@ -365,10 +529,20 @@ def get_proof_pack() -> JsonMap:
 
 def tool_definitions() -> list[JsonMap]:
     empty_schema = {"type": "object", "properties": {}, "additionalProperties": False}
-    return [
+    tools = [
         {
             "name": "zero_list_strategies",
             "description": "Read-only list of bundled paper strategies and contributor examples.",
+            "inputSchema": empty_schema,
+        },
+        {
+            "name": "zero_get_runtime_status",
+            "description": "Read-only paper runtime status derived from the bundled scenario.",
+            "inputSchema": empty_schema,
+        },
+        {
+            "name": "zero_get_health",
+            "description": "Read-only paper runtime health, dependency, and breaker status.",
             "inputSchema": empty_schema,
         },
         {
@@ -382,6 +556,16 @@ def tool_definitions() -> list[JsonMap]:
             "inputSchema": empty_schema,
         },
         {
+            "name": "zero_get_journal_tail",
+            "description": "Read-only paper decision journal tail from the bundled scenario.",
+            "inputSchema": empty_schema,
+        },
+        {
+            "name": "zero_get_rejection_audit",
+            "description": "Read-only paper rejection audit grouped by stage and reason.",
+            "inputSchema": empty_schema,
+        },
+        {
             "name": "zero_get_proof_pack",
             "description": "Read-only public-safe demo proof-pack manifest.",
             "inputSchema": empty_schema,
@@ -389,6 +573,11 @@ def tool_definitions() -> list[JsonMap]:
         {
             "name": "zero_get_memory_snapshot",
             "description": "Read-only public-safe local memory snapshot from bundled paper decisions.",
+            "inputSchema": empty_schema,
+        },
+        {
+            "name": "zero_get_memory_stats",
+            "description": "Read-only aggregate memory stats without entry bodies.",
             "inputSchema": empty_schema,
         },
         {
@@ -411,19 +600,49 @@ def tool_definitions() -> list[JsonMap]:
             "description": "Read-only paper-only lens, layer, and modifier decision stack.",
             "inputSchema": empty_schema,
         },
+        {
+            "name": "zero_get_immune_status",
+            "description": "Read-only paper immune breaker and risk-allowance status.",
+            "inputSchema": empty_schema,
+        },
+        {
+            "name": "zero_get_backtest_report",
+            "description": "Read-only deterministic paper backtest report without PnL claims.",
+            "inputSchema": empty_schema,
+        },
+        {
+            "name": "zero_get_evidence_bundle",
+            "description": "Read-only hash-only evidence bundle from the bundled paper runtime.",
+            "inputSchema": empty_schema,
+        },
+        {
+            "name": "zero_get_safety_catalog",
+            "description": "Read-only MCP safety catalog for every public tool.",
+            "inputSchema": empty_schema,
+        },
     ]
+    return [{**tool, **READ_ONLY_SAFETY} for tool in tools]
 
 
 TOOLS: dict[str, Callable[[], JsonMap]] = {
     "zero_list_strategies": list_strategies,
+    "zero_get_runtime_status": get_runtime_status,
+    "zero_get_health": get_health_status,
     "zero_get_paper_results": get_paper_results,
     "zero_get_position_state": get_position_state,
+    "zero_get_journal_tail": get_journal_tail,
+    "zero_get_rejection_audit": get_rejection_audit,
     "zero_get_proof_pack": get_proof_pack,
     "zero_get_memory_snapshot": get_memory_snapshot,
+    "zero_get_memory_stats": get_memory_stats,
     "zero_get_genesis_proposals": get_genesis_proposals,
     "zero_get_evolve_status": get_evolve_status,
     "zero_get_research_report": get_research_report,
     "zero_get_decision_stack": get_decision_stack,
+    "zero_get_immune_status": get_immune_status,
+    "zero_get_backtest_report": get_backtest_report,
+    "zero_get_evidence_bundle": get_evidence_bundle,
+    "zero_get_safety_catalog": safety_catalog,
 }
 
 
@@ -442,6 +661,30 @@ def resource_definitions() -> list[JsonMap]:
             "mimeType": "application/json",
         },
         {
+            "uri": "zero://runtime/status",
+            "name": "Demo Runtime Status",
+            "description": "Read-only paper runtime status from the bundled scenario.",
+            "mimeType": "application/json",
+        },
+        {
+            "uri": "zero://runtime/health",
+            "name": "Demo Runtime Health",
+            "description": "Read-only paper runtime health, dependencies, and breakers.",
+            "mimeType": "application/json",
+        },
+        {
+            "uri": "zero://journal/tail",
+            "name": "Demo Journal Tail",
+            "description": "Read-only paper decision journal tail from the bundled scenario.",
+            "mimeType": "application/json",
+        },
+        {
+            "uri": "zero://rejections/audit",
+            "name": "Demo Rejection Audit",
+            "description": "Read-only paper rejection audit from the bundled scenario.",
+            "mimeType": "application/json",
+        },
+        {
             "uri": "zero://proof/demo",
             "name": "Demo Proof Pack",
             "description": "Public-safe demo proof-pack manifest.",
@@ -451,6 +694,12 @@ def resource_definitions() -> list[JsonMap]:
             "uri": "zero://memory/snapshot",
             "name": "Demo Memory Snapshot",
             "description": "Public-safe local memory extracted from bundled paper decisions.",
+            "mimeType": "application/json",
+        },
+        {
+            "uri": "zero://memory/stats",
+            "name": "Demo Memory Stats",
+            "description": "Read-only aggregate memory stats without entry bodies.",
             "mimeType": "application/json",
         },
         {
@@ -477,6 +726,30 @@ def resource_definitions() -> list[JsonMap]:
             "description": "Paper-only lens, layer, and modifier decision stack for coding agents.",
             "mimeType": "application/json",
         },
+        {
+            "uri": "zero://immune/status",
+            "name": "Demo Immune Status",
+            "description": "Read-only paper immune breaker status.",
+            "mimeType": "application/json",
+        },
+        {
+            "uri": "zero://backtest/report",
+            "name": "Demo Backtest Report",
+            "description": "Read-only deterministic paper backtest report without PnL claims.",
+            "mimeType": "application/json",
+        },
+        {
+            "uri": "zero://evidence/bundle",
+            "name": "Demo Evidence Bundle",
+            "description": "Read-only hash-only evidence bundle from the bundled paper runtime.",
+            "mimeType": "application/json",
+        },
+        {
+            "uri": "zero://mcp/safety",
+            "name": "MCP Safety Catalog",
+            "description": "Read-only safety classification for every public MCP tool.",
+            "mimeType": "application/json",
+        },
     ]
 
 
@@ -488,10 +761,20 @@ def read_resource(uri: str) -> str:
         return (root / "examples" / "paper-trading" / "scenario.json").read_text(encoding="utf-8")
     if uri == "zero://paper/results":
         return json.dumps(get_paper_results(), indent=2, sort_keys=True)
+    if uri == "zero://runtime/status":
+        return json.dumps(get_runtime_status(), indent=2, sort_keys=True)
+    if uri == "zero://runtime/health":
+        return json.dumps(get_health_status(), indent=2, sort_keys=True)
+    if uri == "zero://journal/tail":
+        return json.dumps(get_journal_tail(), indent=2, sort_keys=True)
+    if uri == "zero://rejections/audit":
+        return json.dumps(get_rejection_audit(), indent=2, sort_keys=True)
     if uri == "zero://proof/demo":
         return json.dumps(get_proof_pack(), indent=2, sort_keys=True)
     if uri == "zero://memory/snapshot":
         return json.dumps(get_memory_snapshot(), indent=2, sort_keys=True)
+    if uri == "zero://memory/stats":
+        return json.dumps(get_memory_stats(), indent=2, sort_keys=True)
     if uri == "zero://genesis/proposals":
         return json.dumps(get_genesis_proposals(), indent=2, sort_keys=True)
     if uri == "zero://evolve/status":
@@ -500,6 +783,14 @@ def read_resource(uri: str) -> str:
         return json.dumps(get_research_report(), indent=2, sort_keys=True)
     if uri == "zero://decision/stack":
         return json.dumps(get_decision_stack(), indent=2, sort_keys=True)
+    if uri == "zero://immune/status":
+        return json.dumps(get_immune_status(), indent=2, sort_keys=True)
+    if uri == "zero://backtest/report":
+        return json.dumps(get_backtest_report(), indent=2, sort_keys=True)
+    if uri == "zero://evidence/bundle":
+        return json.dumps(get_evidence_bundle(), indent=2, sort_keys=True)
+    if uri == "zero://mcp/safety":
+        return json.dumps(safety_catalog(), indent=2, sort_keys=True)
     raise KeyError(uri)
 
 
@@ -598,10 +889,15 @@ def serve(stdin: TextIO = sys.stdin, stdout: TextIO = sys.stdout) -> int:
 def smoke() -> int:
     tools = tool_definitions()
     resources = resource_definitions()
-    forbidden = ("execute", "live_order", "place", "approve")
+    forbidden = ("execute", "live", "order", "place", "approve", "wallet")
     names = [tool["name"] for tool in tools]
     if any(marker in name for name in names for marker in forbidden):
         raise RuntimeError(f"zero-mcp exposed a forbidden live execution tool: {names}")
+    for tool in tools:
+        if tool["safetyClass"] != "read_only_public":
+            raise RuntimeError(f"{tool['name']} has unsafe safety class")
+        if tool["canPlaceOrders"] or tool["canChangeRuntimeState"] or tool["canReadSecrets"]:
+            raise RuntimeError(f"{tool['name']} is not read-only")
     proof = get_proof_pack()
     boundary = proof.get("claim_boundary", {})
     if boundary.get("live_trading_claimed") or boundary.get("paper_vs_live_correlation_claimed"):

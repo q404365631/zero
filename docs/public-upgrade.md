@@ -143,7 +143,10 @@ Publicize:
 - genesis proposal schema, journal, and guardian policy;
 - research reports for hunt, edge, convergence, thesis, score, meta, and sharpen;
 - builder, red-team, paper canary, calibration, and local promotion gates;
-- read-only and risk-reducing MCP/API surfaces for memory, research, and genesis.
+- expanded read-only MCP/API surfaces for runtime status, health, journal,
+  rejection audit, memory, genesis, research, decision-stack review, evolve
+  gates, immune state, backtest summaries, evidence bundles, and safety
+  classification.
 
 Keep private:
 

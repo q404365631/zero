@@ -66,7 +66,7 @@ local genesis, or the operator terminal as proprietary features.
 | Self-evolution | Memory extracts rules, research explains what to study, genesis proposes/builds changes, red-team attacks diffs, canary/calibration gates promotion. | Memory core, research command chain, genesis proposal classification, and paper-only evolve gates are now present as public subsystems. | Add real mutation/promotion and rollback. |
 | Research command chain | Hunt, edge, convergence, thesis, score, meta, and sharpen form a learning/research loop. | Public docs mention autonomous OS, but not the full command chain. | Add public command contracts and deterministic fixture-backed reports. |
 | Real decision engine | Multi-lens evaluation, layered signals, risk gates, sizing modifiers, and rejection learning. | Public runtime now exposes a paper-only lens/layer/modifier decision stack over API, MCP, OpenAPI, docs, and tests. | Add production OODA parity, rejection learner, regime/correlation gates, and execution-quality feedback. |
-| MCP surface | Internal MCP can inspect and operate many engine surfaces. | Public MCP exposes a minimal read-only paper demo. | Expand read-only and risk-reducing local MCP tools with explicit safety classes. |
+| MCP surface | Internal MCP can inspect and operate many engine surfaces. | Public MCP exposes expanded read-only local/operator surfaces with explicit safety classes. | Add risk-reducing local controls only after the operator policy and friction contract are public. |
 | Live canary lifecycle | Readiness, policy, launch, evidence, report, qualification, shadow review, follow-through. | Public has rehearsal, evidence, verification, and operator report flows. | Add policy/follow-through/qualification contracts and fixtures. |
 | Agent daemon | Persistent agents, approvals, proposals, operator app, and communication loop. | Public has agent contribution docs and a thin MCP. | Add local proposal queue and approval surfaces before hosted agents. |
 | Perception layer | Sensor, cross-asset, liquidations, universe, market data service, and setup detection. | Public has market adapter examples and read-only Hyperliquid status. | Add public sensor interfaces, fixture stores, and live-read-only adapters. |
@@ -247,6 +247,22 @@ Exit gate:
 - MCP transcript proves read-only operation by default.
 - safety class is documented for every tool.
 
+Current public status:
+
+- `zero-mcp` now exposes 18 read-only tools and 17 resources for strategies,
+  runtime status, health, paper results, positions, journal tail, rejection
+  audit, proof pack, memory snapshot/stats, genesis proposals, evolve status,
+  research report, decision stack, immune status, backtest report, evidence
+  bundle, and safety catalog.
+- Every public tool declares `safetyClass: read_only_public`,
+  `canPlaceOrders: false`, `canChangeRuntimeState: false`, and
+  `canReadSecrets: false`.
+- `docs/mcp/transcript.jsonl`, `engine/tests/test_mcp.py`, and
+  `zero-mcp --smoke` verify the tool list, resource list, safety metadata,
+  paper-only payloads, and absence of write-capable tool names.
+- Risk-reducing MCP controls are intentionally deferred until the local
+  operator friction contract can be enforced over MCP.
+
 ### Cycle 34: Live Canary Policy Parity
 
 Complete the live canary lifecycle:
@@ -270,15 +286,16 @@ Exit gate:
 
 Public repo readiness remains **100/100** as a launch artifact.
 
-Full ZERO operating-system readiness is **95/100** after Cycle 32. The score
-increased because the real decision-engine shape is no longer hidden behind a
-single `/evaluate` fixture: lenses, layers, and modifiers now have a public
-contract, OpenAPI surface, MCP tool, docs, and tests. The remaining
+Full ZERO operating-system readiness is **96/100** after Cycle 33. The score
+increased because the public agent surface now exposes the local/operator
+inspection plane with explicit read-only safety classes: status, health,
+journals, rejection audit, memory, genesis, research, decision stack, evolve,
+immune, backtest, evidence, proof, and safety catalog. The remaining
 self-evolution loop is still core product architecture, not polish.
 
 The path back to 100/100 is now clearer:
 
 1. real mutation/promotion and rollback loop;
-2. expanded agent/MCP operation surface;
+2. risk-reducing MCP controls with enforceable local operator friction;
 3. live canary policy parity and operator-owned exchange evidence;
 4. real production OODA parity, rejection learner, and execution-quality feedback.
