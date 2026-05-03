@@ -23,11 +23,12 @@ marketing copy. The first public impression should be:
 - Keep live execution self-custodial and explicit.
 - Keep ZERO Intelligence as the commercial data product created by verified
   autonomous behavior.
-- Keep local memory, genesis, evolve, guardian review, paper canary, and
-  calibration loops open because they are part of the self-custodial runtime.
+- Keep local memory, research, genesis, evolve, guardian review, paper canary,
+  and calibration loops open because they are part of the self-custodial runtime.
   Local memory is already open in [Memory Core](memory-core.md), and genesis
-  proposal classification is open in [Genesis](genesis.md). Paper-only evolve
-  gates are open in [Evolve Harness](evolve.md).
+  proposal classification is open in [Genesis](genesis.md). Paper-only research
+  is open in [Research Command Chain](research.md). Paper-only evolve gates are
+  open in [Evolve Harness](evolve.md).
 - Do not imply guaranteed returns, hosted custody, or unattended live safety.
 
 ## Public Launch Surface
@@ -36,7 +37,7 @@ marketing copy. The first public impression should be:
 | --- | --- |
 | Runtime | Paper engine, local API, durable journal, runtime bus, strategy runners, safety gates, read-only Hyperliquid data, and live-readiness contracts. |
 | Terminal | Doctor, status, risk, replay, cockpit/readiness views, and friction-preserving risk controls. |
-| Evolution | Local memory, genesis proposal core, and paper-only evolve gates now exist; real mutation, promotion, rollback, and broader research loops remain. |
+| Evolution | Local memory, research command chain, genesis proposal core, and paper-only evolve gates now exist; real mutation, promotion, and rollback remain. |
 | Network | Redacted local proof packets, profile contracts, leaderboard contracts, and static page examples. |
 | Intelligence | Delayed public snapshots, catalog contracts, commercial API contracts, rate-limit and webhook fixtures, and clear subscription boundary. |
 | Contribution | Agent guide, scoped backlog, issue forms, PR template, safety review path, and one-command gates. |
@@ -139,9 +140,9 @@ Publicize:
 - memory taxonomy and append-only knowledge extraction, now implemented as the
   first open component;
 - genesis proposal schema, journal, and guardian policy;
-- evolve reports for missing commands and experiments;
+- research reports for hunt, edge, convergence, thesis, score, meta, and sharpen;
 - builder, red-team, paper canary, calibration, and local promotion gates;
-- read-only and risk-reducing MCP/API surfaces for memory and genesis.
+- read-only and risk-reducing MCP/API surfaces for memory, research, and genesis.
 
 Keep private:
 

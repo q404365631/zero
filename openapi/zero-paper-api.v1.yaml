@@ -232,6 +232,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EvolveSnapshotResponse"
+  /research:
+    get:
+      tags: [audit]
+      operationId: getResearch
+      summary: Paper-only research command-chain report.
+      responses:
+        "200":
+          description: Research command-chain snapshot.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResearchSnapshotResponse"
   /metrics:
     get:
       tags: [audit]
@@ -1359,9 +1371,58 @@ components:
           type: object
           additionalProperties: true
       additionalProperties: false
+    ResearchSnapshotResponse:
+      type: object
+      required: [schema_version, generated_at, source, mode, paper_only, available, commands, applies_code_changes, pushes_to_remote, claims_live_pnl, summary, reports, privacy, report_hash]
+      properties:
+        schema_version:
+          type: string
+          const: zero.research.snapshot.v1
+        generated_at:
+          type: string
+          format: date-time
+        source:
+          type: string
+        mode:
+          type: string
+          const: paper-only
+        paper_only:
+          type: boolean
+          const: true
+        available:
+          type: boolean
+        commands:
+          type: array
+          items:
+            type: string
+        applies_code_changes:
+          type: boolean
+          const: false
+        pushes_to_remote:
+          type: boolean
+          const: false
+        claims_live_pnl:
+          type: boolean
+          const: false
+        summary:
+          type: object
+          required: [candidate_count, sample_size, minimum_sample_met, convergence_status, proposal_count]
+          additionalProperties: true
+        reports:
+          type: object
+          required: [hunt, edge, convergence, thesis, score, meta, sharpen]
+          additionalProperties: true
+        privacy:
+          type: object
+          required: [contains_live_prices, contains_wallet_material, contains_venue_order_material, contains_secret_material, contains_raw_live_pnl]
+          additionalProperties: true
+        report_hash:
+          type: string
+          pattern: "^sha256:"
+      additionalProperties: false
     MetricsResponse:
       type: object
-      required: [schema_version, generated_at, mode, runtime, api, engine, immune, recovery, memory, genesis, evolve]
+      required: [schema_version, generated_at, mode, runtime, api, engine, immune, recovery, memory, genesis, evolve, research]
       properties:
         schema_version:
           type: string
@@ -1392,6 +1453,9 @@ components:
           type: object
           additionalProperties: true
         evolve:
+          type: object
+          additionalProperties: true
+        research:
           type: object
           additionalProperties: true
       additionalProperties: false

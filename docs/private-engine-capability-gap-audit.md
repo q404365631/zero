@@ -63,7 +63,7 @@ local genesis, or the operator terminal as proprietary features.
 
 | Area | Internal capability | Public state | Gap |
 | --- | --- | --- | --- |
-| Self-evolution | Memory extracts rules, genesis proposes/builds changes, red-team attacks diffs, canary/calibration gates promotion. | Memory core, genesis proposal classification, and paper-only evolve gates are now present as public subsystems. | Add real mutation/promotion, rollback, broader research commands, and paper-only tests. |
+| Self-evolution | Memory extracts rules, research explains what to study, genesis proposes/builds changes, red-team attacks diffs, canary/calibration gates promotion. | Memory core, research command chain, genesis proposal classification, and paper-only evolve gates are now present as public subsystems. | Add real mutation/promotion and rollback. |
 | Research command chain | Hunt, edge, convergence, thesis, score, meta, and sharpen form a learning/research loop. | Public docs mention autonomous OS, but not the full command chain. | Add public command contracts and deterministic fixture-backed reports. |
 | Real decision engine | Multi-lens evaluation, layered signals, risk gates, sizing modifiers, and rejection learning. | Public runtime has paper engine, runners, safety, and live-readiness primitives. | Port lens/layer/modifier interfaces and fixtures before porting live behavior. |
 | MCP surface | Internal MCP can inspect and operate many engine surfaces. | Public MCP exposes a minimal read-only paper demo. | Expand read-only and risk-reducing local MCP tools with explicit safety classes. |
@@ -186,6 +186,18 @@ Exit gate:
 - reports are deterministic in CI with fixture data;
 - no report claims live PnL unless backed by signed operator evidence.
 
+Current public status:
+
+- Implemented in `engine/src/zero_engine/research.py`.
+- Covered by `engine/tests/test_research.py`, API tests, MCP tests, and
+  `just research-example`.
+- `/research`, `zero_get_research_report`, and `zero://research/report` expose
+  paper-only research status.
+- Reports include hunt, edge, convergence, thesis, score, meta, and sharpen.
+- The public report is read-only, does not mutate the checkout, does not push,
+  and does not claim live PnL.
+- Documented in [Research Command Chain](research.md).
+
 ### Cycle 32: Public Intelligence Engine Parity
 
 Port the real decision interfaces:
@@ -241,15 +253,14 @@ Exit gate:
 
 Public repo readiness remains **100/100** as a launch artifact.
 
-Full ZERO operating-system readiness is **93/100** after Cycle 30. The score
-increased because public evolve gate evidence now exists as code, tests, docs,
-API readouts, and MCP snapshots. The remaining self-evolution loop is still
-core product architecture, not polish.
+Full ZERO operating-system readiness is **94/100** after Cycle 31. The score
+increased because public research-chain evidence now exists as code, tests,
+docs, API readouts, and MCP snapshots. The remaining self-evolution loop is
+still core product architecture, not polish.
 
 The path back to 100/100 is now clearer:
 
 1. real mutation/promotion and rollback loop;
-2. fixture-backed research command chain;
-3. real lens/layer/modifier decision interfaces;
-4. expanded agent/MCP operation surface;
-5. live canary policy parity and operator-owned exchange evidence.
+2. real lens/layer/modifier decision interfaces;
+3. expanded agent/MCP operation surface;
+4. live canary policy parity and operator-owned exchange evidence.

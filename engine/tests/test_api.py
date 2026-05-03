@@ -177,6 +177,7 @@ def test_paper_api_metrics_tracks_requests_and_execute_outcomes() -> None:
     assert metrics["engine"]["acceptance_rate"] == 1.0
     assert metrics["genesis"]["total_decisions"] == 3
     assert metrics["evolve"]["pushes_to_remote"] is False
+    assert metrics["research"]["sample_size"] == 2
 
 
 def test_paper_api_exposes_plan_only_genesis_snapshot() -> None:
@@ -208,6 +209,20 @@ def test_paper_api_exposes_paper_only_evolve_snapshot() -> None:
     assert payload["promotion"]["requires_human_approval"] is True
 
 
+def test_paper_api_exposes_paper_only_research_snapshot() -> None:
+    status, payload = PaperApi(PaperApiState(clock=lambda: FIXED_DT)).get("/research", {})
+
+    assert status == 200
+    assert payload["schema_version"] == "zero.research.snapshot.v1"
+    assert payload["mode"] == "paper-only"
+    assert payload["paper_only"] is True
+    assert payload["applies_code_changes"] is False
+    assert payload["pushes_to_remote"] is False
+    assert payload["claims_live_pnl"] is False
+    assert payload["summary"]["sample_size"] == 2
+    assert payload["reports"]["convergence"]["status"] == "insufficient-public-sample"
+
+
 def test_paper_api_audit_export_includes_traceable_decisions(tmp_path) -> None:
     journal = DecisionJournal(tmp_path / "decisions.jsonl")
     api = PaperApi(
@@ -237,6 +252,8 @@ def test_paper_api_audit_export_includes_traceable_decisions(tmp_path) -> None:
         audit["deployment_heartbeat"]["deployment_claim_hash"]
         == audit["deployment_claim"]["claim_hash"]
     )
+    assert audit["research"]["schema_version"] == "zero.research.snapshot.v1"
+    assert audit["research"]["pushes_to_remote"] is False
     assert audit["decisions"][0]["symbol"] == "BTC"
     assert audit["decisions"][0]["trace_id"] == "trace-test-audit"
 

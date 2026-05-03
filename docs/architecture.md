@@ -9,9 +9,9 @@ ZERO has five product surfaces:
   gates, API, journals, and extension contracts.
 - ZERO Terminal: operator CLI for setup, diagnostics, state inspection, replay,
   and supervised actions.
-- ZERO Evolution: local memory, genesis proposals, guardian review, red-team,
-  paper canaries, calibration, and evolve loops that let the system improve
-  under evidence and review.
+- ZERO Evolution: local memory, genesis proposals, research reports, guardian
+  review, red-team, paper canaries, calibration, and evolve loops that let the
+  system improve under evidence and review.
 - ZERO Network: public profiles, leaderboards, verification badges, and public decision-flow proof.
 - ZERO Intelligence: delayed public snapshots plus a commercial API and
   subscription layer for realtime intelligence, history, cohorts, webhooks, and
@@ -55,7 +55,7 @@ safety or reconciliation checks are not ready.
 ## Public Evolution Flow
 
 ```text
-runtime journal -> memory -> knowledge -> genesis proposal -> guardian
+runtime journal -> memory -> knowledge -> research -> genesis proposal -> guardian
                 -> build/red-team -> paper canary -> calibration
                 -> promote or rollback -> evolve backlog
 ```
@@ -64,14 +64,15 @@ The public repo now implements the first part of this loop: local memory
 extraction, append-only memory JSONL, active-memory expiry, generated
 `knowledge.md`, `/memory`, read-only MCP memory snapshots, genesis proposal
 classification, append-only genesis journals, `/genesis`, read-only MCP
-genesis snapshots, paper-only evolve gate runs, `/evolve`, and read-only MCP
+genesis snapshots, fixture-backed research reports, `/research`, read-only MCP
+research snapshots, paper-only evolve gate runs, `/evolve`, and read-only MCP
 evolve status. Real mutation, promotion, and rollback are tracked as public
 extraction targets in
 [Private Engine Capability Gap Audit](private-engine-capability-gap-audit.md).
-Local memory, genesis, and evolve belong in open source because they are part
-of a self-custodial operator's runtime. Commercial ZERO Intelligence begins
-when many verified runtimes opt into aggregate realtime behavior, cohorts,
-history, webhooks, redistribution, or operational SLAs.
+Local memory, research, genesis, and evolve belong in open source because they
+are part of a self-custodial operator's runtime. Commercial ZERO Intelligence
+begins when many verified runtimes opt into aggregate realtime behavior,
+cohorts, history, webhooks, redistribution, or operational SLAs.
 
 ## Commercial Flow
 

@@ -33,6 +33,7 @@ def test_tools_are_read_only() -> None:
         "zero_get_memory_snapshot",
         "zero_get_genesis_proposals",
         "zero_get_evolve_status",
+        "zero_get_research_report",
     ]
     assert not any("execute" in name or "live" in name or "order" in name for name in names)
     assert all("Read-only" in tool["description"] for tool in tools)
@@ -50,7 +51,7 @@ def test_tools_list_and_call_paper_results() -> None:
     )
 
     assert listed is not None
-    assert len(listed["result"]["tools"]) == 7
+    assert len(listed["result"]["tools"]) == 8
     assert called is not None
     payload = json.loads(called["result"]["content"][0]["text"])
     assert payload["schema_version"] == "zero.mcp.paper_results.v1"
@@ -78,6 +79,7 @@ def test_resources_list_and_read() -> None:
         "zero://memory/snapshot",
         "zero://genesis/proposals",
         "zero://evolve/status",
+        "zero://research/report",
     }
     assert read is not None
     proof = json.loads(read["result"]["contents"][0]["text"])
@@ -144,6 +146,26 @@ def test_evolve_status_is_paper_only_and_local() -> None:
     assert payload["promotion"]["requires_human_approval"] is True
 
 
+def test_research_report_is_paper_only_and_read_only() -> None:
+    called = mcp.handle_request(
+        {
+            "jsonrpc": "2.0",
+            "id": 10,
+            "method": "tools/call",
+            "params": {"name": "zero_get_research_report", "arguments": {}},
+        }
+    )
+
+    assert called is not None
+    payload = json.loads(called["result"]["content"][0]["text"])
+    assert payload["schema_version"] == "zero.mcp.research_report.v1"
+    assert payload["paper_only"] is True
+    assert payload["applies_code_changes"] is False
+    assert payload["pushes_to_remote"] is False
+    assert payload["claims_live_pnl"] is False
+    assert payload["summary"]["sample_size"] == 2
+
+
 def test_unknown_tool_returns_json_rpc_error() -> None:
     response = mcp.handle_request(
         {
@@ -167,6 +189,7 @@ def test_installed_package_fallback_stays_read_only(monkeypatch) -> None:
     memory = mcp.get_memory_snapshot()
     genesis = mcp.get_genesis_proposals()
     evolve = mcp.get_evolve_status()
+    research = mcp.get_research_report()
     scenario_text = mcp.read_resource("zero://paper/scenario")
 
     assert paper["mode"] == "paper"
@@ -175,4 +198,6 @@ def test_installed_package_fallback_stays_read_only(monkeypatch) -> None:
     assert memory["paper_only"] is True
     assert genesis["paper_only"] is True
     assert evolve["paper_only"] is True
+    assert research["paper_only"] is True
+    assert research["pushes_to_remote"] is False
     assert "paper-launch-smoke" in scenario_text

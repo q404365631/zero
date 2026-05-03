@@ -17,13 +17,13 @@
 - Public Memory Core
 - Public Genesis Proposal Core
 - Public Evolve Harness
+- Public Research Command Chain
 
 ## Near Term
 
 - Autonomous runtime loop and durable runtime bus
 - Real mutation, promotion, and rollback loop
-- Broader research command chain and promote/rollback gates
-- Research command chain: hunt, edge, convergence, thesis, score, meta, sharpen
+- Promote/rollback gates
 - Strategy runner SDK
 - Hyperliquid account reconciliation
 - Live execution certification harness

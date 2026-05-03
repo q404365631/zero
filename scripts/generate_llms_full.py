@@ -28,6 +28,7 @@ SOURCES = (
     "docs/api.md",
     "docs/memory-core.md",
     "docs/genesis.md",
+    "docs/research.md",
     "docs/evolve.md",
     "docs/mcp.md",
     "docs/mcp/transcript.jsonl",

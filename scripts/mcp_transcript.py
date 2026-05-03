@@ -57,10 +57,22 @@ REQUESTS: tuple[dict[str, Any], ...] = (
         "method": "tools/call",
         "params": {"name": "zero_get_evolve_status", "arguments": {}},
     },
-    {"jsonrpc": "2.0", "id": 10, "method": "resources/list", "params": {}},
     {
         "jsonrpc": "2.0",
-        "id": 11,
+        "id": 10,
+        "method": "tools/call",
+        "params": {"name": "zero_get_research_report", "arguments": {}},
+    },
+    {"jsonrpc": "2.0", "id": 11, "method": "resources/list", "params": {}},
+    {
+        "jsonrpc": "2.0",
+        "id": 12,
+        "method": "resources/read",
+        "params": {"uri": "zero://research/report"},
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 13,
         "method": "resources/read",
         "params": {"uri": "zero://proof/demo"},
     },
@@ -119,7 +131,23 @@ def validate(entries: list[dict[str, Any]]) -> None:
     if evolve["pushes_to_remote"] is not False or evolve["paper_only"] is not True:
         raise RuntimeError("transcript evolve status must remain paper-only and local-only")
 
-    proof_response = entries[8]["response"]
+    research_response = entries[7]["response"]
+    research_text = research_response["result"]["content"][0]["text"]
+    research = json.loads(research_text)
+    if (
+        research["pushes_to_remote"] is not False
+        or research["paper_only"] is not True
+        or research["claims_live_pnl"] is not False
+    ):
+        raise RuntimeError("transcript research report must remain paper-only and local-only")
+
+    research_resource = entries[9]["response"]
+    research_resource_text = research_resource["result"]["contents"][0]["text"]
+    research_resource_payload = json.loads(research_resource_text)
+    if research_resource_payload["paper_only"] is not True:
+        raise RuntimeError("transcript research resource must remain paper-only")
+
+    proof_response = entries[10]["response"]
     proof_text = proof_response["result"]["contents"][0]["text"]
     proof = json.loads(proof_text)
     boundary = proof["claim_boundary"]

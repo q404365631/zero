@@ -103,7 +103,7 @@ contract:
 - `GET /`, `/health`, `/v2/status`
 - `GET /positions`, `/risk`, `/brief`
 - `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
-- `GET /metrics`, `/immune`, `/memory`, `/genesis`, `/evolve`, `/audit/export`
+- `GET /metrics`, `/immune`, `/memory`, `/genesis`, `/evolve`, `/research`, `/audit/export`
 - `GET /deployment/claim`, `/deployment/heartbeat`, `/network/profile`, `/network/leaderboard`
 - `GET /intelligence/snapshot`, `/intelligence/catalog`, `/intelligence/commercial`, `/intelligence/model-gateway`
 - `GET /v1/intelligence/snapshots`, `/v1/intelligence/history`, `/v1/intelligence/cohorts`, `/v1/intelligence/benchmarks`
@@ -174,6 +174,13 @@ builder, red-team, paper-canary, calibration, and promotion gates. It never
 mutates the checkout, pushes a branch, deploys a service, or promotes a change.
 The fixture-backed snapshot selects the accepted genesis docs/example proposal
 and proves that promotion remains local-only and human-approved.
+
+`GET /research` returns a `zero.research.snapshot.v1` paper-only view of the
+research command chain: hunt, edge, convergence, thesis, score, meta, and
+sharpen. It never mutates the checkout, pushes a branch, deploys a service,
+places an order, or claims live PnL. The fixture-backed snapshot exists so
+agents can inspect what ZERO should study next before genesis/evolve gates are
+used.
 
 `GET /audit/export?limit=100` returns a structured `zero.audit.v1` export with
 runtime summary, retention/redaction metadata, metrics, recovery state, and the

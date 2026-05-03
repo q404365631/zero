@@ -57,6 +57,7 @@ from zero_engine.reconciliation import (
     local_account_positions,
     reconcile_positions,
 )
+from zero_engine.research import snapshot_from_fixture as research_snapshot_from_fixture
 from zero_engine.safety import evaluate_order
 
 
@@ -559,6 +560,7 @@ class PaperApi:
             "/journal": lambda: self.journal(query),
             "/genesis": self.genesis,
             "/evolve": self.evolve,
+            "/research": self.research,
             "/audit/export": lambda: self.audit_export(query, operator_context),
             "/hl/account": self.hl_account,
             "/hl/reconcile": self.hl_reconcile,
@@ -1375,6 +1377,7 @@ class PaperApi:
             "memory": self.memory({"limit": ["0"]})["stats"],
             "genesis": self.genesis()["stats"],
             "evolve": self.evolve()["promotion"],
+            "research": self.research()["summary"],
         }
 
     def audit_export(
@@ -1423,6 +1426,7 @@ class PaperApi:
             "memory": self.memory({"limit": [str(limit)]}),
             "genesis": self.genesis(),
             "evolve": self.evolve(),
+            "research": self.research(),
             "deployment_claim": claim,
             "deployment_heartbeat": heartbeat,
             "operator_actions": [
@@ -1483,6 +1487,11 @@ class PaperApi:
 
     def evolve(self) -> dict[str, Any]:
         return evolve_snapshot_from_fixture(os.environ.get("ZERO_REPO_ROOT", Path.cwd()), now=self.state.now())
+
+    def research(self) -> dict[str, Any]:
+        return research_snapshot_from_fixture(
+            os.environ.get("ZERO_REPO_ROOT", Path.cwd()), now=self.state.now()
+        )
 
     def network_profile(self) -> dict[str, Any]:
         generated_at = self.state.now_iso()

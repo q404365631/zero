@@ -39,6 +39,7 @@
 - [Runtime Bus](runtime-bus.md)
 - [Memory Core](memory-core.md)
 - [Genesis](genesis.md)
+- [Research Command Chain](research.md)
 - [Evolve Harness](evolve.md)
 - [API](api.md)
 - [MCP Server](mcp.md)

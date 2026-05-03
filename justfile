@@ -66,6 +66,18 @@ evolve-example:
     rg '"pushes_to_remote": false' artifacts/evolve-example/evolve-run.json
     ! rg 'private_key|wallet_address|exchange_order_id|notional_usd' artifacts/evolve-example
 
+research-example:
+    rm -rf artifacts/research-example
+    PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.research run --repo-root "$PWD" --output artifacts/research-example/research.json --now 2026-05-01T00:00:00Z
+    PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.research status --report artifacts/research-example/research.json --now 2026-05-01T00:00:00Z
+    test -f artifacts/research-example/research.json
+    rg '"schema_version": "zero.research.report.v1"' artifacts/research-example/research.json
+    rg '"hunt"' artifacts/research-example/research.json
+    rg '"edge"' artifacts/research-example/research.json
+    rg '"convergence"' artifacts/research-example/research.json
+    rg '"pushes_to_remote": false' artifacts/research-example/research.json
+    ! rg 'private_key|wallet_address|exchange_order_id|notional_usd' artifacts/research-example
+
 network-pages-smoke:
     scripts/network_pages_smoke.py
 
@@ -233,6 +245,7 @@ docs-check:
     test -f docs/memory-core.md
     test -f docs/genesis.md
     test -f docs/evolve.md
+    test -f docs/research.md
     test -f docs/strategy-plugins.md
     test -f docs/market-data-adapters.md
     test -f docs/positioning.md
@@ -285,6 +298,7 @@ docs-check:
     test -f examples/genesis/README.md
     test -f examples/genesis/proposals.jsonl
     test -f examples/evolve/README.md
+    test -f examples/research/README.md
     test -f examples/network-leaderboard/README.md
     test -f examples/network-leaderboard/build.py
     test -f examples/network-leaderboard/profiles.jsonl
@@ -300,6 +314,7 @@ docs-check:
     test -f contracts/paper-api/memory.json
     test -f contracts/paper-api/genesis.json
     test -f contracts/paper-api/evolve.json
+    test -f contracts/paper-api/research.json
     test -f contracts/deployment/claim.json
     test -f contracts/deployment/heartbeat.json
     test -f contracts/live/evidence.json
@@ -385,4 +400,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke fresh-clone-rehearsal example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example memory-core-example genesis-example evolve-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness
+ci: lint test paper-api-smoke fresh-clone-rehearsal example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example memory-core-example genesis-example evolve-example research-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness

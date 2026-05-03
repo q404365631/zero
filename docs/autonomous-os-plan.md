@@ -9,8 +9,8 @@ surface, CLI, paper runtime, and safety-first launch artifact. It is not yet a
 complete autonomous real-capital operating system. The remaining work is
 runtime truth, live exchange evidence, multi-operator isolation, public Network
 ingestion, commercial Intelligence infrastructure, and the public
-self-evolution loop: memory, genesis, guardian review, red-team, canary,
-calibration, and evolve.
+self-evolution loop: memory, research, genesis, guardian review, red-team,
+canary, calibration, and evolve.
 
 ## North Star
 
@@ -30,8 +30,8 @@ ZERO reaches 100/100 when a serious operator can:
 - restart without losing runtime state, idempotency state, risk state, or
   position truth;
 - export an audit bundle that explains every cycle and every decision;
-- learn from local outcomes through memory, genesis proposals, paper canaries,
-  calibration, and reviewable promotion gates;
+- learn from local outcomes through memory, research reports, genesis
+  proposals, paper canaries, calibration, and reviewable promotion gates;
 - opt into public ZERO Network publishing without leaking secrets;
 - consume delayed public ZERO Intelligence snapshots for free;
 - pay for realtime ZERO Intelligence API access when speed, history, scale,
@@ -46,8 +46,8 @@ Open:
 - paper trading
 - venue adapters needed for self-custodial operation
 - local journals and audit exports
-- local memory, genesis, evolve, proposal journals, paper canaries, red-team
-  review, and calibration gates
+- local memory, research, genesis, evolve, proposal journals, paper canaries,
+  red-team review, and calibration gates
 - strategy and market-data extension contracts
 - ZERO Network proof contracts, profiles, leaderboards, and delayed public
   snapshots
@@ -73,7 +73,7 @@ speed, scale, history, and reliability.
 | Product narrative | 98 | keep narrative aligned as runtime becomes real |
 | CLI readiness | 97 | richer TUI cockpit layout, operator automation examples |
 | Engine runtime | 90 | live canary evidence, richer exchange history reconciliation |
-| Self-evolution loop | 55 | public memory, genesis proposal classification, and paper-only evolve gates exist; real mutation, promotion, rollback, and broader research loops remain |
+| Self-evolution loop | 63 | public memory, research command chain, genesis proposal classification, and paper-only evolve gates exist; real mutation, promotion, and rollback remain |
 | Safety and risk | 94 | real exchange chaos drills, external review |
 | API contracts | 98 | signed live runtime packets, production hosted compatibility policy |
 | Deployment | 89 | live Railway proof, authenticated remote log evidence |

@@ -1,0 +1,228 @@
+{
+  "applies_code_changes": false,
+  "available": true,
+  "claims_live_pnl": false,
+  "commands": [
+    "hunt",
+    "edge",
+    "convergence",
+    "thesis",
+    "score",
+    "meta",
+    "sharpen"
+  ],
+  "generated_at": "2026-05-01T00:00:00Z",
+  "mode": "paper-only",
+  "paper_only": true,
+  "privacy": {
+    "contains_live_prices": false,
+    "contains_raw_live_pnl": false,
+    "contains_secret_material": false,
+    "contains_venue_order_material": false,
+    "contains_wallet_material": false
+  },
+  "pushes_to_remote": false,
+  "report_hash": "sha256:3ec5c394530d3b8203d167344b33dc6518d9ad5de2d7c5aba287660dad219490",
+  "reports": {
+    "convergence": {
+      "checks": {
+        "manual_review_required": true,
+        "single_rejection_reason_dominates": false,
+        "weights_available": false
+      },
+      "generated_at": "2026-05-01T00:00:00Z",
+      "lockstep_detected": false,
+      "minimum_sample_met": false,
+      "oscillation_detected": false,
+      "purpose": "feedback-loop drift and lockstep detection",
+      "sample_size": 2,
+      "schema_version": "zero.research.convergence.v1",
+      "status": "insufficient-public-sample"
+    },
+    "edge": {
+      "by_symbol": {
+        "BTC": {
+          "acceptance_rate": 1.0,
+          "allowed": 1,
+          "observations": 1,
+          "rejected": 0
+        },
+        "SOL": {
+          "acceptance_rate": 0.0,
+          "allowed": 0,
+          "observations": 1,
+          "rejected": 1
+        }
+      },
+      "claim_boundary": {
+        "claims_live_edge": false,
+        "reason": "public fixture decisions do not include signed live outcomes",
+        "uses_realized_pnl": false
+      },
+      "generated_at": "2026-05-01T00:00:00Z",
+      "minimum_sample_met": false,
+      "overall": {
+        "acceptance_rate": 0.5,
+        "allowed": 1,
+        "rejected": 1,
+        "rejection_reasons": {
+          "order notional exceeds limit": 1
+        },
+        "symbols": {
+          "BTC": 1,
+          "SOL": 1
+        },
+        "total": 2
+      },
+      "purpose": "expectancy proxy from accepted/rejected paper decisions",
+      "sample_size": 2,
+      "schema_version": "zero.research.edge.v1"
+    },
+    "hunt": {
+      "candidate_count": 3,
+      "candidates": [
+        {
+          "avg_volume_rank": 3,
+          "latest_ts": "2026-05-01T00:05:00Z",
+          "momentum_bps": 176,
+          "observations": 2,
+          "regime": "impulse-up",
+          "status": "watch",
+          "symbol": "BTC",
+          "up_closes": 2
+        },
+        {
+          "avg_volume_rank": 2,
+          "latest_ts": "2026-05-01T00:00:00Z",
+          "momentum_bps": 67,
+          "observations": 1,
+          "regime": "impulse-up",
+          "status": "watch",
+          "symbol": "ETH",
+          "up_closes": 1
+        },
+        {
+          "avg_volume_rank": 1,
+          "latest_ts": "2026-05-01T00:00:00Z",
+          "momentum_bps": 145,
+          "observations": 1,
+          "regime": "impulse-up",
+          "status": "blocked-by-recent-risk",
+          "symbol": "SOL",
+          "up_closes": 1
+        }
+      ],
+      "decision_context": {
+        "acceptance_rate": 0.5,
+        "decisions": 2,
+        "rejected": 1
+      },
+      "generated_at": "2026-05-01T00:00:00Z",
+      "purpose": "market scan from public paper fixtures",
+      "schema_version": "zero.research.hunt.v1"
+    },
+    "meta": {
+      "commands_reviewed": [
+        "hunt",
+        "edge",
+        "convergence",
+        "thesis",
+        "score",
+        "sharpen"
+      ],
+      "generated_at": "2026-05-01T00:00:00Z",
+      "purpose": "audit command usefulness",
+      "schema_version": "zero.research.meta.v1",
+      "usefulness": {
+        "convergence": {
+          "reason": "deterministic public fixture signal",
+          "score": 0.8
+        },
+        "edge": {
+          "reason": "deterministic public fixture signal",
+          "score": 0.8
+        },
+        "hunt": {
+          "reason": "deterministic public fixture signal",
+          "score": 0.8
+        },
+        "score": {
+          "reason": "needs real outcome labels",
+          "score": 0.6
+        },
+        "sharpen": {
+          "reason": "deterministic public fixture signal",
+          "score": 0.6
+        },
+        "thesis": {
+          "reason": "deterministic public fixture signal",
+          "score": 0.6
+        }
+      }
+    },
+    "score": {
+      "accuracy": 1.0,
+      "correct": 2,
+      "generated_at": "2026-05-01T00:00:00Z",
+      "judgments_scored": 2,
+      "limitation": "paper safety decisions are not predictive PnL labels",
+      "purpose": "compare prior judgments against public paper outcomes",
+      "schema_version": "zero.research.score.v1",
+      "status": "fixture-only"
+    },
+    "sharpen": {
+      "generated_at": "2026-05-01T00:00:00Z",
+      "minimum_sample_met": false,
+      "proposals": [
+        {
+          "applies_code_changes": false,
+          "id": "research-sample-floor",
+          "priority": "high",
+          "summary": "Collect at least 30 paper decisions before relaxing any research conclusion."
+        },
+        {
+          "applies_code_changes": false,
+          "id": "research-live-labels",
+          "priority": "medium",
+          "summary": "Attach signed operator evidence before scoring live outcome accuracy."
+        },
+        {
+          "applies_code_changes": false,
+          "id": "research-convergence-review",
+          "priority": "medium",
+          "summary": "Review rejection concentration before changing weights or filters."
+        }
+      ],
+      "purpose": "system improvement backlog from research reports",
+      "schema_version": "zero.research.sharpen.v1"
+    },
+    "thesis": {
+      "anti_thesis": "A sparse fixture can overfit to a single synthetic market regime.",
+      "generated_at": "2026-05-01T00:00:00Z",
+      "horizon_days": 7,
+      "hypothesis": "Operate only fixture-backed watch symbols until paper rejection data clears the minimum sample floor.",
+      "schema_version": "zero.research.thesis.v1",
+      "scorecard": {
+        "confidence": 0.42,
+        "invalidates_if": [
+          "acceptance rate falls to zero for three consecutive paper sessions",
+          "one rejection reason explains every blocked setup after 30 samples"
+        ],
+        "sample_size": 2
+      },
+      "watch_symbols": [
+        "BTC",
+        "ETH"
+      ]
+    }
+  },
+  "schema_version": "zero.research.snapshot.v1",
+  "source": "fixture-research-chain",
+  "summary": {
+    "candidate_count": 3,
+    "convergence_status": "insufficient-public-sample",
+    "minimum_sample_met": false,
+    "proposal_count": 3,
+    "sample_size": 2
+  }
+}
