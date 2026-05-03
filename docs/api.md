@@ -376,6 +376,9 @@ into a public-safe drill bundle. It captures `/health`, `/v2/status`,
 `/live/certification`, `/live/receipts`, `/live/evidence`, `/metrics`, and
 `/audit/export?limit=100`, then writes `manifest.json` and `SHA256SUMS`. In
 public paper mode it fails unless live readiness remains fail-closed.
+`scripts/live_cockpit_drill_verify.py DIR` independently verifies a captured
+bundle by recomputing checksums, checking packet schemas, replaying the
+manifest summary from packet payloads, and enforcing redaction rules.
 
 `GET /operator/context` returns the operator audit identity currently attached
 to requests. The engine resolves it from `X-Zero-Operator-*` headers,

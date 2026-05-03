@@ -47,10 +47,18 @@ the raw redacted packets, and `SHA256SUMS`. It collects `/health`,
 `/live/certification`, `/live/receipts`, `/live/evidence`, `/metrics`, and
 `/audit/export?limit=100`.
 
+Verify a captured bundle before sharing it or treating it as launch evidence:
+
+```bash
+scripts/live_cockpit_drill_verify.py artifacts/live-cockpit-drill/<timestamp>
+```
+
 In public paper mode the drill fails unless live readiness is fail-closed:
 `ready=false`, `live_mode=refused`, and `risk_increasing_allowed=false`. It
 also checks schema versions, risk-reducing actions, dry-run certification,
-checksums, and common redaction leaks.
+checksums, and common redaction leaks. The verifier recomputes `SHA256SUMS`,
+checks the packet inventory, replays the manifest summary from packet payloads,
+and enforces the same fail-closed and redaction rules.
 
 ## Launch Rule
 

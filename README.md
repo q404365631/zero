@@ -196,6 +196,9 @@ zero live canary operator verify: ok=True checks=... fail=0
 $ scripts/live_cockpit_drill.py http://127.0.0.1:8765
 zero live cockpit drill: ok=True ready=False risk_allowed=False fail=0 output=artifacts/live-cockpit-drill/...
 
+$ scripts/live_cockpit_drill_verify.py artifacts/live-cockpit-drill/...
+zero live cockpit drill verify: ok=True checks=... fail=0
+
 $ curl -fsS http://127.0.0.1:8765/immune
 {"schema_version": "zero.immune.v1", "risk_increasing_allowed": false}
 ```

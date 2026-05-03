@@ -189,6 +189,8 @@ COCKPIT_DRILL_DIR="$(mktemp -d)"
   --forbid-token smoke-1 >/tmp/zero-paper-api-live-cockpit-drill.txt
 "${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); body=json.dumps(m); assert m["schema_version"] == "zero.live_cockpit_drill.v1"; assert m["summary"]["ok"] is True; assert m["summary"]["ready"] is False; assert m["summary"]["risk_increasing_allowed"] is False; assert (d/"SHA256SUMS").is_file(); assert "smoke-1" not in body; assert "trace-" not in body' \
   "${COCKPIT_DRILL_DIR}"
+"${PYTHON_BIN}" scripts/live_cockpit_drill_verify.py "${COCKPIT_DRILL_DIR}" \
+  --forbid-token smoke-1 >/tmp/zero-paper-api-live-cockpit-drill-verify.txt
 
 EVIDENCE_DIR="$(mktemp -d)"
 "${PYTHON_BIN}" scripts/deployment_evidence.py "${API}" \

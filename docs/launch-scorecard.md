@@ -34,7 +34,8 @@ reserved for ZERO Intelligence.
 - One-command live canary operator workflow with public-safe report,
   exchange-evidence attachment, recursive checksums, and local verifier
 - Live cockpit drill bundle for read-only preflight, immune, reconciliation,
-  certification, receipts, evidence, metrics, and audit packets
+  certification, receipts, evidence, metrics, and audit packets, plus a local
+  verifier that replays packet-derived readiness
 - Threat model, incident runbooks, distribution policy, and hardening gate
 - Dependency and supply-chain policy with vulnerability response rules
 - One-line CLI install path with checksum and attestation verification
