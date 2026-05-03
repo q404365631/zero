@@ -1,0 +1,43 @@
+{
+  "artifacts": {
+    "candles_jsonl": "sha256:c263d1ba3646f7b849112812a32da77fdd4e9fd33f9f091637e2d7e5622bb23a",
+    "demo_readme": "sha256:50538d70e490c58ebe74548e59b5c377ef3d31de82bea9d379949d63e21d107b",
+    "paper_decisions_csv": "sha256:e27e0dac3bfc686f54a1e51c99b6daccabbb49a335924b9160c0b07ddcabb497",
+    "paper_proof_svg": "sha256:53c87e12d4cf4822e5539b7cf264c294f004d713cd9b5e968806c1e151df3b56",
+    "scenario_json": "sha256:93290634b70d88df5c69755e2f1da17ae9f034c561b461d6c5fcd1c3b4bbbe8f"
+  },
+  "claim_boundary": {
+    "live_trading_claimed": false,
+    "paper_mode_verified": true,
+    "paper_vs_live_correlation_claimed": false,
+    "pnl_claimed": false
+  },
+  "generated_at": "2026-05-01T00:00:00Z",
+  "live_correlation": {
+    "r_squared": null,
+    "reason": "requires signed paper/live records and exchange-side evidence",
+    "status": "unavailable"
+  },
+  "mode": "paper",
+  "name": "demo-paper-launch-smoke",
+  "paper": {
+    "decisions": 4,
+    "fills": 2,
+    "open_positions": 1,
+    "rejections": 2,
+    "scenario": "paper-launch-smoke",
+    "symbols": [
+      "BTC",
+      "ETH",
+      "SOL"
+    ]
+  },
+  "privacy": {
+    "contains_exchange_credentials": false,
+    "contains_private_notes": false,
+    "contains_raw_exchange_order_ids": false,
+    "contains_wallet_material": false
+  },
+  "proof_hash": "sha256:6b56436ec3003c2c6557f57f08e6d127e1e30a77451384cd3ed5b15f6c751ceb",
+  "schema_version": "zero.proof_pack.v1"
+}

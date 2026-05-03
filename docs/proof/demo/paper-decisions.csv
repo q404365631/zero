@@ -1,0 +1,5 @@
+as_of,source,symbol,side,quantity,price,notional_usd,confidence,reduce_only,allowed,reason
+1777646400.0,scenario:paper-launch-smoke,BTC,buy,0.01,40000.0,400.0,0.84,False,True,allowed
+1777646400.0,scenario:paper-launch-smoke,ETH,buy,1.0,3000.0,3000.0,0.93,False,False,order notional exceeds limit
+1777646400.0,scenario:paper-launch-smoke,BTC,sell,0.005,40500.0,202.5,0.1,True,True,reduce-only orders bypass risk-increasing friction
+1777646400.0,scenario:paper-launch-smoke,SOL,buy,10.0,140.0,1400.0,0.95,False,False,order notional exceeds limit

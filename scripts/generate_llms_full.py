@@ -20,6 +20,7 @@ SOURCES = (
     "docs/llms.txt",
     "docs/first-10-minutes.md",
     "docs/local-development.md",
+    "docs/proof/README.md",
     "docs/architecture.md",
     "docs/cli-quickstart.md",
     "docs/api.md",

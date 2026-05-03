@@ -78,6 +78,9 @@ release-evidence tag:
 llms-full:
     scripts/generate_llms_full.py
 
+proof-pack:
+    PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py
+
 draft-release-rehearsal:
     scripts/draft_release_rehearsal.sh
 
@@ -143,6 +146,11 @@ docs-check:
     test -f llms.txt
     test -f docs/llms.txt
     test -f docs/llms-full.txt
+    test -f docs/proof/README.md
+    test -f docs/proof/demo/README.md
+    test -f docs/proof/demo/proof-pack.json
+    test -f docs/proof/demo/paper-decisions.csv
+    test -f docs/proof/demo/paper-proof.svg
     test -f docs/local-development.md
     test -f docs/first-10-minutes.md
     test -f docs/demo-terminal.md
@@ -237,6 +245,7 @@ docs-check:
     test -x scripts/release_verify.py
     test -x scripts/release_evidence.py
     test -x scripts/generate_llms_full.py
+    test -x scripts/proof_pack.py
     test -x scripts/release_rehearsal.sh
     test -x scripts/draft_release_rehearsal.sh
     test -x scripts/hardening_gate.sh
@@ -261,6 +270,7 @@ docs-check:
     test -f docs/railway-deploy.md
     python3 scripts/openapi_contract_check.py
     scripts/generate_llms_full.py --check
+    PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py --check
 
 container-build:
     docker build -t zero-public:local .

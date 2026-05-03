@@ -67,6 +67,11 @@ required=(
   llms.txt
   docs/llms.txt
   docs/llms-full.txt
+  docs/proof/README.md
+  docs/proof/demo/README.md
+  docs/proof/demo/proof-pack.json
+  docs/proof/demo/paper-decisions.csv
+  docs/proof/demo/paper-proof.svg
   .cursor/rules/global.mdc
   .github/PULL_REQUEST_TEMPLATE.md
   .github/dependabot.yml

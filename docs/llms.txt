@@ -27,6 +27,7 @@
 - [Local Development](local-development.md)
 - [CLI Quickstart](cli-quickstart.md)
 - [Demo Terminal](demo-terminal.md)
+- [Proof Packs](proof/README.md)
 - [Railway Deploy](railway-deploy.md)
 - [Release](release.md)
 

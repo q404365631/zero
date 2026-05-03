@@ -382,6 +382,7 @@ Machine-readable entrypoints:
 - [Positioning](docs/positioning.md)
 - [First 10 Minutes](docs/first-10-minutes.md)
 - [Demo Terminal](docs/demo-terminal.md)
+- [Proof Packs](docs/proof/README.md)
 - [CLI Quickstart](docs/cli-quickstart.md)
 - [API](docs/api.md)
 - [OpenAPI Contract](openapi/zero-paper-api.v1.yaml)

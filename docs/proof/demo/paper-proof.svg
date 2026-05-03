@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="300" role="img" aria-label="ZERO demo proof pack: paper-launch-smoke">
+  <rect width="760" height="300" fill="#f7f8f8"/>
+  <text x="40" y="54" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#111614">ZERO Demo Proof Pack</text>
+  <text x="40" y="84" font-family="Arial, sans-serif" font-size="14" fill="#5d6864">Paper-only deterministic scenario. No live P&amp;L claim.</text>
+  <text x="40" y="132" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#111614">Decisions</text>
+  <rect x="170" y="114" width="320" height="26" rx="4" fill="#d9dfdc"/>
+  <rect x="170" y="114" width="160.00" height="26" rx="4" fill="#0b6b53"/>
+  <rect x="330.00" y="114" width="160.00" height="26" fill="#8a4b1f"/>
+  <text x="510" y="133" font-family="Arial, sans-serif" font-size="14" fill="#111614">4 total</text>
+  <text x="40" y="180" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#111614">Paper fills</text>
+  <text x="170" y="180" font-family="Arial, sans-serif" font-size="15" fill="#111614">2</text>
+  <text x="40" y="214" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#111614">Paper rejections</text>
+  <text x="170" y="214" font-family="Arial, sans-serif" font-size="15" fill="#111614">2</text>
+  <text x="40" y="248" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#111614">Live correlation</text>
+  <text x="170" y="248" font-family="Arial, sans-serif" font-size="15" fill="#8a4b1f">unavailable until exchange evidence is attached</text>
+</svg>

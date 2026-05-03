@@ -8,6 +8,11 @@ required_files=(
   "llms.txt"
   "docs/llms.txt"
   "docs/llms-full.txt"
+  "docs/proof/README.md"
+  "docs/proof/demo/README.md"
+  "docs/proof/demo/proof-pack.json"
+  "docs/proof/demo/paper-decisions.csv"
+  "docs/proof/demo/paper-proof.svg"
   "docs/threat-model.md"
   "docs/incident-runbooks.md"
   "docs/distribution.md"
@@ -76,6 +81,9 @@ contains "Machine-readable entrypoints" README.md
 contains "Stewardship Pledge" GOVERNANCE.md
 contains "canonical operating guide" .github/copilot-instructions.md
 contains "Agent Operating Guide" docs/llms.txt
+contains "live_correlation" docs/proof/demo/proof-pack.json
+contains "unavailable" docs/proof/demo/proof-pack.json
+contains "does not claim live trading" docs/proof/README.md
 
 python3 -m json.tool contracts/intelligence/snapshot.json >/dev/null
 python3 -m json.tool contracts/intelligence/catalog.json >/dev/null
@@ -104,11 +112,13 @@ python3 -m py_compile scripts/registry_readiness.py
 python3 -m py_compile scripts/release_provenance.py
 python3 -m py_compile scripts/homebrew_formula.py
 python3 -m py_compile scripts/generate_llms_full.py
+python3 -m py_compile scripts/proof_pack.py
 python3 -m py_compile scripts/live_cockpit_drill_verify.py
 python3 -m py_compile scripts/live_cockpit_drill_tamper_rehearsal.py
 rm -rf scripts/__pycache__
 scripts/registry_readiness.py >/dev/null
 scripts/generate_llms_full.py --check
+PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py --check
 scripts/draft_release_rehearsal.sh >/dev/null
 rm -rf scripts/__pycache__
 scripts/public_readiness_gate.sh >/dev/null
