@@ -2,6 +2,12 @@
 set -euo pipefail
 
 required_files=(
+  "AGENTS.md"
+  "CLAUDE.md"
+  "GEMINI.md"
+  "llms.txt"
+  "docs/llms.txt"
+  "docs/llms-full.txt"
   "docs/threat-model.md"
   "docs/incident-runbooks.md"
   "docs/distribution.md"
@@ -17,6 +23,12 @@ required_files=(
 for file in "${required_files[@]}"; do
   test -f "$file"
 done
+
+test -L CLAUDE.md
+test -L GEMINI.md
+test "$(readlink CLAUDE.md)" = "AGENTS.md"
+test "$(readlink GEMINI.md)" = "AGENTS.md"
+test -f .cursor/rules/global.mdc
 
 contains() {
   local pattern="$1"
@@ -59,6 +71,11 @@ contains "gh attestation verify zero-linux" .github/RELEASE_TEMPLATE.md
 contains "scripts/release_evidence.py <tag>" .github/RELEASE_TEMPLATE.md
 contains "zero.release_evidence.v1" docs/releases/v0.1.1-evidence.md
 contains "verification.fail=0" docs/releases/v0.1.1-evidence.md
+contains "ZERO LLM Full Context" docs/llms-full.txt
+contains "Machine-readable entrypoints" README.md
+contains "Stewardship Pledge" GOVERNANCE.md
+contains "canonical operating guide" .github/copilot-instructions.md
+contains "Agent Operating Guide" docs/llms.txt
 
 python3 -m json.tool contracts/intelligence/snapshot.json >/dev/null
 python3 -m json.tool contracts/intelligence/catalog.json >/dev/null
@@ -86,10 +103,12 @@ python3 -m py_compile scripts/release_evidence.py
 python3 -m py_compile scripts/registry_readiness.py
 python3 -m py_compile scripts/release_provenance.py
 python3 -m py_compile scripts/homebrew_formula.py
+python3 -m py_compile scripts/generate_llms_full.py
 python3 -m py_compile scripts/live_cockpit_drill_verify.py
 python3 -m py_compile scripts/live_cockpit_drill_tamper_rehearsal.py
 rm -rf scripts/__pycache__
 scripts/registry_readiness.py >/dev/null
+scripts/generate_llms_full.py --check
 scripts/draft_release_rehearsal.sh >/dev/null
 rm -rf scripts/__pycache__
 scripts/public_readiness_gate.sh >/dev/null

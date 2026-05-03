@@ -1,0 +1,12 @@
+# ZERO
+
+> ZERO is an autonomous operating system for self-custodial onchain operations.
+> The public repo is paper-first, local-first, Apache-2.0, and structured for
+> human and agent contributors.
+
+## Docs For Agents
+
+- [ZERO docs index](docs/llms.txt)
+- [Full LLM context](docs/llms-full.txt)
+- [Agent operating guide](AGENTS.md)
+- [OpenAPI v1](openapi/zero-paper-api.v1.yaml)

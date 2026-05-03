@@ -62,6 +62,12 @@ required=(
   SUPPORT.md
   GOVERNANCE.md
   AGENTS.md
+  CLAUDE.md
+  GEMINI.md
+  llms.txt
+  docs/llms.txt
+  docs/llms-full.txt
+  .cursor/rules/global.mdc
   .github/PULL_REQUEST_TEMPLATE.md
   .github/dependabot.yml
   .github/workflows/ci.yml

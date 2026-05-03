@@ -1,0 +1,67 @@
+# ZERO Docs
+
+> ZERO is an autonomous operating system for self-custodial onchain operations.
+> The public repo is paper-first, local-first, Apache-2.0, and structured for
+> human and agent contributors.
+
+## Start
+
+- [README](../README.md)
+- [Agent Operating Guide](../AGENTS.md)
+- [Contributing](../CONTRIBUTING.md)
+- [Governance](../GOVERNANCE.md)
+- [Security](../SECURITY.md)
+
+## Product
+
+- [Positioning](positioning.md)
+- [Open-Core Boundary](open-core-boundary.md)
+- [Production Readiness](production-readiness.md)
+- [Public Upgrade Plan](public-upgrade.md)
+- [Autonomous OS Plan](autonomous-os-plan.md)
+- [Roadmap](roadmap.md)
+
+## Build And Run
+
+- [First 10 Minutes](first-10-minutes.md)
+- [Local Development](local-development.md)
+- [CLI Quickstart](cli-quickstart.md)
+- [Demo Terminal](demo-terminal.md)
+- [Railway Deploy](railway-deploy.md)
+- [Release](release.md)
+
+## Architecture And Contracts
+
+- [Architecture](architecture.md)
+- [Runtime Bus](runtime-bus.md)
+- [API](api.md)
+- [API Compatibility](api-compatibility.md)
+- [OpenAPI v1](../openapi/zero-paper-api.v1.yaml)
+- [Strategy Plugins](strategy-plugins.md)
+- [Market Data Adapters](market-data-adapters.md)
+
+## Safety And Operations
+
+- [Safety Model](safety-model.md)
+- [Threat Model](threat-model.md)
+- [Incident Runbooks](incident-runbooks.md)
+- [Dependency Policy](dependency-policy.md)
+- [Hyperliquid Read-only](hyperliquid-readonly.md)
+- [Live Evidence](live-evidence.md)
+- [Live Canary Operator](live-canary-operator.md)
+- [Live Cockpit](live-cockpit.md)
+- [Operator Context](operator-context.md)
+- [Operator Isolation](operator-isolation.md)
+- [Immune System](immune-system.md)
+
+## Network And Intelligence
+
+- [ZERO Network](zero-network.md)
+- [ZERO Intelligence](zero-intelligence.md)
+- [Model Gateway](model-gateway.md)
+- [Deployment Identity](deployment-identity.md)
+
+## For Agents
+
+- [Agentic Contribution](agentic-contribution.md)
+- [Full LLM Context](llms-full.txt)

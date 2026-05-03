@@ -75,6 +75,9 @@ release-provenance dir:
 release-evidence tag:
     scripts/release_evidence.py "{{tag}}"
 
+llms-full:
+    scripts/generate_llms_full.py
+
 draft-release-rehearsal:
     scripts/draft_release_rehearsal.sh
 
@@ -131,6 +134,15 @@ cli-test:
 
 docs-check:
     test -f AGENTS.md
+    test -L CLAUDE.md
+    test -L GEMINI.md
+    test "$(readlink CLAUDE.md)" = "AGENTS.md"
+    test "$(readlink GEMINI.md)" = "AGENTS.md"
+    test -f .cursor/rules/global.mdc
+    test -f .github/copilot-instructions.md
+    test -f llms.txt
+    test -f docs/llms.txt
+    test -f docs/llms-full.txt
     test -f docs/local-development.md
     test -f docs/first-10-minutes.md
     test -f docs/demo-terminal.md
@@ -224,6 +236,7 @@ docs-check:
     test -x scripts/release_provenance.py
     test -x scripts/release_verify.py
     test -x scripts/release_evidence.py
+    test -x scripts/generate_llms_full.py
     test -x scripts/release_rehearsal.sh
     test -x scripts/draft_release_rehearsal.sh
     test -x scripts/hardening_gate.sh
@@ -247,6 +260,7 @@ docs-check:
     test -f railway.toml
     test -f docs/railway-deploy.md
     python3 scripts/openapi_contract_check.py
+    scripts/generate_llms_full.py --check
 
 container-build:
     docker build -t zero-public:local .

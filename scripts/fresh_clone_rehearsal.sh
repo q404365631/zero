@@ -47,13 +47,16 @@ for rel in paths:
         continue
 
     src = os.path.join(root, rel)
-    if not os.path.isfile(src):
+    if not os.path.isfile(src) and not os.path.islink(src):
         continue
 
     dst = os.path.join(dest, rel)
     os.makedirs(os.path.dirname(dst), exist_ok=True)
-    shutil.copy2(src, dst)
-    os.chmod(dst, os.stat(src).st_mode & 0o777)
+    if os.path.islink(src):
+        os.symlink(os.readlink(src), dst)
+    else:
+        shutil.copy2(src, dst)
+        os.chmod(dst, os.stat(src).st_mode & 0o777)
     copied += 1
 
 print(f"zero fresh clone rehearsal: copied {copied} files")

@@ -1,5 +1,8 @@
 # ZERO Copilot Instructions
 
+Read and follow `AGENTS.md`; it is the canonical operating guide for coding and
+design agents in this repository.
+
 ZERO is an autonomous operating system for self-custodial onchain operations.
 Keep the public runtime paper-first, local-first, and useful without hosted ZERO
 infrastructure.

@@ -368,6 +368,14 @@ Using a coding or design agent? Start with [AGENTS.md](AGENTS.md) and
 changes should stay scoped, paper-first by default, and explicit about safety
 invariants.
 
+Machine-readable entrypoints:
+
+- [llms.txt](llms.txt)
+- [docs/llms.txt](docs/llms.txt)
+- [docs/llms-full.txt](docs/llms-full.txt)
+- [AGENTS.md](AGENTS.md)
+- [OpenAPI Contract](openapi/zero-paper-api.v1.yaml)
+
 ## Documentation
 
 - [Architecture](docs/architecture.md)
