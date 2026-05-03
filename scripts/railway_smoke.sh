@@ -131,7 +131,7 @@ openssl pkey -in "${IDENTITY_PRIVATE_KEY}" -pubout -out "${IDENTITY_PUBLIC_KEY}"
 python3 scripts/deployment_identity_evidence.py create "${IDENTITY_CLAIM}" "${IDENTITY_HEARTBEAT}" \
   --private-key "${IDENTITY_PRIVATE_KEY}" \
   --public-key "${IDENTITY_PUBLIC_KEY}" \
-  --signer ci-railway-smoke \
+  --signer ci-railway \
   --output "${IDENTITY_BUNDLE_DIR}" >/tmp/zero-railway-deployment-identity-evidence.txt
 python3 scripts/deployment_identity_evidence.py verify "${IDENTITY_BUNDLE_DIR}" \
   --require-signature \
