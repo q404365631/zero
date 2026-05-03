@@ -124,6 +124,7 @@ docs-check:
     test -f docs/hyperliquid-readonly.md
     test -f docs/live-certification.md
     test -f docs/live-cockpit.md
+    test -f docs/live-evidence.md
     test -f docs/operator-context.md
     test -f docs/deployment-identity.md
     test -f docs/model-gateway.md
@@ -168,6 +169,7 @@ docs-check:
     test -f contracts/paper-api/execute_rejected.json
     test -f contracts/deployment/claim.json
     test -f contracts/deployment/heartbeat.json
+    test -f contracts/live/evidence.json
     test -f contracts/network/profile.json
     test -f contracts/network/leaderboard.json
     test -f contracts/network/ingestion.json

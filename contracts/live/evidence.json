@@ -1,0 +1,114 @@
+{
+  "artifacts": [
+    {
+      "hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "included": "hash_only",
+      "name": "live_preflight",
+      "schema_version": "zero.live_preflight.v1",
+      "status": "refused"
+    },
+    {
+      "hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "included": "hash_only",
+      "name": "live_cockpit",
+      "schema_version": "zero.live_cockpit.v1",
+      "status": "refused"
+    },
+    {
+      "hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "included": "hash_only",
+      "name": "hl_reconcile",
+      "schema_version": "zero.reconciliation.v1",
+      "status": "missing_account"
+    },
+    {
+      "hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "included": "hash_only",
+      "name": "immune",
+      "schema_version": "zero.immune.v1",
+      "status": "blocked"
+    },
+    {
+      "hash": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "included": "hash_only",
+      "name": "live_certification",
+      "schema_version": "zero.live_certification.v1",
+      "status": "pass"
+    },
+    {
+      "hash": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+      "included": "hash_only",
+      "name": "audit_export",
+      "schema_version": "zero.audit.v1",
+      "status": "captured"
+    },
+    {
+      "hash": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+      "included": "hash_only",
+      "name": "deployment_claim",
+      "schema_version": "zero.deployment.claim.v1",
+      "status": "captured"
+    },
+    {
+      "hash": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+      "included": "hash_only",
+      "name": "deployment_heartbeat",
+      "schema_version": "zero.deployment.heartbeat.v1",
+      "status": "paper_only"
+    }
+  ],
+  "canary_rule": {
+    "default_public_runtime_places_live_orders": false,
+    "operator_owned_custody": true,
+    "requires_external_exchange_records": true,
+    "risk_reducing_actions_required": [
+      "/pause-entries",
+      "/flatten-all",
+      "/kill"
+    ],
+    "tiny_capital_only": true
+  },
+  "evidence_hash": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+  "generated_at": "2026-05-01T00:00:00Z",
+  "live_mode": "refused",
+  "mode": "paper",
+  "operator_context": {
+    "handle": "local-operator",
+    "operator_id": "local-operator",
+    "role": "owner",
+    "schema_version": "zero.operator_context.v1",
+    "scope": "local-private",
+    "source": "runtime-default"
+  },
+  "privacy": {
+    "contains_exchange_credentials": false,
+    "contains_idempotency_tokens": false,
+    "contains_private_notes": false,
+    "contains_raw_decisions": false,
+    "contains_trace_tokens": false,
+    "contains_wallet_material": false
+  },
+  "ready": false,
+  "risk_increasing_allowed": false,
+  "schema_version": "zero.live_evidence.v1",
+  "signature": {
+    "algorithm": null,
+    "key_material_included": false,
+    "signed_evidence_hash": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+    "signature": null,
+    "signer": "local-runtime",
+    "status": "unsigned_local"
+  },
+  "summary": {
+    "artifacts": 8,
+    "certification_passed": true,
+    "controls_ready": false,
+    "deployment_heartbeat_status": "paper_only",
+    "immune_risk_increasing_allowed": false,
+    "live_records_accepted": 0,
+    "live_records_total": 0,
+    "live_start_certified": true,
+    "preflight_ready": false,
+    "reconciliation_status": "missing_account"
+  }
+}

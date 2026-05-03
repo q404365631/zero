@@ -598,6 +598,7 @@ async fn run(ctx: &DispatchContext, cmd: &Command) -> DispatchOutput {
         Command::HyperliquidReconcile => hl_reconcile_cmd(ctx).await,
         Command::LiveCertify => live_certify_cmd(ctx).await,
         Command::LiveCockpit => live_cockpit_cmd(ctx).await,
+        Command::LiveEvidence => live_evidence_cmd(ctx).await,
         Command::Immune => immune_cmd(ctx).await,
         Command::Quote { symbol } => quote_cmd(ctx, symbol.as_deref()).await,
         Command::Regime { coin } => regime_cmd(ctx, coin.as_deref()).await,
@@ -648,93 +649,7 @@ fn help() -> DispatchOutput {
     let mut out = DispatchOutput::default();
     out.lines.push(OutputLine::system("commands:"));
     out.lines
-        .push(OutputLine::system("  /help                — this list"));
-    out.lines
-        .push(OutputLine::system("  /quit                — exit"));
-    out.lines
-        .push(OutputLine::system("  /clear               — clear the log"));
-    out.lines.push(OutputLine::system(
-        "  /conv /decisions /heat-mode /pos-mode — switch modes",
-    ));
-    out.lines
-        .push(OutputLine::system("  /status              — engine status"));
-    out.lines.push(OutputLine::system(
-        "  /brief               — morning briefing",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /risk                — guardrail summary",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /hl-status [coin]    — read-only Hyperliquid info status",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /hl-account          — read-only Hyperliquid account truth",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /hl-reconcile        — Hyperliquid account reconciliation",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /live-certify        — dry-run live execution certification",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /live-cockpit        — live readiness cockpit",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /immune              — immune breaker state",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /quote <coin>        — active paper quote source",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /heat                — composite heat (risk + circuit state)",
-    ));
-    out.lines
-        .push(OutputLine::system("  /regime [coin]       — market regime"));
-    out.lines.push(OutputLine::system(
-        "  /evaluate <coin>     — gate verdict (overlay)",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /pos                 — open positions",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /pulse [N]           — recent engine events",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /approaching         — coins near a gate",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /rejections [coin] [N] — recent gate rejections",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /kill /flatten-all /pause-entries /break /close  — risk-reducers (instant)",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /resume-entries      — resume new entries (friction-gated)",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /close <coin>        — close a single position",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /execute             — composition change (gated by operator state)",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /state               — full operator-state overview (any key closes)",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /state-override <L>  — declare operator-state label (gated)",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /continue            — acknowledge coaching notice",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /coaching reset      — clear coaching notice buffer",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /wrap-off            — skip daily wrap (this session only)",
-    ));
-    out.lines.push(OutputLine::system(
-        "  /disclosure-override --i-know-what-i-am-doing  — bypass progressive disclosure",
-    ));
+        .extend(HELP_LINES.iter().copied().map(OutputLine::system));
     // Diagnostic commands grouped at the bottom so an operator
     // scanning for "what do I type when things are broken" finds
     // them without hunting. `/doctor` is the top-level alias for
@@ -751,6 +666,41 @@ fn help() -> DispatchOutput {
     ));
     out
 }
+
+const HELP_LINES: &[&str] = &[
+    "  /help                — this list",
+    "  /quit                — exit",
+    "  /clear               — clear the log",
+    "  /conv /decisions /heat-mode /pos-mode — switch modes",
+    "  /status              — engine status",
+    "  /brief               — morning briefing",
+    "  /risk                — guardrail summary",
+    "  /hl-status [coin]    — read-only Hyperliquid info status",
+    "  /hl-account          — read-only Hyperliquid account truth",
+    "  /hl-reconcile        — Hyperliquid account reconciliation",
+    "  /live-certify        — dry-run live execution certification",
+    "  /live-cockpit        — live readiness cockpit",
+    "  /live-evidence       — hash-only live evidence bundle",
+    "  /immune              — immune breaker state",
+    "  /quote <coin>        — active paper quote source",
+    "  /heat                — composite heat (risk + circuit state)",
+    "  /regime [coin]       — market regime",
+    "  /evaluate <coin>     — gate verdict (overlay)",
+    "  /pos                 — open positions",
+    "  /pulse [N]           — recent engine events",
+    "  /approaching         — coins near a gate",
+    "  /rejections [coin] [N] — recent gate rejections",
+    "  /kill /flatten-all /pause-entries /break /close  — risk-reducers (instant)",
+    "  /resume-entries      — resume new entries (friction-gated)",
+    "  /close <coin>        — close a single position",
+    "  /execute             — composition change (gated by operator state)",
+    "  /state               — full operator-state overview (any key closes)",
+    "  /state-override <L>  — declare operator-state label (gated)",
+    "  /continue            — acknowledge coaching notice",
+    "  /coaching reset      — clear coaching notice buffer",
+    "  /wrap-off            — skip daily wrap (this session only)",
+    "  /disclosure-override --i-know-what-i-am-doing  — bypass progressive disclosure",
+];
 
 /// Render the "you're already inside zero" hint when an operator
 /// types a shell-style `zero …` invocation at the TUI prompt.
@@ -1162,6 +1112,61 @@ async fn live_cockpit_cmd(ctx: &DispatchContext) -> DispatchOutput {
         Err(e) => out
             .lines
             .push(OutputLine::alert(format!("live-cockpit: {e}"))),
+    }
+    out
+}
+
+async fn live_evidence_cmd(ctx: &DispatchContext) -> DispatchOutput {
+    let mut out = DispatchOutput::default();
+    let Some(http) = require_http(ctx, &mut out) else {
+        return out;
+    };
+    match http.live_evidence().await {
+        Ok(evidence) => {
+            let signer = evidence
+                .signature
+                .get("signer")
+                .and_then(serde_json::Value::as_str)
+                .unwrap_or("unknown");
+            let signature_status = evidence
+                .signature
+                .get("status")
+                .and_then(serde_json::Value::as_str)
+                .unwrap_or("unknown");
+            let hash_short = evidence
+                .evidence_hash
+                .strip_prefix("sha256:")
+                .map_or(evidence.evidence_hash.as_str(), |hash| hash)
+                .chars()
+                .take(12)
+                .collect::<String>();
+            out.lines.push(OutputLine::command(format!(
+                "live-evidence: live_mode={}  ready={}  risk_allowed={}  artifacts={}  hash=sha256:{hash_short}...",
+                evidence.live_mode,
+                evidence.ready,
+                evidence.risk_increasing_allowed,
+                evidence.artifacts.len()
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  signature: status={signature_status} signer={signer}"
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  operator: handle={} id={} role={} scope={}",
+                evidence.operator_context.handle,
+                evidence.operator_context.operator_id,
+                evidence.operator_context.role,
+                evidence.operator_context.scope
+            )));
+            for artifact in evidence.artifacts.iter().take(8) {
+                out.lines.push(OutputLine::system(format!(
+                    "  {}: {} {} {}",
+                    artifact.name, artifact.status, artifact.schema_version, artifact.hash
+                )));
+            }
+        }
+        Err(e) => out
+            .lines
+            .push(OutputLine::alert(format!("live-evidence: {e}"))),
     }
     out
 }

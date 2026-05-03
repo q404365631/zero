@@ -584,6 +584,43 @@ def test_live_kill_blocks_later_live_execute() -> None:
     assert cockpit["operator_actions"]["recent"][0]["operator_context"]["handle"] == "ops"
 
 
+def test_live_evidence_hashes_required_packets_without_leaking_private_material() -> None:
+    api = PaperApi(
+        PaperApiState(
+            clock=lambda: FIXED_DT,
+            started_at=FIXED_DT,
+            live_evidence_signing_key="local-signing-secret",
+            live_evidence_signer="ci-local",
+        )
+    )
+    operator_context = api.state.operator_context(
+        {"x-zero-operator-id": "ops-1", "x-zero-operator-handle": "ops"}
+    )
+
+    status, payload = api.get("/live/evidence", {}, operator_context=operator_context)
+    body = json.dumps(payload, sort_keys=True).lower()
+    artifacts = {artifact["name"]: artifact for artifact in payload["artifacts"]}
+
+    assert status == 200
+    assert payload["schema_version"] == "zero.live_evidence.v1"
+    assert payload["live_mode"] == "refused"
+    assert payload["risk_increasing_allowed"] is False
+    assert payload["operator_context"]["handle"] == "ops"
+    assert payload["summary"]["artifacts"] == 8
+    assert artifacts["live_preflight"]["hash"].startswith("sha256:")
+    assert artifacts["live_cockpit"]["included"] == "hash_only"
+    assert artifacts["deployment_heartbeat"]["schema_version"] == "zero.deployment.heartbeat.v1"
+    assert payload["evidence_hash"].startswith("sha256:")
+    assert payload["signature"]["status"] == "signed_local_hmac"
+    assert payload["signature"]["algorithm"] == "hmac-sha256"
+    assert payload["signature"]["key_material_included"] is False
+    assert payload["signature"]["signed_evidence_hash"] == payload["evidence_hash"]
+    assert "local-signing-secret" not in body
+    assert "private_key" not in body
+    assert "idempotency_key" not in body
+    assert "trace_id" not in body
+
+
 def test_paper_api_market_quote_uses_fixture_prices_by_default() -> None:
     status, payload = PaperApi(PaperApiState(clock=lambda: FIXED_DT)).get(
         "/market/quote",

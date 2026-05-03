@@ -332,6 +332,7 @@ fn router(shared: AppState) -> Router<AppState> {
         .route("/immune", get(immune))
         .route("/live/cockpit", get(live_cockpit))
         .route("/live/certification", get(live_certification))
+        .route("/live/evidence", get(live_evidence))
         .route("/live/preflight", get(live_preflight))
         .route("/market/quote", get(market_quote))
         .route("/operator/state", get(operator_state))
@@ -830,6 +831,64 @@ async fn live_certification() -> Json<serde_json::Value> {
             }
         ],
         "evidence_requirements": ["live_preflight packet", "hl_reconcile packet"]
+    }))
+}
+
+async fn live_evidence() -> Json<serde_json::Value> {
+    Json(json!({
+        "schema_version": "zero.live_evidence.v1",
+        "generated_at": chrono_utc_now_iso(),
+        "mode": "paper",
+        "live_mode": "refused",
+        "ready": false,
+        "risk_increasing_allowed": false,
+        "operator_context": mock_operator_context(),
+        "summary": {
+            "artifacts": 8,
+            "preflight_ready": false,
+            "controls_ready": true,
+            "certification_passed": true,
+            "live_start_certified": true,
+            "reconciliation_status": "ok",
+            "immune_risk_increasing_allowed": false,
+            "live_records_total": 0,
+            "live_records_accepted": 0,
+            "deployment_heartbeat_status": "paper_only"
+        },
+        "artifacts": [
+            {"name": "live_preflight", "schema_version": "zero.live_preflight.v1", "status": "refused", "hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111", "included": "hash_only"},
+            {"name": "live_cockpit", "schema_version": "zero.live_cockpit.v1", "status": "refused", "hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222", "included": "hash_only"},
+            {"name": "hl_reconcile", "schema_version": "zero.reconciliation.v1", "status": "ok", "hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333", "included": "hash_only"},
+            {"name": "immune", "schema_version": "zero.immune.v1", "status": "blocked", "hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444", "included": "hash_only"},
+            {"name": "live_certification", "schema_version": "zero.live_certification.v1", "status": "pass", "hash": "sha256:5555555555555555555555555555555555555555555555555555555555555555", "included": "hash_only"},
+            {"name": "audit_export", "schema_version": "zero.audit.v1", "status": "captured", "hash": "sha256:6666666666666666666666666666666666666666666666666666666666666666", "included": "hash_only"},
+            {"name": "deployment_claim", "schema_version": "zero.deployment.claim.v1", "status": "captured", "hash": "sha256:7777777777777777777777777777777777777777777777777777777777777777", "included": "hash_only"},
+            {"name": "deployment_heartbeat", "schema_version": "zero.deployment.heartbeat.v1", "status": "paper_only", "hash": "sha256:8888888888888888888888888888888888888888888888888888888888888888", "included": "hash_only"}
+        ],
+        "canary_rule": {
+            "tiny_capital_only": true,
+            "operator_owned_custody": true,
+            "requires_external_exchange_records": true,
+            "risk_reducing_actions_required": ["/pause-entries", "/flatten-all", "/kill"],
+            "default_public_runtime_places_live_orders": false
+        },
+        "privacy": {
+            "contains_exchange_credentials": false,
+            "contains_wallet_material": false,
+            "contains_raw_decisions": false,
+            "contains_trace_tokens": false,
+            "contains_idempotency_tokens": false,
+            "contains_private_notes": false
+        },
+        "evidence_hash": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+        "signature": {
+            "status": "unsigned_local",
+            "algorithm": null,
+            "signature": null,
+            "signer": "mock-runtime",
+            "signed_evidence_hash": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+            "key_material_included": false
+        }
     }))
 }
 

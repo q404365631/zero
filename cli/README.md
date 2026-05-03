@@ -140,7 +140,9 @@ one read-only operator view. The CLI attaches the configured `identity.handle`
 as `X-Zero-Operator-*` audit context, and `/live-cockpit` renders the resolved
 operator identity so team and agentic runs are attributable. `/live-certify`
 runs the dry-run fake-exchange certification harness and prints the drill pass
-count before any real canary is considered.
+count before any real canary is considered. `/live-evidence` renders the
+hash-only canary evidence bundle, including the evidence hash, signature
+status, and artifact hashes without exposing raw decisions or secrets.
 
 Risk-reducing live controls are wired to the engine when an API client is
 attached:

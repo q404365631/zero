@@ -22,9 +22,9 @@ use zero_operator_state::{Event as OperatorEvent, Snapshot as OperatorSnapshot};
 use crate::models::{
     ApproachingFeed, AutoToggleRequest, AutoToggleResponse, Brief, Evaluation, ExecuteRequest,
     ExecuteResponse, Health, HyperliquidAccount, HyperliquidReconciliation, HyperliquidStatus,
-    ImmuneReport, LiveCertification, LiveCockpit, LiveControlResponse, LivePreflight, MarketQuote,
-    OperatorContext, OperatorEventsAccepted, Positions, Pulse, Regime, RejectionsFeed, Risk, Root,
-    V2Status,
+    ImmuneReport, LiveCertification, LiveCockpit, LiveControlResponse, LiveEvidence, LivePreflight,
+    MarketQuote, OperatorContext, OperatorEventsAccepted, Positions, Pulse, Regime, RejectionsFeed,
+    Risk, Root, V2Status,
 };
 use crate::rate_budget::{self, RateBudget};
 
@@ -645,6 +645,11 @@ impl HttpClient {
     /// `GET /live/cockpit` — consolidated live-readiness operator packet.
     pub async fn live_cockpit(&self) -> Result<LiveCockpit, HttpError> {
         self.get_json("/live/cockpit").await
+    }
+
+    /// `GET /live/evidence` — public-safe hash-only live evidence bundle.
+    pub async fn live_evidence(&self) -> Result<LiveEvidence, HttpError> {
+        self.get_json("/live/evidence").await
     }
 
     /// `GET /operator/context` — current operator audit identity.

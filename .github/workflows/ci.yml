@@ -54,6 +54,7 @@ jobs:
           test -f docs/zero-intelligence.md
           test -f docs/dependency-policy.md
           test -f docs/hyperliquid-readonly.md
+          test -f docs/live-evidence.md
           test -f docs/production-readiness.md
           test -f docs/public-upgrade.md
           test -f docs/autonomous-os-plan.md
@@ -65,6 +66,7 @@ jobs:
           test -f contracts/paper-api/v2_status.json
           test -f contracts/paper-api/execute_accepted.json
           test -f contracts/paper-api/execute_rejected.json
+          test -f contracts/live/evidence.json
           test -f contracts/network/profile.json
           test -f contracts/network/leaderboard.json
           test -f contracts/network/profile.html

@@ -129,6 +129,30 @@ async fn live_cockpit_decodes_operator_readiness_packet() {
 }
 
 #[tokio::test]
+async fn live_evidence_decodes_hash_only_canary_bundle() {
+    let (mock, http) = client().await;
+    let evidence = http.live_evidence().await.expect("live evidence");
+
+    assert_eq!(evidence.schema_version, "zero.live_evidence.v1");
+    assert_eq!(evidence.live_mode, "refused");
+    assert!(!evidence.ready);
+    assert!(!evidence.risk_increasing_allowed);
+    assert_eq!(evidence.operator_context.handle, "mock-operator");
+    assert_eq!(evidence.artifacts.len(), 8);
+    assert_eq!(evidence.artifacts[0].included, "hash_only");
+    assert!(evidence.artifacts[0].hash.starts_with("sha256:"));
+    assert!(evidence.evidence_hash.starts_with("sha256:"));
+    assert_eq!(
+        evidence
+            .signature
+            .get("status")
+            .and_then(serde_json::Value::as_str),
+        Some("unsigned_local")
+    );
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn immune_decodes_risk_blocking_breakers() {
     let (mock, http) = client().await;
     let report = http.immune().await.expect("immune");

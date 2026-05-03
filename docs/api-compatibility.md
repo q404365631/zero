@@ -80,6 +80,9 @@ Compatibility guarantees for live-facing endpoints are conservative:
 - `GET /immune` must stay read-only and side-effect free;
 - `GET /live/certification` must stay dry-run by default and report zero live
   orders placed;
+- `GET /live/evidence` must stay hash-only for private artifacts and must not
+  include raw decisions, trace tokens, idempotency keys, wallet material, or
+  exchange credentials;
 - `POST /live/pause`, `/live/kill`, and `/live/flatten` must remain
   risk-reducing controls;
 - when live execution is not configured, `POST /live/*` endpoints must refuse

@@ -78,6 +78,8 @@ flowchart LR
 - Query Hyperliquid read-only market data without exposing funds.
 - Exercise live-readiness, immune, reconciliation, and certification contracts
   without placing capital at risk.
+- Capture signed, public-safe live evidence packets for supervised canary
+  rehearsal without leaking credentials or raw private journals.
 - Package release assets with checksums.
 - Deploy the paper runtime on Railway or Docker.
 - Generate public-safe Network index, profile pages, leaderboard pages, and
@@ -127,6 +129,9 @@ $ curl -fsS http://127.0.0.1:8765/hl/reconcile
 
 $ curl -fsS http://127.0.0.1:8765/live/certification
 {"schema_version": "zero.live_certification.v1", "mode": "dry_run", "passed": true}
+
+$ curl -fsS http://127.0.0.1:8765/live/evidence
+{"schema_version": "zero.live_evidence.v1", "live_mode": "refused", "evidence_hash": "sha256:..."}
 
 $ curl -fsS http://127.0.0.1:8765/immune
 {"schema_version": "zero.immune.v1", "risk_increasing_allowed": false}
@@ -298,6 +303,7 @@ invariants.
 - [API Compatibility](docs/api-compatibility.md)
 - [Operator Context](docs/operator-context.md)
 - [Deployment Identity](docs/deployment-identity.md)
+- [Live Evidence](docs/live-evidence.md)
 - [Operator Isolation](docs/operator-isolation.md)
 - [Strategy Plugins](docs/strategy-plugins.md)
 - [Market Data Adapters](docs/market-data-adapters.md)

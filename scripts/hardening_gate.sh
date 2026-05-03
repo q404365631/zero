@@ -9,6 +9,7 @@ required_files=(
   "docs/release.md"
   "docs/production-readiness.md"
   "docs/public-upgrade.md"
+  "docs/live-evidence.md"
   ".github/RELEASE_TEMPLATE.md"
 )
 
@@ -37,6 +38,8 @@ rg -q "threat model" docs/production-readiness.md
 rg -q "incident runbooks" docs/production-readiness.md
 rg -q "Public repo readiness" docs/public-upgrade.md
 rg -q "Full ZERO operating-system readiness" docs/public-upgrade.md
+rg -q "zero.live_evidence.v1" docs/live-evidence.md
+rg -q "ZERO_LIVE_EVIDENCE_SIGNING_KEY" docs/live-evidence.md
 rg -q "shasum -a 256 -c SHA256SUMS" .github/RELEASE_TEMPLATE.md
 rg -q "package registry publication remains disabled" .github/RELEASE_TEMPLATE.md
 rg -q "gh attestation verify zero-linux" .github/RELEASE_TEMPLATE.md
@@ -48,6 +51,7 @@ python3 -m json.tool contracts/intelligence/commercial.json >/dev/null
 python3 -m json.tool contracts/intelligence/model_gateway.json >/dev/null
 python3 -m json.tool contracts/deployment/claim.json >/dev/null
 python3 -m json.tool contracts/deployment/heartbeat.json >/dev/null
+python3 -m json.tool contracts/live/evidence.json >/dev/null
 
 bash -n scripts/assemble_release_assets.sh
 bash -n scripts/install.sh

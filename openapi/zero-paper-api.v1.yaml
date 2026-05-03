@@ -819,6 +819,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/LiveCertificationResponse"
+  /live/evidence:
+    get:
+      tags: [live]
+      operationId: getLiveEvidence
+      summary: Public-safe signed live-readiness evidence packet.
+      responses:
+        "200":
+          description: Hash-only canary evidence bundle.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveEvidenceResponse"
   /live/heartbeat:
     post:
       tags: [live]
@@ -1794,6 +1806,46 @@ components:
     LiveCertificationResponse:
       type: object
       required: [schema_version, mode, passed, live_start_certified, summary, drills, evidence_requirements]
+      additionalProperties: true
+    LiveEvidenceResponse:
+      type: object
+      required:
+        - schema_version
+        - generated_at
+        - mode
+        - live_mode
+        - ready
+        - risk_increasing_allowed
+        - operator_context
+        - summary
+        - artifacts
+        - canary_rule
+        - privacy
+        - evidence_hash
+        - signature
+      properties:
+        schema_version:
+          const: zero.live_evidence.v1
+        generated_at:
+          type: string
+          format: date-time
+        ready:
+          type: boolean
+        risk_increasing_allowed:
+          type: boolean
+        artifacts:
+          type: array
+          items:
+            type: object
+            required: [name, schema_version, status, hash, included]
+            additionalProperties: true
+        evidence_hash:
+          type: string
+          pattern: "^sha256:"
+        signature:
+          type: object
+          required: [status, algorithm, signature, signer, signed_evidence_hash, key_material_included]
+          additionalProperties: true
       additionalProperties: true
     LiveControlResponse:
       type: object

@@ -206,6 +206,40 @@ pub struct LiveCertificationDrill {
     pub extra: BTreeMap<String, Value>,
 }
 
+// ─── /live/evidence ───────────────────────────────────────────────
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveEvidence {
+    pub schema_version: String,
+    pub generated_at: Option<String>,
+    pub mode: String,
+    pub live_mode: String,
+    pub ready: bool,
+    pub risk_increasing_allowed: bool,
+    pub operator_context: OperatorContext,
+    pub summary: BTreeMap<String, Value>,
+    pub artifacts: Vec<LiveEvidenceArtifact>,
+    pub canary_rule: BTreeMap<String, Value>,
+    pub privacy: BTreeMap<String, Value>,
+    pub evidence_hash: String,
+    pub signature: BTreeMap<String, Value>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveEvidenceArtifact {
+    pub name: String,
+    pub schema_version: String,
+    pub status: String,
+    pub hash: String,
+    pub included: String,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
 // ─── /live/cockpit ────────────────────────────────────────────────
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

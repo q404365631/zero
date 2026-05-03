@@ -40,10 +40,12 @@ from zero_engine.model_gateway import ModelGateway, ModelGatewayConfig
 from zero_engine.models import OrderIntent, Position, Side
 from zero_engine.network import (
     PublicProfileConfig,
+    assert_public_profile_safe,
     ingest_public_profiles,
     public_leaderboard,
     public_profile,
     publish_profile,
+    sha256_json,
 )
 from zero_engine.paper import DecisionRecord, PaperEngine
 from zero_engine.reconciliation import (
@@ -251,6 +253,8 @@ class PaperApiState:
     live_api_private_key: str | None = None
     live_kill_switch_path: str | None = None
     live_dead_man_timeout_s: float = 30.0
+    live_evidence_signing_key: str | None = field(default=None, repr=False)
+    live_evidence_signer: str = "local-runtime"
     reconciliation_stale_after_s: float = 10.0
     live_executor: LiveExecutor | None = None
     network_handle: str = "local-operator"
@@ -522,6 +526,7 @@ class PaperApi:
             "/intelligence/model-gateway/audit": self.intelligence_model_gateway_audit,
             "/intelligence/snapshot": self.intelligence_snapshot,
             "/live/certification": self.live_certification,
+            "/live/evidence": lambda: self.live_evidence(operator_context),
             "/live/preflight": self.live_preflight,
             "/market/quote": lambda: self.market_quote(query),
             "/metrics": self.metrics,
@@ -945,6 +950,102 @@ class PaperApi:
                 ],
             },
         }
+
+    def live_evidence(self, operator_context: OperatorContext | None = None) -> dict[str, Any]:
+        operator_context = operator_context or self.state.operator_context()
+        generated_at = self.state.now_iso()
+        preflight = self.live_preflight()
+        cockpit = self.live_cockpit(operator_context)
+        certification = self.live_certification()
+        try:
+            reconciliation = self.state.reconcile_hyperliquid_account().to_dict()
+        except Exception as exc:
+            reconciliation = {
+                "schema_version": "zero.reconciliation.v1",
+                "status": "error",
+                "risk_increasing_allowed": False,
+                "reason": f"Hyperliquid reconciliation failed: {exc}",
+                "drifts": [],
+            }
+        immune = preflight["immune"]
+        claim = self.deployment_claim(operator_context, generated_at=generated_at)
+        heartbeat = self.deployment_heartbeat(
+            operator_context,
+            generated_at=generated_at,
+            deployment_claim_packet=claim,
+        )
+        audit = self.audit_export({"limit": ["100"]}, operator_context)
+        artifacts = [
+            live_evidence_artifact("live_preflight", preflight, preflight["live_mode"]),
+            live_evidence_artifact("live_cockpit", cockpit, cockpit["live_mode"]),
+            live_evidence_artifact(
+                "hl_reconcile",
+                reconciliation,
+                str(reconciliation.get("status", "unknown")),
+            ),
+            live_evidence_artifact(
+                "immune",
+                immune,
+                "allowed" if immune["risk_increasing_allowed"] else "blocked",
+            ),
+            live_evidence_artifact(
+                "live_certification",
+                certification,
+                "pass" if certification["passed"] else "fail",
+            ),
+            live_evidence_artifact("audit_export", audit, "captured"),
+            live_evidence_artifact("deployment_claim", claim, "captured"),
+            live_evidence_artifact("deployment_heartbeat", heartbeat, heartbeat["liveness"]["status"]),
+        ]
+        body = {
+            "schema_version": "zero.live_evidence.v1",
+            "generated_at": generated_at,
+            "mode": cockpit["mode"],
+            "live_mode": cockpit["live_mode"],
+            "ready": cockpit["ready"],
+            "risk_increasing_allowed": cockpit["risk_increasing_allowed"],
+            "operator_context": operator_context.to_dict(),
+            "summary": {
+                "artifacts": len(artifacts),
+                "preflight_ready": preflight["ready"],
+                "controls_ready": preflight["controls_ready"],
+                "certification_passed": certification["passed"],
+                "live_start_certified": certification["live_start_certified"],
+                "reconciliation_status": reconciliation.get("status", "unknown"),
+                "immune_risk_increasing_allowed": immune["risk_increasing_allowed"],
+                "live_records_total": cockpit["live_records"]["total"],
+                "live_records_accepted": cockpit["live_records"]["accepted"],
+                "deployment_heartbeat_status": heartbeat["liveness"]["status"],
+            },
+            "artifacts": artifacts,
+            "canary_rule": {
+                "tiny_capital_only": True,
+                "operator_owned_custody": True,
+                "requires_external_exchange_records": True,
+                "risk_reducing_actions_required": ["/pause-entries", "/flatten-all", "/kill"],
+                "default_public_runtime_places_live_orders": False,
+            },
+            "privacy": {
+                "contains_exchange_credentials": False,
+                "contains_wallet_material": False,
+                "contains_raw_decisions": False,
+                "contains_trace_tokens": False,
+                "contains_idempotency_tokens": False,
+                "contains_private_notes": False,
+            },
+        }
+        evidence_hash = sha256_json(body)
+        payload = {
+            **body,
+            "evidence_hash": evidence_hash,
+            "signature": live_evidence_signature(
+                evidence_hash,
+                signing_key=self.state.live_evidence_signing_key,
+                signer=self.state.live_evidence_signer,
+            ),
+        }
+        assert_public_profile_safe(payload)
+        return payload
 
     def immune(self, reconciliation: ReconciliationReport | None = None) -> dict[str, Any]:
         if reconciliation is None:
@@ -2172,6 +2273,46 @@ def live_response_from_record(record: Any, *, include_trace: bool = False) -> di
     return payload
 
 
+def live_evidence_artifact(name: str, packet: dict[str, Any], status: str) -> dict[str, Any]:
+    return {
+        "name": name,
+        "schema_version": str(packet.get("schema_version", "unknown")),
+        "status": status,
+        "hash": sha256_json(packet),
+        "included": "hash_only",
+    }
+
+
+def live_evidence_signature(
+    evidence_hash: str,
+    *,
+    signing_key: str | None,
+    signer: str,
+) -> dict[str, Any]:
+    if signing_key:
+        signature = hmac.new(
+            signing_key.encode("utf-8"),
+            evidence_hash.encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
+        return {
+            "status": "signed_local_hmac",
+            "algorithm": "hmac-sha256",
+            "signature": f"v1={signature}",
+            "signer": safe_context_value(signer, default="local-runtime", max_len=80),
+            "signed_evidence_hash": evidence_hash,
+            "key_material_included": False,
+        }
+    return {
+        "status": "unsigned_local",
+        "algorithm": None,
+        "signature": None,
+        "signer": safe_context_value(signer, default="local-runtime", max_len=80),
+        "signed_evidence_hash": evidence_hash,
+        "key_material_included": False,
+    }
+
+
 def first(query: dict[str, list[str]], name: str) -> str | None:
     values = query.get(name)
     return values[0] if values else None
@@ -2346,6 +2487,11 @@ def serve(
                     live_api_private_key=os.environ.get("ZERO_HYPERLIQUID_API_PRIVATE_KEY"),
                     live_kill_switch_path=os.environ.get("ZERO_LIVE_KILL_SWITCH_PATH"),
                     live_dead_man_timeout_s=dead_man_timeout_s,
+                    live_evidence_signing_key=os.environ.get("ZERO_LIVE_EVIDENCE_SIGNING_KEY"),
+                    live_evidence_signer=os.environ.get(
+                        "ZERO_LIVE_EVIDENCE_SIGNER",
+                        "local-runtime",
+                    ),
                     live_executor=live_executor,
                     network_handle=os.environ.get("ZERO_NETWORK_HANDLE", "local-operator"),
                     network_display_name=os.environ.get("ZERO_NETWORK_DISPLAY_NAME"),

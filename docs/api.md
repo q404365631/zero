@@ -108,7 +108,7 @@ contract:
 - `GET /intelligence/snapshot`, `/intelligence/catalog`, `/intelligence/commercial`, `/intelligence/model-gateway`
 - `GET /v1/intelligence/snapshots`, `/v1/intelligence/history`, `/v1/intelligence/cohorts`, `/v1/intelligence/benchmarks`
 - `GET /hl/status`, `/hl/account`, `/hl/reconcile`, `/market/quote`
-- `GET /live/preflight`, `/live/cockpit`, `/live/certification`
+- `GET /live/preflight`, `/live/cockpit`, `/live/certification`, `/live/evidence`
 - `GET /operator/state`
 - `POST /execute`
 - `POST /auto/toggle`
@@ -316,6 +316,13 @@ packet. It joins preflight failures, immune breakers, reconciliation status,
 dry-run certification, heartbeat expiry, recent live records, operator actions,
 the resolved `zero.operator_context.v1` audit identity, and the next required
 action. It is read-only and safe to expose in diagnostics.
+
+`GET /live/evidence` returns a public-safe `zero.live_evidence.v1` packet for
+supervised tiny-capital canary rehearsal. It hashes preflight, cockpit,
+reconciliation, immune, certification, audit export, deployment claim, and
+deployment heartbeat artifacts instead of embedding raw private data. Set
+`ZERO_LIVE_EVIDENCE_SIGNING_KEY` to attach a local HMAC-SHA256 signature without
+echoing key material.
 
 `GET /operator/context` returns the operator audit identity currently attached
 to requests. The engine resolves it from `X-Zero-Operator-*` headers,

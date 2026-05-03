@@ -177,6 +177,28 @@ async fn live_cockpit_renders_readiness_and_next_action() {
 }
 
 #[tokio::test]
+async fn live_evidence_renders_hash_only_bundle() {
+    let (mock, ctx) = ctx_with_mock().await;
+    let out = dispatch(&ctx, "/live-evidence").await.unwrap().unwrap();
+
+    assert_eq!(out.risk, Some(RiskDirection::Neutral));
+    let OutputLine::Command(s) = &out.lines[0] else {
+        panic!("expected Command, got {:?}", out.lines);
+    };
+    assert!(s.contains("live-evidence:"), "evidence row: {s}");
+    assert!(s.contains("live_mode=refused"), "live mode field: {s}");
+    assert!(s.contains("artifacts=8"), "artifact count: {s}");
+    assert!(
+        out.lines.iter().any(
+            |line| matches!(line, OutputLine::System(s) if s.contains("signature: status=unsigned_local"))
+        ),
+        "signature line missing: {:?}",
+        out.lines
+    );
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn immune_renders_risk_blocking_breakers() {
     let (mock, ctx) = ctx_with_mock().await;
     let out = dispatch(&ctx, "/immune").await.unwrap().unwrap();
