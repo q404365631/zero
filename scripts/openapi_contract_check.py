@@ -24,6 +24,7 @@ REQUIRED_PATHS = {
     "/rejections",
     "/journal",
     "/memory",
+    "/genesis",
     "/metrics",
     "/audit/export",
     "/deployment/claim",
@@ -81,6 +82,7 @@ REQUIRED_SCHEMAS = {
     "RejectionsResponse",
     "JournalResponse",
     "MemorySnapshotResponse",
+    "GenesisSnapshotResponse",
     "MetricsResponse",
     "AuditExportResponse",
     "DeploymentClaimResponse",
@@ -151,6 +153,20 @@ FIXTURE_REQUIREMENTS = {
     "contracts/paper-api/memory.json": {
         "schema": "MemorySnapshotResponse",
         "keys": {"schema_version", "generated_at", "source", "stats", "entries", "knowledge"},
+    },
+    "contracts/paper-api/genesis.json": {
+        "schema": "GenesisSnapshotResponse",
+        "keys": {
+            "schema_version",
+            "generated_at",
+            "source",
+            "mode",
+            "applies_code_changes",
+            "guardian_policy",
+            "stats",
+            "decisions",
+            "privacy",
+        },
     },
     "contracts/paper-api/execute_accepted.json": {
         "schema": "ExecuteResponse",

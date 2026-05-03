@@ -175,6 +175,23 @@ def test_paper_api_metrics_tracks_requests_and_execute_outcomes() -> None:
     assert metrics["engine"]["decisions"] == 1
     assert metrics["engine"]["fills"] == 1
     assert metrics["engine"]["acceptance_rate"] == 1.0
+    assert metrics["genesis"]["total_decisions"] == 3
+
+
+def test_paper_api_exposes_plan_only_genesis_snapshot() -> None:
+    status, payload = PaperApi(PaperApiState(clock=lambda: FIXED_DT)).get("/genesis", {})
+
+    assert status == 200
+    assert payload["schema_version"] == "zero.genesis.snapshot.v1"
+    assert payload["mode"] == "plan-only"
+    assert payload["applies_code_changes"] is False
+    assert payload["stats"]["by_decision"] == {
+        "accepted": 1,
+        "escalated": 1,
+        "rejected": 1,
+    }
+    assert payload["guardian_policy"]["protected_paths_require_human_review"] is True
+    assert payload["decisions"][2]["required_human_review"] is True
 
 
 def test_paper_api_audit_export_includes_traceable_decisions(tmp_path) -> None:

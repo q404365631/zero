@@ -103,7 +103,7 @@ contract:
 - `GET /`, `/health`, `/v2/status`
 - `GET /positions`, `/risk`, `/brief`
 - `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
-- `GET /metrics`, `/immune`, `/audit/export`
+- `GET /metrics`, `/immune`, `/memory`, `/genesis`, `/audit/export`
 - `GET /deployment/claim`, `/deployment/heartbeat`, `/network/profile`, `/network/leaderboard`
 - `GET /intelligence/snapshot`, `/intelligence/catalog`, `/intelligence/commercial`, `/intelligence/model-gateway`
 - `GET /v1/intelligence/snapshots`, `/v1/intelligence/history`, `/v1/intelligence/cohorts`, `/v1/intelligence/benchmarks`
@@ -161,6 +161,13 @@ ephemeral snapshot from current paper decisions. With a `MemoryStore`, it reads
 active append-only memory entries and omits expired records. `format=md` also
 returns generated `knowledge.md` content. Memory output is explicitly redacted:
 no live prices, wallet material, exchange order ids, or private keys.
+
+`GET /genesis` returns a `zero.genesis.snapshot.v1` plan-only view of genesis
+proposal classifications. It never applies code changes. The fixture-backed
+snapshot demonstrates one accepted proposal, one rejected proposal with
+insufficient sample size, and one escalated proposal touching protected live
+execution paths. Protected execution, sizing, stops, circuit breaker, live
+adapter, and immune-core proposals require human review.
 
 `GET /audit/export?limit=100` returns a structured `zero.audit.v1` export with
 runtime summary, retention/redaction metadata, metrics, recovery state, and the

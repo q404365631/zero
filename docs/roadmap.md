@@ -15,12 +15,13 @@
 - Autonomous OS completion plan
 - Private engine capability gap audit
 - Public Memory Core
+- Public Genesis Proposal Core
 
 ## Near Term
 
 - Autonomous runtime loop and durable runtime bus
-- Public genesis/evolve self-evolution loop
-- Guardian policy, red-team, paper canary, calibration, and promote/rollback gates
+- Public builder/evolve self-evolution loop
+- Red-team, paper canary, calibration, and promote/rollback gates
 - Research command chain: hunt, edge, convergence, thesis, score, meta, sharpen
 - Strategy runner SDK
 - Hyperliquid account reconciliation

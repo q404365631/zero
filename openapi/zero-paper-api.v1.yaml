@@ -208,6 +208,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/MemorySnapshotResponse"
+  /genesis:
+    get:
+      tags: [audit]
+      operationId: getGenesis
+      summary: Plan-only genesis proposal classifications.
+      responses:
+        "200":
+          description: Genesis proposal snapshot.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenesisSnapshotResponse"
   /metrics:
     get:
       tags: [audit]
@@ -1247,9 +1259,45 @@ components:
           nullable: true
           type: string
       additionalProperties: false
+    GenesisSnapshotResponse:
+      type: object
+      required: [schema_version, generated_at, source, mode, applies_code_changes, guardian_policy, stats, decisions, privacy]
+      properties:
+        schema_version:
+          type: string
+          const: zero.genesis.snapshot.v1
+        generated_at:
+          type: string
+          format: date-time
+        source:
+          type: string
+        mode:
+          type: string
+          const: plan-only
+        applies_code_changes:
+          type: boolean
+          const: false
+        guardian_policy:
+          type: object
+          additionalProperties: true
+        stats:
+          type: object
+          required: [schema_version, generated_at, total_decisions, by_decision, protected_classes, human_review_required]
+          additionalProperties: true
+        decisions:
+          type: array
+          items:
+            type: object
+            required: [schema_version, id, proposal_id, decision, reason, decided_at, required_human_review, min_sample_size, policy_version, proposal]
+            additionalProperties: true
+        privacy:
+          type: object
+          required: [contains_live_prices, contains_wallet_material, contains_exchange_order_ids, contains_private_keys]
+          additionalProperties: true
+      additionalProperties: false
     MetricsResponse:
       type: object
-      required: [schema_version, generated_at, mode, runtime, api, engine, immune, recovery, memory]
+      required: [schema_version, generated_at, mode, runtime, api, engine, immune, recovery, memory, genesis]
       properties:
         schema_version:
           type: string
@@ -1274,6 +1322,9 @@ components:
         immune:
           $ref: "#/components/schemas/ImmuneResponse"
         memory:
+          type: object
+          additionalProperties: true
+        genesis:
           type: object
           additionalProperties: true
       additionalProperties: false

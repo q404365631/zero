@@ -45,10 +45,16 @@ REQUESTS: tuple[dict[str, Any], ...] = (
         "method": "tools/call",
         "params": {"name": "zero_get_memory_snapshot", "arguments": {}},
     },
-    {"jsonrpc": "2.0", "id": 6, "method": "resources/list", "params": {}},
     {
         "jsonrpc": "2.0",
         "id": 7,
+        "method": "tools/call",
+        "params": {"name": "zero_get_genesis_proposals", "arguments": {}},
+    },
+    {"jsonrpc": "2.0", "id": 8, "method": "resources/list", "params": {}},
+    {
+        "jsonrpc": "2.0",
+        "id": 9,
         "method": "resources/read",
         "params": {"uri": "zero://proof/demo"},
     },
@@ -95,7 +101,13 @@ def validate(entries: list[dict[str, Any]]) -> None:
     if any(marker in serialized_memory for marker in forbidden_memory):
         raise RuntimeError("transcript memory snapshot leaked private or derivable state")
 
-    proof_response = entries[6]["response"]
+    genesis_response = entries[5]["response"]
+    genesis_text = genesis_response["result"]["content"][0]["text"]
+    genesis = json.loads(genesis_text)
+    if genesis["applies_code_changes"] is not False or genesis["paper_only"] is not True:
+        raise RuntimeError("transcript genesis proposals must remain plan-only and paper-only")
+
+    proof_response = entries[7]["response"]
     proof_text = proof_response["result"]["contents"][0]["text"]
     proof = json.loads(proof_text)
     boundary = proof["claim_boundary"]

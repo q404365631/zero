@@ -62,9 +62,10 @@ runtime journal -> memory -> knowledge -> genesis proposal -> guardian
 
 The public repo now implements the first part of this loop: local memory
 extraction, append-only memory JSONL, active-memory expiry, generated
-`knowledge.md`, `/memory`, and read-only MCP memory snapshots. Genesis,
-guardian, build/red-team, paper canary, calibration, and promote/rollback are
-tracked as public extraction targets in
+`knowledge.md`, `/memory`, read-only MCP memory snapshots, genesis proposal
+classification, append-only genesis journals, `/genesis`, and read-only MCP
+genesis snapshots. Builder/red-team, paper canary, calibration, and
+promote/rollback are tracked as public extraction targets in
 [Private Engine Capability Gap Audit](private-engine-capability-gap-audit.md).
 Local memory, genesis, and evolve belong in open source because they are part
 of a self-custodial operator's runtime. Commercial ZERO Intelligence begins

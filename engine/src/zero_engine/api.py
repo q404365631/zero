@@ -17,6 +17,7 @@ from typing import Any, Callable
 from urllib.parse import parse_qs, urlparse
 
 from zero_engine.deployment import DeploymentIdentityConfig, deployment_claim, deployment_heartbeat
+from zero_engine.genesis import GenesisJournal, Proposal, snapshot_from_proposals
 from zero_engine.hyperliquid import (
     HyperliquidInfoClient,
     HyperliquidMarketStatus,
@@ -62,6 +63,46 @@ DEFAULT_PRICES = {
     "ETH": 2_850.0,
     "SOL": 150.0,
 }
+
+GENESIS_FIXTURE_TIME = datetime(2026, 5, 1, tzinfo=UTC)
+GENESIS_FIXTURE_PROPOSALS = (
+    Proposal(
+        proposal_id="sha256:genesis-accepted-docs",
+        title="Document strategy-runner acceptance floor",
+        summary="Promote the fixture-backed strategy runner acceptance floor into contributor docs.",
+        target_paths=("docs/strategy-plugins.md", "examples/strategy-runner/README.md"),
+        evidence_refs=("docs/proof/demo/proof-pack.json", "examples/strategy-runner/close-strength.yaml"),
+        sample_size=42,
+        risk_tier="medium",
+        revert_plan="Revert the documentation update and keep the runner fixture unchanged.",
+        created_at=GENESIS_FIXTURE_TIME,
+        metadata={"source_class": "fixture-paper", "owner": "public-runtime"},
+    ),
+    Proposal(
+        proposal_id="sha256:genesis-rejected-sample",
+        title="Relax docs wording for a new rejection cohort",
+        summary="Add a new cohort note before enough fixture decisions exist to justify it.",
+        target_paths=("docs/memory-core.md",),
+        evidence_refs=("examples/memory-core/decisions.jsonl",),
+        sample_size=2,
+        risk_tier="low",
+        revert_plan="Remove the cohort note if the fixture does not reproduce.",
+        created_at=GENESIS_FIXTURE_TIME,
+        metadata={"source_class": "fixture-paper", "owner": "public-runtime"},
+    ),
+    Proposal(
+        proposal_id="sha256:genesis-escalated-live",
+        title="Tune live adapter retry behavior",
+        summary="Change live adapter retry behavior from observed operator evidence.",
+        target_paths=("engine/src/zero_engine/live.py",),
+        evidence_refs=("docs/live-certification.md", "docs/live-evidence.md"),
+        sample_size=140,
+        risk_tier="medium",
+        revert_plan="Revert the retry behavior and keep the previous live preflight gate.",
+        created_at=GENESIS_FIXTURE_TIME,
+        metadata={"source_class": "fixture-paper", "owner": "public-runtime"},
+    ),
+)
 
 HOSTED_INTELLIGENCE_PLAN_SCOPES = {
     "free": {"intelligence:read:delayed"},
@@ -298,6 +339,7 @@ class PaperApiState:
     default_operator_source: str = "runtime-default"
     operator_action_log: list[OperatorActionRecord] = field(default_factory=list)
     memory_store: MemoryStore | None = None
+    genesis_journal: GenesisJournal | None = None
 
     def __post_init__(self) -> None:
         if self.execution_cache:
@@ -513,6 +555,7 @@ class PaperApi:
             "/approaching": self.approaching,
             "/rejections": lambda: self.rejections(query),
             "/journal": lambda: self.journal(query),
+            "/genesis": self.genesis,
             "/audit/export": lambda: self.audit_export(query, operator_context),
             "/hl/account": self.hl_account,
             "/hl/reconcile": self.hl_reconcile,
@@ -1327,6 +1370,7 @@ class PaperApi:
             "immune": self.immune(),
             "recovery": self.recovery(),
             "memory": self.memory({"limit": ["0"]})["stats"],
+            "genesis": self.genesis()["stats"],
         }
 
     def audit_export(
@@ -1373,6 +1417,7 @@ class PaperApi:
             "metrics": self.metrics(),
             "recovery": self.recovery(),
             "memory": self.memory({"limit": [str(limit)]}),
+            "genesis": self.genesis(),
             "deployment_claim": claim,
             "deployment_heartbeat": heartbeat,
             "operator_actions": [
@@ -1423,6 +1468,13 @@ class PaperApi:
             "entries": [entry.to_dict() for entry in recent],
             "knowledge": knowledge_markdown(entries, generated_at=now) if first(query, "format") == "md" else None,
         }
+
+    def genesis(self) -> dict[str, Any]:
+        if self.state.genesis_journal is not None:
+            from zero_engine.genesis import status_snapshot
+
+            return status_snapshot(journal=self.state.genesis_journal, now=self.state.now())
+        return snapshot_from_proposals(GENESIS_FIXTURE_PROPOSALS, now=self.state.now())
 
     def network_profile(self) -> dict[str, Any]:
         generated_at = self.state.now_iso()

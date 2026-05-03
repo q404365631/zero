@@ -1,0 +1,177 @@
+{
+  "applies_code_changes": false,
+  "decisions": [
+    {
+      "decided_at": "2026-05-01T00:00:00Z",
+      "decision": "accepted",
+      "id": "sha256:e7113a8b622fc0354884f4ed30520c467ecdaee17ae56e1d38724569ce599dc5",
+      "min_sample_size": 30,
+      "policy_version": "zero.genesis.guardian_policy.v1",
+      "proposal": {
+        "created_at": "2026-05-01T00:00:00Z",
+        "effective_risk_tier": "medium",
+        "evidence_refs": [
+          "docs/proof/demo/proof-pack.json",
+          "examples/strategy-runner/close-strength.yaml"
+        ],
+        "id": "sha256:genesis-accepted-docs",
+        "metadata": {
+          "owner": "public-runtime",
+          "source_class": "fixture-paper"
+        },
+        "protected_classes": [],
+        "revert_plan": "Revert the documentation update and keep the runner fixture unchanged.",
+        "risk_tier": "medium",
+        "sample_size": 42,
+        "schema_version": "zero.genesis.proposal.v1",
+        "summary": "Promote the fixture-backed strategy runner acceptance floor into contributor docs.",
+        "target_paths": [
+          "docs/strategy-plugins.md",
+          "examples/strategy-runner/README.md"
+        ],
+        "title": "Document strategy-runner acceptance floor"
+      },
+      "proposal_id": "sha256:genesis-accepted-docs",
+      "reason": "guardian requirements satisfied for non-protected proposal",
+      "required_human_review": false,
+      "schema_version": "zero.genesis.guardian.v1"
+    },
+    {
+      "decided_at": "2026-05-01T00:00:00Z",
+      "decision": "rejected",
+      "id": "sha256:ca0982abaa110c511967e36f9b3c52306b1bacb37ebb569927ddadb57fa549f6",
+      "min_sample_size": 5,
+      "policy_version": "zero.genesis.guardian_policy.v1",
+      "proposal": {
+        "created_at": "2026-05-01T00:00:00Z",
+        "effective_risk_tier": "low",
+        "evidence_refs": [
+          "examples/memory-core/decisions.jsonl"
+        ],
+        "id": "sha256:genesis-rejected-sample",
+        "metadata": {
+          "owner": "public-runtime",
+          "source_class": "fixture-paper"
+        },
+        "protected_classes": [],
+        "revert_plan": "Remove the cohort note if the fixture does not reproduce.",
+        "risk_tier": "low",
+        "sample_size": 2,
+        "schema_version": "zero.genesis.proposal.v1",
+        "summary": "Add a new cohort note before enough fixture decisions exist to justify it.",
+        "target_paths": [
+          "docs/memory-core.md"
+        ],
+        "title": "Relax docs wording for a new rejection cohort"
+      },
+      "proposal_id": "sha256:genesis-rejected-sample",
+      "reason": "missing guardian requirements: sample_size>=5",
+      "required_human_review": false,
+      "schema_version": "zero.genesis.guardian.v1"
+    },
+    {
+      "decided_at": "2026-05-01T00:00:00Z",
+      "decision": "escalated",
+      "id": "sha256:cae78f5387ce6fae173adb656c0d26f325b34581720359327a18fab8f095f92e",
+      "min_sample_size": 100,
+      "policy_version": "zero.genesis.guardian_policy.v1",
+      "proposal": {
+        "created_at": "2026-05-01T00:00:00Z",
+        "effective_risk_tier": "protected",
+        "evidence_refs": [
+          "docs/live-certification.md",
+          "docs/live-evidence.md"
+        ],
+        "id": "sha256:genesis-escalated-live",
+        "metadata": {
+          "owner": "public-runtime",
+          "source_class": "fixture-paper"
+        },
+        "protected_classes": [
+          "execution",
+          "live_adapters"
+        ],
+        "revert_plan": "Revert the retry behavior and keep the previous live preflight gate.",
+        "risk_tier": "medium",
+        "sample_size": 140,
+        "schema_version": "zero.genesis.proposal.v1",
+        "summary": "Change live adapter retry behavior from observed operator evidence.",
+        "target_paths": [
+          "engine/src/zero_engine/live.py"
+        ],
+        "title": "Tune live adapter retry behavior"
+      },
+      "proposal_id": "sha256:genesis-escalated-live",
+      "reason": "protected path classes require human review: execution, live_adapters",
+      "required_human_review": true,
+      "schema_version": "zero.genesis.guardian.v1"
+    }
+  ],
+  "generated_at": "2026-05-01T00:00:00Z",
+  "guardian_policy": {
+    "high_risk_requires_human_review": true,
+    "min_sample_size": {
+      "high": 100,
+      "low": 5,
+      "medium": 30,
+      "protected": 100
+    },
+    "protected_path_classes": {
+      "circuit_breakers": [
+        "engine/src/zero_engine/immune.py",
+        "circuit",
+        "breaker"
+      ],
+      "execution": [
+        "engine/src/zero_engine/live.py",
+        "cli/crates/zero-commands/src/dispatch.rs"
+      ],
+      "immune_core": [
+        "engine/src/zero_engine/immune.py",
+        "immune"
+      ],
+      "live_adapters": [
+        "engine/src/zero_engine/hyperliquid.py",
+        "engine/src/zero_engine/live.py",
+        "hyperliquid"
+      ],
+      "sizing": [
+        "engine/src/zero_engine/safety.py",
+        "engine/src/zero_engine/models.py"
+      ],
+      "stops": [
+        "stop",
+        "trailing",
+        "drawdown"
+      ]
+    },
+    "protected_paths_require_human_review": true,
+    "requires_evidence_refs": true,
+    "requires_revert_plan": true,
+    "schema_version": "zero.genesis.guardian_policy.v1"
+  },
+  "mode": "plan-only",
+  "privacy": {
+    "contains_exchange_order_ids": false,
+    "contains_live_prices": false,
+    "contains_private_keys": false,
+    "contains_wallet_material": false
+  },
+  "schema_version": "zero.genesis.snapshot.v1",
+  "source": "fixture-proposals",
+  "stats": {
+    "by_decision": {
+      "accepted": 1,
+      "escalated": 1,
+      "rejected": 1
+    },
+    "generated_at": "2026-05-01T00:00:00Z",
+    "human_review_required": 1,
+    "protected_classes": [
+      "execution",
+      "live_adapters"
+    ],
+    "schema_version": "zero.genesis.summary.v1",
+    "total_decisions": 3
+  }
+}

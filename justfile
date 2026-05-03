@@ -44,6 +44,16 @@ memory-core-example:
     test -f artifacts/memory-example/knowledge.md
     ! rg '40500|1400|notional_usd|private_key|wallet_address' artifacts/memory-example
 
+genesis-example:
+    rm -rf artifacts/genesis-example
+    PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.genesis plan --proposals examples/genesis/proposals.jsonl --journal artifacts/genesis-example/genesis.jsonl --now 2026-05-01T00:00:00Z
+    PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.genesis status --journal artifacts/genesis-example/genesis.jsonl --now 2026-05-01T00:00:00Z
+    test -f artifacts/genesis-example/genesis.jsonl
+    rg '"decision":"accepted"' artifacts/genesis-example/genesis.jsonl
+    rg '"decision":"rejected"' artifacts/genesis-example/genesis.jsonl
+    rg '"decision":"escalated"' artifacts/genesis-example/genesis.jsonl
+    ! rg 'private_key|wallet_address|exchange_order_id|notional_usd' artifacts/genesis-example
+
 network-pages-smoke:
     scripts/network_pages_smoke.py
 
@@ -209,6 +219,7 @@ docs-check:
     test -f docs/api-compatibility.md
     test -f docs/runtime-bus.md
     test -f docs/memory-core.md
+    test -f docs/genesis.md
     test -f docs/strategy-plugins.md
     test -f docs/market-data-adapters.md
     test -f docs/positioning.md
@@ -258,6 +269,8 @@ docs-check:
     test -x examples/runtime-loop/run.py
     test -f examples/memory-core/README.md
     test -f examples/memory-core/decisions.jsonl
+    test -f examples/genesis/README.md
+    test -f examples/genesis/proposals.jsonl
     test -f examples/network-leaderboard/README.md
     test -f examples/network-leaderboard/build.py
     test -f examples/network-leaderboard/profiles.jsonl
@@ -271,6 +284,7 @@ docs-check:
     test -f contracts/paper-api/execute_accepted.json
     test -f contracts/paper-api/execute_rejected.json
     test -f contracts/paper-api/memory.json
+    test -f contracts/paper-api/genesis.json
     test -f contracts/deployment/claim.json
     test -f contracts/deployment/heartbeat.json
     test -f contracts/live/evidence.json
@@ -356,4 +370,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke fresh-clone-rehearsal example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example memory-core-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness
+ci: lint test paper-api-smoke fresh-clone-rehearsal example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example memory-core-example genesis-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness

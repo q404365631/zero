@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, TextIO
 
 from zero_engine import PaperEngine, load_scenario, load_strategy_runner, parse_scenario
+from zero_engine.genesis import Proposal, load_proposals, snapshot_from_proposals
 from zero_engine.memory import extract_from_decisions, isoformat
 
 SERVER_NAME = "zero-mcp"
@@ -92,6 +93,45 @@ EMBEDDED_PROOF_PACK: JsonMap = {
     "proof_hash": "embedded-source-checkout-required-for-file-hash-verification",
 }
 
+EMBEDDED_GENESIS_PROPOSALS = (
+    Proposal(
+        proposal_id="sha256:genesis-accepted-docs",
+        title="Document strategy-runner acceptance floor",
+        summary="Promote the fixture-backed strategy runner acceptance floor into contributor docs.",
+        target_paths=("docs/strategy-plugins.md", "examples/strategy-runner/README.md"),
+        evidence_refs=("docs/proof/demo/proof-pack.json", "examples/strategy-runner/close-strength.yaml"),
+        sample_size=42,
+        risk_tier="medium",
+        revert_plan="Revert the documentation update and keep the runner fixture unchanged.",
+        created_at=parse_mcp_time(),
+        metadata={"source_class": "fixture-paper", "owner": "public-runtime"},
+    ),
+    Proposal(
+        proposal_id="sha256:genesis-rejected-sample",
+        title="Relax docs wording for a new rejection cohort",
+        summary="Add a new cohort note before enough fixture decisions exist to justify it.",
+        target_paths=("docs/memory-core.md",),
+        evidence_refs=("examples/memory-core/decisions.jsonl",),
+        sample_size=2,
+        risk_tier="low",
+        revert_plan="Remove the cohort note if the fixture does not reproduce.",
+        created_at=parse_mcp_time(),
+        metadata={"source_class": "fixture-paper", "owner": "public-runtime"},
+    ),
+    Proposal(
+        proposal_id="sha256:genesis-escalated-live",
+        title="Tune live adapter retry behavior",
+        summary="Change live adapter retry behavior from observed operator evidence.",
+        target_paths=("engine/src/zero_engine/live.py",),
+        evidence_refs=("docs/live-certification.md", "docs/live-evidence.md"),
+        sample_size=140,
+        risk_tier="medium",
+        revert_plan="Revert the retry behavior and keep the previous live preflight gate.",
+        created_at=parse_mcp_time(),
+        metadata={"source_class": "fixture-paper", "owner": "public-runtime"},
+    ),
+)
+
 
 def find_repo_root() -> Path | None:
     for parent in Path(__file__).resolve().parents:
@@ -117,6 +157,10 @@ def candles_path() -> Path:
 
 def proof_pack_path() -> Path:
     return repo_root() / "docs" / "proof" / "demo" / "proof-pack.json"
+
+
+def genesis_proposals_path() -> Path:
+    return repo_root() / "examples" / "genesis" / "proposals.jsonl"
 
 
 def load_demo_scenario() -> Any:
@@ -252,6 +296,22 @@ def get_memory_snapshot() -> JsonMap:
     }
 
 
+def get_genesis_proposals() -> JsonMap:
+    root = find_repo_root()
+    proposals = (
+        load_proposals(root / "examples" / "genesis" / "proposals.jsonl")
+        if root is not None
+        else list(EMBEDDED_GENESIS_PROPOSALS)
+    )
+    snapshot = snapshot_from_proposals(proposals, now=parse_mcp_time())
+    return {
+        **snapshot,
+        "schema_version": "zero.mcp.genesis_proposals.v1",
+        "mode": "plan-only",
+        "paper_only": True,
+    }
+
+
 def get_proof_pack() -> JsonMap:
     root = find_repo_root()
     if root is None:
@@ -287,6 +347,11 @@ def tool_definitions() -> list[JsonMap]:
             "description": "Read-only public-safe local memory snapshot from bundled paper decisions.",
             "inputSchema": empty_schema,
         },
+        {
+            "name": "zero_get_genesis_proposals",
+            "description": "Read-only plan-only genesis proposal classifications.",
+            "inputSchema": empty_schema,
+        },
     ]
 
 
@@ -296,6 +361,7 @@ TOOLS: dict[str, Callable[[], JsonMap]] = {
     "zero_get_position_state": get_position_state,
     "zero_get_proof_pack": get_proof_pack,
     "zero_get_memory_snapshot": get_memory_snapshot,
+    "zero_get_genesis_proposals": get_genesis_proposals,
 }
 
 
@@ -325,6 +391,12 @@ def resource_definitions() -> list[JsonMap]:
             "description": "Public-safe local memory extracted from bundled paper decisions.",
             "mimeType": "application/json",
         },
+        {
+            "uri": "zero://genesis/proposals",
+            "name": "Demo Genesis Proposals",
+            "description": "Plan-only genesis proposal classifications for coding agents.",
+            "mimeType": "application/json",
+        },
     ]
 
 
@@ -340,6 +412,8 @@ def read_resource(uri: str) -> str:
         return json.dumps(get_proof_pack(), indent=2, sort_keys=True)
     if uri == "zero://memory/snapshot":
         return json.dumps(get_memory_snapshot(), indent=2, sort_keys=True)
+    if uri == "zero://genesis/proposals":
+        return json.dumps(get_genesis_proposals(), indent=2, sort_keys=True)
     raise KeyError(uri)
 
 
