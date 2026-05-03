@@ -69,6 +69,8 @@ When assigning an agent, include:
 - the operator context to use when testing shared runtimes, usually
   `X-Zero-Operator-Handle: <agent-or-engineer-handle>`.
 - the GitHub issue lane and label that matches the work.
+- the CODEOWNERS surface that must review the change when touching protected
+  paths.
 
 Example:
 
@@ -93,6 +95,7 @@ Before merging agent-authored work, verify:
 - docs match actual behavior;
 - contracts stay deterministic;
 - `just ci` passes or the remaining gap is documented;
+- `just codeowners-check` passes when review boundaries changed;
 - no private repo language, private infrastructure names, or credentials were
   introduced.
 

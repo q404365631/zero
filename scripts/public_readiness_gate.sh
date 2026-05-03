@@ -80,8 +80,11 @@ required=(
   .github/ISSUE_TEMPLATE/safety_review.yml
   .github/ISSUE_TEMPLATE/strategy_example.yml
   .github/ISSUE_TEMPLATE/config.yml
+  .github/CODEOWNERS
   .github/labels.yml
+  docs/review-ownership.md
   scripts/github_label_sync.py
+  scripts/codeowners_check.py
   scripts/stale_artifact_check.sh
   .github/dependabot.yml
   .github/workflows/ci.yml
@@ -98,6 +101,13 @@ done
 
 echo "-- stale local artifacts"
 if scripts/stale_artifact_check.sh --clean; then
+  echo "ok"
+else
+  status=1
+fi
+
+echo "-- review ownership"
+if scripts/codeowners_check.py; then
   echo "ok"
 else
   status=1

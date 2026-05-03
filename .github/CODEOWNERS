@@ -1,0 +1,47 @@
+# ZERO review ownership.
+#
+# Last match wins. Keep broad ownership first, then safety-critical surfaces.
+# The public gate in scripts/codeowners_check.py validates these boundaries.
+
+* @squaeragent
+
+# GitHub and release automation.
+/.github/ @squaeragent
+/scripts/assemble_release_assets.sh @squaeragent
+/scripts/draft_release_rehearsal.sh @squaeragent
+/scripts/homebrew_formula.py @squaeragent
+/scripts/install.sh @squaeragent
+/scripts/package_dry_run.sh @squaeragent
+/scripts/release_evidence.py @squaeragent
+/scripts/release_provenance.py @squaeragent
+/scripts/release_rehearsal.sh @squaeragent
+/scripts/release_verify.py @squaeragent
+
+# Engine safety, custody, execution, and exchange boundaries.
+/engine/src/zero_engine/api.py @squaeragent
+/engine/src/zero_engine/hyperliquid.py @squaeragent
+/engine/src/zero_engine/immune.py @squaeragent
+/engine/src/zero_engine/live.py @squaeragent
+/engine/src/zero_engine/live_certification.py @squaeragent
+/engine/src/zero_engine/reconciliation.py @squaeragent
+/engine/src/zero_engine/safety.py @squaeragent
+
+# Operator CLI friction and engine client contracts.
+/cli/crates/zero-commands/ @squaeragent
+/cli/crates/zero-config/ @squaeragent
+/cli/crates/zero-doctor/ @squaeragent
+/cli/crates/zero-engine-client/ @squaeragent
+/cli/crates/zero-headless/ @squaeragent
+/cli/crates/zero-tui/ @squaeragent
+
+# Public contracts and proof surfaces.
+/contracts/ @squaeragent
+/openapi/ @squaeragent
+/docs/live-certification.md @squaeragent
+/docs/live-cockpit.md @squaeragent
+/docs/live-evidence.md @squaeragent
+/docs/safety-model.md @squaeragent
+/docs/threat-model.md @squaeragent
+/docs/incident-runbooks.md @squaeragent
+/docs/release.md @squaeragent
+/docs/distribution.md @squaeragent

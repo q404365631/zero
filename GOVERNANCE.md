@@ -17,6 +17,8 @@ Maintainers are responsible for:
 Routine changes can be merged by one maintainer after CI passes.
 
 Safety-critical changes require explicit maintainer approval from an owner of the affected area.
+Review ownership is declared in `.github/CODEOWNERS` and validated by
+`just codeowners-check`.
 
 Large design changes should start as a proposal issue.
 

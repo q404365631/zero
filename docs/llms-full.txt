@@ -10,6 +10,7 @@ Use this bundle for retrieval and coding agents. It is not evidence of live trad
 - `.claude/commands/README.md`
 - `CONTRIBUTING.md`
 - `GOVERNANCE.md`
+- `.github/CODEOWNERS`
 - `SECURITY.md`
 - `docs/llms.txt`
 - `docs/first-10-minutes.md`
@@ -30,6 +31,7 @@ Use this bundle for retrieval and coding agents. It is not evidence of live trad
 - `docs/public-upgrade.md`
 - `docs/autonomous-os-plan.md`
 - `docs/agentic-contribution.md`
+- `docs/review-ownership.md`
 - `docs/label-taxonomy.md`
 - `.github/ISSUE_TEMPLATE/agent_task.yml`
 - `.github/ISSUE_TEMPLATE/strategy_example.yml`
@@ -670,6 +672,7 @@ Thanks for helping improve ZERO.
 just bootstrap
 just test
 just lint
+just codeowners-check
 ```
 
 The default contributor path must not require real trading credentials.
@@ -686,6 +689,10 @@ Every PR should include:
 - safety impact if the change touches execution, risk, credentials, or operator commands
 
 Large rewrites should start as an issue or proposal.
+
+Safety-critical paths are owned in `.github/CODEOWNERS`; see
+[docs/review-ownership.md](docs/review-ownership.md). Do not remove ownership
+entries to bypass review.
 
 ## Issue Lanes
 
@@ -756,6 +763,8 @@ Maintainers are responsible for:
 Routine changes can be merged by one maintainer after CI passes.
 
 Safety-critical changes require explicit maintainer approval from an owner of the affected area.
+Review ownership is declared in `.github/CODEOWNERS` and validated by
+`just codeowners-check`.
 
 Large design changes should start as a proposal issue.
 
@@ -778,6 +787,59 @@ We want contributors and operators to know which boundaries are stable.
 - We will give at least six months of public notice before any public repo
   license change.
 - We will keep commercial hosted implementation separate from this public repo.
+````
+
+
+## Source: `.github/CODEOWNERS`
+
+````markdown
+# ZERO review ownership.
+#
+# Last match wins. Keep broad ownership first, then safety-critical surfaces.
+# The public gate in scripts/codeowners_check.py validates these boundaries.
+
+* @squaeragent
+
+# GitHub and release automation.
+/.github/ @squaeragent
+/scripts/assemble_release_assets.sh @squaeragent
+/scripts/draft_release_rehearsal.sh @squaeragent
+/scripts/homebrew_formula.py @squaeragent
+/scripts/install.sh @squaeragent
+/scripts/package_dry_run.sh @squaeragent
+/scripts/release_evidence.py @squaeragent
+/scripts/release_provenance.py @squaeragent
+/scripts/release_rehearsal.sh @squaeragent
+/scripts/release_verify.py @squaeragent
+
+# Engine safety, custody, execution, and exchange boundaries.
+/engine/src/zero_engine/api.py @squaeragent
+/engine/src/zero_engine/hyperliquid.py @squaeragent
+/engine/src/zero_engine/immune.py @squaeragent
+/engine/src/zero_engine/live.py @squaeragent
+/engine/src/zero_engine/live_certification.py @squaeragent
+/engine/src/zero_engine/reconciliation.py @squaeragent
+/engine/src/zero_engine/safety.py @squaeragent
+
+# Operator CLI friction and engine client contracts.
+/cli/crates/zero-commands/ @squaeragent
+/cli/crates/zero-config/ @squaeragent
+/cli/crates/zero-doctor/ @squaeragent
+/cli/crates/zero-engine-client/ @squaeragent
+/cli/crates/zero-headless/ @squaeragent
+/cli/crates/zero-tui/ @squaeragent
+
+# Public contracts and proof surfaces.
+/contracts/ @squaeragent
+/openapi/ @squaeragent
+/docs/live-certification.md @squaeragent
+/docs/live-cockpit.md @squaeragent
+/docs/live-evidence.md @squaeragent
+/docs/safety-model.md @squaeragent
+/docs/threat-model.md @squaeragent
+/docs/incident-runbooks.md @squaeragent
+/docs/release.md @squaeragent
+/docs/distribution.md @squaeragent
 ````
 
 
@@ -3864,6 +3926,8 @@ When assigning an agent, include:
 - the operator context to use when testing shared runtimes, usually
   `X-Zero-Operator-Handle: <agent-or-engineer-handle>`.
 - the GitHub issue lane and label that matches the work.
+- the CODEOWNERS surface that must review the change when touching protected
+  paths.
 
 Example:
 
@@ -3888,6 +3952,7 @@ Before merging agent-authored work, verify:
 - docs match actual behavior;
 - contracts stay deterministic;
 - `just ci` passes or the remaining gap is documented;
+- `just codeowners-check` passes when review boundaries changed;
 - no private repo language, private infrastructure names, or credentials were
   introduced.
 
@@ -3908,6 +3973,50 @@ For design agent work:
   risk-increasing actions;
 - generated public pages should stay aggregate-only;
 - no text should imply hosted custody, guaranteed profit, or black-box trading.
+````
+
+
+## Source: `docs/review-ownership.md`
+
+````markdown
+# Review Ownership
+
+ZERO uses `.github/CODEOWNERS` as the public source of truth for review
+ownership. The initial owner is `@squaeragent`; additional maintainers or teams
+can be added after they have repository access and understand the safety model.
+
+## Protected Surfaces
+
+The ownership gate covers:
+
+- GitHub workflows, issue templates, labels, and release automation.
+- Engine execution, safety, immune, reconciliation, and Hyperliquid boundaries.
+- CLI friction, operator configuration, headless control, doctor, and engine
+  client crates.
+- Public contracts, OpenAPI schemas, live evidence docs, threat model,
+  incident runbooks, release docs, and distribution policy.
+
+## Change Policy
+
+Routine documentation and example changes can still be reviewed normally.
+Changes to protected surfaces require approval from a listed owner of the
+affected area and must preserve paper-first defaults, fail-closed behavior,
+credential redaction, and risk-reducing command priority.
+
+Do not remove or weaken CODEOWNERS entries to make a pull request easier to
+merge. If ownership needs to change, update `.github/CODEOWNERS`,
+`docs/review-ownership.md`, and the CODEOWNERS checker in the same pull
+request.
+
+## Local Check
+
+```bash
+just codeowners-check
+```
+
+This validates that required safety-critical patterns exist, each entry has at
+least one syntactically valid owner, wildcard ownership is present, and no
+placeholder owners are committed.
 ````
 
 

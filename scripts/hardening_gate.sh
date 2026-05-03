@@ -19,7 +19,10 @@ required_files=(
   ".github/ISSUE_TEMPLATE/safety_review.yml"
   ".github/ISSUE_TEMPLATE/strategy_example.yml"
   ".github/ISSUE_TEMPLATE/config.yml"
+  ".github/CODEOWNERS"
   ".github/labels.yml"
+  "docs/review-ownership.md"
+  "scripts/codeowners_check.py"
   "scripts/stale_artifact_check.sh"
   "llms.txt"
   "docs/llms.txt"
@@ -102,6 +105,11 @@ contains "zero_get_paper_results" docs/mcp/transcript.jsonl
 contains "zero://proof/demo" docs/mcp/transcript.jsonl
 contains "Machine-readable entrypoints" README.md
 contains "Stewardship Pledge" GOVERNANCE.md
+contains "CODEOWNERS" GOVERNANCE.md
+contains "Review Ownership" docs/review-ownership.md
+contains "/engine/src/zero_engine/live.py" .github/CODEOWNERS
+contains "/cli/crates/zero-commands/" .github/CODEOWNERS
+contains "/contracts/" .github/CODEOWNERS
 contains "canonical operating guide" .github/copilot-instructions.md
 contains "ZERO Agent Commands" .claude/commands/README.md
 contains "zero-mcp" .claude/commands/mcp-transcript.md
@@ -162,11 +170,13 @@ python3 -m py_compile scripts/mcp_transcript.py
 python3 -m py_compile scripts/issue_template_check.py
 python3 -m py_compile scripts/label_taxonomy_check.py
 python3 -m py_compile scripts/github_label_sync.py
+python3 -m py_compile scripts/codeowners_check.py
 PYTHONPATH="$PWD/engine/src" python3 -m py_compile engine/src/zero_engine/mcp.py
 PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke >/dev/null
 scripts/issue_template_check.py >/dev/null
 scripts/label_taxonomy_check.py >/dev/null
 scripts/github_label_sync.py --validate-config >/dev/null
+scripts/codeowners_check.py >/dev/null
 python3 -m py_compile scripts/live_cockpit_drill_verify.py
 python3 -m py_compile scripts/live_cockpit_drill_tamper_rehearsal.py
 rm -rf scripts/__pycache__

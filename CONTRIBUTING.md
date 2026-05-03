@@ -16,6 +16,7 @@ Thanks for helping improve ZERO.
 just bootstrap
 just test
 just lint
+just codeowners-check
 ```
 
 The default contributor path must not require real trading credentials.
@@ -32,6 +33,10 @@ Every PR should include:
 - safety impact if the change touches execution, risk, credentials, or operator commands
 
 Large rewrites should start as an issue or proposal.
+
+Safety-critical paths are owned in `.github/CODEOWNERS`; see
+[docs/review-ownership.md](docs/review-ownership.md). Do not remove ownership
+entries to bypass review.
 
 ## Issue Lanes
 
