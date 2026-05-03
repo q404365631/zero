@@ -17,6 +17,14 @@ body:
       description: What should change?
     validations:
       required: true
+  - type: textarea
+    id: open_core_boundary
+    attributes:
+      label: Open-Core Boundary
+      description: Should this be Apache-2.0 public engine behavior, public aggregate proof behavior, or commercial Intelligence API behavior?
+      placeholder: "Public Apache-2.0 engine behavior because..."
+    validations:
+      required: true
   - type: dropdown
     id: area
     attributes:
@@ -26,7 +34,16 @@ body:
         - cli
         - docs
         - examples
+        - contracts
+        - design
         - ci
     validations:
       required: true
-
+  - type: textarea
+    id: safety_invariant
+    attributes:
+      label: Safety Invariant
+      description: What must not regress if this ships?
+      value: "Paper mode remains default; live-capable behavior stays gated and documented."
+    validations:
+      required: true

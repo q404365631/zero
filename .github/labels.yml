@@ -4,12 +4,18 @@
 - name: help wanted
   color: "008672"
   description: Maintainers want community help on this.
+- name: agent-eligible
+  color: "5319e7"
+  description: Scoped for a coding, review, documentation, or design agent.
 - name: needs triage
   color: "ededed"
   description: Needs maintainer review before work starts.
 - name: safety
   color: "b60205"
   description: Touches execution, risk, credentials, or operator friction.
+- name: safety-critical
+  color: "8b0000"
+  description: Requires explicit safety review before implementation or merge.
 - name: engine
   color: "1d76db"
   description: Python engine runtime.
@@ -22,15 +28,33 @@
 - name: examples
   color: "d4c5f9"
   description: Examples, templates, and demos.
+- name: strategy
+  color: "bfdadc"
+  description: Strategy API, plugin, runner, or deterministic strategy example.
+- name: good-first-strategy
+  color: "0e8a16"
+  description: Paper-only strategy contribution suitable for a first engine PR.
 - name: ci
   color: "cfd3d7"
   description: Continuous integration and repository automation.
 - name: design
   color: "f9d0c4"
   description: Operator-facing design, public pages, or documentation IA.
+- name: design-review
+  color: "fef2c0"
+  description: Needs product, UX, narrative, or information architecture review.
 - name: contracts
   color: "5319e7"
   description: Public API, Network, Intelligence, or proof packet contracts.
+- name: docs-gap
+  color: "0075ca"
+  description: Missing, stale, misleading, or agent-hostile documentation.
+- name: proof-pack
+  color: "006b75"
+  description: Proof packet methodology, reproducibility, or public evidence.
+- name: mcp
+  color: "1d76db"
+  description: Model Context Protocol server, tools, resources, or transcript.
 - name: release
   color: "fbca04"
   description: Release packaging, artifacts, or versioning.

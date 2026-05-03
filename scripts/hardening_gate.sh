@@ -11,6 +11,15 @@ required_files=(
   ".claude/commands/proof-pack.md"
   ".claude/commands/mcp-transcript.md"
   ".claude/commands/new-strategy.md"
+  ".github/ISSUE_TEMPLATE/agent_task.yml"
+  ".github/ISSUE_TEMPLATE/bug_report.yml"
+  ".github/ISSUE_TEMPLATE/design_review.yml"
+  ".github/ISSUE_TEMPLATE/docs_gap.yml"
+  ".github/ISSUE_TEMPLATE/feature_request.yml"
+  ".github/ISSUE_TEMPLATE/safety_review.yml"
+  ".github/ISSUE_TEMPLATE/strategy_example.yml"
+  ".github/ISSUE_TEMPLATE/config.yml"
+  ".github/labels.yml"
   "llms.txt"
   "docs/llms.txt"
   "docs/llms-full.txt"
@@ -96,6 +105,16 @@ contains "ZERO Agent Commands" .claude/commands/README.md
 contains "zero-mcp" .claude/commands/mcp-transcript.md
 contains "paper-only" .claude/commands/proof-pack.md
 contains "AI Assistance" .github/PULL_REQUEST_TEMPLATE.md
+contains "agent-eligible" .github/ISSUE_TEMPLATE/agent_task.yml
+contains "safety-critical" .github/ISSUE_TEMPLATE/safety_review.yml
+contains "good-first-strategy" .github/ISSUE_TEMPLATE/strategy_example.yml
+contains "design-review" .github/ISSUE_TEMPLATE/design_review.yml
+contains "docs-gap" .github/ISSUE_TEMPLATE/docs_gap.yml
+contains "Open-Core Boundary" .github/ISSUE_TEMPLATE/feature_request.yml
+contains "Safety Impact" .github/ISSUE_TEMPLATE/bug_report.yml
+contains "Agentic contribution guide" .github/ISSUE_TEMPLATE/config.yml
+contains "proof-pack" .github/labels.yml
+contains "mcp" .github/labels.yml
 contains "Agent Operating Guide" docs/llms.txt
 contains "live_correlation" docs/proof/demo/proof-pack.json
 contains "unavailable" docs/proof/demo/proof-pack.json
@@ -130,8 +149,10 @@ python3 -m py_compile scripts/homebrew_formula.py
 python3 -m py_compile scripts/generate_llms_full.py
 python3 -m py_compile scripts/proof_pack.py
 python3 -m py_compile scripts/mcp_transcript.py
+python3 -m py_compile scripts/issue_template_check.py
 PYTHONPATH="$PWD/engine/src" python3 -m py_compile engine/src/zero_engine/mcp.py
 PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke >/dev/null
+scripts/issue_template_check.py >/dev/null
 python3 -m py_compile scripts/live_cockpit_drill_verify.py
 python3 -m py_compile scripts/live_cockpit_drill_tamper_rehearsal.py
 rm -rf scripts/__pycache__

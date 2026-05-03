@@ -6,7 +6,8 @@ Thanks for helping improve ZERO.
 
 1. Read the README.
 2. Run the paper-mode demo.
-3. Pick an issue labeled `good first issue` or `help wanted`.
+3. Pick an issue labeled `good first issue`, `good-first-strategy`,
+   `agent-eligible`, or `help wanted`.
 4. Open a small pull request with tests.
 
 ## Local Setup
@@ -29,6 +30,22 @@ Every PR should include:
 - safety impact if the change touches execution, risk, credentials, or operator commands
 
 Large rewrites should start as an issue or proposal.
+
+## Issue Lanes
+
+Use the issue template that matches the work:
+
+- `Agent task`: bounded work for coding, review, documentation, or design
+  agents. Must include owner boundary, out-of-scope list, safety invariant,
+  acceptance criteria, and checks.
+- `Strategy example`: paper-only strategy, runner, plugin, market-data adapter,
+  runtime loop, or proof-pack example. Must be deterministic and runnable
+  without secrets.
+- `Safety review`: execution, sizing, risk gates, kill switches, auth, secret
+  handling, operator friction, live evidence, or public proof contracts.
+- `Design review`: README, generated public pages, CLI/TUI copy, docs IA, or
+  launch surfaces.
+- `Documentation gap`: missing, stale, misleading, or agent-hostile docs.
 
 ## Safety-Critical Changes
 
@@ -53,4 +70,3 @@ Prefer clear conventional-style prefixes:
 ## License
 
 By contributing, you agree that your contribution is licensed under Apache-2.0.
-

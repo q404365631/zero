@@ -6,3 +6,6 @@ contact_links:
   - name: Contribution guide
     url: https://github.com/zero-intel/zero/blob/main/CONTRIBUTING.md
     about: Start here before opening a contribution issue or pull request.
+  - name: Agentic contribution guide
+    url: https://github.com/zero-intel/zero/blob/main/docs/agentic-contribution.md
+    about: Use this when scoping work for Claude Code, Cursor, Copilot, or another coding agent.

@@ -68,4 +68,5 @@
 ## For Agents
 
 - [Agentic Contribution](agentic-contribution.md)
+- [Issue Templates](../.github/ISSUE_TEMPLATE/agent_task.yml)
 - [Full LLM Context](llms-full.txt)

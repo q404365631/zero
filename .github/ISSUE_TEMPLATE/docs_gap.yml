@@ -1,0 +1,43 @@
+name: Documentation gap
+description: Report missing, stale, misleading, or agent-hostile documentation
+title: "docs: "
+labels: ["docs-gap", "docs", "needs triage"]
+body:
+  - type: textarea
+    id: gap
+    attributes:
+      label: Gap
+      description: What is missing, stale, misleading, or difficult for agents to follow?
+    validations:
+      required: true
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Audience
+      options:
+        - first-time operator
+        - engine contributor
+        - CLI contributor
+        - design contributor
+        - coding agent
+        - security reviewer
+        - launch reviewer
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Source Of Truth
+      description: Which code, contract, example, or existing doc should the answer align with?
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done When
+      value: |
+        - The doc names the real current behavior.
+        - The doc links to the source of truth.
+        - `docs/llms.txt` or `docs/llms-full.txt` is updated if agent-facing context changed.
+    validations:
+      required: true

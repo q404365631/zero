@@ -1,0 +1,69 @@
+name: Strategy example
+description: Propose a paper-only strategy, runner, or market-data adapter example
+title: "strategy: "
+labels: ["good-first-strategy", "strategy", "examples", "needs triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for examples that teach the public engine without requiring secrets or live trading.
+  - type: textarea
+    id: learning_goal
+    attributes:
+      label: Learning Goal
+      description: What should a contributor or operator learn from this example?
+      placeholder: "Show how to reject low-confidence momentum setups in paper mode."
+    validations:
+      required: true
+  - type: dropdown
+    id: example_type
+    attributes:
+      label: Example Type
+      options:
+        - paper strategy
+        - strategy plugin
+        - strategy runner
+        - market data adapter
+        - runtime loop
+        - proof pack
+    validations:
+      required: true
+  - type: textarea
+    id: owner_boundary
+    attributes:
+      label: Owner Boundary
+      description: Exact files or directories the contributor should own.
+      placeholder: "Own examples/strategy-runner/* and engine/tests/test_runners.py only."
+    validations:
+      required: true
+  - type: textarea
+    id: safety_invariant
+    attributes:
+      label: Safety Invariant
+      description: What must not regress?
+      value: "The example is paper-only, deterministic, and does not require secrets."
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      value: |
+        - Example runs from a fresh clone.
+        - Output is deterministic.
+        - Docs state that the example is paper-only.
+        - Tests or smoke checks cover the example.
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: Required Checks
+      value: |
+        just docs-check
+        just strategy-example
+        just strategy-plugin-example
+        just strategy-runner-example
+        just market-data-adapter-example
+    validations:
+      required: true

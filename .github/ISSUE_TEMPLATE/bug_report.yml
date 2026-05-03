@@ -3,6 +3,18 @@ description: Report a reproducible bug
 title: "bug: "
 labels: ["bug", "needs triage"]
 body:
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - paper-mode bug
+        - docs or examples bug
+        - operator UX bug
+        - safety-critical bug
+        - security-sensitive bug
+    validations:
+      required: true
   - type: textarea
     id: summary
     attributes:
@@ -30,4 +42,11 @@ body:
       description: OS, Python version, Rust version, ZERO version or commit.
     validations:
       required: true
-
+  - type: textarea
+    id: safety_impact
+    attributes:
+      label: Safety Impact
+      description: Does this affect paper/live mode boundaries, operator friction, risk, secrets, or public proof privacy?
+      value: "No known safety impact."
+    validations:
+      required: true

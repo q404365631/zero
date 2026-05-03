@@ -1,8 +1,12 @@
 name: Safety review
 description: Request review for execution, risk, credential, or safety behavior
 title: "safety: "
-labels: ["safety", "needs triage"]
+labels: ["safety-critical", "safety", "needs triage"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this before changing execution, sizing, risk gates, kill switches, authentication, secret handling, operator friction, live evidence, or public proof contracts.
   - type: textarea
     id: change
     attributes:
@@ -13,15 +17,32 @@ body:
   - type: textarea
     id: risk
     attributes:
-      label: Risk
+      label: Failure Modes
       description: What could go wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: fail_closed
+    attributes:
+      label: Fail-Closed Behavior
+      description: How does the system refuse, halt, or degrade safely?
+      placeholder: "If preflight is stale, live-capable paths refuse and risk-reducing commands remain available."
+    validations:
+      required: true
+  - type: textarea
+    id: paper_validation
+    attributes:
+      label: Paper-Mode Validation
+      description: Which paper-mode scenario, proof packet, or rehearsal demonstrates the behavior?
     validations:
       required: true
   - type: textarea
     id: validation
     attributes:
-      label: Validation Plan
-      description: Paper-mode, unit, integration, or manual validation.
+      label: Required Checks
+      description: Unit, integration, rehearsal, or manual validation commands.
+      value: |
+        just ci
+        just hardening-gate
     validations:
       required: true
-

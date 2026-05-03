@@ -42,6 +42,15 @@ jobs:
           test -f .claude/commands/proof-pack.md
           test -f .claude/commands/mcp-transcript.md
           test -f .claude/commands/new-strategy.md
+          test -f .github/ISSUE_TEMPLATE/agent_task.yml
+          test -f .github/ISSUE_TEMPLATE/bug_report.yml
+          test -f .github/ISSUE_TEMPLATE/design_review.yml
+          test -f .github/ISSUE_TEMPLATE/docs_gap.yml
+          test -f .github/ISSUE_TEMPLATE/feature_request.yml
+          test -f .github/ISSUE_TEMPLATE/safety_review.yml
+          test -f .github/ISSUE_TEMPLATE/strategy_example.yml
+          test -f .github/ISSUE_TEMPLATE/config.yml
+          test -f .github/labels.yml
           test -f CONTRIBUTING.md
           test -f SECURITY.md
           test -f CODE_OF_CONDUCT.md
@@ -115,6 +124,7 @@ jobs:
           test -x scripts/assemble_release_assets.sh
           test -x scripts/install.sh
           test -x scripts/demo_capture.sh
+          test -x scripts/issue_template_check.py
           test -x scripts/openapi_contract_check.py
           test -x scripts/public_readiness_gate.sh
           test -x scripts/network_pages_smoke.py
@@ -144,6 +154,7 @@ jobs:
           test -f railway.toml
           test -f docs/railway-deploy.md
           test -f .github/RELEASE_TEMPLATE.md
+          scripts/issue_template_check.py
           python3 scripts/openapi_contract_check.py
           PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
           PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check

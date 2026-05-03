@@ -13,6 +13,28 @@ remain safe and useful.
 - Add docs that clarify operator safety, deployment, or contribution paths.
 - Implement one item from `docs/autonomous-os-plan.md` with tests and docs.
 
+## Issue Lanes
+
+The public repo uses issue templates as agent routing contracts:
+
+- `.github/ISSUE_TEMPLATE/agent_task.yml` for scoped agent work. Use label
+  `agent-eligible`.
+- `.github/ISSUE_TEMPLATE/strategy_example.yml` for deterministic paper-only
+  strategy, runner, plugin, market-data adapter, runtime loop, or proof-pack
+  examples. Use label `good-first-strategy`.
+- `.github/ISSUE_TEMPLATE/safety_review.yml` for execution, risk, credentials,
+  operator friction, live evidence, or proof privacy. Use label
+  `safety-critical`.
+- `.github/ISSUE_TEMPLATE/design_review.yml` for README, CLI/TUI copy, public
+  proof pages, generated Network pages, and docs information architecture. Use
+  label `design-review`.
+- `.github/ISSUE_TEMPLATE/docs_gap.yml` for missing, stale, misleading, or
+  agent-hostile docs. Use label `docs-gap`.
+
+`scripts/issue_template_check.py` enforces the lane names, required labels, and
+template markers. Update that checker in the same pull request as any template
+or label change.
+
 ## Command Recipes
 
 Reusable command recipes live in `.claude/commands/`. They are plain Markdown,
@@ -46,6 +68,7 @@ When assigning an agent, include:
 - whether the work is engine, CLI, docs, Network, Intelligence, or design.
 - the operator context to use when testing shared runtimes, usually
   `X-Zero-Operator-Handle: <agent-or-engineer-handle>`.
+- the GitHub issue lane and label that matches the work.
 
 Example:
 

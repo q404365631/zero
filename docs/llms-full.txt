@@ -30,6 +30,11 @@ Use this bundle for retrieval and coding agents. It is not evidence of live trad
 - `docs/public-upgrade.md`
 - `docs/autonomous-os-plan.md`
 - `docs/agentic-contribution.md`
+- `.github/ISSUE_TEMPLATE/agent_task.yml`
+- `.github/ISSUE_TEMPLATE/strategy_example.yml`
+- `.github/ISSUE_TEMPLATE/safety_review.yml`
+- `.github/ISSUE_TEMPLATE/design_review.yml`
+- `.github/ISSUE_TEMPLATE/docs_gap.yml`
 - `docs/zero-network.md`
 - `docs/zero-intelligence.md`
 - `docs/model-gateway.md`
@@ -423,6 +428,7 @@ Machine-readable entrypoints:
 - [docs/llms-full.txt](docs/llms-full.txt)
 - [AGENTS.md](AGENTS.md)
 - [Agent Commands](.claude/commands/README.md)
+- [Issue Templates](.github/ISSUE_TEMPLATE/agent_task.yml)
 - [OpenAPI Contract](openapi/zero-paper-api.v1.yaml)
 - [MCP Server](docs/mcp.md)
 - [MCP Transcript](docs/mcp/transcript.jsonl)
@@ -653,7 +659,8 @@ Thanks for helping improve ZERO.
 
 1. Read the README.
 2. Run the paper-mode demo.
-3. Pick an issue labeled `good first issue` or `help wanted`.
+3. Pick an issue labeled `good first issue`, `good-first-strategy`,
+   `agent-eligible`, or `help wanted`.
 4. Open a small pull request with tests.
 
 ## Local Setup
@@ -676,6 +683,22 @@ Every PR should include:
 - safety impact if the change touches execution, risk, credentials, or operator commands
 
 Large rewrites should start as an issue or proposal.
+
+## Issue Lanes
+
+Use the issue template that matches the work:
+
+- `Agent task`: bounded work for coding, review, documentation, or design
+  agents. Must include owner boundary, out-of-scope list, safety invariant,
+  acceptance criteria, and checks.
+- `Strategy example`: paper-only strategy, runner, plugin, market-data adapter,
+  runtime loop, or proof-pack example. Must be deterministic and runnable
+  without secrets.
+- `Safety review`: execution, sizing, risk gates, kill switches, auth, secret
+  handling, operator friction, live evidence, or public proof contracts.
+- `Design review`: README, generated public pages, CLI/TUI copy, docs IA, or
+  launch surfaces.
+- `Documentation gap`: missing, stale, misleading, or agent-hostile docs.
 
 ## Safety-Critical Changes
 
@@ -871,6 +894,7 @@ Out of scope:
 ## For Agents
 
 - [Agentic Contribution](agentic-contribution.md)
+- [Issue Templates](../.github/ISSUE_TEMPLATE/agent_task.yml)
 - [Full LLM Context](llms-full.txt)
 ````
 
@@ -3769,6 +3793,28 @@ remain safe and useful.
 - Add docs that clarify operator safety, deployment, or contribution paths.
 - Implement one item from `docs/autonomous-os-plan.md` with tests and docs.
 
+## Issue Lanes
+
+The public repo uses issue templates as agent routing contracts:
+
+- `.github/ISSUE_TEMPLATE/agent_task.yml` for scoped agent work. Use label
+  `agent-eligible`.
+- `.github/ISSUE_TEMPLATE/strategy_example.yml` for deterministic paper-only
+  strategy, runner, plugin, market-data adapter, runtime loop, or proof-pack
+  examples. Use label `good-first-strategy`.
+- `.github/ISSUE_TEMPLATE/safety_review.yml` for execution, risk, credentials,
+  operator friction, live evidence, or proof privacy. Use label
+  `safety-critical`.
+- `.github/ISSUE_TEMPLATE/design_review.yml` for README, CLI/TUI copy, public
+  proof pages, generated Network pages, and docs information architecture. Use
+  label `design-review`.
+- `.github/ISSUE_TEMPLATE/docs_gap.yml` for missing, stale, misleading, or
+  agent-hostile docs. Use label `docs-gap`.
+
+`scripts/issue_template_check.py` enforces the lane names, required labels, and
+template markers. Update that checker in the same pull request as any template
+or label change.
+
 ## Command Recipes
 
 Reusable command recipes live in `.claude/commands/`. They are plain Markdown,
@@ -3802,6 +3848,7 @@ When assigning an agent, include:
 - whether the work is engine, CLI, docs, Network, Intelligence, or design.
 - the operator context to use when testing shared runtimes, usually
   `X-Zero-Operator-Handle: <agent-or-engineer-handle>`.
+- the GitHub issue lane and label that matches the work.
 
 Example:
 
@@ -3846,6 +3893,336 @@ For design agent work:
   risk-increasing actions;
 - generated public pages should stay aggregate-only;
 - no text should imply hosted custody, guaranteed profit, or black-box trading.
+````
+
+
+## Source: `.github/ISSUE_TEMPLATE/agent_task.yml`
+
+````markdown
+name: Agent task
+description: Propose a bounded task for coding, review, documentation, or design agents
+title: "agent: "
+labels: ["agent-eligible", "needs triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for narrow tasks a coding or design agent can own. Keep the task small enough for one pull request and name the safety invariant up front.
+  - type: textarea
+    id: scope
+    attributes:
+      label: Owner Boundary
+      description: Exact files, modules, docs, or examples the agent should own.
+      placeholder: "Own docs/agentic-contribution.md and .github/ISSUE_TEMPLATE/*.yml only."
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out Of Scope
+      description: What must the agent avoid changing?
+      placeholder: "Do not touch live execution, sizing, credentials, or unrelated release files."
+    validations:
+      required: true
+  - type: textarea
+    id: invariant
+    attributes:
+      label: Safety Invariant
+      description: What behavior must not regress?
+      placeholder: "Paper mode remains the default; no new live order path is introduced."
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - engine
+        - cli
+        - docs
+        - examples
+        - contracts
+        - design
+        - ci
+    validations:
+      required: true
+  - type: dropdown
+    id: task_size
+    attributes:
+      label: Task Size
+      description: Prefer S or M for agent-eligible work.
+      options:
+        - S: single file or one small module
+        - M: small cross-file change with tests
+        - L: needs maintainer decomposition first
+    validations:
+      required: true
+  - type: dropdown
+    id: risk_class
+    attributes:
+      label: Risk Class
+      options:
+        - paper-only
+        - docs-only
+        - public contract
+        - operator UX
+        - safety-critical
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: Concrete conditions that make the task done.
+      value: |
+        - First acceptance criterion.
+        - Second acceptance criterion.
+        - Required checks pass.
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: Required Checks
+      description: Commands the agent or reviewer should run.
+      value: |
+        just docs-check
+        just public-readiness
+    validations:
+      required: true
+````
+
+
+## Source: `.github/ISSUE_TEMPLATE/strategy_example.yml`
+
+````markdown
+name: Strategy example
+description: Propose a paper-only strategy, runner, or market-data adapter example
+title: "strategy: "
+labels: ["good-first-strategy", "strategy", "examples", "needs triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for examples that teach the public engine without requiring secrets or live trading.
+  - type: textarea
+    id: learning_goal
+    attributes:
+      label: Learning Goal
+      description: What should a contributor or operator learn from this example?
+      placeholder: "Show how to reject low-confidence momentum setups in paper mode."
+    validations:
+      required: true
+  - type: dropdown
+    id: example_type
+    attributes:
+      label: Example Type
+      options:
+        - paper strategy
+        - strategy plugin
+        - strategy runner
+        - market data adapter
+        - runtime loop
+        - proof pack
+    validations:
+      required: true
+  - type: textarea
+    id: owner_boundary
+    attributes:
+      label: Owner Boundary
+      description: Exact files or directories the contributor should own.
+      placeholder: "Own examples/strategy-runner/* and engine/tests/test_runners.py only."
+    validations:
+      required: true
+  - type: textarea
+    id: safety_invariant
+    attributes:
+      label: Safety Invariant
+      description: What must not regress?
+      value: "The example is paper-only, deterministic, and does not require secrets."
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      value: |
+        - Example runs from a fresh clone.
+        - Output is deterministic.
+        - Docs state that the example is paper-only.
+        - Tests or smoke checks cover the example.
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: Required Checks
+      value: |
+        just docs-check
+        just strategy-example
+        just strategy-plugin-example
+        just strategy-runner-example
+        just market-data-adapter-example
+    validations:
+      required: true
+````
+
+
+## Source: `.github/ISSUE_TEMPLATE/safety_review.yml`
+
+````markdown
+name: Safety review
+description: Request review for execution, risk, credential, or safety behavior
+title: "safety: "
+labels: ["safety-critical", "safety", "needs triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this before changing execution, sizing, risk gates, kill switches, authentication, secret handling, operator friction, live evidence, or public proof contracts.
+  - type: textarea
+    id: change
+    attributes:
+      label: Change
+      description: What safety-relevant behavior is changing?
+    validations:
+      required: true
+  - type: textarea
+    id: risk
+    attributes:
+      label: Failure Modes
+      description: What could go wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: fail_closed
+    attributes:
+      label: Fail-Closed Behavior
+      description: How does the system refuse, halt, or degrade safely?
+      placeholder: "If preflight is stale, live-capable paths refuse and risk-reducing commands remain available."
+    validations:
+      required: true
+  - type: textarea
+    id: paper_validation
+    attributes:
+      label: Paper-Mode Validation
+      description: Which paper-mode scenario, proof packet, or rehearsal demonstrates the behavior?
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Required Checks
+      description: Unit, integration, rehearsal, or manual validation commands.
+      value: |
+        just ci
+        just hardening-gate
+    validations:
+      required: true
+````
+
+
+## Source: `.github/ISSUE_TEMPLATE/design_review.yml`
+
+````markdown
+name: Design review
+description: Request review for operator UX, public proof pages, docs IA, or launch surfaces
+title: "design: "
+labels: ["design-review", "design", "needs triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for design work that changes how operators, contributors, or public users understand ZERO.
+  - type: textarea
+    id: surface
+    attributes:
+      label: Surface
+      description: Which screen, page, doc, template, or generated artifact is changing?
+      placeholder: "README above the fold, docs proof page, Network profile page, or CLI/TUI copy."
+    validations:
+      required: true
+  - type: textarea
+    id: user_job
+    attributes:
+      label: User Job
+      description: What should the user understand or accomplish faster?
+    validations:
+      required: true
+  - type: textarea
+    id: safety_copy
+    attributes:
+      label: Safety Copy Invariant
+      description: What must not be implied?
+      value: "Do not imply custody, guaranteed returns, black-box delegation, or live trading readiness beyond documented gates."
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence To Review
+      description: Screenshots, rendered HTML paths, terminal output, or doc links.
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: Required Checks
+      value: |
+        just docs-check
+        just network-pages-smoke
+        just public-readiness
+    validations:
+      required: true
+````
+
+
+## Source: `.github/ISSUE_TEMPLATE/docs_gap.yml`
+
+````markdown
+name: Documentation gap
+description: Report missing, stale, misleading, or agent-hostile documentation
+title: "docs: "
+labels: ["docs-gap", "docs", "needs triage"]
+body:
+  - type: textarea
+    id: gap
+    attributes:
+      label: Gap
+      description: What is missing, stale, misleading, or difficult for agents to follow?
+    validations:
+      required: true
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Audience
+      options:
+        - first-time operator
+        - engine contributor
+        - CLI contributor
+        - design contributor
+        - coding agent
+        - security reviewer
+        - launch reviewer
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Source Of Truth
+      description: Which code, contract, example, or existing doc should the answer align with?
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done When
+      value: |
+        - The doc names the real current behavior.
+        - The doc links to the source of truth.
+        - `docs/llms.txt` or `docs/llms-full.txt` is updated if agent-facing context changed.
+    validations:
+      required: true
 ````
 
 

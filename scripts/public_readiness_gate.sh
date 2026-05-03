@@ -82,6 +82,15 @@ required=(
   docs/proof/demo/paper-proof.svg
   .cursor/rules/global.mdc
   .github/PULL_REQUEST_TEMPLATE.md
+  .github/ISSUE_TEMPLATE/agent_task.yml
+  .github/ISSUE_TEMPLATE/bug_report.yml
+  .github/ISSUE_TEMPLATE/design_review.yml
+  .github/ISSUE_TEMPLATE/docs_gap.yml
+  .github/ISSUE_TEMPLATE/feature_request.yml
+  .github/ISSUE_TEMPLATE/safety_review.yml
+  .github/ISSUE_TEMPLATE/strategy_example.yml
+  .github/ISSUE_TEMPLATE/config.yml
+  .github/labels.yml
   .github/dependabot.yml
   .github/workflows/ci.yml
   .github/workflows/codeql.yml

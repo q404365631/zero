@@ -382,6 +382,7 @@ Machine-readable entrypoints:
 - [docs/llms-full.txt](docs/llms-full.txt)
 - [AGENTS.md](AGENTS.md)
 - [Agent Commands](.claude/commands/README.md)
+- [Issue Templates](.github/ISSUE_TEMPLATE/agent_task.yml)
 - [OpenAPI Contract](openapi/zero-paper-api.v1.yaml)
 - [MCP Server](docs/mcp.md)
 - [MCP Transcript](docs/mcp/transcript.jsonl)

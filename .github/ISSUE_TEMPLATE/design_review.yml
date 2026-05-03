@@ -1,0 +1,49 @@
+name: Design review
+description: Request review for operator UX, public proof pages, docs IA, or launch surfaces
+title: "design: "
+labels: ["design-review", "design", "needs triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for design work that changes how operators, contributors, or public users understand ZERO.
+  - type: textarea
+    id: surface
+    attributes:
+      label: Surface
+      description: Which screen, page, doc, template, or generated artifact is changing?
+      placeholder: "README above the fold, docs proof page, Network profile page, or CLI/TUI copy."
+    validations:
+      required: true
+  - type: textarea
+    id: user_job
+    attributes:
+      label: User Job
+      description: What should the user understand or accomplish faster?
+    validations:
+      required: true
+  - type: textarea
+    id: safety_copy
+    attributes:
+      label: Safety Copy Invariant
+      description: What must not be implied?
+      value: "Do not imply custody, guaranteed returns, black-box delegation, or live trading readiness beyond documented gates."
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence To Review
+      description: Screenshots, rendered HTML paths, terminal output, or doc links.
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: Required Checks
+      value: |
+        just docs-check
+        just network-pages-smoke
+        just public-readiness
+    validations:
+      required: true

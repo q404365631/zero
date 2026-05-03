@@ -51,6 +51,9 @@ fresh-clone-rehearsal:
 demo-capture:
     scripts/demo_capture.sh
 
+issue-template-check:
+    scripts/issue_template_check.py
+
 hardening-gate:
     scripts/hardening_gate.sh
 
@@ -149,6 +152,15 @@ docs-check:
     test -f .claude/commands/mcp-transcript.md
     test -f .claude/commands/new-strategy.md
     test -f .github/copilot-instructions.md
+    test -f .github/ISSUE_TEMPLATE/agent_task.yml
+    test -f .github/ISSUE_TEMPLATE/bug_report.yml
+    test -f .github/ISSUE_TEMPLATE/design_review.yml
+    test -f .github/ISSUE_TEMPLATE/docs_gap.yml
+    test -f .github/ISSUE_TEMPLATE/feature_request.yml
+    test -f .github/ISSUE_TEMPLATE/safety_review.yml
+    test -f .github/ISSUE_TEMPLATE/strategy_example.yml
+    test -f .github/ISSUE_TEMPLATE/config.yml
+    test -f .github/labels.yml
     test -f llms.txt
     test -f docs/llms.txt
     test -f docs/llms-full.txt
@@ -244,6 +256,7 @@ docs-check:
     test -x scripts/assemble_release_assets.sh
     test -x scripts/install.sh
     test -x scripts/demo_capture.sh
+    test -x scripts/issue_template_check.py
     test -x scripts/openapi_contract_check.py
     test -x scripts/network_pages_smoke.py
     test -x scripts/package_dry_run.sh
@@ -277,6 +290,7 @@ docs-check:
     test -f railway.toml
     test -f docs/railway-deploy.md
     python3 scripts/openapi_contract_check.py
+    scripts/issue_template_check.py
     PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
     PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
     scripts/generate_llms_full.py --check
@@ -291,7 +305,7 @@ container-demo: container-build
 container-example: container-build
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-lint: engine-lint cli-lint docs-check hardening-gate public-readiness
+lint: engine-lint cli-lint docs-check issue-template-check hardening-gate public-readiness
 
 test: engine-test cli-test
 

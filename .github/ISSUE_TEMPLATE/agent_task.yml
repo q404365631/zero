@@ -1,20 +1,34 @@
 name: Agent task
-description: Propose a scoped task for coding, review, or design agents
+description: Propose a bounded task for coding, review, documentation, or design agents
 title: "agent: "
-labels: ["needs triage"]
+labels: ["agent-eligible", "needs triage"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for narrow tasks a coding or design agent can own. Keep the task small enough for one pull request and name the safety invariant up front.
   - type: textarea
     id: scope
     attributes:
-      label: Scope
-      description: Exact files, modules, or docs the agent should own.
+      label: Owner Boundary
+      description: Exact files, modules, docs, or examples the agent should own.
+      placeholder: "Own docs/agentic-contribution.md and .github/ISSUE_TEMPLATE/*.yml only."
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out Of Scope
+      description: What must the agent avoid changing?
+      placeholder: "Do not touch live execution, sizing, credentials, or unrelated release files."
     validations:
       required: true
   - type: textarea
     id: invariant
     attributes:
-      label: Safety invariant
+      label: Safety Invariant
       description: What behavior must not regress?
+      placeholder: "Paper mode remains the default; no new live order path is introduced."
     validations:
       required: true
   - type: dropdown
@@ -31,10 +45,44 @@ body:
         - ci
     validations:
       required: true
+  - type: dropdown
+    id: task_size
+    attributes:
+      label: Task Size
+      description: Prefer S or M for agent-eligible work.
+      options:
+        - S: single file or one small module
+        - M: small cross-file change with tests
+        - L: needs maintainer decomposition first
+    validations:
+      required: true
+  - type: dropdown
+    id: risk_class
+    attributes:
+      label: Risk Class
+      options:
+        - paper-only
+        - docs-only
+        - public contract
+        - operator UX
+        - safety-critical
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: Concrete conditions that make the task done.
+      value: |
+        - First acceptance criterion.
+        - Second acceptance criterion.
+        - Required checks pass.
+    validations:
+      required: true
   - type: textarea
     id: checks
     attributes:
-      label: Required checks
+      label: Required Checks
       description: Commands the agent or reviewer should run.
       value: |
         just docs-check
