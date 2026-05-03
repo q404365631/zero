@@ -8,6 +8,7 @@
 
 use crate::parse::ParsedLine;
 use crate::risk::RiskDirection;
+use zero_engine_client::ExecuteSide;
 
 /// A mode switch the dispatcher can emit. Mirrors `zero-tui::Mode`
 /// but lives here so `zero-commands` does not have to depend on
@@ -148,12 +149,19 @@ pub enum Command {
     Break {
         minutes: Option<u32>,
     },
-    /// Stub risk-*increasing* command. Lets the friction machinery
-    /// demonstrate end-to-end even before composition changes have
-    /// a real POST endpoint. Carries `RiskDirection::Increases` so
-    /// the gate evaluates. Real execution wiring (`/execute` v2)
-    /// lands with the live-trade pack.
+    /// Legacy bare `/execute` friction demonstration. Kept so stored
+    /// sessions and TUI friction fixtures remain decodable; real order
+    /// placement uses [`Self::ExecuteOrder`].
     Execute,
+    /// `/execute <coin> <buy|sell> <size>` — place an operator-approved
+    /// order through the engine. Malformed invocations are neutral and
+    /// render usage without forcing the operator through friction first.
+    ExecuteOrder {
+        coin: Option<String>,
+        side: Option<ExecuteSide>,
+        size: Option<String>,
+        error: Option<String>,
+    },
     /// Open the full-screen operator-state overview overlay
     /// (Addendum A §2.3). Read-only — opens a modal sourced from
     /// the engine mirror; the dispatcher itself emits no lines.
@@ -566,6 +574,19 @@ impl Command {
             | Self::StateOverride { .. }
             | Self::DisclosureOverride { .. } => RiskDirection::Increases,
 
+            Self::ExecuteOrder {
+                coin,
+                side,
+                size,
+                error,
+            } => {
+                if coin.is_some() && side.is_some() && size.is_some() && error.is_none() {
+                    RiskDirection::Increases
+                } else {
+                    RiskDirection::Neutral
+                }
+            }
+
             // `/auto`'s risk direction depends on the action. `on`
             // unlocks engine-initiated position changes and joins
             // the friction ladder as Increases; `off` and `status`
@@ -620,7 +641,7 @@ impl Command {
             Self::PauseEntries => "/pause-entries",
             Self::ResumeEntries => "/resume-entries",
             Self::Break { .. } => "/break",
-            Self::Execute => "/execute",
+            Self::Execute | Self::ExecuteOrder { .. } => "/execute",
             Self::State => "/state",
             Self::Sessions { .. } => "/sessions",
             Self::Resume { .. } => "/resume",
@@ -901,7 +922,7 @@ pub const COMMAND_CATALOG: &[CommandInfo] = &[
     },
     CommandInfo {
         name: "/execute",
-        summary: "place a new order (gated)",
+        summary: "place a new order: /execute BTC buy 0.001 (gated)",
         risk: RiskDirection::Increases,
     },
     // `/auto on` joins the friction ladder. The catalog row is
@@ -1017,7 +1038,7 @@ pub fn resolve(line: &ParsedLine) -> Option<Command> {
         "break" => Command::Break {
             minutes: line.args.first().and_then(|s| s.parse::<u32>().ok()),
         },
-        "execute" | "exec" | "e" => Command::Execute,
+        "execute" | "exec" | "e" => resolve_execute(&line.args),
         "state" => Command::State,
         "sessions" | "ls-sessions" => Command::Sessions {
             limit: line.args.first().and_then(|s| s.parse::<u32>().ok()),
@@ -1181,6 +1202,48 @@ pub fn resolve(line: &ParsedLine) -> Option<Command> {
     Some(cmd)
 }
 
+fn resolve_execute(args: &[String]) -> Command {
+    if args.is_empty() {
+        return Command::Execute;
+    }
+    let coin = args.first().map(|coin| coin.to_ascii_uppercase());
+    let direction = args
+        .get(1)
+        .and_then(|raw| match raw.to_ascii_lowercase().as_str() {
+            "buy" | "long" | "bid" => Some(ExecuteSide::Buy),
+            "sell" | "short" | "ask" => Some(ExecuteSide::Sell),
+            _ => None,
+        });
+    let quantity = args.get(2).cloned();
+    let error = if args.len() > 3 {
+        Some("too many arguments".to_string())
+    } else if args.is_empty() {
+        Some("missing coin, side, and size".to_string())
+    } else if coin.is_none() {
+        Some("missing coin".to_string())
+    } else if args.get(1).is_none() {
+        Some("missing side".to_string())
+    } else if direction.is_none() {
+        Some("side must be buy or sell".to_string())
+    } else if args.get(2).is_none() {
+        Some("missing size".to_string())
+    } else if quantity
+        .as_deref()
+        .and_then(|value| value.parse::<f64>().ok())
+        .is_none_or(|value| !value.is_finite() || value <= 0.0)
+    {
+        Some("size must be a positive number".to_string())
+    } else {
+        None
+    };
+    Command::ExecuteOrder {
+        coin,
+        side: direction,
+        size: quantity,
+        error,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
@@ -1189,6 +1252,7 @@ mod tests {
     };
     use crate::parse::parse_line;
     use crate::risk::RiskDirection;
+    use zero_engine_client::ExecuteSide;
 
     fn r(line: &str) -> Option<Command> {
         resolve(&parse_line(line))
@@ -1442,6 +1506,38 @@ mod tests {
         assert_eq!(r("/breakers"), Some(Command::Immune));
         assert_eq!(r("/resume-entries"), Some(Command::ResumeEntries));
         assert_eq!(r("/live-resume"), Some(Command::ResumeEntries));
+    }
+
+    #[test]
+    fn execute_order_parses_real_order_shape() {
+        assert_eq!(
+            r("/execute btc buy 0.001"),
+            Some(Command::ExecuteOrder {
+                coin: Some("BTC".to_string()),
+                side: Some(ExecuteSide::Buy),
+                size: Some("0.001".to_string()),
+                error: None,
+            })
+        );
+        assert_eq!(
+            r("/exec ETH short 1.5"),
+            Some(Command::ExecuteOrder {
+                coin: Some("ETH".to_string()),
+                side: Some(ExecuteSide::Sell),
+                size: Some("1.5".to_string()),
+                error: None,
+            })
+        );
+    }
+
+    #[test]
+    fn execute_usage_shapes_are_neutral_until_valid() {
+        let missing = r("/execute BTC").expect("command");
+        assert_eq!(missing.risk(), RiskDirection::Neutral);
+        let bad_size = r("/execute BTC buy nope").expect("command");
+        assert_eq!(bad_size.risk(), RiskDirection::Neutral);
+        let valid = r("/execute BTC buy 0.001").expect("command");
+        assert_eq!(valid.risk(), RiskDirection::Increases);
     }
 
     #[test]

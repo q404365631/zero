@@ -8,7 +8,7 @@
 use std::sync::Arc;
 
 use parking_lot::RwLock;
-use zero_engine_client::{EngineState, HttpClient, LiveControlResponse};
+use zero_engine_client::{EngineState, ExecuteSide, HttpClient, LiveControlResponse};
 use zero_operator_state::label::Label;
 
 use crate::command::{
@@ -613,6 +613,21 @@ async fn run(ctx: &DispatchContext, cmd: &Command) -> DispatchOutput {
         Command::ResumeEntries => resume_entries_cmd(ctx).await,
         Command::Break { minutes } => break_stub(ctx, *minutes).await,
         Command::Execute => execute_stub(),
+        Command::ExecuteOrder {
+            coin,
+            side,
+            size,
+            error,
+        } => {
+            execute_cmd(
+                ctx,
+                coin.as_deref(),
+                *side,
+                size.as_deref(),
+                error.as_deref(),
+            )
+            .await
+        }
         Command::State => DispatchOutput {
             show_overlay: Some(OverlayTarget::State),
             ..Default::default()
@@ -693,7 +708,7 @@ const HELP_LINES: &[&str] = &[
     "  /kill /flatten-all /pause-entries /break /close  — risk-reducers (instant)",
     "  /resume-entries      — resume new entries (friction-gated)",
     "  /close <coin>        — close a single position",
-    "  /execute             — composition change (gated by operator state)",
+    "  /execute <coin> <buy|sell> <size> — place order (gated)",
     "  /state               — full operator-state overview (any key closes)",
     "  /state-override <L>  — declare operator-state label (gated)",
     "  /continue            — acknowledge coaching notice",
@@ -1848,15 +1863,64 @@ fn render_live_control(
 }
 
 fn execute_stub() -> DispatchOutput {
-    // Reached only when `decide` returned `Proceed` — i.e.
-    // operator state is FRESH / STEADY / RECOVERY. The friction
-    // ladder has already had its say.
     DispatchOutput {
-        lines: vec![OutputLine::command(
-            "/execute — composition change accepted (stub). Wire-up to POST /execute lands with the live-trade pack.",
+        lines: vec![OutputLine::warn(
+            "/execute <coin> <buy|sell> <size> — example: /execute BTC buy 0.001",
         )],
         ..Default::default()
     }
+}
+
+async fn execute_cmd(
+    ctx: &DispatchContext,
+    coin: Option<&str>,
+    direction: Option<ExecuteSide>,
+    quantity: Option<&str>,
+    error: Option<&str>,
+) -> DispatchOutput {
+    if let Some(error) = error {
+        return single_warn(format!(
+            "/execute <coin> <buy|sell> <size> — {error} (example: /execute BTC buy 0.001)"
+        ));
+    }
+    let (Some(coin), Some(direction), Some(quantity)) = (
+        coin,
+        direction,
+        quantity.and_then(|value| value.parse::<f64>().ok()),
+    ) else {
+        return single_warn("/execute <coin> <buy|sell> <size> — example: /execute BTC buy 0.001");
+    };
+    let mut out = DispatchOutput::default();
+    let Some(http) = require_http(ctx, &mut out) else {
+        return out;
+    };
+    match http.post_execute(coin, direction, quantity).await {
+        Ok(reply) => {
+            let rendered_coin = reply.coin.as_deref().unwrap_or(coin);
+            let rendered_direction = reply.side.unwrap_or(direction).as_wire();
+            let rendered_quantity = reply.size.unwrap_or(quantity);
+            let reason = reply.reason.as_deref().unwrap_or("no reason supplied");
+            let mode_suffix = if reply.simulated {
+                " (paper)"
+            } else {
+                " (live)"
+            };
+            let fill = reply.fill_id.as_deref().unwrap_or("none");
+            if reply.accepted {
+                out.lines.push(OutputLine::alert(format!(
+                    "/execute — accepted{mode_suffix} {rendered_coin} {rendered_direction} {rendered_quantity} fill={fill}"
+                )));
+            } else {
+                out.lines.push(OutputLine::alert(format!(
+                    "/execute — refused{mode_suffix} {rendered_coin} {rendered_direction} {rendered_quantity}: {reason}"
+                )));
+            }
+        }
+        Err(e) => out
+            .lines
+            .push(OutputLine::alert(format!("/execute — engine refused: {e}"))),
+    }
+    out
 }
 
 /// `/auto on|off|status|<unknown>|<missing>` — toggle the
@@ -3163,10 +3227,10 @@ mod tests {
         let out = dispatch(&ctx, "/execute").await.unwrap().unwrap();
         assert_eq!(out.risk, Some(RiskDirection::Increases));
         assert_eq!(out.friction, Some(FrictionDecision::Proceed));
-        // /execute stub emits a confirmation line (Command line)
+        // Bare /execute now emits usage; real orders require args.
         assert!(matches!(
             out.lines.first(),
-            Some(super::OutputLine::Command(_))
+            Some(super::OutputLine::Warn(_))
         ));
     }
 
@@ -3242,8 +3306,8 @@ mod tests {
         assert_eq!(out.risk, Some(RiskDirection::Increases));
         let joined = join_lines(&out);
         assert!(
-            joined.contains("accepted"),
-            "expected execute stub: {joined}"
+            joined.contains("/execute <coin>"),
+            "expected usage: {joined}"
         );
     }
 

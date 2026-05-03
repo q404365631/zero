@@ -72,7 +72,8 @@ Publicize:
 - local journals and runtime bus;
 - Hyperliquid venue adapter interfaces;
 - paper/live separation tests;
-- operator-safe CLI workflows.
+- operator-safe CLI workflows, including friction-gated engine-backed
+  `/execute <coin> <buy|sell> <size>`.
 
 Keep private:
 

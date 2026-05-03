@@ -300,8 +300,10 @@ Current status:
 - The Rust client decodes the cockpit packet and `zero run live-cockpit`
   renders the live-mode state, failed checks, open breakers, certification
   count, heartbeat expiry, and risk-reducer commands.
-- `/resume-entries` is wired as a friction-gated live resume command; `/kill`,
-  `/flatten-all`, and `/pause-entries` remain instant risk reducers.
+- `/execute <coin> <buy|sell> <size>` is wired to the engine `POST /execute`
+  endpoint after operator-state friction clears. `/resume-entries` is wired as a
+  friction-gated live resume command; `/kill`, `/flatten-all`, and
+  `/pause-entries` remain instant risk reducers.
 - Local, Railway, mock-engine, and OpenAPI contract checks cover the cockpit.
 - [Live Cockpit](live-cockpit.md) documents the operator workflow and canary
   evidence boundary.

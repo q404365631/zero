@@ -252,6 +252,53 @@ async fn quote_without_coin_emits_usage_hint() {
 }
 
 #[tokio::test]
+async fn execute_posts_real_order_shape_after_friction() {
+    let (mock, ctx) = ctx_with_mock().await;
+    let out = dispatch(&ctx, "/execute BTC buy 0.001")
+        .await
+        .unwrap()
+        .unwrap();
+
+    assert_eq!(out.risk, Some(RiskDirection::Increases));
+    assert!(
+        matches!(&out.lines[0], OutputLine::Alert(s) if s.contains("/execute — accepted") && s.contains("BTC buy 0.001")),
+        "execute line: {:?}",
+        out.lines
+    );
+    let captured = mock.received_executes();
+    assert_eq!(captured.len(), 1);
+    assert_eq!(captured[0].body["coin"], "BTC");
+    assert_eq!(captured[0].body["side"], "buy");
+    assert_eq!(captured[0].body["size"], 0.001);
+    assert!(
+        captured[0].body["idempotency_key"]
+            .as_str()
+            .is_some_and(|key| !key.is_empty()),
+        "missing idempotency key: {:?}",
+        captured[0].body
+    );
+    mock.shutdown().await;
+}
+
+#[tokio::test]
+async fn execute_usage_does_not_post() {
+    let (mock, ctx) = ctx_with_mock().await;
+    let out = dispatch(&ctx, "/execute BTC buy nope")
+        .await
+        .unwrap()
+        .unwrap();
+
+    assert_eq!(out.risk, Some(RiskDirection::Neutral));
+    assert!(
+        matches!(&out.lines[0], OutputLine::Warn(s) if s.contains("size must be a positive number")),
+        "usage line: {:?}",
+        out.lines
+    );
+    assert!(mock.received_executes().is_empty());
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn risk_reducers_post_live_control_endpoints() {
     let (mock, ctx) = ctx_with_mock().await;
 

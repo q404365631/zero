@@ -126,6 +126,10 @@ executor instead. If no live executor is configured, the engine returns
 `accepted=false`, `simulated=false`, and `reason="live executor not configured"`.
 It honors the request idempotency key so repeated submissions with the same key
 do not create duplicate paper fills or duplicate live order submissions.
+The interactive CLI command `/execute <coin> <buy|sell> <size>` uses this same
+endpoint after the operator-state friction ladder clears. Non-interactive
+`zero run` refuses risk-increasing execution commands because the typed-confirm
+surface is TTY-only.
 
 Every HTTP response carries `X-Zero-Trace-Id`. When an HTTP `POST /execute`
 creates a paper decision, that trace ID is written into the decision journal

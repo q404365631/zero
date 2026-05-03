@@ -19,7 +19,7 @@ end.
 |---|---:|---|
 | Public repo hygiene | 99 | Strong CI, release artifacts, governance, docs, clean boundaries, first-class GitHub product page, first-10-minutes guide, reproducible demo capture, threat model, incident runbooks, distribution policy, hardening gate, and public-readiness gate. |
 | Product narrative | 98 | Clear category around autonomous operating systems for self-custodial onchain operations, with public runtime, terminal, network, and intelligence surfaces separated cleanly. |
-| CLI readiness | 95 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, `/live-cockpit`, `/live-certify`, `/immune`, friction-gated `/resume-entries`, operator-context audit headers, and operator-local runtime partitions exist. Remaining full-screen cockpit drills need real canary evidence. |
+| CLI readiness | 96 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, `/live-cockpit`, `/live-certify`, `/immune`, friction-gated `/resume-entries`, friction-gated engine-backed `/execute`, operator-context audit headers, and operator-local runtime partitions exist. Remaining full-screen cockpit drills need real canary evidence. |
 | Engine runtime | 86 | Deterministic paper runtime, bounded OODA cycle records, strategy runner SDK, declarative paper strategies, append-only decision journal, durable runtime bus contracts, restart replay, read-only Hyperliquid info adapter, live-mid paper execution, traceable audit export, live custody preflight, account reconciliation, dry-run live certification, immune breaker packets, public-safe signed live evidence packets, fail-closed model gateway plumbing, and live-executor interfaces exist. Still missing public production OODA parity and real live canary evidence. |
 | Safety and risk | 91 | CLI risk asymmetry, local custody validation, dry-run order validation, preflight refusal, account-reconciliation gate, live-submit idempotency model, no-retry exchange-error records, dry-run live certification drills, `zero.immune.v1` breakers, dead-man heartbeat contract, max notional/loss/order-rate policy, pause, kill, reduce-only flatten, hash-only live evidence capture, threat model, and P0/P1 runbooks exist. Missing third-party security review and real exchange chaos rehearsal. |
 | API contracts | 99 | Paper fixtures are pinned across Python and Rust, OpenAPI documents the local paper runtime, compatibility rules are explicit, `/operator/context` exposes audit identity, `/deployment/claim` exposes signature-ready runtime identity, `/deployment/heartbeat` exposes signature-ready public liveness, `/hl/status` exposes read-only market status, `/hl/account` and `/hl/reconcile` expose account truth, `/immune` exposes risk-blocking breaker state, `/live/cockpit` exposes consolidated live operator state, `/live/certification` exposes dry-run safety evidence, `/live/evidence` exposes a hash-only signed canary evidence bundle, `/market/quote` names the active price source, `/health` plus `/v2/status` expose recovery state, `/metrics` plus `/audit/export` expose observable runtime state, `/network/*` exposes public proof packets and hosted-compatible ingestion, `/intelligence/*` exposes delayed intelligence, model gateway status, model gateway health, model gateway audit, and billing-ready commercial API contracts, `/v1/intelligence/*` exposes hosted-compatible auth, scopes, rate-limit headers, usage events, webhook signatures, and export jobs, `/live/preflight` exposes a non-secret live-readiness gate, and `POST /live/*` controls are typed in the CLI. Missing production hosted compatibility policy. |
@@ -38,7 +38,7 @@ points are external proof: public CI after repo publication, clean release
 artifacts from the public repository, external security review, and fresh-clone
 feedback from at least one serious engineer.
 
-**Full ZERO operating-system readiness: 80/100.**
+**Full ZERO operating-system readiness: 81/100.**
 
 It is still not a hosted custody product, and real capital operation remains
 self-custodial and operator-owned. The public repo must not imply that a new
@@ -66,7 +66,7 @@ Intelligence API, deployment evidence, distribution, and external review.
 | Non-interactive automation | 86 | `zero run` covers cockpit, breaker, certification, account truth, and risk-reducer workflows while intentionally gating risk-increasing commands. Needs production examples. |
 | Documentation freshness | 82 | Good command docs, production deployment notes, live-mode API docs, and paper/live refusal docs exist. Incident docs remain thin. |
 
-**CLI readiness: 95/100.**
+**CLI readiness: 96/100.**
 
 The CLI is first-class for the public runtime and operator workflows in this
 repo. It is not yet a complete autonomous capital terminal because the public
@@ -304,6 +304,9 @@ Current progress:
   dependency group; paper installs and Railway paper deploys do not need it.
 - `POST /execute` now routes to live execution only when `X-Zero-Mode: live`
   is sent and a local live executor is configured; otherwise it fails closed.
+- The interactive CLI now wires `/execute <coin> <buy|sell> <size>` to
+  `POST /execute` after operator-state friction clears, with no automatic
+  retry and engine-asserted `(paper)` / `(live)` rendering.
 - Added `POST /live/heartbeat`, `/live/pause`, `/live/resume`, `/live/kill`,
   and `/live/flatten` plus CLI wiring for `/kill`, `/pause-entries`, and
   `/flatten-all`.

@@ -99,6 +99,11 @@ here on the next doc pass.
   they require a typed-confirm overlay that doesn't exist
   without a TTY — running them through a pipe would bypass
   the friction ladder on purpose, which the CLI will not do.
+- **Interactive `/execute <coin> <buy|sell> <size>`** — posts
+  the exact order request to the engine after operator-state
+  friction clears. The engine decides paper versus live from
+  its launch mode or `X-Zero-Mode`; the CLI renders `(paper)`
+  or `(live)` from the engine response, not from local guessing.
 
 Full reference: [`docs/commands.md`](docs/commands.md)
 (auto-generated from `--help` — stale docs fail CI).
@@ -239,6 +244,6 @@ Full explanation and cross-references:
 M1 in progress. TUI shell, four-mode layout, command
 dispatcher with the risk-asymmetry invariant, SQLite session
 persistence with replay, operator-state classifier, doctor,
-onboarding, daily-wrap. Remaining: auto-overlay of `/risk`
-at friction level 3+ (stubbed at L2 today), CI glue to bind
-every gate together.
+onboarding, daily-wrap, and engine-backed `/execute`. Remaining:
+auto-overlay of `/risk` at friction level 3+ and the final CI
+glue to bind every gate together.
