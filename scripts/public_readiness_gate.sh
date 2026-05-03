@@ -5,6 +5,41 @@ status=0
 
 echo "== public readiness gate =="
 
+repo_search() {
+  local pattern="$1"
+
+  if command -v rg >/dev/null 2>&1; then
+    rg -n \
+      --glob '!.git/**' \
+      --glob '!cli/target/**' \
+      --glob '!node_modules/**' \
+      --glob '!scripts/public_readiness_gate.sh' \
+      "$pattern" \
+      .
+    return
+  fi
+
+  find . \
+    -path ./.git -prune -o \
+    -path ./cli/target -prune -o \
+    -path ./node_modules -prune -o \
+    -type f \
+    ! -path ./scripts/public_readiness_gate.sh \
+    -print0 | xargs -0 grep -InE "$pattern"
+}
+
+file_contains() {
+  local pattern="$1"
+  local path="$2"
+
+  if command -v rg >/dev/null 2>&1; then
+    rg -q "$pattern" "$path"
+    return
+  fi
+
+  grep -Eq "$pattern" "$path"
+}
+
 find . \
   -path ./.git -prune -o \
   -path ./cli/target -prune -o \
@@ -82,23 +117,17 @@ else
 fi
 
 echo "-- forbidden private markers"
-if rg -n \
-  --glob '!.git/**' \
-  --glob '!cli/target/**' \
-  --glob '!node_modules/**' \
-  --glob '!scripts/public_readiness_gate.sh' \
-  'github\.com/squaeragent/zero|github\.com/getzero/zero|sigstore://github\.com/getzero/zero|PROPRIETARY SOFTWARE|ALL RIGHTS RESERVED|VPS_IP|VPS_SSH|\.env\.secrets|204\.168\.|zero-private|/Users/forge/zero' \
-  .; then
+if repo_search 'github\.com/squaeragent/zero|github\.com/getzero/zero|sigstore://github\.com/getzero/zero|PROPRIETARY SOFTWARE|ALL RIGHTS RESERVED|VPS_IP|VPS_SSH|\.env\.secrets|204\.168\.|zero-private|/Users/forge/zero'; then
   status=1
 else
   echo "ok"
 fi
 
 echo "-- public product honesty"
-rg -q "Autonomous operating system for self-custodial onchain operations" README.md
-rg -q "paper mode" README.md
-rg -q "not yet a complete autonomous capital terminal" docs/production-readiness.md
-rg -q "Do not publish this private monorepo wholesale" docs/public-upgrade.md
+file_contains "Autonomous operating system for self-custodial onchain operations" README.md
+file_contains "paper mode" README.md
+file_contains "not yet a complete autonomous capital terminal" docs/production-readiness.md
+file_contains "Do not publish this private monorepo wholesale" docs/public-upgrade.md
 
 if [[ "$status" -eq 0 ]]; then
   echo "public readiness gate passed"
