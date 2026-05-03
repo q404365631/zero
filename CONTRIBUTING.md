@@ -49,7 +49,8 @@ Use the issue template that matches the work:
 
 Labels are defined in [docs/label-taxonomy.md](docs/label-taxonomy.md). If a
 new issue lane needs a new label, update `.github/labels.yml` and the taxonomy
-checker in the same pull request.
+checker in the same pull request. Maintainers can apply the configured labels
+to GitHub with `just github-label-sync`.
 
 ## Safety-Critical Changes
 

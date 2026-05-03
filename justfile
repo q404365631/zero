@@ -57,6 +57,15 @@ issue-template-check:
 label-taxonomy-check:
     scripts/label_taxonomy_check.py
 
+github-label-config-check:
+    scripts/github_label_sync.py --validate-config
+
+github-label-check repo="zero-intel/zero":
+    scripts/github_label_sync.py --repo "{{repo}}" --check
+
+github-label-sync repo="zero-intel/zero":
+    scripts/github_label_sync.py --repo "{{repo}}" --apply
+
 hardening-gate:
     scripts/hardening_gate.sh
 
@@ -262,6 +271,7 @@ docs-check:
     test -x scripts/demo_capture.sh
     test -x scripts/issue_template_check.py
     test -x scripts/label_taxonomy_check.py
+    test -x scripts/github_label_sync.py
     test -x scripts/openapi_contract_check.py
     test -x scripts/network_pages_smoke.py
     test -x scripts/package_dry_run.sh
@@ -297,6 +307,7 @@ docs-check:
     python3 scripts/openapi_contract_check.py
     scripts/issue_template_check.py
     scripts/label_taxonomy_check.py
+    scripts/github_label_sync.py --validate-config
     PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
     PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
     scripts/generate_llms_full.py --check
@@ -311,7 +322,7 @@ container-demo: container-build
 container-example: container-build
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-lint: engine-lint cli-lint docs-check issue-template-check label-taxonomy-check hardening-gate public-readiness
+lint: engine-lint cli-lint docs-check issue-template-check label-taxonomy-check github-label-config-check hardening-gate public-readiness
 
 test: engine-test cli-test
 

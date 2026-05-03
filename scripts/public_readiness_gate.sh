@@ -92,6 +92,7 @@ required=(
   .github/ISSUE_TEMPLATE/strategy_example.yml
   .github/ISSUE_TEMPLATE/config.yml
   .github/labels.yml
+  scripts/github_label_sync.py
   .github/dependabot.yml
   .github/workflows/ci.yml
   .github/workflows/codeql.yml

@@ -159,10 +159,12 @@ python3 -m py_compile scripts/proof_pack.py
 python3 -m py_compile scripts/mcp_transcript.py
 python3 -m py_compile scripts/issue_template_check.py
 python3 -m py_compile scripts/label_taxonomy_check.py
+python3 -m py_compile scripts/github_label_sync.py
 PYTHONPATH="$PWD/engine/src" python3 -m py_compile engine/src/zero_engine/mcp.py
 PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke >/dev/null
 scripts/issue_template_check.py >/dev/null
 scripts/label_taxonomy_check.py >/dev/null
+scripts/github_label_sync.py --validate-config >/dev/null
 python3 -m py_compile scripts/live_cockpit_drill_verify.py
 python3 -m py_compile scripts/live_cockpit_drill_tamper_rehearsal.py
 rm -rf scripts/__pycache__

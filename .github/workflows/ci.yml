@@ -127,6 +127,7 @@ jobs:
           test -x scripts/demo_capture.sh
           test -x scripts/issue_template_check.py
           test -x scripts/label_taxonomy_check.py
+          test -x scripts/github_label_sync.py
           test -x scripts/openapi_contract_check.py
           test -x scripts/public_readiness_gate.sh
           test -x scripts/network_pages_smoke.py
@@ -158,6 +159,7 @@ jobs:
           test -f .github/RELEASE_TEMPLATE.md
           scripts/issue_template_check.py
           scripts/label_taxonomy_check.py
+          scripts/github_label_sync.py --validate-config
           python3 scripts/openapi_contract_check.py
           PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
           PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check

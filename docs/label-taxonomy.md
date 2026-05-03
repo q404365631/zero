@@ -9,6 +9,16 @@ Run:
 just label-taxonomy-check
 ```
 
+Maintainers can also check or apply the configured labels against GitHub:
+
+```bash
+just github-label-check
+just github-label-sync
+```
+
+`github-label-sync` only creates or updates labels listed in
+`.github/labels.yml`. It does not delete extra repository labels.
+
 ## Routing Labels
 
 - `needs triage`: maintainer review is required before work starts.
@@ -58,6 +68,8 @@ just label-taxonomy-check
 
 - Do not create labels ad hoc in issue bodies. Update `.github/labels.yml`,
   this document, and `scripts/label_taxonomy_check.py` together.
+- Do not edit public GitHub labels by hand when `.github/labels.yml` is meant
+  to be authoritative. Use `just github-label-sync`.
 - Prefer one routing label, one surface label, and one type or review label.
 - Add `safety-critical` whenever a change touches live-capable behavior,
   operator friction, risk, credentials, live evidence, or public proof privacy.
