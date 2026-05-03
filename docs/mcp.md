@@ -31,6 +31,21 @@ zero-mcp
 The server reads newline-delimited JSON-RPC messages from stdin and writes
 newline-delimited JSON-RPC responses to stdout.
 
+## Transcript
+
+The public transcript fixture is generated from the same handlers used by
+`zero-mcp`:
+
+```bash
+PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py
+PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
+```
+
+See [`docs/mcp/transcript.jsonl`](mcp/transcript.jsonl). It proves that a
+coding agent can initialize the server, list tools, inspect bundled strategies,
+replay deterministic paper results, list resources, and read the proof pack
+without gaining any live execution capability.
+
 ## Tools
 
 | Tool | Purpose |

@@ -368,6 +368,13 @@ Using a coding or design agent? Start with [AGENTS.md](AGENTS.md) and
 changes should stay scoped, paper-first by default, and explicit about safety
 invariants.
 
+For a 30-second agent smoke:
+
+```bash
+PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
+PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
+```
+
 Machine-readable entrypoints:
 
 - [llms.txt](llms.txt)
@@ -376,6 +383,7 @@ Machine-readable entrypoints:
 - [AGENTS.md](AGENTS.md)
 - [OpenAPI Contract](openapi/zero-paper-api.v1.yaml)
 - [MCP Server](docs/mcp.md)
+- [MCP Transcript](docs/mcp/transcript.jsonl)
 
 ## Documentation
 

@@ -25,6 +25,7 @@ SOURCES = (
     "docs/cli-quickstart.md",
     "docs/api.md",
     "docs/mcp.md",
+    "docs/mcp/transcript.jsonl",
     "docs/api-compatibility.md",
     "docs/runtime-bus.md",
     "docs/safety-model.md",

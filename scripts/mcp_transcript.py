@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+"""Generate a deterministic public MCP transcript."""
+
+from __future__ import annotations
+
+import argparse
+import difflib
+import json
+from pathlib import Path
+import sys
+from typing import Any
+
+from zero_engine import mcp
+
+ROOT = Path(__file__).resolve().parents[1]
+OUTPUT = ROOT / "docs" / "mcp" / "transcript.jsonl"
+
+REQUESTS: tuple[dict[str, Any], ...] = (
+    {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {
+            "protocolVersion": "2025-06-18",
+            "clientInfo": {"name": "zero-public-transcript", "version": "0.1.0"},
+            "capabilities": {},
+        },
+    },
+    {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}},
+    {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "method": "tools/call",
+        "params": {"name": "zero_list_strategies", "arguments": {}},
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "method": "tools/call",
+        "params": {"name": "zero_get_paper_results", "arguments": {}},
+    },
+    {"jsonrpc": "2.0", "id": 5, "method": "resources/list", "params": {}},
+    {
+        "jsonrpc": "2.0",
+        "id": 6,
+        "method": "resources/read",
+        "params": {"uri": "zero://proof/demo"},
+    },
+)
+
+
+def as_json_line(payload: dict[str, Any]) -> str:
+    return json.dumps(payload, sort_keys=True, separators=(",", ":"))
+
+
+def render() -> str:
+    entries: list[dict[str, Any]] = []
+    for request in REQUESTS:
+        response = mcp.handle_request(request)
+        if response is None:
+            raise RuntimeError(f"request produced no response: {request}")
+        entries.append({"request": request, "response": response})
+
+    validate(entries)
+    return "".join(f"{as_json_line(entry)}\n" for entry in entries)
+
+
+def validate(entries: list[dict[str, Any]]) -> None:
+    tool_response = entries[1]["response"]
+    tools = tool_response["result"]["tools"]
+    names = [tool["name"] for tool in tools]
+    forbidden = ("execute", "live", "order", "approve", "wallet")
+    if any(marker in name for name in names for marker in forbidden):
+        raise RuntimeError(f"transcript exposes a forbidden write-capable tool: {names}")
+
+    paper_response = entries[3]["response"]
+    paper_text = paper_response["result"]["content"][0]["text"]
+    paper = json.loads(paper_text)
+    if paper["mode"] != "paper" or paper["paper_only"] is not True:
+        raise RuntimeError("transcript paper result must remain paper-only")
+
+    proof_response = entries[5]["response"]
+    proof_text = proof_response["result"]["contents"][0]["text"]
+    proof = json.loads(proof_text)
+    boundary = proof["claim_boundary"]
+    if boundary["live_trading_claimed"] or boundary["paper_vs_live_correlation_claimed"]:
+        raise RuntimeError("transcript proof pack must not claim live trading or paper/live correlation")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--check", action="store_true", help="fail if transcript is stale")
+    args = parser.parse_args()
+
+    expected = render()
+    if args.check:
+        current = OUTPUT.read_text(encoding="utf-8") if OUTPUT.exists() else ""
+        if current != expected:
+            diff = difflib.unified_diff(
+                current.splitlines(),
+                expected.splitlines(),
+                fromfile=str(OUTPUT),
+                tofile="generated",
+                lineterm="",
+            )
+            print("\n".join(list(diff)[:200]), file=sys.stderr)
+            print("docs/mcp/transcript.jsonl is stale; run scripts/mcp_transcript.py", file=sys.stderr)
+            return 1
+        return 0
+
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT.write_text(expected, encoding="utf-8")
+    print(f"wrote {OUTPUT.relative_to(ROOT)}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -68,6 +68,7 @@ required=(
   docs/llms.txt
   docs/llms-full.txt
   docs/mcp.md
+  docs/mcp/transcript.jsonl
   docs/proof/README.md
   docs/proof/demo/README.md
   docs/proof/demo/proof-pack.json
