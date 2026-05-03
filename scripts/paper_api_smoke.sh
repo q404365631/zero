@@ -190,6 +190,14 @@ EVIDENCE_DIR="$(mktemp -d)"
 "${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); audit=(d/"audit_export.json").read_text(encoding="utf-8"); assert m["schema_version"] == "zero.deployment_evidence.v1"; assert m["doctor"]["summary"]["fail"] == 0; assert (d/"SHA256SUMS").is_file(); assert "\"trace_id\": \"trace-" not in audit; assert "smoke-1" not in audit' \
   "${EVIDENCE_DIR}"
 
+CANARY_DIR="$(mktemp -d)"
+"${PYTHON_BIN}" scripts/live_canary_rehearsal.py "${API}" \
+  --mode refusal \
+  --idempotency-key smoke-live-canary-refusal \
+  --output "${CANARY_DIR}" >/tmp/zero-paper-api-live-canary-rehearsal.txt
+"${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); e=(d/"91_live_evidence.json").read_text(encoding="utf-8"); assert m["schema_version"] == "zero.live_canary_rehearsal.v1"; assert m["summary"]["live_order_attempted"] is True; assert m["summary"]["live_order_accepted"] is False; assert m["summary"]["live_order_reason"] == "live executor not configured"; assert m["summary"]["evidence_hash"].startswith("sha256:"); assert (d/"SHA256SUMS").is_file(); assert "smoke-live-canary-refusal" not in e; assert "\"trace_id\": \"trace-" not in e' \
+  "${CANARY_DIR}"
+
 (
   cd "${ROOT}/cli"
   cargo run -q -p zero -- --api "${API}" run positions >/tmp/zero-paper-api-positions.txt

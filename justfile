@@ -84,6 +84,9 @@ railway-smoke:
 deployment-evidence url:
     scripts/deployment_evidence.sh "{{url}}"
 
+live-canary-rehearsal url:
+    scripts/live_canary_rehearsal.py "{{url}}"
+
 checksum output *artifacts:
     python3 scripts/write_sha256s.py "{{output}}" {{artifacts}}
 
@@ -203,6 +206,7 @@ docs-check:
     test -x scripts/railway_doctor.py
     test -x scripts/deployment_evidence.py
     test -x scripts/deployment_evidence.sh
+    test -x scripts/live_canary_rehearsal.py
     test -x scripts/railway_smoke.sh
     test -f Dockerfile
     test -f compose.yaml

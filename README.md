@@ -80,6 +80,9 @@ flowchart LR
   without placing capital at risk.
 - Capture signed, public-safe live evidence packets for supervised canary
   rehearsal without leaking credentials or raw private journals.
+- Run the maintained live canary rehearsal collector in fail-closed public
+  paper mode, or in explicit operator-owned canary mode when local live gates
+  are ready.
 - Package release assets with checksums.
 - Deploy the paper runtime on Railway or Docker.
 - Generate public-safe Network index, profile pages, leaderboard pages, and
@@ -132,6 +135,9 @@ $ curl -fsS http://127.0.0.1:8765/live/certification
 
 $ curl -fsS http://127.0.0.1:8765/live/evidence
 {"schema_version": "zero.live_evidence.v1", "live_mode": "refused", "evidence_hash": "sha256:..."}
+
+$ scripts/live_canary_rehearsal.py http://127.0.0.1:8765 --mode refusal
+zero live canary rehearsal: wrote artifacts/live-canary-rehearsal/... mode=refusal risk_ready=False attempted=True accepted=False
 
 $ curl -fsS http://127.0.0.1:8765/immune
 {"schema_version": "zero.immune.v1", "risk_increasing_allowed": false}

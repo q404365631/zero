@@ -339,6 +339,13 @@ private data. Set
 `ZERO_LIVE_EVIDENCE_SIGNING_KEY` to attach a local HMAC-SHA256 signature without
 echoing key material.
 
+`scripts/live_canary_rehearsal.py URL --mode refusal` is the maintained local
+collector for the canary path. It captures preflight, heartbeat, cockpit,
+certification, reconciliation, fail-closed live execute evidence when the
+engine is not ready, receipts, live evidence, metrics, audit export, manifest,
+and `SHA256SUMS`. `--mode canary` can submit a real live order only after an
+explicit confirmation string and ready live gates.
+
 `GET /operator/context` returns the operator audit identity currently attached
 to requests. The engine resolves it from `X-Zero-Operator-*` headers,
 `ZERO_OPERATOR_*` environment variables, or the local default. Live control

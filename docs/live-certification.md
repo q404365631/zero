@@ -45,6 +45,33 @@ A real live canary is not part of the default public CI path. It requires
 explicit operator approval, a separate Hyperliquid API wallet, and tiny capital
 that the operator is willing to risk.
 
+The maintained collector is:
+
+```bash
+scripts/live_canary_rehearsal.py http://127.0.0.1:8765 --mode refusal
+```
+
+`--mode refusal` is the public-paper default. It captures preflight,
+heartbeat, cockpit, certification, reconciliation, a fail-closed live execute
+attempt when the engine is not ready, `/live/receipts`, `/live/evidence`,
+metrics, audit export, a manifest, and `SHA256SUMS`.
+
+For an operator-owned real canary, the command is intentionally explicit:
+
+```bash
+scripts/live_canary_rehearsal.py http://127.0.0.1:8765 \
+  --mode canary \
+  --symbol BTC \
+  --side buy \
+  --size 0.001 \
+  --confirm-live-risk I_UNDERSTAND_THIS_CAN_PLACE_A_REAL_HYPERLIQUID_ORDER
+```
+
+Canary mode refuses before order submission unless `/live/preflight`,
+`/live/cockpit`, and `/live/certification` agree that risk can increase. After
+an accepted canary attempt it captures receipts and evidence after pause,
+flatten, and kill controls.
+
 Before any canary:
 
 1. Save `/live/preflight`, `/live/cockpit`, `/live/receipts`, `/hl/reconcile`,
