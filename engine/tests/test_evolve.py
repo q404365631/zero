@@ -94,6 +94,19 @@ def test_snapshot_from_fixture_is_public_safe(tmp_path, monkeypatch) -> None:
     assert "sk_live_" not in body
 
 
+def test_snapshot_from_fixture_fails_closed_when_examples_are_not_packaged(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("ZERO_REPO_ROOT", str(tmp_path / "missing"))
+    monkeypatch.chdir(tmp_path)
+
+    snapshot = snapshot_from_fixture(tmp_path / "also-missing", now=FIXED)
+
+    assert snapshot["schema_version"] == "zero.evolve.snapshot.v1"
+    assert snapshot["source"] == "fixture-unavailable"
+    assert snapshot["promotion"]["pushes_to_remote"] is False
+    assert snapshot["promotion"]["promotable_after_human_review"] is False
+    assert snapshot["paper_canary"]["status"] == "fixture_unavailable"
+
+
 def test_load_guardian_decisions_round_trips(tmp_path) -> None:
     payload = run_evolve(decisions=planned_decisions(), output=tmp_path, repo_root=ROOT, now=FIXED)
     assert payload["input_decisions"] == 3

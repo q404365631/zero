@@ -309,13 +309,74 @@ def status_snapshot(run_path: str | Path, *, now: datetime | None = None) -> Jso
     }
 
 
+def fixture_root(repo_root: str | Path) -> Path | None:
+    candidates: list[Path] = []
+    env_root = os.environ.get("ZERO_REPO_ROOT")
+    if env_root:
+        candidates.append(Path(env_root))
+    for candidate in (Path(repo_root), Path.cwd(), Path("/app")):
+        candidates.append(candidate)
+        candidates.append(candidate.parent)
+    for candidate in candidates:
+        if (
+            (candidate / "examples" / "genesis" / "proposals.jsonl").is_file()
+            and (candidate / "examples" / "paper-trading" / "scenario.json").is_file()
+        ):
+            return candidate
+    return None
+
+
 def snapshot_from_fixture(repo_root: str | Path, *, now: datetime | None = None) -> JsonMap:
     now = now or utc_now()
-    proposals = load_proposals(Path(repo_root) / "examples" / "genesis" / "proposals.jsonl")
+    root = fixture_root(repo_root)
+    if root is None:
+        canary = {
+            "schema_version": "zero.evolve.paper_canary.v1",
+            "generated_at": isoformat(now),
+            "mode": "paper",
+            "scenario": None,
+            "decisions": 0,
+            "fills": 0,
+            "rejections": 0,
+            "open_positions": 0,
+            "baseline": {
+                "decisions": 4,
+                "fills": 2,
+                "rejections": 2,
+                "open_positions": 1,
+            },
+            "status": "fixture_unavailable",
+        }
+        calibration = calibrate(canary, generated_at=now)
+        promotion = promotion_decision(
+            build=None,
+            red_team=None,
+            canary=canary,
+            calibration=calibration,
+            generated_at=now,
+        )
+        return {
+            "schema_version": EVOLVE_SNAPSHOT_SCHEMA_VERSION,
+            "generated_at": isoformat(now),
+            "mode": "paper-only",
+            "applies_to_checkout": False,
+            "pushes_to_remote": False,
+            "input_decisions": 0,
+            "selected_proposal_id": None,
+            "accepted_candidates": 0,
+            "build": None,
+            "red_team": None,
+            "paper_canary": canary,
+            "calibration": calibration,
+            "promotion": promotion,
+            "policy": evolve_policy(),
+            "source": "fixture-unavailable",
+        }
+    proposals = load_proposals(root / "examples" / "genesis" / "proposals.jsonl")
     planned = plan_proposals(proposals, now=now)
     decisions = [GuardianDecision.from_dict(item) for item in planned["decisions"]]
     sandbox = Path(os.environ.get("ZERO_EVOLVE_SNAPSHOT_DIR", "/tmp/zero-evolve-snapshot"))
-    payload = run_evolve(decisions=decisions, output=sandbox, repo_root=repo_root, now=now)
+    payload = run_evolve(decisions=decisions, output=sandbox, repo_root=root, now=now)
     return {
         **payload,
         "schema_version": EVOLVE_SNAPSHOT_SCHEMA_VERSION,

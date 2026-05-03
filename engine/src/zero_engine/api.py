@@ -1482,7 +1482,7 @@ class PaperApi:
         return snapshot_from_proposals(GENESIS_FIXTURE_PROPOSALS, now=self.state.now())
 
     def evolve(self) -> dict[str, Any]:
-        return evolve_snapshot_from_fixture(Path(__file__).resolve().parents[3], now=self.state.now())
+        return evolve_snapshot_from_fixture(os.environ.get("ZERO_REPO_ROOT", Path.cwd()), now=self.state.now())
 
     def network_profile(self) -> dict[str, Any]:
         generated_at = self.state.now_iso()

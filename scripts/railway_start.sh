@@ -4,8 +4,10 @@ set -euo pipefail
 PORT="${PORT:-8765}"
 ZERO_JOURNAL_PATH="${ZERO_JOURNAL_PATH:-/data/decisions.jsonl}"
 ZERO_HYPERLIQUID_LIVE_PRICES="${ZERO_HYPERLIQUID_LIVE_PRICES:-true}"
+ZERO_REPO_ROOT="${ZERO_REPO_ROOT:-/app}"
 
 mkdir -p "$(dirname "${ZERO_JOURNAL_PATH}")"
+export ZERO_REPO_ROOT
 
 args=(
   zero-paper-api
