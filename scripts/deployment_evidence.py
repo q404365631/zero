@@ -34,6 +34,7 @@ PACKETS: tuple[tuple[str, str], ...] = (
     ("live_preflight", "/live/preflight"),
     ("live_cockpit", "/live/cockpit"),
     ("live_certification", "/live/certification"),
+    ("live_receipts", "/live/receipts"),
     ("deployment_claim", "/deployment/claim"),
     ("deployment_heartbeat", "/deployment/heartbeat"),
     ("network_profile", "/network/profile"),

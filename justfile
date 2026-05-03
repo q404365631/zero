@@ -170,6 +170,7 @@ docs-check:
     test -f contracts/deployment/claim.json
     test -f contracts/deployment/heartbeat.json
     test -f contracts/live/evidence.json
+    test -f contracts/live/receipts.json
     test -f contracts/network/profile.json
     test -f contracts/network/leaderboard.json
     test -f contracts/network/ingestion.json

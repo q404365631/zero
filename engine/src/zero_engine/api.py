@@ -517,6 +517,7 @@ class PaperApi:
             "/hl/status": lambda: self.hl_status(query),
             "/immune": self.immune,
             "/live/cockpit": lambda: self.live_cockpit(operator_context),
+            "/live/receipts": lambda: self.live_receipts(operator_context),
             "/intelligence/catalog": self.intelligence_catalog,
             "/intelligence/commercial": self.intelligence_commercial,
             "/intelligence/model-gateway": self.intelligence_model_gateway,
@@ -975,9 +976,15 @@ class PaperApi:
             deployment_claim_packet=claim,
         )
         audit = self.audit_export({"limit": ["100"]}, operator_context)
+        receipts = self.live_receipts(operator_context, generated_at=generated_at)
         artifacts = [
             live_evidence_artifact("live_preflight", preflight, preflight["live_mode"]),
             live_evidence_artifact("live_cockpit", cockpit, cockpit["live_mode"]),
+            live_evidence_artifact(
+                "live_execution_receipts",
+                receipts,
+                receipts["summary"]["status"],
+            ),
             live_evidence_artifact(
                 "hl_reconcile",
                 reconciliation,
@@ -1011,6 +1018,8 @@ class PaperApi:
                 "controls_ready": preflight["controls_ready"],
                 "certification_passed": certification["passed"],
                 "live_start_certified": certification["live_start_certified"],
+                "live_receipts_total": receipts["summary"]["total"],
+                "live_receipts_accepted": receipts["summary"]["accepted"],
                 "reconciliation_status": reconciliation.get("status", "unknown"),
                 "immune_risk_increasing_allowed": immune["risk_increasing_allowed"],
                 "live_records_total": cockpit["live_records"]["total"],
@@ -1044,6 +1053,45 @@ class PaperApi:
                 signer=self.state.live_evidence_signer,
             ),
         }
+        assert_public_profile_safe(payload)
+        return payload
+
+    def live_receipts(
+        self,
+        operator_context: OperatorContext | None = None,
+        *,
+        generated_at: str | None = None,
+    ) -> dict[str, Any]:
+        operator_context = operator_context or self.state.operator_context()
+        executor = self.state.live_executor
+        records = list(executor.records if executor is not None else [])
+        receipts = [live_execution_receipt(record) for record in records]
+        exchange_errors = len([record for record in records if record.status == "exchange_error"])
+        refused = len([record for record in records if record.status == "refused"])
+        accepted = len([record for record in records if record.accepted])
+        payload = {
+            "schema_version": "zero.live_execution_receipts.v1",
+            "generated_at": generated_at or self.state.now_iso(),
+            "mode": "live-capable" if executor is not None else "paper",
+            "operator_context": operator_context.to_dict(),
+            "summary": {
+                "total": len(receipts),
+                "accepted": accepted,
+                "refused": refused,
+                "exchange_error": exchange_errors,
+                "status": "captured" if receipts else "empty",
+            },
+            "receipts": receipts,
+            "privacy": {
+                "contains_exchange_credentials": False,
+                "contains_wallet_material": False,
+                "contains_raw_venue_ack_payload": False,
+                "contains_trace_tokens": False,
+                "contains_idempotency_tokens": False,
+                "contains_private_notes": False,
+            },
+        }
+        payload["receipts_hash"] = sha256_json(payload)
         assert_public_profile_safe(payload)
         return payload
 
@@ -2255,6 +2303,7 @@ def live_response(
 
 
 def live_response_from_record(record: Any, *, include_trace: bool = False) -> dict[str, Any]:
+    receipt = live_execution_receipt(record)
     payload = {
         "accepted": record.accepted,
         "simulated": False,
@@ -2265,12 +2314,42 @@ def live_response_from_record(record: Any, *, include_trace: bool = False) -> di
         "reason": record.reason,
         "idempotency_key": record.idempotency_key,
         "status": record.status,
+        "request_hash": receipt["request_hash"],
+        "receipt_hash": receipt["receipt_hash"],
     }
+    if receipt.get("venue_ack_hash") is not None:
+        payload["venue_ack_hash"] = receipt["venue_ack_hash"]
     if include_trace and record.trace_id:
         payload["trace_id"] = record.trace_id
     if getattr(record, "operator_context", None):
         payload["operator_context"] = record.operator_context
     return payload
+
+
+def live_execution_receipt(record: Any) -> dict[str, Any]:
+    request = {
+        "symbol": record.symbol,
+        "side": record.side,
+        "quantity": record.quantity,
+        "price": record.price,
+        "notional_usd": round(record.notional_usd, 2),
+        "reduce_only": record.reduce_only,
+    }
+    body = {
+        "schema_version": "zero.live_execution_receipt.v1",
+        "accepted": record.accepted,
+        "status": record.status,
+        "reason": record.reason,
+        "as_of": record.as_of,
+        "request": request,
+        "request_hash": sha256_json(request),
+        "operator_context_hash": sha256_json(record.operator_context or {}),
+        "trace_hash": sha256_text(record.trace_id or ""),
+        "idempotency_hash": sha256_text(record.idempotency_key or ""),
+        "venue_ack_hash": sha256_json(record.exchange_response) if record.exchange_response else None,
+    }
+    body["receipt_hash"] = sha256_json(body)
+    return body
 
 
 def live_evidence_artifact(name: str, packet: dict[str, Any], status: str) -> dict[str, Any]:
@@ -2311,6 +2390,12 @@ def live_evidence_signature(
         "signed_evidence_hash": evidence_hash,
         "key_material_included": False,
     }
+
+
+def sha256_text(value: str) -> str | None:
+    if not value:
+        return None
+    return "sha256:" + hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
 def first(query: dict[str, list[str]], name: str) -> str | None:

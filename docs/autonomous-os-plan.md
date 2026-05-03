@@ -304,6 +304,9 @@ Current status:
   endpoint after operator-state friction clears. `/resume-entries` is wired as a
   friction-gated live resume command; `/kill`, `/flatten-all`, and
   `/pause-entries` remain instant risk reducers.
+- Live executor attempts now produce `request_hash` and `receipt_hash` values,
+  and `/live/receipts` contributes a hash-only artifact into `/live/evidence`
+  for canary audit bundles.
 - Local, Railway, mock-engine, and OpenAPI contract checks cover the cockpit.
 - [Live Cockpit](live-cockpit.md) documents the operator workflow and canary
   evidence boundary.

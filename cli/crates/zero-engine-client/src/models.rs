@@ -240,6 +240,42 @@ pub struct LiveEvidenceArtifact {
     pub extra: BTreeMap<String, Value>,
 }
 
+// ─── /live/receipts ───────────────────────────────────────────────
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveExecutionReceipts {
+    pub schema_version: String,
+    pub generated_at: Option<String>,
+    pub mode: String,
+    pub operator_context: OperatorContext,
+    pub summary: BTreeMap<String, Value>,
+    pub receipts: Vec<LiveExecutionReceipt>,
+    pub privacy: BTreeMap<String, Value>,
+    pub receipts_hash: String,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveExecutionReceipt {
+    pub schema_version: String,
+    pub accepted: bool,
+    pub status: String,
+    pub reason: String,
+    pub as_of: Option<f64>,
+    pub request: BTreeMap<String, Value>,
+    pub request_hash: String,
+    pub operator_context_hash: Option<String>,
+    pub trace_hash: Option<String>,
+    pub idempotency_hash: Option<String>,
+    pub venue_ack_hash: Option<String>,
+    pub receipt_hash: String,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
 // ─── /live/cockpit ────────────────────────────────────────────────
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

@@ -819,6 +819,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/LiveCertificationResponse"
+  /live/receipts:
+    get:
+      tags: [live]
+      operationId: getLiveReceipts
+      summary: Public-safe local live execution receipt bundle.
+      responses:
+        "200":
+          description: Execution receipts with hashed local tokens and venue acknowledgement.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveExecutionReceiptsResponse"
   /live/evidence:
     get:
       tags: [live]
@@ -1846,6 +1858,42 @@ components:
           type: object
           required: [status, algorithm, signature, signer, signed_evidence_hash, key_material_included]
           additionalProperties: true
+      additionalProperties: true
+    LiveExecutionReceiptsResponse:
+      type: object
+      required:
+        - schema_version
+        - generated_at
+        - mode
+        - operator_context
+        - summary
+        - receipts
+        - privacy
+        - receipts_hash
+      properties:
+        schema_version:
+          const: zero.live_execution_receipts.v1
+        generated_at:
+          type: string
+          format: date-time
+        mode:
+          type: string
+        receipts:
+          type: array
+          items:
+            type: object
+            required:
+              - schema_version
+              - accepted
+              - status
+              - reason
+              - request
+              - request_hash
+              - receipt_hash
+            additionalProperties: true
+        receipts_hash:
+          type: string
+          pattern: "^sha256:"
       additionalProperties: true
     LiveControlResponse:
       type: object

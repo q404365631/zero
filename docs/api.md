@@ -108,7 +108,7 @@ contract:
 - `GET /intelligence/snapshot`, `/intelligence/catalog`, `/intelligence/commercial`, `/intelligence/model-gateway`
 - `GET /v1/intelligence/snapshots`, `/v1/intelligence/history`, `/v1/intelligence/cohorts`, `/v1/intelligence/benchmarks`
 - `GET /hl/status`, `/hl/account`, `/hl/reconcile`, `/market/quote`
-- `GET /live/preflight`, `/live/cockpit`, `/live/certification`, `/live/evidence`
+- `GET /live/preflight`, `/live/cockpit`, `/live/certification`, `/live/receipts`, `/live/evidence`
 - `GET /operator/state`
 - `POST /execute`
 - `POST /auto/toggle`
@@ -126,6 +126,9 @@ executor instead. If no live executor is configured, the engine returns
 `accepted=false`, `simulated=false`, and `reason="live executor not configured"`.
 It honors the request idempotency key so repeated submissions with the same key
 do not create duplicate paper fills or duplicate live order submissions.
+Live responses include public-safe `request_hash` and `receipt_hash` fields
+when the live executor records the attempt; the raw idempotency key remains
+local to the response and is excluded from public evidence packets.
 The interactive CLI command `/execute <coin> <buy|sell> <size>` uses this same
 endpoint after the operator-state friction ladder clears. Non-interactive
 `zero run` refuses risk-increasing execution commands because the typed-confirm
@@ -321,10 +324,18 @@ dry-run certification, heartbeat expiry, recent live records, operator actions,
 the resolved `zero.operator_context.v1` audit identity, and the next required
 action. It is read-only and safe to expose in diagnostics.
 
+`GET /live/receipts` returns `zero.live_execution_receipts.v1`: a local,
+public-safe receipt bundle for live executor attempts. Each receipt includes
+the exact order intent plus hashes for the request, operator context, trace
+token, idempotency token, and venue acknowledgement. It never includes wallet
+material, exchange credentials, raw venue responses, trace tokens, or raw
+idempotency tokens.
+
 `GET /live/evidence` returns a public-safe `zero.live_evidence.v1` packet for
 supervised tiny-capital canary rehearsal. It hashes preflight, cockpit,
-reconciliation, immune, certification, audit export, deployment claim, and
-deployment heartbeat artifacts instead of embedding raw private data. Set
+live execution receipts, reconciliation, immune, certification, audit export,
+deployment claim, and deployment heartbeat artifacts instead of embedding raw
+private data. Set
 `ZERO_LIVE_EVIDENCE_SIGNING_KEY` to attach a local HMAC-SHA256 signature without
 echoing key material.
 

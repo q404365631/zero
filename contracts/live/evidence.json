@@ -15,6 +15,13 @@
       "status": "refused"
     },
     {
+      "hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "included": "hash_only",
+      "name": "live_execution_receipts",
+      "schema_version": "zero.live_execution_receipts.v1",
+      "status": "empty"
+    },
+    {
       "hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
       "included": "hash_only",
       "name": "hl_reconcile",
@@ -100,11 +107,13 @@
     "status": "unsigned_local"
   },
   "summary": {
-    "artifacts": 8,
+    "artifacts": 9,
     "certification_passed": true,
     "controls_ready": false,
     "deployment_heartbeat_status": "paper_only",
     "immune_risk_increasing_allowed": false,
+    "live_receipts_accepted": 0,
+    "live_receipts_total": 0,
     "live_records_accepted": 0,
     "live_records_total": 0,
     "live_start_certified": true,

@@ -1906,14 +1906,27 @@ async fn execute_cmd(
                 " (live)"
             };
             let fill = reply.fill_id.as_deref().unwrap_or("none");
+            let receipt = reply
+                .extra
+                .get("receipt_hash")
+                .and_then(serde_json::Value::as_str)
+                .map(short_hash);
             if reply.accepted {
-                out.lines.push(OutputLine::alert(format!(
+                let mut parts = vec![format!(
                     "/execute — accepted{mode_suffix} {rendered_coin} {rendered_direction} {rendered_quantity} fill={fill}"
-                )));
+                )];
+                if let Some(receipt) = receipt {
+                    parts.push(format!("receipt={receipt}"));
+                }
+                out.lines.push(OutputLine::alert(parts.join(" ")));
             } else {
-                out.lines.push(OutputLine::alert(format!(
+                let mut parts = vec![format!(
                     "/execute — refused{mode_suffix} {rendered_coin} {rendered_direction} {rendered_quantity}: {reason}"
-                )));
+                )];
+                if let Some(receipt) = receipt {
+                    parts.push(format!("receipt={receipt}"));
+                }
+                out.lines.push(OutputLine::alert(parts.join(" ")));
             }
         }
         Err(e) => out
@@ -1921,6 +1934,15 @@ async fn execute_cmd(
             .push(OutputLine::alert(format!("/execute — engine refused: {e}"))),
     }
     out
+}
+
+fn short_hash(hash: &str) -> String {
+    if let Some(rest) = hash.strip_prefix("sha256:")
+        && rest.len() >= 12
+    {
+        return format!("sha256:{}...", &rest[..12]);
+    }
+    hash.to_string()
 }
 
 /// `/auto on|off|status|<unknown>|<missing>` — toggle the

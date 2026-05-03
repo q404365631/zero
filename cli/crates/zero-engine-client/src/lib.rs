@@ -20,9 +20,10 @@ pub use models::{
     ComponentCounts, ComponentHealth, Evaluation, EvaluationLayer, ExecuteRequest, ExecuteResponse,
     ExecuteSide, Health, HlRate, LiveCockpit, LiveCockpitCertification, LiveCockpitHeartbeat,
     LiveCockpitImmune, LiveCockpitPreflight, LiveCockpitReconciliation, LiveCockpitRecords,
-    LiveControlResponse, LiveEvidence, LiveEvidenceArtifact, LivePreflight, LivePreflightCheck,
-    OperatorContext, Position, Positions, Pulse, PulseEvent, Regime, Rejection, RejectionsFeed,
-    Risk, RiskSummary, Root, V2Confidence, V2Market, V2Positions, V2Status, V2Today,
+    LiveControlResponse, LiveEvidence, LiveEvidenceArtifact, LiveExecutionReceipt,
+    LiveExecutionReceipts, LivePreflight, LivePreflightCheck, OperatorContext, Position, Positions,
+    Pulse, PulseEvent, Regime, Rejection, RejectionsFeed, Risk, RiskSummary, Root, V2Confidence,
+    V2Market, V2Positions, V2Status, V2Today,
 };
 pub use poll::{BACKFILL_INTERVAL, EngineStatePoller, OperatorStatePoller, POLL_INTERVAL};
 pub use rate_budget::{

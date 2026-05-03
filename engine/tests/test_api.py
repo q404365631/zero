@@ -487,8 +487,39 @@ def test_live_execute_uses_live_executor_and_preserves_idempotency() -> None:
     assert first["accepted"] is True
     assert first["simulated"] is False
     assert first["trace_id"] == "trace-live"
+    assert first["request_hash"].startswith("sha256:")
+    assert first["receipt_hash"].startswith("sha256:")
+    assert first["venue_ack_hash"].startswith("sha256:")
     assert second == first
     assert len(adapter.placed) == 1
+
+    receipts_status, receipts = api.get("/live/receipts", {})
+    receipt_body = json.dumps(receipts, sort_keys=True).lower()
+
+    assert receipts_status == 200
+    assert receipts["schema_version"] == "zero.live_execution_receipts.v1"
+    assert receipts["summary"] == {
+        "total": 1,
+        "accepted": 1,
+        "refused": 0,
+        "exchange_error": 0,
+        "status": "captured",
+    }
+    assert receipts["receipts"][0]["request"] == {
+        "symbol": "BTC",
+        "side": "buy",
+        "quantity": 0.01,
+        "price": 40500.0,
+        "notional_usd": 405.0,
+        "reduce_only": False,
+    }
+    assert receipts["receipts"][0]["request_hash"] == first["request_hash"]
+    assert receipts["receipts"][0]["receipt_hash"] == first["receipt_hash"]
+    assert receipts["receipts_hash"].startswith("sha256:")
+    assert "live-fill" not in receipt_body
+    assert "trace-live" not in receipt_body
+    assert "idempotency_key" not in receipt_body
+    assert "exchange_response" not in receipt_body
 
 
 def test_live_execute_blocks_risk_increase_when_reconciliation_drift_exists() -> None:
@@ -606,9 +637,14 @@ def test_live_evidence_hashes_required_packets_without_leaking_private_material(
     assert payload["live_mode"] == "refused"
     assert payload["risk_increasing_allowed"] is False
     assert payload["operator_context"]["handle"] == "ops"
-    assert payload["summary"]["artifacts"] == 8
+    assert payload["summary"]["artifacts"] == 9
+    assert payload["summary"]["live_receipts_total"] == 0
     assert artifacts["live_preflight"]["hash"].startswith("sha256:")
     assert artifacts["live_cockpit"]["included"] == "hash_only"
+    assert artifacts["live_execution_receipts"]["schema_version"] == (
+        "zero.live_execution_receipts.v1"
+    )
+    assert artifacts["live_execution_receipts"]["status"] == "empty"
     assert artifacts["deployment_heartbeat"]["schema_version"] == "zero.deployment.heartbeat.v1"
     assert payload["evidence_hash"].startswith("sha256:")
     assert payload["signature"]["status"] == "signed_local_hmac"

@@ -104,6 +104,8 @@ here on the next doc pass.
   friction clears. The engine decides paper versus live from
   its launch mode or `X-Zero-Mode`; the CLI renders `(paper)`
   or `(live)` from the engine response, not from local guessing.
+  When the live executor returns a canary receipt hash, the CLI
+  also renders `receipt=sha256:...` for audit follow-up.
 
 Full reference: [`docs/commands.md`](docs/commands.md)
 (auto-generated from `--help` — stale docs fail CI).
@@ -147,7 +149,8 @@ operator identity so team and agentic runs are attributable. `/live-certify`
 runs the dry-run fake-exchange certification harness and prints the drill pass
 count before any real canary is considered. `/live-evidence` renders the
 hash-only canary evidence bundle, including the evidence hash, signature
-status, and artifact hashes without exposing raw decisions or secrets.
+status, execution-receipt hash artifact, and artifact hashes without exposing
+raw decisions or secrets.
 
 Risk-reducing live controls are wired to the engine when an API client is
 attached:

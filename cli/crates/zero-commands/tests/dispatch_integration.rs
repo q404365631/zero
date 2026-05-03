@@ -187,7 +187,7 @@ async fn live_evidence_renders_hash_only_bundle() {
     };
     assert!(s.contains("live-evidence:"), "evidence row: {s}");
     assert!(s.contains("live_mode=refused"), "live mode field: {s}");
-    assert!(s.contains("artifacts=8"), "artifact count: {s}");
+    assert!(s.contains("artifacts=9"), "artifact count: {s}");
     assert!(
         out.lines.iter().any(
             |line| matches!(line, OutputLine::System(s) if s.contains("signature: status=unsigned_local"))
@@ -261,7 +261,7 @@ async fn execute_posts_real_order_shape_after_friction() {
 
     assert_eq!(out.risk, Some(RiskDirection::Increases));
     assert!(
-        matches!(&out.lines[0], OutputLine::Alert(s) if s.contains("/execute — accepted") && s.contains("BTC buy 0.001")),
+        matches!(&out.lines[0], OutputLine::Alert(s) if s.contains("/execute — accepted") && s.contains("BTC buy 0.001") && s.contains("receipt=sha256:")),
         "execute line: {:?}",
         out.lines
     );

@@ -138,9 +138,16 @@ async fn live_evidence_decodes_hash_only_canary_bundle() {
     assert!(!evidence.ready);
     assert!(!evidence.risk_increasing_allowed);
     assert_eq!(evidence.operator_context.handle, "mock-operator");
-    assert_eq!(evidence.artifacts.len(), 8);
+    assert_eq!(evidence.artifacts.len(), 9);
     assert_eq!(evidence.artifacts[0].included, "hash_only");
     assert!(evidence.artifacts[0].hash.starts_with("sha256:"));
+    assert!(
+        evidence
+            .artifacts
+            .iter()
+            .any(|artifact| artifact.name == "live_execution_receipts"
+                && artifact.schema_version == "zero.live_execution_receipts.v1")
+    );
     assert!(evidence.evidence_hash.starts_with("sha256:"));
     assert_eq!(
         evidence
@@ -148,6 +155,25 @@ async fn live_evidence_decodes_hash_only_canary_bundle() {
             .get("status")
             .and_then(serde_json::Value::as_str),
         Some("unsigned_local")
+    );
+    mock.shutdown().await;
+}
+
+#[tokio::test]
+async fn live_receipts_decode_public_safe_receipt_bundle() {
+    let (mock, http) = client().await;
+    let receipts = http.live_receipts().await.expect("live receipts");
+
+    assert_eq!(receipts.schema_version, "zero.live_execution_receipts.v1");
+    assert_eq!(receipts.operator_context.handle, "mock-operator");
+    assert!(receipts.receipts.is_empty());
+    assert!(receipts.receipts_hash.starts_with("sha256:"));
+    assert_eq!(
+        receipts
+            .summary
+            .get("status")
+            .and_then(serde_json::Value::as_str),
+        Some("empty")
     );
     mock.shutdown().await;
 }

@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-05-01T00:00:00Z",
+  "mode": "paper",
+  "operator_context": {
+    "handle": "local-operator",
+    "operator_id": "local-operator",
+    "role": "owner",
+    "schema_version": "zero.operator_context.v1",
+    "scope": "local-private",
+    "source": "runtime-default"
+  },
+  "privacy": {
+    "contains_exchange_credentials": false,
+    "contains_idempotency_tokens": false,
+    "contains_private_notes": false,
+    "contains_raw_venue_ack_payload": false,
+    "contains_trace_tokens": false,
+    "contains_wallet_material": false
+  },
+  "receipts": [],
+  "receipts_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "schema_version": "zero.live_execution_receipts.v1",
+  "summary": {
+    "accepted": 0,
+    "exchange_error": 0,
+    "refused": 0,
+    "status": "empty",
+    "total": 0
+  }
+}

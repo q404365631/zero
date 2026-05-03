@@ -47,8 +47,8 @@ that the operator is willing to risk.
 
 Before any canary:
 
-1. Save `/live/preflight`, `/live/cockpit`, `/hl/reconcile`, `/live/certification`, `/health`,
-   `/live/evidence`, and `/metrics`.
+1. Save `/live/preflight`, `/live/cockpit`, `/live/receipts`, `/hl/reconcile`,
+   `/live/certification`, `/health`, `/live/evidence`, and `/metrics`.
 2. Confirm the decision journal is durable and record its checksum.
 3. Confirm the kill-switch path exists and is locally writable.
 4. Set tiny live limits: low max notional, low daily loss, and low order rate.
@@ -62,8 +62,9 @@ During the canary:
 2. Immediately run `/pause-entries`.
 3. Run `/flatten-all` and verify reduce-only behavior.
 4. Run `/kill` and verify open-order cancellation.
-5. Export `/audit/export?limit=1000`, `/metrics`, `/live/preflight`, `/live/cockpit`,
-   `/live/evidence`, `/hl/reconcile`, and exchange-side order/fill records.
+5. Export `/audit/export?limit=1000`, `/metrics`, `/live/preflight`,
+   `/live/cockpit`, `/live/receipts`, `/live/evidence`, `/hl/reconcile`, and
+   exchange-side order/fill records.
 
 Exit gate: exchange state, local live records, the decision journal, and
 reconciliation all agree. If they do not, treat it as P0 and follow

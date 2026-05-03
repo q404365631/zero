@@ -90,10 +90,10 @@ just ci
 just public-readiness
 ```
 
-Current progress: `/live/evidence` now packages preflight, cockpit,
-reconciliation, immune, certification, audit, deployment claim, and deployment
-heartbeat hashes into `zero.live_evidence.v1`, with optional local HMAC-SHA256
-signing via `ZERO_LIVE_EVIDENCE_SIGNING_KEY`.
+Current progress: `/live/evidence` now packages preflight, cockpit, live
+execution receipts, reconciliation, immune, certification, audit, deployment
+claim, and deployment heartbeat hashes into `zero.live_evidence.v1`, with
+optional local HMAC-SHA256 signing via `ZERO_LIVE_EVIDENCE_SIGNING_KEY`.
 
 ### Cycle C: Launch Proof
 

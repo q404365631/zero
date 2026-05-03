@@ -52,6 +52,7 @@ python3 -m json.tool contracts/intelligence/model_gateway.json >/dev/null
 python3 -m json.tool contracts/deployment/claim.json >/dev/null
 python3 -m json.tool contracts/deployment/heartbeat.json >/dev/null
 python3 -m json.tool contracts/live/evidence.json >/dev/null
+python3 -m json.tool contracts/live/receipts.json >/dev/null
 
 bash -n scripts/assemble_release_assets.sh
 bash -n scripts/install.sh

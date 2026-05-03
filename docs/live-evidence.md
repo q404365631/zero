@@ -10,6 +10,7 @@ operator must capture before and after any tiny-capital canary:
 
 - `/live/preflight`
 - `/live/cockpit`
+- `/live/receipts`
 - `/hl/reconcile`
 - `/immune`
 - `/live/certification`
@@ -32,6 +33,11 @@ Then capture:
 ```bash
 curl -fsS 'http://127.0.0.1:8765/live/evidence' | python3 -m json.tool
 ```
+
+`GET /live/receipts` is the local drill packet behind the
+`live_execution_receipts` artifact. It includes exact order intents and hashes
+for request, operator context, trace token, idempotency token, and venue
+acknowledgement. `/live/evidence` only includes the artifact hash.
 
 This is still not a substitute for exchange-side records. A valid canary
 evidence bundle must also include Hyperliquid order/fill records and show that

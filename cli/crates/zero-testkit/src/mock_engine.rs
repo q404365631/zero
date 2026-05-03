@@ -333,6 +333,7 @@ fn router(shared: AppState) -> Router<AppState> {
         .route("/live/cockpit", get(live_cockpit))
         .route("/live/certification", get(live_certification))
         .route("/live/evidence", get(live_evidence))
+        .route("/live/receipts", get(live_receipts))
         .route("/live/preflight", get(live_preflight))
         .route("/market/quote", get(market_quote))
         .route("/operator/state", get(operator_state))
@@ -844,11 +845,13 @@ async fn live_evidence() -> Json<serde_json::Value> {
         "risk_increasing_allowed": false,
         "operator_context": mock_operator_context(),
         "summary": {
-            "artifacts": 8,
+            "artifacts": 9,
             "preflight_ready": false,
             "controls_ready": true,
             "certification_passed": true,
             "live_start_certified": true,
+            "live_receipts_total": 0,
+            "live_receipts_accepted": 0,
             "reconciliation_status": "ok",
             "immune_risk_increasing_allowed": false,
             "live_records_total": 0,
@@ -858,6 +861,7 @@ async fn live_evidence() -> Json<serde_json::Value> {
         "artifacts": [
             {"name": "live_preflight", "schema_version": "zero.live_preflight.v1", "status": "refused", "hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111", "included": "hash_only"},
             {"name": "live_cockpit", "schema_version": "zero.live_cockpit.v1", "status": "refused", "hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222", "included": "hash_only"},
+            {"name": "live_execution_receipts", "schema_version": "zero.live_execution_receipts.v1", "status": "empty", "hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "included": "hash_only"},
             {"name": "hl_reconcile", "schema_version": "zero.reconciliation.v1", "status": "ok", "hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333", "included": "hash_only"},
             {"name": "immune", "schema_version": "zero.immune.v1", "status": "blocked", "hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444", "included": "hash_only"},
             {"name": "live_certification", "schema_version": "zero.live_certification.v1", "status": "pass", "hash": "sha256:5555555555555555555555555555555555555555555555555555555555555555", "included": "hash_only"},
@@ -889,6 +893,32 @@ async fn live_evidence() -> Json<serde_json::Value> {
             "signed_evidence_hash": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
             "key_material_included": false
         }
+    }))
+}
+
+async fn live_receipts() -> Json<serde_json::Value> {
+    Json(json!({
+        "schema_version": "zero.live_execution_receipts.v1",
+        "generated_at": chrono_utc_now_iso(),
+        "mode": "paper",
+        "operator_context": mock_operator_context(),
+        "summary": {
+            "total": 0,
+            "accepted": 0,
+            "refused": 0,
+            "exchange_error": 0,
+            "status": "empty"
+        },
+        "receipts": [],
+        "privacy": {
+            "contains_exchange_credentials": false,
+            "contains_wallet_material": false,
+            "contains_raw_venue_ack_payload": false,
+            "contains_trace_tokens": false,
+            "contains_idempotency_tokens": false,
+            "contains_private_notes": false
+        },
+        "receipts_hash": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
     }))
 }
 
@@ -1337,6 +1367,8 @@ async fn execute(
         "coin": coin,
         "side": side,
         "size": size,
+        "request_hash": "sha256:abababababababababababababababababababababababababababababababab",
+        "receipt_hash": "sha256:bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbc",
     })))
 }
 
