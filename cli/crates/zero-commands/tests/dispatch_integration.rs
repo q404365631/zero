@@ -199,6 +199,47 @@ async fn live_evidence_renders_hash_only_bundle() {
 }
 
 #[tokio::test]
+async fn live_canary_policy_renders_readiness_and_claim_boundary() {
+    let (mock, ctx) = ctx_with_mock().await;
+    let out = dispatch(&ctx, "/live-canary").await.unwrap().unwrap();
+
+    assert_eq!(out.risk, Some(RiskDirection::Neutral));
+    let OutputLine::Command(s) = &out.lines[0] else {
+        panic!("expected Command, got {:?}", out.lines);
+    };
+    assert!(s.contains("live-canary:"), "canary row: {s}");
+    assert!(s.contains("ready=false"), "readiness field: {s}");
+    assert!(s.contains("armed=false"), "armed field: {s}");
+    assert!(s.contains("qualified=true"), "qualification field: {s}");
+    assert!(
+        s.contains("publishable=false"),
+        "publishable live proof boundary: {s}"
+    );
+    assert!(
+        out.lines.iter().any(
+            |line| matches!(line, OutputLine::System(s) if s.contains("next: keep_public_claim_at_refusal_proof"))
+        ),
+        "next action missing: {:?}",
+        out.lines
+    );
+    assert!(
+        out.lines.iter().any(
+            |line| matches!(line, OutputLine::System(s) if s.contains("refusal_qualified=true"))
+        ),
+        "refusal proof boundary missing: {:?}",
+        out.lines
+    );
+    assert!(
+        out.lines.iter().any(
+            |line| matches!(line, OutputLine::System(s) if s.contains("phase:qualification pass"))
+        ),
+        "qualification phase missing: {:?}",
+        out.lines
+    );
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn runtime_parity_renders_production_ooda_boundary() {
     let (mock, ctx) = ctx_with_mock().await;
     let out = dispatch(&ctx, "/runtime-parity").await.unwrap().unwrap();

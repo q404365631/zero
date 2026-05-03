@@ -22,9 +22,10 @@ use zero_operator_state::{Event as OperatorEvent, Snapshot as OperatorSnapshot};
 use crate::models::{
     ApproachingFeed, AutoToggleRequest, AutoToggleResponse, Brief, Evaluation, ExecuteRequest,
     ExecuteResponse, Health, HyperliquidAccount, HyperliquidReconciliation, HyperliquidStatus,
-    ImmuneReport, LiveCertification, LiveCockpit, LiveControlResponse, LiveEvidence,
-    LiveExecutionReceipts, LivePreflight, MarketQuote, OperatorContext, OperatorEventsAccepted,
-    Positions, Pulse, Regime, RejectionsFeed, Risk, Root, RuntimeParity, V2Status,
+    ImmuneReport, LiveCanaryPolicy, LiveCertification, LiveCockpit, LiveControlResponse,
+    LiveEvidence, LiveExecutionReceipts, LivePreflight, MarketQuote, OperatorContext,
+    OperatorEventsAccepted, Positions, Pulse, Regime, RejectionsFeed, Risk, Root, RuntimeParity,
+    V2Status,
 };
 use crate::rate_budget::{self, RateBudget};
 
@@ -650,6 +651,11 @@ impl HttpClient {
     /// `GET /live/evidence` — public-safe hash-only live evidence bundle.
     pub async fn live_evidence(&self) -> Result<LiveEvidence, HttpError> {
         self.get_json("/live/evidence").await
+    }
+
+    /// `GET /live/canary-policy` — live canary readiness and proof policy.
+    pub async fn live_canary_policy(&self) -> Result<LiveCanaryPolicy, HttpError> {
+        self.get_json("/live/canary-policy").await
     }
 
     /// `GET /runtime/parity` — paper OODA plus disabled live-shadow parity report.

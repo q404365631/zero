@@ -240,6 +240,64 @@ pub struct LiveEvidenceArtifact {
     pub extra: BTreeMap<String, Value>,
 }
 
+// ─── /live/canary-policy ──────────────────────────────────────────
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveCanaryPolicy {
+    pub schema_version: String,
+    pub policy_version: String,
+    pub generated_at: Option<String>,
+    pub mode: String,
+    pub summary: LiveCanaryPolicySummary,
+    pub policy: BTreeMap<String, Value>,
+    pub phases: Vec<LiveCanaryPolicyPhase>,
+    pub recommendation: LiveCanaryRecommendation,
+    pub operator_context: OperatorContext,
+    pub request: BTreeMap<String, Value>,
+    pub privacy: BTreeMap<String, Value>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[allow(clippy::struct_excessive_bools)] // mirrors the public policy summary packet.
+#[serde(default)]
+pub struct LiveCanaryPolicySummary {
+    pub ready_for_canary: bool,
+    pub policy_armed: bool,
+    pub live_order_attempted: bool,
+    pub live_order_accepted: bool,
+    pub receipts_accepted: u64,
+    pub exchange_evidence_attached: bool,
+    pub publishable_canary_evidence: bool,
+    pub refusal_evidence_qualified: bool,
+    pub qualified: bool,
+    pub next_step: String,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveCanaryPolicyPhase {
+    pub name: String,
+    pub status: String,
+    pub detail: String,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveCanaryRecommendation {
+    pub action: String,
+    pub risk_direction: String,
+    pub reason: String,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, Value>,
+}
+
 // ─── /runtime/parity ──────────────────────────────────────────────
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

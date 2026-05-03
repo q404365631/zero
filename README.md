@@ -118,7 +118,7 @@ flowchart LR
   rehearsal without leaking credentials or raw private journals.
 - Inspect the live canary policy lifecycle for readiness, arm/disarm, launch
   window, evidence, shadow review, qualification, follow-through, and next
-  action through `/live/canary-policy`.
+  action through `/live/canary-policy` or the operator CLI.
 - Run the maintained live canary rehearsal collector in fail-closed public
   paper mode, or in explicit operator-owned canary mode when local live gates
   are ready.
@@ -201,6 +201,9 @@ live-cockpit: live_mode=refused  ready=false  risk_allowed=false
 
 $ zero --api http://127.0.0.1:8765 run runtime-parity
 runtime-parity: ok=true  production_ooda=true  paper_only=true  live_trading_claimed=false
+
+$ zero --api http://127.0.0.1:8765 run live-canary
+live-canary: ready=false  armed=false  qualified=true  publishable=false  accepted_live=false
 
 $ curl -fsS http://127.0.0.1:8765/operator/context
 {"schema_version": "zero.operator_context.v1", "handle": "local-operator", "scope": "local-private"}

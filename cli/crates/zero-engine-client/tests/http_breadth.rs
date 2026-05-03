@@ -160,6 +160,36 @@ async fn live_evidence_decodes_hash_only_canary_bundle() {
 }
 
 #[tokio::test]
+async fn live_canary_policy_decodes_public_claim_boundary() {
+    let (mock, http) = client().await;
+    let policy = http.live_canary_policy().await.expect("live canary policy");
+
+    assert_eq!(policy.schema_version, "zero.live_canary_policy.v1");
+    assert_eq!(policy.policy_version, "zero.live_canary_policy.public.v1");
+    assert_eq!(policy.mode, "refusal");
+    assert!(!policy.summary.ready_for_canary);
+    assert!(!policy.summary.policy_armed);
+    assert!(policy.summary.qualified);
+    assert!(policy.summary.refusal_evidence_qualified);
+    assert!(!policy.summary.publishable_canary_evidence);
+    assert!(!policy.summary.live_order_accepted);
+    assert_eq!(policy.summary.receipts_accepted, 0);
+    assert_eq!(
+        policy.recommendation.action,
+        "keep_public_claim_at_refusal_proof"
+    );
+    assert_eq!(policy.recommendation.risk_direction, "none");
+    assert_eq!(policy.operator_context.handle, "mock-operator");
+    assert!(
+        policy
+            .phases
+            .iter()
+            .any(|phase| phase.name == "qualification" && phase.status == "pass")
+    );
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn live_receipts_decode_public_safe_receipt_bundle() {
     let (mock, http) = client().await;
     let receipts = http.live_receipts().await.expect("live receipts");

@@ -23,6 +23,8 @@ ZERO reaches 100/100 when a serious operator can:
   policy, and immune controls;
 - verify production-parity OODA behavior from the operator terminal with
   `/runtime-parity`;
+- verify the live canary policy lifecycle from the operator terminal with
+  `/live-canary`;
 - inspect every accepted and rejected decision through the terminal;
 - switch to live Hyperliquid execution only after local custody, journal,
   risk, liveness, and emergency controls pass;
@@ -73,7 +75,7 @@ speed, scale, history, and reliability.
 |---|---:|---|
 | Public repo hygiene | 100 | registry ownership evidence and external review remain business/process tasks |
 | Product narrative | 99 | keep narrative aligned as hosted Network and Intelligence launch |
-| CLI readiness | 99 | richer TUI cockpit layout and external canary evidence remain |
+| CLI readiness | 99 | richer full-screen TUI cockpit layout and external canary evidence remain |
 | Engine runtime | 100 | public production-parity OODA report exists; live canary evidence remains operator-owned external proof |
 | Self-evolution loop | 92 | public memory, research command chain, genesis proposal classification, production-parity OODA reports, local apply, rollback, and paper-first evolve gates exist; protected live-code evolution remains human-reviewed |
 | Safety and risk | 94 | real exchange chaos drills, external review |

@@ -391,15 +391,30 @@ Implemented in `cli/crates/zero-engine-client` and `cli/crates/zero-commands`:
 - extended the mock engine and dispatcher/client tests so the terminal cannot
   drift from the API contract.
 
+### Cycle 39: Operator CLI Live-Canary Policy Surface
+
+Implemented in `cli/crates/zero-engine-client` and `cli/crates/zero-commands`:
+
+- added typed Rust decoding for `GET /live/canary-policy`;
+- added the neutral `/live-canary` slash command, with aliases `/canary`,
+  `/canary-policy`, and `/live-canary-policy`;
+- rendered the public-safe live canary lifecycle an operator needs to see:
+  readiness, armed/disarmed state, qualification, publishability, accepted-live
+  boundary, exchange-evidence attachment, refusal-proof qualification, next
+  action, operator identity, and phase status;
+- extended the mock engine and dispatcher/client tests so the CLI cannot claim
+  publishable accepted-live proof from refusal-mode evidence.
+
 ## Revised Score
 
 Public repo readiness remains **100/100** as a launch artifact.
 
 Full ZERO operating-system readiness is **100/100** as a public repo contract
-after Cycle 38. The score increased because the public runtime now has an
+after Cycle 39. The score increased because the public runtime now has an
 executable production-parity OODA report, rejection/execution-quality feedback,
-live-shadow fail-closed evidence, and a first-class operator CLI renderer for
-that proof in addition to local evolve apply/rollback.
+live-shadow fail-closed evidence, a first-class operator CLI renderer for that
+proof, and a first-class terminal renderer for live canary policy qualification
+in addition to local evolve apply/rollback.
 
 The remaining work is no longer missing public-runtime shape. It is external
 product proof and launch operation:

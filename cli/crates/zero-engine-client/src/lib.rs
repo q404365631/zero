@@ -18,7 +18,8 @@ pub use http::{HttpClient, HttpError, Mode, OperatorRequestContext, RateLimitSou
 pub use models::{
     Approaching, ApproachingFeed, AutoState, AutoToggleRequest, AutoToggleResponse, Brief,
     ComponentCounts, ComponentHealth, Evaluation, EvaluationLayer, ExecuteRequest, ExecuteResponse,
-    ExecuteSide, Health, HlRate, LiveCockpit, LiveCockpitCertification, LiveCockpitHeartbeat,
+    ExecuteSide, Health, HlRate, LiveCanaryPolicy, LiveCanaryPolicyPhase, LiveCanaryPolicySummary,
+    LiveCanaryRecommendation, LiveCockpit, LiveCockpitCertification, LiveCockpitHeartbeat,
     LiveCockpitImmune, LiveCockpitPreflight, LiveCockpitReconciliation, LiveCockpitRecords,
     LiveControlResponse, LiveEvidence, LiveEvidenceArtifact, LiveExecutionReceipt,
     LiveExecutionReceipts, LivePreflight, LivePreflightCheck, OperatorContext, Position, Positions,

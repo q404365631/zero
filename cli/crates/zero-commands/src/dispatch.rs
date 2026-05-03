@@ -599,6 +599,7 @@ async fn run(ctx: &DispatchContext, cmd: &Command) -> DispatchOutput {
         Command::LiveCertify => live_certify_cmd(ctx).await,
         Command::LiveCockpit => live_cockpit_cmd(ctx).await,
         Command::LiveEvidence => live_evidence_cmd(ctx).await,
+        Command::LiveCanaryPolicy => live_canary_policy_cmd(ctx).await,
         Command::RuntimeParity => runtime_parity_cmd(ctx).await,
         Command::Immune => immune_cmd(ctx).await,
         Command::Quote { symbol } => quote_cmd(ctx, symbol.as_deref()).await,
@@ -697,6 +698,8 @@ const HELP_LINES: &[&str] = &[
     "  /live-certify        — dry-run live execution certification",
     "  /live-cockpit        — live readiness cockpit",
     "  /live-evidence       — hash-only live evidence bundle",
+    "  /live-canary         — live canary readiness and proof policy",
+    "  /runtime-parity      — production-parity OODA report",
     "  /immune              — immune breaker state",
     "  /quote <coin>        — active paper quote source",
     "  /heat                — composite heat (risk + circuit state)",
@@ -1183,6 +1186,55 @@ async fn live_evidence_cmd(ctx: &DispatchContext) -> DispatchOutput {
         Err(e) => out
             .lines
             .push(OutputLine::alert(format!("live-evidence: {e}"))),
+    }
+    out
+}
+
+async fn live_canary_policy_cmd(ctx: &DispatchContext) -> DispatchOutput {
+    let mut out = DispatchOutput::default();
+    let Some(http) = require_http(ctx, &mut out) else {
+        return out;
+    };
+    match http.live_canary_policy().await {
+        Ok(policy) => {
+            out.lines.push(OutputLine::command(format!(
+                "live-canary: ready={}  armed={}  qualified={}  publishable={}  accepted_live={}",
+                policy.summary.ready_for_canary,
+                policy.summary.policy_armed,
+                policy.summary.qualified,
+                policy.summary.publishable_canary_evidence,
+                policy.summary.live_order_accepted
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  next: {} risk={} - {}",
+                policy.recommendation.action,
+                policy.recommendation.risk_direction,
+                policy.recommendation.reason
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  evidence: attempted={} receipts_accepted={} exchange_attached={} refusal_qualified={}",
+                policy.summary.live_order_attempted,
+                policy.summary.receipts_accepted,
+                policy.summary.exchange_evidence_attached,
+                policy.summary.refusal_evidence_qualified
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  operator: handle={} id={} role={} scope={}",
+                policy.operator_context.handle,
+                policy.operator_context.operator_id,
+                policy.operator_context.role,
+                policy.operator_context.scope
+            )));
+            for phase in policy.phases.iter().take(8) {
+                out.lines.push(OutputLine::system(format!(
+                    "  phase:{} {} - {}",
+                    phase.name, phase.status, phase.detail
+                )));
+            }
+        }
+        Err(e) => out
+            .lines
+            .push(OutputLine::alert(format!("live-canary: {e}"))),
     }
     out
 }

@@ -333,6 +333,7 @@ fn router(shared: AppState) -> Router<AppState> {
         .route("/live/cockpit", get(live_cockpit))
         .route("/live/certification", get(live_certification))
         .route("/live/evidence", get(live_evidence))
+        .route("/live/canary-policy", get(live_canary_policy))
         .route("/runtime/parity", get(runtime_parity))
         .route("/live/receipts", get(live_receipts))
         .route("/live/preflight", get(live_preflight))
@@ -893,6 +894,94 @@ async fn live_evidence() -> Json<serde_json::Value> {
             "signer": "mock-runtime",
             "signed_evidence_hash": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
             "key_material_included": false
+        }
+    }))
+}
+
+async fn live_canary_policy() -> Json<serde_json::Value> {
+    Json(json!({
+        "schema_version": "zero.live_canary_policy.v1",
+        "policy_version": "zero.live_canary_policy.public.v1",
+        "generated_at": chrono_utc_now_iso(),
+        "mode": "refusal",
+        "summary": {
+            "ready_for_canary": false,
+            "policy_armed": false,
+            "live_order_attempted": true,
+            "live_order_accepted": false,
+            "receipts_accepted": 0,
+            "exchange_evidence_attached": true,
+            "publishable_canary_evidence": false,
+            "refusal_evidence_qualified": true,
+            "qualified": true,
+            "next_step": "keep_public_claim_at_refusal_proof"
+        },
+        "policy": {
+            "default_state": "disarmed",
+            "arm_requires": [
+                "ready live preflight",
+                "risk-increasing cockpit allowance",
+                "passing dry-run live certification",
+                "operator-owned custody",
+                "exact live-risk confirmation phrase"
+            ],
+            "disarm_after": [
+                "canary attempt completed",
+                "pause captured",
+                "flatten captured",
+                "kill captured",
+                "evidence exported",
+                "operator report written"
+            ],
+            "launch_window_seconds": 300,
+            "tiny_capital_only": true,
+            "requires_exchange_evidence_for_accepted_receipts": true,
+            "required_evidence": ["live_preflight", "live_cockpit", "live_certification", "live_receipts", "exchange_evidence"]
+        },
+        "phases": [
+            {
+                "name": "readiness",
+                "status": "blocked",
+                "detail": "live gates are not ready for risk-increasing canary mode",
+                "preflight_ready": false,
+                "controls_ready": true,
+                "cockpit_risk_increasing_allowed": false,
+                "certification_passed": true
+            },
+            {
+                "name": "policy_arm",
+                "status": "disarmed",
+                "detail": "policy remains disarmed outside ready canary mode",
+                "mode": "refusal",
+                "requires_explicit_confirmation": true
+            },
+            {
+                "name": "qualification",
+                "status": "pass",
+                "detail": "refusal-mode bundle qualifies as fail-closed public proof, not live trading proof",
+                "publishable_canary_evidence": false,
+                "refusal_evidence_qualified": true,
+                "exchange_evidence_attached": true
+            }
+        ],
+        "recommendation": {
+            "action": "keep_public_claim_at_refusal_proof",
+            "risk_direction": "none",
+            "reason": "fail-closed evidence is valid but does not prove live execution"
+        },
+        "operator_context": mock_operator_context(),
+        "request": {
+            "mode": "refusal",
+            "source": "mock"
+        },
+        "privacy": {
+            "contains_exchange_credentials": false,
+            "contains_wallet_material": false,
+            "contains_raw_exchange_order_ids": false,
+            "contains_raw_client_order_ids": false,
+            "contains_idempotency_tokens": false,
+            "contains_confirmation_phrase": false,
+            "contains_private_notes": false
         }
     }))
 }

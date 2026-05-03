@@ -123,7 +123,7 @@ impl Clock for ManualClock {
 ///   `/`, `/health`, `/status`, `/risk`, `/positions`, `/brief`,
 ///   `/regime`, `/approaching`, `/rejections`, `/hl/status`, `/hl/account`,
 ///   `/hl/reconcile`, `/immune`, `/live/cockpit`, `/live/certification`,
-///   `/runtime/parity`, `/market/quote`, `/operator/state`,
+///   `/live/canary-policy`, `/runtime/parity`, `/market/quote`, `/operator/state`,
 ///   `/operator/context`, and `POST /operator/events` (append-only, cheap).
 /// - **2 points:** endpoints that trigger meaningful engine work —
 ///   `/evaluate/{coin}` (runs the verdict pipeline against live
@@ -455,6 +455,7 @@ mod tests {
         assert_eq!(cost_of("/hl/reconcile"), 1);
         assert_eq!(cost_of("/live/cockpit"), 1);
         assert_eq!(cost_of("/live/certification"), 1);
+        assert_eq!(cost_of("/live/canary-policy"), 1);
         assert_eq!(cost_of("/runtime/parity"), 1);
         assert_eq!(cost_of("/market/quote?symbol=BTC"), 1);
 
