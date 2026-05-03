@@ -590,7 +590,7 @@ def tool_definitions() -> list[JsonMap]:
         },
         {
             "name": "zero_get_evolve_status",
-            "description": "Read-only paper-only evolve gate status.",
+            "description": "Read-only paper-first evolve gate status.",
             "inputSchema": empty_schema,
         },
         {
@@ -714,7 +714,7 @@ def resource_definitions() -> list[JsonMap]:
         {
             "uri": "zero://evolve/status",
             "name": "Demo Evolve Status",
-            "description": "Paper-only builder, red-team, canary, calibration, promotion-plan, and rollback evidence.",
+            "description": "Paper-first builder, red-team, canary, calibration, promotion-plan, and rollback evidence.",
             "mimeType": "application/json",
         },
         {

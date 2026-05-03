@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import re
+import shutil
 import sys
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
@@ -24,7 +25,10 @@ EVOLVE_POLICY_VERSION = "zero.evolve.policy.v1"
 EVOLVE_PROMOTION_PLAN_SCHEMA_VERSION = "zero.evolve.promotion_plan.v1"
 EVOLVE_ROLLBACK_PLAN_SCHEMA_VERSION = "zero.evolve.rollback_plan.v1"
 EVOLVE_PROMOTION_VERIFICATION_SCHEMA_VERSION = "zero.evolve.promotion_verification.v1"
+EVOLVE_APPLY_RECEIPT_SCHEMA_VERSION = "zero.evolve.apply_receipt.v1"
+EVOLVE_ROLLBACK_RECEIPT_SCHEMA_VERSION = "zero.evolve.rollback_receipt.v1"
 PROMOTION_APPROVAL_PHRASE = "I_APPROVE_ZERO_EVOLVE_LOCAL_PROMOTION"
+ROLLBACK_APPROVAL_PHRASE = "I_APPROVE_ZERO_EVOLVE_LOCAL_ROLLBACK"
 ALLOWED_PATCH_ROOTS = ("docs/", "examples/")
 FORBIDDEN_PATCH_ROOTS = (
     "engine/src/zero_engine/live.py",
@@ -373,6 +377,222 @@ def verify_promotion_artifacts(
     }
 
 
+def load_run(path: str | Path) -> JsonMap:
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def repo_file_hash(repo_root: Path, target: str) -> str:
+    path = repo_root / target
+    content = path.read_text(encoding="utf-8") if path.is_file() else ""
+    return stable_hash({"path": target, "content": content})
+
+
+def candidate_file_hash(candidate_path: Path, target: str) -> str:
+    content = candidate_path.read_text(encoding="utf-8")
+    return stable_hash({"path": target, "content": content})
+
+
+def apply_promotion(
+    *,
+    run_path: str | Path,
+    repo_root: str | Path,
+    output: str | Path,
+    approval_phrase: str,
+    now: datetime | None = None,
+) -> JsonMap:
+    now = now or utc_now()
+    run = load_run(run_path)
+    repo = Path(repo_root)
+    output_path = Path(output)
+    output_path.mkdir(parents=True, exist_ok=True)
+    backup_dir = output_path / "backup"
+    backup_dir.mkdir(parents=True, exist_ok=True)
+
+    promotion_plan = run.get("promotion_plan") or {}
+    rollback_plan = run.get("rollback_plan") or {}
+    verification = run.get("promotion_verification") or {}
+    mutations = list(promotion_plan.get("mutations", []))
+    checks: JsonMap = {
+        "run_schema": run.get("schema_version") == EVOLVE_RUN_SCHEMA_VERSION,
+        "approval_phrase": approval_phrase == PROMOTION_APPROVAL_PHRASE,
+        "promotion_verification_ok": verification.get("ok") is True,
+        "eligible_for_local_apply": promotion_plan.get("eligible_for_local_apply") is True,
+        "rollback_ready": rollback_plan.get("rollback_ready") is True,
+        "does_not_push_remote": run.get("pushes_to_remote") is False
+        and promotion_plan.get("pushes_to_remote") is False,
+        "does_not_place_orders": promotion_plan.get("places_orders") is False,
+        "paths_allowed": all(
+            isinstance(mutation, dict) and paths_allowed([str(mutation.get("target_path", ""))])
+            for mutation in mutations
+        ),
+    }
+    failures = [name for name, passed in checks.items() if not passed]
+    applied: list[JsonMap] = []
+    prepared: list[JsonMap] = []
+
+    if not failures:
+        for mutation in mutations:
+            target = str(mutation["target_path"])
+            candidate_path = Path(str(mutation["candidate_path"]))
+            current_hash = repo_file_hash(repo, target)
+            expected_original_hash = str(mutation["original_hash"])
+            candidate_exists = candidate_path.is_file()
+            observed_candidate_hash = (
+                candidate_file_hash(candidate_path, target) if candidate_exists else None
+            )
+            expected_candidate_hash = str(mutation["candidate_hash"])
+            mutation_checks = {
+                "current_hash_matches_original": current_hash == expected_original_hash,
+                "candidate_hash_matches": observed_candidate_hash == expected_candidate_hash,
+                "candidate_exists": candidate_exists,
+                "target_path_allowed": paths_allowed([target]),
+            }
+            failed_mutation_checks = [
+                name for name, passed in mutation_checks.items() if not passed
+            ]
+            if failed_mutation_checks:
+                failures.append(f"{target}: {','.join(failed_mutation_checks)}")
+                break
+            prepared.append(
+                {
+                    "target_path": target,
+                    "candidate_path": candidate_path,
+                    "candidate_hash": expected_candidate_hash,
+                    "original_hash": expected_original_hash,
+                    "existed_before": (repo / target).is_file(),
+                    "checks": mutation_checks,
+                }
+            )
+
+    if not failures:
+        for item in prepared:
+            target = str(item["target_path"])
+            candidate_path = Path(item["candidate_path"])
+            target_path = repo / target
+            backup_path = backup_dir / target
+            backup_path.parent.mkdir(parents=True, exist_ok=True)
+            if item["existed_before"]:
+                shutil.copyfile(target_path, backup_path)
+            target_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(candidate_path, target_path)
+            applied.append(
+                {
+                    "target_path": target,
+                    "backup_path": str(backup_path),
+                    "applied_hash": item["candidate_hash"],
+                    "original_hash": item["original_hash"],
+                    "candidate_hash": item["candidate_hash"],
+                    "existed_before": item["existed_before"],
+                    "checks": item["checks"],
+                }
+            )
+
+    ok = not failures
+    receipt = {
+        "schema_version": EVOLVE_APPLY_RECEIPT_SCHEMA_VERSION,
+        "generated_at": isoformat(now),
+        "mode": "local-checkout",
+        "ok": ok,
+        "applies_to_checkout": ok,
+        "pushes_to_remote": False,
+        "places_orders": False,
+        "run_path": str(run_path),
+        "repo_root": str(repo),
+        "approval_phrase_matched": approval_phrase == PROMOTION_APPROVAL_PHRASE,
+        "checks": checks,
+        "failures": failures,
+        "applied": applied if ok else [],
+        "rollback_receipt_required": ok,
+        "rollback_approval_phrase": ROLLBACK_APPROVAL_PHRASE,
+    }
+    (output_path / "apply-receipt.json").write_text(
+        json.dumps(receipt, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return receipt
+
+
+def rollback_promotion(
+    *,
+    apply_receipt_path: str | Path,
+    repo_root: str | Path,
+    output: str | Path,
+    approval_phrase: str,
+    now: datetime | None = None,
+) -> JsonMap:
+    now = now or utc_now()
+    apply_receipt = load_run(apply_receipt_path)
+    repo = Path(repo_root)
+    output_path = Path(output)
+    output_path.mkdir(parents=True, exist_ok=True)
+    applied = list(apply_receipt.get("applied", []))
+    checks: JsonMap = {
+        "apply_receipt_schema": apply_receipt.get("schema_version")
+        == EVOLVE_APPLY_RECEIPT_SCHEMA_VERSION,
+        "apply_receipt_ok": apply_receipt.get("ok") is True,
+        "approval_phrase": approval_phrase == ROLLBACK_APPROVAL_PHRASE,
+        "does_not_push_remote": apply_receipt.get("pushes_to_remote") is False,
+        "paths_allowed": all(
+            isinstance(item, dict) and paths_allowed([str(item.get("target_path", ""))])
+            for item in applied
+        ),
+    }
+    failures = [name for name, passed in checks.items() if not passed]
+    restored: list[JsonMap] = []
+
+    if not failures:
+        for item in applied:
+            target = str(item["target_path"])
+            target_path = repo / target
+            backup_path = Path(str(item["backup_path"]))
+            current_hash = repo_file_hash(repo, target)
+            if current_hash != item["candidate_hash"]:
+                failures.append(f"{target}: current_hash_does_not_match_applied_candidate")
+                break
+            existed_before = item.get("existed_before", True)
+            if existed_before and not backup_path.is_file():
+                failures.append(f"{target}: backup_missing")
+                break
+            if existed_before:
+                target_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(backup_path, target_path)
+            elif target_path.exists():
+                target_path.unlink()
+            restored_hash = repo_file_hash(repo, target)
+            if restored_hash != item["original_hash"]:
+                failures.append(f"{target}: restored_hash_does_not_match_original")
+                break
+            restored.append(
+                {
+                    "target_path": target,
+                    "restored_hash": restored_hash,
+                    "expected_original_hash": item["original_hash"],
+                }
+            )
+
+    ok = not failures
+    receipt = {
+        "schema_version": EVOLVE_ROLLBACK_RECEIPT_SCHEMA_VERSION,
+        "generated_at": isoformat(now),
+        "mode": "local-checkout",
+        "ok": ok,
+        "applies_to_checkout": ok,
+        "pushes_to_remote": False,
+        "places_orders": False,
+        "apply_receipt_path": str(apply_receipt_path),
+        "repo_root": str(repo),
+        "approval_phrase_matched": approval_phrase == ROLLBACK_APPROVAL_PHRASE,
+        "checks": checks,
+        "failures": failures,
+        "restored": restored if ok else [],
+    }
+    (output_path / "rollback-receipt.json").write_text(
+        json.dumps(receipt, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return receipt
+
+
 def run_evolve(
     *,
     decisions: Iterable[GuardianDecision],
@@ -472,7 +692,10 @@ def evolve_policy() -> JsonMap:
         "requires_calibration_pass": True,
         "requires_rollback_plan": True,
         "requires_promotion_artifact_verification": True,
+        "requires_apply_receipt": True,
+        "requires_rollback_receipt": True,
         "promotion_is_local_only": True,
+        "local_apply_allowed_after_human_approval": True,
         "remote_push_allowed": False,
     }
 
@@ -607,6 +830,26 @@ def main(argv: list[str] | None = None) -> int:
     status.add_argument("--run", required=True, help="evolve-run.json path")
     status.add_argument("--now", help="UTC timestamp override for deterministic runs")
 
+    apply_cmd = subcommands.add_parser(
+        "apply", help="apply a verified evolve candidate to the local checkout"
+    )
+    apply_cmd.add_argument("--run", required=True, help="evolve-run.json path")
+    apply_cmd.add_argument("--repo-root", default=".", help="ZERO source checkout")
+    apply_cmd.add_argument("--output", required=True, help="apply receipt directory")
+    apply_cmd.add_argument("--approval-phrase", required=True, help="exact local apply phrase")
+    apply_cmd.add_argument("--now", help="UTC timestamp override for deterministic runs")
+
+    rollback_cmd = subcommands.add_parser(
+        "rollback", help="restore files from a local evolve apply receipt"
+    )
+    rollback_cmd.add_argument("--apply-receipt", required=True, help="apply-receipt.json path")
+    rollback_cmd.add_argument("--repo-root", default=".", help="ZERO source checkout")
+    rollback_cmd.add_argument("--output", required=True, help="rollback receipt directory")
+    rollback_cmd.add_argument(
+        "--approval-phrase", required=True, help="exact local rollback phrase"
+    )
+    rollback_cmd.add_argument("--now", help="UTC timestamp override for deterministic runs")
+
     args = parser.parse_args(argv)
     now = parse_datetime(args.now) if getattr(args, "now", None) else utc_now()
 
@@ -636,6 +879,28 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "status":
         print(json.dumps(status_snapshot(args.run, now=now), indent=2, sort_keys=True))
         return 0
+
+    if args.command == "apply":
+        receipt = apply_promotion(
+            run_path=args.run,
+            repo_root=args.repo_root,
+            output=args.output,
+            approval_phrase=args.approval_phrase,
+            now=now,
+        )
+        print(json.dumps(receipt, indent=2, sort_keys=True))
+        return 0 if receipt["ok"] else 1
+
+    if args.command == "rollback":
+        receipt = rollback_promotion(
+            apply_receipt_path=args.apply_receipt,
+            repo_root=args.repo_root,
+            output=args.output,
+            approval_phrase=args.approval_phrase,
+            now=now,
+        )
+        print(json.dumps(receipt, indent=2, sort_keys=True))
+        return 0 if receipt["ok"] else 1
 
     return 1
 

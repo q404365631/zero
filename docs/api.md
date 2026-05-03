@@ -169,13 +169,15 @@ insufficient sample size, and one escalated proposal touching protected live
 execution paths. Protected execution, sizing, stops, circuit breaker, live
 adapter, and immune-core proposals require human review.
 
-`GET /evolve` returns a `zero.evolve.snapshot.v1` paper-only view of the
+`GET /evolve` returns a `zero.evolve.snapshot.v1` paper-first view of the
 builder, red-team, paper-canary, calibration, promotion, promotion-plan,
 rollback-plan, and promotion-verification gates. It never mutates the checkout,
 pushes a branch, deploys a service, or promotes a change. The fixture-backed
 snapshot selects the accepted genesis docs/example proposal, materializes a
 sandbox candidate tree, and proves that promotion remains local-only,
-rollback-gated, and human-approved.
+rollback-gated, and human-approved. Checkout mutation is intentionally excluded
+from the HTTP API; local apply and rollback are CLI-only and emit
+`zero.evolve.apply_receipt.v1` plus `zero.evolve.rollback_receipt.v1` receipts.
 
 `GET /research` returns a `zero.research.snapshot.v1` paper-only view of the
 research command chain: hunt, edge, convergence, thesis, score, meta, and

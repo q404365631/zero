@@ -1,14 +1,19 @@
 from __future__ import annotations
 
 import json
+import shutil
 from datetime import UTC, datetime
 from pathlib import Path
 
 from zero_engine.evolve import (
+    apply_promotion,
+    candidate_file_hash,
     evolve_policy,
     load_guardian_decisions,
     paths_allowed,
     red_team_review,
+    repo_file_hash,
+    rollback_promotion,
     run_evolve,
     snapshot_from_fixture,
     status_snapshot,
@@ -25,6 +30,16 @@ def planned_decisions() -> list:
     from zero_engine.genesis import GuardianDecision
 
     return [GuardianDecision.from_dict(item) for item in planned["decisions"]]
+
+
+def checkout_with_evolve_targets(tmp_path: Path) -> Path:
+    checkout = tmp_path / "checkout"
+    for target in ("docs/strategy-plugins.md", "examples/strategy-runner/README.md"):
+        source = ROOT / target
+        destination = checkout / target
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, destination)
+    return checkout
 
 
 def test_paths_allowed_blocks_protected_and_non_public_roots() -> None:
@@ -89,6 +104,136 @@ def test_evolve_status_reads_run_artifact(tmp_path) -> None:
     assert status["promotion_plan"]["pushes_to_remote"] is False
     assert status["rollback_plan"]["rollback_ready"] is True
     assert status["promotion_verification"]["ok"] is True
+
+
+def test_evolve_apply_and_rollback_are_local_hash_guarded(tmp_path) -> None:
+    run_dir = tmp_path / "run"
+    payload = run_evolve(decisions=planned_decisions(), output=run_dir, repo_root=ROOT, now=FIXED)
+    checkout = checkout_with_evolve_targets(tmp_path)
+    target = checkout / "docs" / "strategy-plugins.md"
+    original_text = target.read_text(encoding="utf-8")
+    candidate_text = Path(payload["promotion_plan"]["mutations"][0]["candidate_path"]).read_text(
+        encoding="utf-8"
+    )
+
+    apply_receipt = apply_promotion(
+        run_path=run_dir / "evolve-run.json",
+        repo_root=checkout,
+        output=tmp_path / "apply",
+        approval_phrase="I_APPROVE_ZERO_EVOLVE_LOCAL_PROMOTION",
+        now=FIXED,
+    )
+
+    assert apply_receipt["schema_version"] == "zero.evolve.apply_receipt.v1"
+    assert apply_receipt["ok"] is True
+    assert apply_receipt["applies_to_checkout"] is True
+    assert apply_receipt["pushes_to_remote"] is False
+    assert apply_receipt["places_orders"] is False
+    assert target.read_text(encoding="utf-8") == candidate_text
+
+    rollback_receipt = rollback_promotion(
+        apply_receipt_path=tmp_path / "apply" / "apply-receipt.json",
+        repo_root=checkout,
+        output=tmp_path / "rollback",
+        approval_phrase="I_APPROVE_ZERO_EVOLVE_LOCAL_ROLLBACK",
+        now=FIXED,
+    )
+
+    assert rollback_receipt["schema_version"] == "zero.evolve.rollback_receipt.v1"
+    assert rollback_receipt["ok"] is True
+    assert rollback_receipt["applies_to_checkout"] is True
+    assert rollback_receipt["pushes_to_remote"] is False
+    assert target.read_text(encoding="utf-8") == original_text
+
+
+def test_evolve_rollback_deletes_files_created_by_local_apply(tmp_path) -> None:
+    run_dir = tmp_path / "run"
+    payload = run_evolve(decisions=planned_decisions(), output=run_dir, repo_root=ROOT, now=FIXED)
+    checkout = checkout_with_evolve_targets(tmp_path)
+    target = "docs/evolve-created.md"
+    candidate_path = run_dir / "worktree" / "candidate-tree" / target
+    candidate_path.parent.mkdir(parents=True, exist_ok=True)
+    candidate_path.write_text("# Created by evolve\n", encoding="utf-8")
+    payload["promotion_plan"]["mutations"].append(
+        {
+            "target_path": target,
+            "candidate_path": str(candidate_path),
+            "original_hash": repo_file_hash(checkout, target),
+            "candidate_hash": candidate_file_hash(candidate_path, target),
+        }
+    )
+    (run_dir / "evolve-run.json").write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    apply_receipt = apply_promotion(
+        run_path=run_dir / "evolve-run.json",
+        repo_root=checkout,
+        output=tmp_path / "apply",
+        approval_phrase="I_APPROVE_ZERO_EVOLVE_LOCAL_PROMOTION",
+        now=FIXED,
+    )
+
+    created = checkout / target
+    assert apply_receipt["ok"] is True
+    assert apply_receipt["applied"][-1]["existed_before"] is False
+    assert created.is_file()
+
+    rollback_receipt = rollback_promotion(
+        apply_receipt_path=tmp_path / "apply" / "apply-receipt.json",
+        repo_root=checkout,
+        output=tmp_path / "rollback",
+        approval_phrase="I_APPROVE_ZERO_EVOLVE_LOCAL_ROLLBACK",
+        now=FIXED,
+    )
+
+    assert rollback_receipt["ok"] is True
+    assert not created.exists()
+
+
+def test_evolve_apply_refuses_wrong_phrase_without_mutating_checkout(tmp_path) -> None:
+    run_dir = tmp_path / "run"
+    run_evolve(decisions=planned_decisions(), output=run_dir, repo_root=ROOT, now=FIXED)
+    checkout = checkout_with_evolve_targets(tmp_path)
+    target = checkout / "docs" / "strategy-plugins.md"
+    original_text = target.read_text(encoding="utf-8")
+
+    receipt = apply_promotion(
+        run_path=run_dir / "evolve-run.json",
+        repo_root=checkout,
+        output=tmp_path / "apply",
+        approval_phrase="wrong",
+        now=FIXED,
+    )
+
+    assert receipt["ok"] is False
+    assert receipt["applies_to_checkout"] is False
+    assert receipt["approval_phrase_matched"] is False
+    assert target.read_text(encoding="utf-8") == original_text
+
+
+def test_evolve_apply_prevalidates_all_candidates_before_mutating(tmp_path) -> None:
+    run_dir = tmp_path / "run"
+    payload = run_evolve(decisions=planned_decisions(), output=run_dir, repo_root=ROOT, now=FIXED)
+    checkout = checkout_with_evolve_targets(tmp_path)
+    first_target = checkout / "docs" / "strategy-plugins.md"
+    original_first = first_target.read_text(encoding="utf-8")
+    second_candidate = Path(payload["promotion_plan"]["mutations"][1]["candidate_path"])
+    second_candidate.write_text("tampered\n", encoding="utf-8")
+
+    receipt = apply_promotion(
+        run_path=run_dir / "evolve-run.json",
+        repo_root=checkout,
+        output=tmp_path / "apply",
+        approval_phrase="I_APPROVE_ZERO_EVOLVE_LOCAL_PROMOTION",
+        now=FIXED,
+    )
+
+    assert receipt["ok"] is False
+    assert receipt["applied"] == []
+    assert "candidate_hash_matches" in ",".join(receipt["failures"])
+    assert first_target.read_text(encoding="utf-8") == original_first
 
 
 def test_evolve_red_team_blocks_secret_like_patch(tmp_path) -> None:
@@ -163,3 +308,6 @@ def test_evolve_policy_forbids_remote_promotion() -> None:
     assert policy["promotion_is_local_only"] is True
     assert policy["requires_rollback_plan"] is True
     assert policy["requires_promotion_artifact_verification"] is True
+    assert policy["requires_apply_receipt"] is True
+    assert policy["requires_rollback_receipt"] is True
+    assert policy["local_apply_allowed_after_human_approval"] is True

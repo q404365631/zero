@@ -11,7 +11,7 @@
       "protected_classes_empty": true,
       "target_paths_allowed": true
     },
-    "generated_at": "2026-05-01T00:00:00Z",
+    "generated_at": "2026-05-01T14:40:00Z",
     "mode": "paper-only",
     "mutates_sandbox": true,
     "mutations": [
@@ -53,12 +53,12 @@
       "rejections": 0
     },
     "gate": "zero-drift-against-deterministic-paper-baseline",
-    "generated_at": "2026-05-01T00:00:00Z",
+    "generated_at": "2026-05-01T14:40:00Z",
     "mode": "paper",
     "passed": true,
     "schema_version": "zero.evolve.calibration.v1"
   },
-  "generated_at": "2026-05-01T00:00:00Z",
+  "generated_at": "2026-05-01T14:40:00Z",
   "input_decisions": 3,
   "mode": "paper-only",
   "paper_canary": {
@@ -70,7 +70,7 @@
     },
     "decisions": 4,
     "fills": 2,
-    "generated_at": "2026-05-01T00:00:00Z",
+    "generated_at": "2026-05-01T14:40:00Z",
     "mode": "paper",
     "open_positions": 1,
     "rejections": 2,
@@ -89,14 +89,17 @@
       "engine/src/zero_engine/safety.py",
       "cli/crates/zero-commands/src/dispatch.rs"
     ],
+    "local_apply_allowed_after_human_approval": true,
     "promotion_is_local_only": true,
     "remote_push_allowed": false,
     "requires_accepted_genesis_decision": true,
+    "requires_apply_receipt": true,
     "requires_calibration_pass": true,
     "requires_paper_canary": true,
     "requires_promotion_artifact_verification": true,
     "requires_red_team_pass": true,
     "requires_rollback_plan": true,
+    "requires_rollback_receipt": true,
     "schema_version": "zero.evolve.policy.v1"
   },
   "promotion": {
@@ -107,7 +110,7 @@
       "paper_canary": true,
       "red_team": true
     },
-    "generated_at": "2026-05-01T00:00:00Z",
+    "generated_at": "2026-05-01T14:40:00Z",
     "mode": "local-only",
     "promotable_after_human_review": true,
     "promoted": false,
@@ -129,7 +132,7 @@
       "red_team": true,
       "rollback_plan_required": true
     },
-    "generated_at": "2026-05-01T00:00:00Z",
+    "generated_at": "2026-05-01T14:40:00Z",
     "mode": "local-sandbox",
     "mutations": [
       {
@@ -180,14 +183,14 @@
       "rollback_schema": true
     },
     "failures": [],
-    "generated_at": "2026-05-01T00:00:00Z",
+    "generated_at": "2026-05-01T14:40:00Z",
     "ok": true,
     "schema_version": "zero.evolve.promotion_verification.v1"
   },
   "pushes_to_remote": false,
   "red_team": {
     "findings": [],
-    "generated_at": "2026-05-01T00:00:00Z",
+    "generated_at": "2026-05-01T14:40:00Z",
     "mode": "paper-only",
     "policy": {
       "forbidden_private_material": true,
@@ -200,7 +203,7 @@
   },
   "rollback_plan": {
     "applies_to_checkout": false,
-    "generated_at": "2026-05-01T00:00:00Z",
+    "generated_at": "2026-05-01T14:40:00Z",
     "instructions": [
       "do not promote if rollback_ready is false",
       "verify original hashes before any local apply",

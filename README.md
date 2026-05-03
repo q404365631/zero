@@ -60,7 +60,7 @@ guarded by preflight checks.
 | --- | --- | --- |
 | ZERO Runtime | Python engine for paper execution, live-readiness contracts, journals, safety gates, strategy adapters, venue adapter interfaces, and canary evidence. | Open source |
 | ZERO Terminal | Rust CLI/TUI for setup, diagnostics, state inspection, replay, live cockpit views, and supervised actions. | Open source |
-| ZERO Evolution | Local memory, genesis proposals, research reports, decision-stack review, guardian review, red-team, paper canaries, calibration, promotion plans, rollback plans, and evolve loops that let ZERO improve under review. | Memory, genesis, research, decision stack, paper-only evolve gates, and local sandbox promotion/rollback evidence open; production promotion loop in progress |
+| ZERO Evolution | Local memory, genesis proposals, research reports, decision-stack review, guardian review, red-team, paper canaries, calibration, promotion plans, local apply receipts, rollback receipts, and evolve loops that let ZERO improve under review. | Memory, genesis, research, decision stack, paper-first evolve gates, local apply, and rollback execution open; protected promotion remains human-reviewed |
 | ZERO Network | Public-safe profiles, leaderboards, verification badges, and proof packets. | Open source contracts |
 | ZERO Intelligence | Delayed public snapshots plus commercial realtime APIs, history, cohorts, webhooks, exports, and SLAs. | Open contracts + paid access |
 
@@ -72,7 +72,7 @@ guarded by preflight checks.
 | Live market data | Runnable now through read-only Hyperliquid public info calls when enabled. |
 | Live readiness | Runnable now as local preflight, cockpit, certification, reconciliation, immune, receipt, evidence, and canary-policy contracts. |
 | Live execution | Code boundary exists, but live capital remains operator-owned and gated until local custody, preflight, journal, kill-switch, reconciliation, and canary evidence pass. |
-| Self-evolution | Local memory, genesis proposal core, research command chain, decision-stack lenses/layers/modifiers, and paper-only evolve gates exist now with redacted extraction, append-only journals, guardian classification, hunt/edge/convergence/thesis/score/meta/sharpen reports, public evaluation surfaces, red-team review, sandbox candidate mutation, paper canary, calibration, promotion plan, rollback plan, promotion verification, API readouts, and expanded read-only MCP snapshots for runtime status, health, journal, rejection audit, memory stats, immune state, backtest summary, evidence bundle, and safety catalog. Production promotion into the checkout remains planned public extraction. |
+| Self-evolution | Local memory, genesis proposal core, research command chain, decision-stack lenses/layers/modifiers, and paper-first evolve gates exist now with redacted extraction, append-only journals, guardian classification, hunt/edge/convergence/thesis/score/meta/sharpen reports, public evaluation surfaces, red-team review, sandbox candidate mutation, paper canary, calibration, promotion plan, rollback plan, promotion verification, explicit local apply, rollback receipts, API readouts, and expanded read-only MCP snapshots for runtime status, health, journal, rejection audit, memory stats, immune state, backtest summary, evidence bundle, and safety catalog. Production OODA parity and protected live-code evolution remain planned public work. |
 | Public proof | Runnable now through redacted Network contracts, canary bundles, exchange-evidence normalization, recursive checksums, and operator report verification. |
 | Commercial API | Contracted now as ZERO Intelligence; production hosted persistence, billing, warehouse history, and SLAs are commercial work. |
 
@@ -95,9 +95,12 @@ flowchart LR
   `knowledge.md`.
 - Classify fixture-backed genesis proposals as accepted, rejected, or escalated
   without applying code changes.
-- Run the paper-only evolve harness for accepted genesis proposals without
-  mutating the checkout or pushing a branch; it now materializes a sandbox
-  candidate tree, promotion plan, rollback plan, and promotion verification.
+- Run the paper-first evolve harness for accepted genesis proposals; the default
+  run path materializes a sandbox candidate tree, promotion plan, rollback plan,
+  and promotion verification without mutating the checkout or pushing a branch.
+- Explicitly apply and roll back allowed docs/example evolve candidates in a
+  local checkout with exact approval phrases, original/candidate hash checks,
+  apply receipts, and rollback receipts.
 - Run the paper-only research command chain for hunt, edge, convergence,
   thesis, score, meta, and sharpen reports from public fixtures.
 - Inspect the public decision stack for lenses, layers, modifiers, and
@@ -132,9 +135,9 @@ flowchart LR
 The self-evolving loop that makes ZERO a complete autonomous operating system
 is now partially implemented: local memory, genesis proposal classification,
 paper-only research, public decision-stack review, sandbox candidate mutation,
-promotion/rollback evidence, and paper-only evolve gates exist, while
-production promotion into the checkout remains a first-class public extraction
-target. See
+promotion/rollback evidence, explicit local apply, rollback receipts, and
+paper-first evolve gates exist, while production OODA parity and protected
+live-code evolution remain first-class public extraction targets. See
 [Memory Core](docs/memory-core.md), [Genesis](docs/genesis.md),
 [Research Command Chain](docs/research.md), [Decision Stack](docs/decision-stack.md),
 [Evolve Harness](docs/evolve.md), and
