@@ -17,33 +17,45 @@ for file in "${required_files[@]}"; do
   test -f "$file"
 done
 
-rg -q "Private key committed or logged" docs/threat-model.md
-rg -q "Public Packet Privacy Regression" docs/incident-runbooks.md
-rg -q "Unexpected Live Order" docs/incident-runbooks.md
-rg -q "Bad Release Artifact" docs/incident-runbooks.md
-rg -q "Dependency And Supply Chain Policy" docs/dependency-policy.md
-rg -q "Vulnerability Response" docs/dependency-policy.md
-rg -q "Homebrew Formula Requirements" docs/distribution.md
-rg -q "scripts/homebrew_formula.py" docs/distribution.md
-rg -q "Trusted Publishing" docs/distribution.md
-rg -q "cargo owner" docs/distribution.md
-rg -q "GitHub artifact attestations" docs/release.md
-rg -q "SBOM.spdx.json" docs/release.md
-rg -q "PROVENANCE.json" docs/release.md
-rg -q "just release-evidence v0.1.1" docs/release.md
-rg -q "just registry-readiness" docs/release.md
-rg -q "release rehearsal" docs/release.md
-rg -q "draft release rehearsal" docs/release.md
-rg -q "threat model" docs/production-readiness.md
-rg -q "incident runbooks" docs/production-readiness.md
-rg -q "Public repo readiness" docs/public-upgrade.md
-rg -q "Full ZERO operating-system readiness" docs/public-upgrade.md
-rg -q "zero.live_evidence.v1" docs/live-evidence.md
-rg -q "ZERO_LIVE_EVIDENCE_SIGNING_KEY" docs/live-evidence.md
-rg -q "shasum -a 256 -c SHA256SUMS" .github/RELEASE_TEMPLATE.md
-rg -q "package registry publication remains disabled" .github/RELEASE_TEMPLATE.md
-rg -q "gh attestation verify zero-linux" .github/RELEASE_TEMPLATE.md
-rg -q "scripts/release_evidence.py <tag>" .github/RELEASE_TEMPLATE.md
+contains() {
+  local pattern="$1"
+  local file="$2"
+
+  if command -v rg >/dev/null 2>&1; then
+    rg -q "$pattern" "$file"
+    return
+  fi
+
+  grep -Eq "$pattern" "$file"
+}
+
+contains "Private key committed or logged" docs/threat-model.md
+contains "Public Packet Privacy Regression" docs/incident-runbooks.md
+contains "Unexpected Live Order" docs/incident-runbooks.md
+contains "Bad Release Artifact" docs/incident-runbooks.md
+contains "Dependency And Supply Chain Policy" docs/dependency-policy.md
+contains "Vulnerability Response" docs/dependency-policy.md
+contains "Homebrew Formula Requirements" docs/distribution.md
+contains "scripts/homebrew_formula.py" docs/distribution.md
+contains "Trusted Publishing" docs/distribution.md
+contains "cargo owner" docs/distribution.md
+contains "GitHub artifact attestations" docs/release.md
+contains "SBOM.spdx.json" docs/release.md
+contains "PROVENANCE.json" docs/release.md
+contains "just release-evidence v0.1.1" docs/release.md
+contains "just registry-readiness" docs/release.md
+contains "release rehearsal" docs/release.md
+contains "draft release rehearsal" docs/release.md
+contains "threat model" docs/production-readiness.md
+contains "incident runbooks" docs/production-readiness.md
+contains "Public repo readiness" docs/public-upgrade.md
+contains "Full ZERO operating-system readiness" docs/public-upgrade.md
+contains "zero.live_evidence.v1" docs/live-evidence.md
+contains "ZERO_LIVE_EVIDENCE_SIGNING_KEY" docs/live-evidence.md
+contains "shasum -a 256 -c SHA256SUMS" .github/RELEASE_TEMPLATE.md
+contains "package registry publication remains disabled" .github/RELEASE_TEMPLATE.md
+contains "gh attestation verify zero-linux" .github/RELEASE_TEMPLATE.md
+contains "scripts/release_evidence.py <tag>" .github/RELEASE_TEMPLATE.md
 
 python3 -m json.tool contracts/intelligence/snapshot.json >/dev/null
 python3 -m json.tool contracts/intelligence/catalog.json >/dev/null
