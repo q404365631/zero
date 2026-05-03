@@ -62,6 +62,10 @@ records reconcile, and the remediation commit passes `just ci`.
    `--railway-logs --signing-key "$ZERO_DEPLOYMENT_EVIDENCE_SIGNING_KEY"` and
    verify the folder with `scripts/deployment_evidence_verify.py DIR
    --require-signature`.
+   Also preserve a deployment identity bundle from
+   `scripts/deployment_identity_evidence.py create CLAIM HEARTBEAT` and verify
+   it with `scripts/deployment_identity_evidence.py verify DIR
+   --require-signature` when an operator signing key is available.
 2. Confirm Railway injected `PORT` and the service listens on `0.0.0.0:$PORT`.
 3. Confirm the volume is mounted at `/data` and `ZERO_JOURNAL_PATH` points to
    `/data/decisions.jsonl`.

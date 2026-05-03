@@ -156,6 +156,32 @@ The signature is an operator-owned HMAC-SHA256 promotion record over
 after local signing; it is not a public identity system or a replacement for a
 future external signing service.
 
+For a public identity proof, bind the deployment claim and heartbeat to an
+operator public key:
+
+```bash
+curl -fsS "$ZERO_RAILWAY_URL/audit/export?limit=1" > audit.json
+python3 - <<'PY'
+import json
+
+with open("audit.json", encoding="utf-8") as fh:
+    audit = json.load(fh)
+with open("deployment_claim.json", "w", encoding="utf-8") as fh:
+    json.dump(audit["deployment_claim"], fh)
+with open("deployment_heartbeat.json", "w", encoding="utf-8") as fh:
+    json.dump(audit["deployment_heartbeat"], fh)
+PY
+scripts/deployment_identity_evidence.py create \
+  deployment_claim.json \
+  deployment_heartbeat.json \
+  --private-key operator-signing-key.pem \
+  --public-key operator-signing-public.pem \
+  --signer "$ZERO_DEPLOYMENT_OWNER"
+scripts/deployment_identity_evidence.py verify \
+  artifacts/deployment-identity/<timestamp> \
+  --require-signature
+```
+
 ## Rollback Rehearsal
 
 Before a public demo, keep one evidence pack for the current deployment and one

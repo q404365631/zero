@@ -71,6 +71,37 @@ curl -fsS "${API}/deployment/claim" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.deployment.claim.v1"; assert p["claim_hash"].startswith("sha256:"); assert p["signature"]["status"] == "unsigned_local"; assert p["signature"]["signed_claim_hash"] == p["claim_hash"]; assert "smoke-1" not in body; assert "trace-" not in body'
 curl -fsS "${API}/deployment/heartbeat" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.deployment.heartbeat.v1"; assert p["heartbeat_hash"].startswith("sha256:"); assert p["deployment_claim_hash"].startswith("sha256:"); assert p["signature"]["status"] == "unsigned_local"; assert p["signature"]["signed_heartbeat_hash"] == p["heartbeat_hash"]; assert p["liveness"]["status"] == "paper_only"; assert p["liveness"]["live_executor_configured"] is False; assert "smoke-1" not in body; assert "trace-" not in body'
+IDENTITY_AUDIT="$(mktemp)"
+IDENTITY_CLAIM="$(mktemp)"
+IDENTITY_HEARTBEAT="$(mktemp)"
+IDENTITY_PRIVATE_KEY="$(mktemp)"
+IDENTITY_PUBLIC_KEY="$(mktemp)"
+IDENTITY_BUNDLE_DIR="$(mktemp -d)"
+curl -fsS "${API}/audit/export?limit=1" >"${IDENTITY_AUDIT}"
+"${PYTHON_BIN}" - "${IDENTITY_AUDIT}" "${IDENTITY_CLAIM}" "${IDENTITY_HEARTBEAT}" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as fh:
+    audit = json.load(fh)
+with open(sys.argv[2], "w", encoding="utf-8") as fh:
+    json.dump(audit["deployment_claim"], fh)
+with open(sys.argv[3], "w", encoding="utf-8") as fh:
+    json.dump(audit["deployment_heartbeat"], fh)
+PY
+openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out "${IDENTITY_PRIVATE_KEY}" >/dev/null 2>&1
+openssl pkey -in "${IDENTITY_PRIVATE_KEY}" -pubout -out "${IDENTITY_PUBLIC_KEY}" >/dev/null 2>&1
+"${PYTHON_BIN}" scripts/deployment_identity_evidence.py create "${IDENTITY_CLAIM}" "${IDENTITY_HEARTBEAT}" \
+  --private-key "${IDENTITY_PRIVATE_KEY}" \
+  --public-key "${IDENTITY_PUBLIC_KEY}" \
+  --signer ci-smoke \
+  --output "${IDENTITY_BUNDLE_DIR}" >/tmp/zero-paper-api-deployment-identity-evidence.txt
+"${PYTHON_BIN}" scripts/deployment_identity_evidence.py verify "${IDENTITY_BUNDLE_DIR}" \
+  --require-signature \
+  --forbid-token smoke-1 >/tmp/zero-paper-api-deployment-identity-verify.txt
+"${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); b=json.loads((d/"identity_bundle.json").read_text(encoding="utf-8")); s=json.loads((d/"IDENTITY_SIGNATURE.json").read_text(encoding="utf-8")); assert b["schema_version"] == "zero.deployment_identity_evidence.v1"; assert b["ok"] is True; assert b["heartbeat"]["deployment_claim_hash"] == b["claim"]["claim_hash"]; assert s["schema_version"] == "zero.deployment_identity_signature.v1"; assert s["algorithm"] == "openssl-dgst-sha256"; assert s["key_material_included"] is False; assert "PRIVATE KEY" not in json.dumps(s); assert (d/"SHA256SUMS").is_file()' \
+  "${IDENTITY_BUNDLE_DIR}"
+rm -f "${IDENTITY_AUDIT}" "${IDENTITY_CLAIM}" "${IDENTITY_HEARTBEAT}" "${IDENTITY_PRIVATE_KEY}" "${IDENTITY_PUBLIC_KEY}"
 curl -fsS "${API}/network/profile" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.network.profile.v1"; assert p["profile"]["publish_enabled"] is False; assert p["metrics"]["decisions"] >= 1; assert p["verification"]["deployment_claim_hash"] == p["deployment_claim"]["claim_hash"]; assert p["verification"]["deployment_heartbeat_hash"] == p["deployment_heartbeat"]["heartbeat_hash"]; assert "smoke-1" not in body; assert "trace-" not in body'
 curl -fsS "${API}/network/leaderboard" \

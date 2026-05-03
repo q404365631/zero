@@ -89,3 +89,48 @@ boundary until a dedicated signing design is added.
 
 Heartbeat signing can use distinct heartbeat variables so a deployment boundary
 can rotate liveness attestations separately from longer-lived claim metadata.
+
+## Identity Evidence Bundle
+
+Operators can bind the claim and heartbeat into a public-safe evidence bundle
+without exposing private key material:
+
+```bash
+curl -fsS "$ZERO_RAILWAY_URL/audit/export?limit=1" > audit.json
+python3 - <<'PY'
+import json
+
+with open("audit.json", encoding="utf-8") as fh:
+    audit = json.load(fh)
+with open("deployment_claim.json", "w", encoding="utf-8") as fh:
+    json.dump(audit["deployment_claim"], fh)
+with open("deployment_heartbeat.json", "w", encoding="utf-8") as fh:
+    json.dump(audit["deployment_heartbeat"], fh)
+PY
+
+scripts/deployment_identity_evidence.py create \
+  deployment_claim.json \
+  deployment_heartbeat.json \
+  --private-key operator-signing-key.pem \
+  --public-key operator-signing-public.pem \
+  --signer "$ZERO_DEPLOYMENT_OWNER"
+
+scripts/deployment_identity_evidence.py verify \
+  artifacts/deployment-identity/<timestamp> \
+  --require-signature
+```
+
+The bundle contains:
+
+- `deployment_claim.json`;
+- `deployment_heartbeat.json`;
+- `identity_bundle.json` with schema `zero.deployment_identity_evidence.v1`;
+- optional `IDENTITY_SIGNATURE.json`;
+- `SHA256SUMS`.
+
+`IDENTITY_SIGNATURE.json` signs a canonical payload containing the claim hash,
+heartbeat hash, packet checksums, and public-key hash using `openssl dgst
+-sha256`. The verifier recomputes the claim and heartbeat hashes, checks the
+heartbeat-to-claim binding, enforces public-safe privacy flags, verifies
+checksums, and validates the OpenSSL signature against the included public key.
+The private key is never written into the evidence bundle.

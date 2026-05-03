@@ -145,6 +145,7 @@ file_contains "zero.evolve.rollback_receipt.v1" docs/evolve.md
 file_contains "zero.runtime.production_parity.v1" docs/runtime-bus.md
 file_contains "zero.research.report.v1" docs/research.md
 file_contains "zero.decision.stack.v1" docs/decision-stack.md
+file_contains "zero.deployment_identity_evidence.v1" docs/deployment-identity.md
 file_contains "not yet a complete autonomous capital terminal" docs/production-readiness.md
 file_contains "Do not publish this private monorepo wholesale" docs/public-upgrade.md
 

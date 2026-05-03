@@ -370,6 +370,7 @@ docs-check:
     test -x scripts/public_readiness_gate.sh
     test -x scripts/railway_start.sh
     test -x scripts/railway_doctor.py
+    test -x scripts/deployment_identity_evidence.py
     test -x scripts/deployment_evidence.py
     test -x scripts/deployment_evidence_verify.py
     test -x scripts/deployment_rollback_rehearsal.py

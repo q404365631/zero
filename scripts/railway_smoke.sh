@@ -108,6 +108,37 @@ curl_retry "${API}/deployment/claim" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.deployment.claim.v1"; assert p["claim_hash"].startswith("sha256:"); assert p["signature"]["status"] == "unsigned_local"; assert "railway-smoke" not in body; assert "trace-" not in body'
 curl_retry "${API}/deployment/heartbeat" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); body=json.dumps(p); assert p["schema_version"] == "zero.deployment.heartbeat.v1"; assert p["heartbeat_hash"].startswith("sha256:"); assert p["deployment_claim_hash"].startswith("sha256:"); assert p["signature"]["status"] == "unsigned_local"; assert p["signature"]["signed_heartbeat_hash"] == p["heartbeat_hash"]; assert p["liveness"]["status"] == "paper_only"; assert "railway-smoke" not in body; assert "trace-" not in body'
+IDENTITY_AUDIT="$(mktemp)"
+IDENTITY_CLAIM="$(mktemp)"
+IDENTITY_HEARTBEAT="$(mktemp)"
+IDENTITY_PRIVATE_KEY="$(mktemp)"
+IDENTITY_PUBLIC_KEY="$(mktemp)"
+IDENTITY_BUNDLE_DIR="$(mktemp -d)"
+curl_retry "${API}/audit/export?limit=1" >"${IDENTITY_AUDIT}"
+python3 - "${IDENTITY_AUDIT}" "${IDENTITY_CLAIM}" "${IDENTITY_HEARTBEAT}" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as fh:
+    audit = json.load(fh)
+with open(sys.argv[2], "w", encoding="utf-8") as fh:
+    json.dump(audit["deployment_claim"], fh)
+with open(sys.argv[3], "w", encoding="utf-8") as fh:
+    json.dump(audit["deployment_heartbeat"], fh)
+PY
+openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out "${IDENTITY_PRIVATE_KEY}" >/dev/null 2>&1
+openssl pkey -in "${IDENTITY_PRIVATE_KEY}" -pubout -out "${IDENTITY_PUBLIC_KEY}" >/dev/null 2>&1
+python3 scripts/deployment_identity_evidence.py create "${IDENTITY_CLAIM}" "${IDENTITY_HEARTBEAT}" \
+  --private-key "${IDENTITY_PRIVATE_KEY}" \
+  --public-key "${IDENTITY_PUBLIC_KEY}" \
+  --signer ci-railway-smoke \
+  --output "${IDENTITY_BUNDLE_DIR}" >/tmp/zero-railway-deployment-identity-evidence.txt
+python3 scripts/deployment_identity_evidence.py verify "${IDENTITY_BUNDLE_DIR}" \
+  --require-signature \
+  --forbid-token railway-smoke >/tmp/zero-railway-deployment-identity-verify.txt
+python3 -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); b=json.loads((d/"identity_bundle.json").read_text(encoding="utf-8")); s=json.loads((d/"IDENTITY_SIGNATURE.json").read_text(encoding="utf-8")); assert b["schema_version"] == "zero.deployment_identity_evidence.v1"; assert b["ok"] is True; assert b["heartbeat"]["deployment_claim_hash"] == b["claim"]["claim_hash"]; assert s["schema_version"] == "zero.deployment_identity_signature.v1"; assert s["key_material_included"] is False; assert "PRIVATE KEY" not in json.dumps(s); assert (d/"SHA256SUMS").is_file()' \
+  "${IDENTITY_BUNDLE_DIR}"
+rm -f "${IDENTITY_AUDIT}" "${IDENTITY_CLAIM}" "${IDENTITY_HEARTBEAT}" "${IDENTITY_PRIVATE_KEY}" "${IDENTITY_PUBLIC_KEY}"
 curl_retry "${API}/network/leaderboard" \
   | python3 -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.network.leaderboard.v1"; assert len(p["rows"]) == 1; assert p["rows"][0]["proof_hash"].startswith("sha256:"); assert p["rows"][0]["deployment_claim_hash"].startswith("sha256:"); assert p["rows"][0]["deployment_heartbeat_hash"].startswith("sha256:")'
 PROFILE_FILE="$(mktemp)"

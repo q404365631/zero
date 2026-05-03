@@ -15,8 +15,8 @@ reserved for ZERO Intelligence.
 - Inspectable paper decision log
 - Local paper HTTP API with CLI-compatible endpoints
 - Railway deployment template, remote doctor, redacted deployment evidence pack,
-  evidence verifier, optional HMAC signature, plan-only rollback rehearsal,
-  optional Railway log capture, and smoke test
+  evidence verifier, optional HMAC signature, deployment identity evidence,
+  plan-only rollback rehearsal, optional Railway log capture, and smoke test
 - Hyperliquid read-only market data path
 - Optional self-custodial live-executor boundary with fail-closed paper deploys
 - Public-safe ZERO Network profile, leaderboard, local publish, and hosted-compatible ingestion contracts

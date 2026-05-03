@@ -82,7 +82,7 @@ speed, scale, history, and reliability.
 | Self-evolution loop | 100 | public memory, research command chain, genesis proposal classification, production-parity OODA reports, local apply, rollback, and paper-first evolve gates exist; protected live-code evolution remains human-reviewed by design |
 | Safety and risk | 94 | real exchange chaos drills, external review |
 | API contracts | 100 | public runtime contracts are complete; hosted compatibility is commercial launch work |
-| Deployment | 95 | live Railway proof, external production log-drain/public-signing evidence |
+| Deployment | 96 | live Railway proof, external production log-drain evidence |
 | Observability and audit | 97 | signed bundles, metrics backend, log drains |
 | Security and custody | 91 | external review, key-handling drill evidence |
 | ZERO Network | 70 | hosted identity verification, public pages, production ingestion service |
@@ -560,6 +560,10 @@ Current progress:
 - Added `scripts/deployment_evidence_verify.py` to recompute `SHA256SUMS`,
   validate the manifest inventory, enforce redaction rules, and verify signed
   evidence packs when a signing key is supplied.
+- Added `scripts/deployment_identity_evidence.py` to bind `/deployment/claim`
+  and `/deployment/heartbeat` into a public-safe bundle, verify their hashes
+  and binding, and optionally sign the identity payload with an operator-owned
+  OpenSSL key without including private key material.
 - The doctor checks health, recovery durability, market data source, metrics,
   immune state, live-preflight refusal, live cockpit refusal, public Network
   privacy, delayed Intelligence privacy, hosted-compatible rate-limit headers,
@@ -575,8 +579,8 @@ Current progress:
   report, verifier, and deployment evidence pack instead of ad hoc curl-only
   checks.
 
-Remaining scope before Cycle 25: real deployed Railway proof, external log-drain
-evidence, and public signing/identity evidence.
+Remaining scope before Cycle 25: real deployed Railway proof and external
+log-drain evidence.
 
 ### Cycle 25: Release, Registry, And Supply Chain
 
