@@ -25,6 +25,7 @@ marketing copy. The first public impression should be:
   autonomous behavior.
 - Keep local memory, genesis, evolve, guardian review, paper canary, and
   calibration loops open because they are part of the self-custodial runtime.
+  Local memory is already open in [Memory Core](memory-core.md).
 - Do not imply guaranteed returns, hosted custody, or unattended live safety.
 
 ## Public Launch Surface
@@ -33,7 +34,7 @@ marketing copy. The first public impression should be:
 | --- | --- |
 | Runtime | Paper engine, local API, durable journal, runtime bus, strategy runners, safety gates, read-only Hyperliquid data, and live-readiness contracts. |
 | Terminal | Doctor, status, risk, replay, cockpit/readiness views, and friction-preserving risk controls. |
-| Evolution | Local memory, genesis proposals, guardian policy, red-team review, paper canary, calibration, and promote/rollback gates. |
+| Evolution | Local memory core now exists; genesis proposals, guardian policy, red-team review, paper canary, calibration, and promote/rollback gates remain. |
 | Network | Redacted local proof packets, profile contracts, leaderboard contracts, and static page examples. |
 | Intelligence | Delayed public snapshots, catalog contracts, commercial API contracts, rate-limit and webhook fixtures, and clear subscription boundary. |
 | Contribution | Agent guide, scoped backlog, issue forms, PR template, safety review path, and one-command gates. |
@@ -133,7 +134,8 @@ system, without publishing private operator data or commercial intelligence.
 
 Publicize:
 
-- memory taxonomy and append-only knowledge extraction;
+- memory taxonomy and append-only knowledge extraction, now implemented as the
+  first open component;
 - genesis proposal schema, journal, and guardian policy;
 - evolve reports for missing commands and experiments;
 - builder, red-team, paper canary, calibration, and local promotion gates;

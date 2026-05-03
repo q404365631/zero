@@ -63,7 +63,7 @@ local genesis, or the operator terminal as proprietary features.
 
 | Area | Internal capability | Public state | Gap |
 | --- | --- | --- | --- |
-| Self-evolution | Memory extracts rules, genesis proposes/builds changes, red-team attacks diffs, canary/calibration gates promotion. | Not yet present as a public subsystem. | Add local memory/genesis/evolve modules, CLI commands, schemas, docs, and paper-only tests. |
+| Self-evolution | Memory extracts rules, genesis proposes/builds changes, red-team attacks diffs, canary/calibration gates promotion. | Memory core is now present as a public subsystem. | Add genesis/evolve modules, guardian policy, red-team/canary/calibration gates, and paper-only tests. |
 | Research command chain | Hunt, edge, convergence, thesis, score, meta, and sharpen form a learning/research loop. | Public docs mention autonomous OS, but not the full command chain. | Add public command contracts and deterministic fixture-backed reports. |
 | Real decision engine | Multi-lens evaluation, layered signals, risk gates, sizing modifiers, and rejection learning. | Public runtime has paper engine, runners, safety, and live-readiness primitives. | Port lens/layer/modifier interfaces and fixtures before porting live behavior. |
 | MCP surface | Internal MCP can inspect and operate many engine surfaces. | Public MCP exposes a minimal read-only paper demo. | Expand read-only and risk-reducing local MCP tools with explicit safety classes. |
@@ -101,10 +101,19 @@ Implement local memory as a public engine subsystem:
 
 Exit gate:
 
-- `zero memory extract` can produce public-safe observations from fixture
-  decisions and trades.
-- memory output never stores live prices, secrets, raw wallet data, or
-  derivable exchange state.
+- `zero-memory extract` can produce public-safe observations from fixture
+  decisions.
+- `/memory`, `zero_get_memory_snapshot`, and `zero://memory/snapshot` expose
+  public-safe readouts.
+- memory output never stores live prices, secrets, raw wallet data, exchange
+  order ids, or derivable exchange state.
+
+Current public status:
+
+- Implemented in `engine/src/zero_engine/memory.py`.
+- Covered by `engine/tests/test_memory.py`, API tests, MCP tests, and
+  `just memory-core-example`.
+- Documented in [Memory Core](memory-core.md).
 
 ### Cycle 29: Genesis Proposal Core
 
@@ -212,13 +221,14 @@ Exit gate:
 
 Public repo readiness remains **100/100** as a launch artifact.
 
-Full ZERO operating-system readiness is **87/100** after this audit. The
-downward adjustment is intentional: the missing self-evolution loop is core
-product architecture, not polish.
+Full ZERO operating-system readiness is **89/100** after Cycle 28. The score
+increased because public memory now exists as code, tests, docs, API readouts,
+and MCP snapshots. The remaining self-evolution loop is still core product
+architecture, not polish.
 
 The path back to 100/100 is now clearer:
 
-1. public memory/genesis/evolve loop;
+1. public genesis/evolve loop;
 2. fixture-backed research command chain;
 3. real lens/layer/modifier decision interfaces;
 4. expanded agent/MCP operation surface;

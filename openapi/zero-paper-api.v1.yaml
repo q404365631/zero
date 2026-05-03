@@ -188,6 +188,26 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/JournalResponse"
+  /memory:
+    get:
+      tags: [audit]
+      operationId: getMemory
+      summary: Public-safe local memory snapshot.
+      parameters:
+        - $ref: "#/components/parameters/LimitQuery"
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [json, md]
+      responses:
+        "200":
+          description: Redacted memory state.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemorySnapshotResponse"
   /metrics:
     get:
       tags: [audit]
@@ -1201,9 +1221,35 @@ components:
         count:
           type: integer
       additionalProperties: false
+    MemorySnapshotResponse:
+      type: object
+      required: [schema_version, generated_at, source, stats, entries, knowledge]
+      properties:
+        schema_version:
+          type: string
+          const: zero.memory.snapshot.v1
+        generated_at:
+          type: string
+          format: date-time
+        source:
+          type: string
+        stats:
+          type: object
+          required: [schema_version, generated_at, total_entries, active_entries, expired_entries, by_kind, privacy]
+          additionalProperties: true
+        entries:
+          type: array
+          items:
+            type: object
+            required: [schema_version, id, kind, scope, subject, summary, evidence_hash, source, created_at, expires_at, confidence, tags, metadata]
+            additionalProperties: true
+        knowledge:
+          nullable: true
+          type: string
+      additionalProperties: false
     MetricsResponse:
       type: object
-      required: [schema_version, generated_at, mode, runtime, api, engine, immune, recovery]
+      required: [schema_version, generated_at, mode, runtime, api, engine, immune, recovery, memory]
       properties:
         schema_version:
           type: string
@@ -1227,6 +1273,9 @@ components:
           $ref: "#/components/schemas/Recovery"
         immune:
           $ref: "#/components/schemas/ImmuneResponse"
+        memory:
+          type: object
+          additionalProperties: true
       additionalProperties: false
     ImmuneResponse:
       type: object
@@ -1254,7 +1303,7 @@ components:
       additionalProperties: false
     AuditExportResponse:
       type: object
-      required: [schema_version, exported_at, mode, source, limit, operator_context, summary, retention, metrics, recovery, deployment_claim, deployment_heartbeat, operator_actions, decisions]
+      required: [schema_version, exported_at, mode, source, limit, operator_context, summary, retention, metrics, recovery, memory, deployment_claim, deployment_heartbeat, operator_actions, decisions]
       additionalProperties: true
     DeploymentClaimResponse:
       type: object

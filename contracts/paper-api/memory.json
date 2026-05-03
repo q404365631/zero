@@ -1,0 +1,28 @@
+{
+  "entries": [],
+  "generated_at": "2026-05-01T00:00:00Z",
+  "knowledge": null,
+  "schema_version": "zero.memory.snapshot.v1",
+  "source": "ephemeral-engine-decisions",
+  "stats": {
+    "active_entries": 0,
+    "by_kind": {
+      "operator": 0,
+      "regime": 0,
+      "signal": 0,
+      "strategy_reference": 0
+    },
+    "deduplication": "ephemeral-content-hash-preview",
+    "expired_entries": 0,
+    "generated_at": "2026-05-01T00:00:00Z",
+    "path": null,
+    "privacy": {
+      "contains_exchange_order_ids": false,
+      "contains_live_prices": false,
+      "contains_private_keys": false,
+      "contains_wallet_material": false
+    },
+    "schema_version": "zero.memory.stats.v1",
+    "total_entries": 0
+  }
+}

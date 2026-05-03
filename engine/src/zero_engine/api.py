@@ -36,6 +36,7 @@ from zero_engine.intelligence import (
 from zero_engine.journal import DecisionJournal
 from zero_engine.live import HyperliquidSdkAdapter, LiveExecutionPolicy, LiveExecutor
 from zero_engine.live_certification import run_live_certification
+from zero_engine.memory import MemoryStore, extract_from_decisions, knowledge_markdown
 from zero_engine.model_gateway import ModelGateway, ModelGatewayConfig
 from zero_engine.models import OrderIntent, Position, Side
 from zero_engine.network import (
@@ -296,6 +297,7 @@ class PaperApiState:
     default_operator_scope: str = "local-private"
     default_operator_source: str = "runtime-default"
     operator_action_log: list[OperatorActionRecord] = field(default_factory=list)
+    memory_store: MemoryStore | None = None
 
     def __post_init__(self) -> None:
         if self.execution_cache:
@@ -537,6 +539,7 @@ class PaperApi:
             "/network/leaderboard": self.network_leaderboard,
             "/operator/state": self.operator_state,
             "/operator/context": lambda: self.operator_context_payload(operator_context),
+            "/memory": lambda: self.memory(query),
         }
         if path.startswith("/evaluate/"):
             try:
@@ -677,6 +680,12 @@ class PaperApi:
             "components": {
                 "paper_engine": {"status": "healthy", "last_seen": ts, "age_s": 0.0},
                 "risk": {"status": "healthy", "last_seen": ts, "age_s": 0.0},
+                "memory": {
+                    "status": "healthy",
+                    "last_seen": ts,
+                    "age_s": 0.0,
+                    "mode": "durable" if self.state.memory_store is not None else "ephemeral",
+                },
                 "recovery": {
                     "status": "healthy",
                     "last_seen": ts,
@@ -688,6 +697,7 @@ class PaperApi:
                 "exchange": exchange,
                 "market_data": market_data,
                 "journal": "durable" if recovery["durable"] else "ephemeral",
+                "memory": "durable" if self.state.memory_store is not None else "ephemeral",
                 "secrets": "not_required",
                 "live_preflight": "available",
             },
@@ -1316,6 +1326,7 @@ class PaperApi:
             },
             "immune": self.immune(),
             "recovery": self.recovery(),
+            "memory": self.memory({"limit": ["0"]})["stats"],
         }
 
     def audit_export(
@@ -1361,6 +1372,7 @@ class PaperApi:
             },
             "metrics": self.metrics(),
             "recovery": self.recovery(),
+            "memory": self.memory({"limit": [str(limit)]}),
             "deployment_claim": claim,
             "deployment_heartbeat": heartbeat,
             "operator_actions": [
@@ -1368,6 +1380,48 @@ class PaperApi:
                 for record in self.state.operator_action_log[-limit:]
             ],
             "decisions": decisions,
+        }
+
+    def memory(self, query: dict[str, list[str]]) -> dict[str, Any]:
+        limit = int(first(query, "limit") or "20")
+        now = self.state.now()
+        if self.state.memory_store is not None:
+            entries = self.state.memory_store.active(now)
+            stats = self.state.memory_store.stats(now)
+            source = "memory-store"
+        else:
+            entries = extract_from_decisions(
+                [record.to_dict() for record in self.state.engine.decisions],
+                now=now,
+            )
+            by_kind = {kind: 0 for kind in ["operator", "regime", "signal", "strategy_reference"]}
+            for entry in entries:
+                by_kind[entry.kind] += 1
+            stats = {
+                "schema_version": "zero.memory.stats.v1",
+                "generated_at": self.state.now_iso(),
+                "path": None,
+                "total_entries": len(entries),
+                "active_entries": len(entries),
+                "expired_entries": 0,
+                "by_kind": by_kind,
+                "deduplication": "ephemeral-content-hash-preview",
+                "privacy": {
+                    "contains_live_prices": False,
+                    "contains_wallet_material": False,
+                    "contains_exchange_order_ids": False,
+                    "contains_private_keys": False,
+                },
+            }
+            source = "ephemeral-engine-decisions"
+        recent = entries[-limit:] if limit > 0 else []
+        return {
+            "schema_version": "zero.memory.snapshot.v1",
+            "generated_at": self.state.now_iso(),
+            "source": source,
+            "stats": stats,
+            "entries": [entry.to_dict() for entry in recent],
+            "knowledge": knowledge_markdown(entries, generated_at=now) if first(query, "format") == "md" else None,
         }
 
     def network_profile(self) -> dict[str, Any]:

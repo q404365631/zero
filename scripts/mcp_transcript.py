@@ -39,10 +39,16 @@ REQUESTS: tuple[dict[str, Any], ...] = (
         "method": "tools/call",
         "params": {"name": "zero_get_paper_results", "arguments": {}},
     },
-    {"jsonrpc": "2.0", "id": 5, "method": "resources/list", "params": {}},
     {
         "jsonrpc": "2.0",
-        "id": 6,
+        "id": 5,
+        "method": "tools/call",
+        "params": {"name": "zero_get_memory_snapshot", "arguments": {}},
+    },
+    {"jsonrpc": "2.0", "id": 6, "method": "resources/list", "params": {}},
+    {
+        "jsonrpc": "2.0",
+        "id": 7,
         "method": "resources/read",
         "params": {"uri": "zero://proof/demo"},
     },
@@ -79,7 +85,17 @@ def validate(entries: list[dict[str, Any]]) -> None:
     if paper["mode"] != "paper" or paper["paper_only"] is not True:
         raise RuntimeError("transcript paper result must remain paper-only")
 
-    proof_response = entries[5]["response"]
+    memory_response = entries[4]["response"]
+    memory_text = memory_response["result"]["content"][0]["text"]
+    memory = json.loads(memory_text)
+    if memory["paper_only"] is not True:
+        raise RuntimeError("transcript memory snapshot must remain paper-only")
+    serialized_memory = json.dumps(memory).lower()
+    forbidden_memory = ("40500.0", "0x1234567890", "sk_live_")
+    if any(marker in serialized_memory for marker in forbidden_memory):
+        raise RuntimeError("transcript memory snapshot leaked private or derivable state")
+
+    proof_response = entries[6]["response"]
     proof_text = proof_response["result"]["contents"][0]["text"]
     proof = json.loads(proof_text)
     boundary = proof["claim_boundary"]

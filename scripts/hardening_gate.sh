@@ -44,6 +44,7 @@ required_files=(
   "docs/label-taxonomy.md"
   "docs/mcp.md"
   "docs/mcp/transcript.jsonl"
+  "docs/memory-core.md"
   "docs/live-evidence.md"
   ".github/RELEASE_TEMPLATE.md"
 )
@@ -106,7 +107,10 @@ contains "ZERO LLM Full Context" docs/llms-full.txt
 contains "read-only" docs/mcp.md
 contains "zero-mcp" docs/mcp.md
 contains "zero_get_paper_results" docs/mcp/transcript.jsonl
+contains "zero_get_memory_snapshot" docs/mcp/transcript.jsonl
 contains "zero://proof/demo" docs/mcp/transcript.jsonl
+contains "zero://memory/snapshot" docs/mcp/transcript.jsonl
+contains "zero.memory.entry.v1" docs/memory-core.md
 contains "Machine-readable entrypoints" README.md
 contains "Stewardship Pledge" GOVERNANCE.md
 contains "CODEOWNERS" GOVERNANCE.md

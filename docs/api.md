@@ -155,6 +155,13 @@ journal mode, recovered counts, and current runtime counts.
 execute outcomes, idempotency hits, decision counts, fill counts, rejection
 counts, and recovery state.
 
+`GET /memory?limit=20` returns a `zero.memory.snapshot.v1` public-safe view of
+local memory. Without a configured memory store, the endpoint extracts an
+ephemeral snapshot from current paper decisions. With a `MemoryStore`, it reads
+active append-only memory entries and omits expired records. `format=md` also
+returns generated `knowledge.md` content. Memory output is explicitly redacted:
+no live prices, wallet material, exchange order ids, or private keys.
+
 `GET /audit/export?limit=100` returns a structured `zero.audit.v1` export with
 runtime summary, retention/redaction metadata, metrics, recovery state, and the
 most recent decisions. The public paper runtime records no secrets.

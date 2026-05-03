@@ -4,10 +4,12 @@ import argparse
 import json
 import sys
 from collections.abc import Callable
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, TextIO
 
 from zero_engine import PaperEngine, load_scenario, load_strategy_runner, parse_scenario
+from zero_engine.memory import extract_from_decisions, isoformat
 
 SERVER_NAME = "zero-mcp"
 SERVER_VERSION = "0.1.1"
@@ -16,6 +18,10 @@ SUPPORTED_PROTOCOL_VERSIONS = {"2025-06-18", "2025-11-25"}
 PAPER_TS = 1777646400.0
 
 JsonMap = dict[str, Any]
+
+
+def parse_mcp_time() -> datetime:
+    return datetime.fromtimestamp(PAPER_TS, UTC)
 
 EMBEDDED_SCENARIO: JsonMap = {
     "name": "paper-launch-smoke",
@@ -220,6 +226,32 @@ def get_position_state() -> JsonMap:
     }
 
 
+def get_memory_snapshot() -> JsonMap:
+    paper = run_paper_scenario()
+    entries = extract_from_decisions(paper["decisions"], now=parse_mcp_time())
+    by_kind = {kind: 0 for kind in ["operator", "regime", "signal", "strategy_reference"]}
+    for entry in entries:
+        by_kind[entry.kind] += 1
+    return {
+        "schema_version": "zero.mcp.memory_snapshot.v1",
+        "mode": "paper",
+        "paper_only": True,
+        "generated_at": isoformat(parse_mcp_time()),
+        "source": "bundled-paper-scenario",
+        "stats": {
+            "active_entries": len(entries),
+            "by_kind": by_kind,
+            "privacy": {
+                "contains_live_prices": False,
+                "contains_wallet_material": False,
+                "contains_exchange_order_ids": False,
+                "contains_private_keys": False,
+            },
+        },
+        "entries": [entry.to_dict() for entry in entries],
+    }
+
+
 def get_proof_pack() -> JsonMap:
     root = find_repo_root()
     if root is None:
@@ -250,6 +282,11 @@ def tool_definitions() -> list[JsonMap]:
             "description": "Read-only public-safe demo proof-pack manifest.",
             "inputSchema": empty_schema,
         },
+        {
+            "name": "zero_get_memory_snapshot",
+            "description": "Read-only public-safe local memory snapshot from bundled paper decisions.",
+            "inputSchema": empty_schema,
+        },
     ]
 
 
@@ -258,6 +295,7 @@ TOOLS: dict[str, Callable[[], JsonMap]] = {
     "zero_get_paper_results": get_paper_results,
     "zero_get_position_state": get_position_state,
     "zero_get_proof_pack": get_proof_pack,
+    "zero_get_memory_snapshot": get_memory_snapshot,
 }
 
 
@@ -281,6 +319,12 @@ def resource_definitions() -> list[JsonMap]:
             "description": "Public-safe demo proof-pack manifest.",
             "mimeType": "application/json",
         },
+        {
+            "uri": "zero://memory/snapshot",
+            "name": "Demo Memory Snapshot",
+            "description": "Public-safe local memory extracted from bundled paper decisions.",
+            "mimeType": "application/json",
+        },
     ]
 
 
@@ -294,6 +338,8 @@ def read_resource(uri: str) -> str:
         return json.dumps(get_paper_results(), indent=2, sort_keys=True)
     if uri == "zero://proof/demo":
         return json.dumps(get_proof_pack(), indent=2, sort_keys=True)
+    if uri == "zero://memory/snapshot":
+        return json.dumps(get_memory_snapshot(), indent=2, sort_keys=True)
     raise KeyError(uri)
 
 

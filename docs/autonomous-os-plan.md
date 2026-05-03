@@ -73,7 +73,7 @@ speed, scale, history, and reliability.
 | Product narrative | 98 | keep narrative aligned as runtime becomes real |
 | CLI readiness | 97 | richer TUI cockpit layout, operator automation examples |
 | Engine runtime | 90 | live canary evidence, richer exchange history reconciliation |
-| Self-evolution loop | 20 | public memory/genesis/evolve, guardian policy, red-team, paper canary, calibration, and promote/rollback gates |
+| Self-evolution loop | 35 | public memory exists; genesis/evolve, guardian policy, red-team, paper canary, calibration, and promote/rollback gates remain |
 | Safety and risk | 94 | real exchange chaos drills, external review |
 | API contracts | 98 | signed live runtime packets, production hosted compatibility policy |
 | Deployment | 89 | live Railway proof, authenticated remote log evidence |
@@ -94,6 +94,8 @@ The capability baseline is documented in
 [Private Engine Capability Gap Audit](private-engine-capability-gap-audit.md).
 That audit supersedes the earlier assumption that only hosted Network,
 Intelligence, and external proof remained.
+Cycle 28 delivered the first open self-evolution component:
+[Memory Core](memory-core.md).
 
 ### Cycle 12: Autonomous Runtime Loop
 

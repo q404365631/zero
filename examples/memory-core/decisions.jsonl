@@ -1,0 +1,2 @@
+{"allowed":true,"as_of":1777646400.0,"confidence":0.9,"notional_usd":405.0,"price":40500.0,"quantity":0.01,"reason":"allowed","reduce_only":false,"side":"buy","source":"api:/execute","symbol":"BTC","trace_id":"trace-memory-accepted"}
+{"allowed":false,"as_of":1777646460.0,"confidence":0.9,"notional_usd":1400.0,"price":140.0,"quantity":10.0,"reason":"order notional exceeds limit","reduce_only":false,"side":"buy","source":"scenario:paper-launch-smoke","symbol":"SOL","trace_id":"trace-memory-rejected"}

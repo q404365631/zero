@@ -2,8 +2,8 @@
 
 `zero-mcp` is a dependency-free, stdio MCP-compatible server for coding agents
 and operator tooling. It exposes only public-safe, read-only ZERO surfaces:
-bundled strategies, deterministic paper results, paper position state, and the
-demo proof-pack manifest.
+bundled strategies, deterministic paper results, paper position state, local
+memory snapshots, and the demo proof-pack manifest.
 
 It does not expose live execution, order placement, approval, wallet, secret, or
 venue-write tools. The server is for inspection and local development until live
@@ -43,8 +43,9 @@ PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
 
 See [`docs/mcp/transcript.jsonl`](mcp/transcript.jsonl). It proves that a
 coding agent can initialize the server, list tools, inspect bundled strategies,
-replay deterministic paper results, list resources, and read the proof pack
-without gaining any live execution capability.
+replay deterministic paper results, inspect redacted local memory, list
+resources, and read the proof pack without gaining any live execution
+capability.
 
 ## Tools
 
@@ -54,6 +55,7 @@ without gaining any live execution capability.
 | `zero_get_paper_results` | Replays the deterministic bundled paper scenario. |
 | `zero_get_position_state` | Returns paper position state derived from the scenario. |
 | `zero_get_proof_pack` | Returns the public-safe demo proof-pack manifest. |
+| `zero_get_memory_snapshot` | Returns public-safe memory extracted from bundled paper decisions. |
 
 All tools are read-only. None can place, approve, cancel, or route live orders.
 
@@ -64,6 +66,7 @@ All tools are read-only. None can place, approve, cancel, or route live orders.
 | `zero://paper/scenario` | Bundled deterministic paper scenario. |
 | `zero://paper/results` | Generated paper replay result. |
 | `zero://proof/demo` | Demo proof-pack manifest. |
+| `zero://memory/snapshot` | Public-safe local memory extracted from bundled paper decisions. |
 
 ## Smoke Contract
 
@@ -71,6 +74,8 @@ All tools are read-only. None can place, approve, cancel, or route live orders.
 
 - The exposed tool set contains no live execution tools.
 - Every tool returns a JSON object.
+- Memory output does not expose prices, wallet material, exchange order ids, or
+  keys.
 - The demo proof pack does not claim live trading or paper/live correlation.
 - The public source checkout contains the bundled proof and paper artifacts.
 

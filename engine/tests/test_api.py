@@ -9,6 +9,7 @@ from zero_engine.api import PaperApi, PaperApiState, websocket_accept_key, webso
 from zero_engine.hyperliquid import HyperliquidInfoClient
 from zero_engine.journal import DecisionJournal
 from zero_engine.live import LiveExecutor, RecordingExchangeAdapter
+from zero_engine.memory import MemoryEntry, MemoryStore
 from zero_engine.paper import PaperEngine
 
 
@@ -108,6 +109,39 @@ def test_paper_api_journal_reads_persisted_decisions(tmp_path) -> None:
     assert payload["decisions"][0]["allowed"] is True
     assert payload["decisions"][0]["idempotency_key"] == "journal-fill"
     assert payload["decisions"][0]["trace_id"].startswith("trace-")
+
+
+def test_paper_api_memory_snapshot_reads_ephemeral_and_durable_memory(tmp_path) -> None:
+    api = PaperApi(PaperApiState(engine=PaperEngine(clock=lambda: FIXED_TS), clock=lambda: FIXED_DT))
+    execute_status, _ = api.post(
+        "/execute",
+        {"coin": "BTC", "side": "buy", "size": 0.01, "idempotency_key": "memory-fill"},
+    )
+    memory_status, memory = api.get("/memory", {"limit": ["10"]})
+
+    store = MemoryStore(tmp_path / "memory.jsonl")
+    store.append_many(MemoryEntry.from_dict(entry) for entry in memory["entries"])
+    durable = PaperApi(
+        PaperApiState(
+            engine=api.state.engine,
+            clock=lambda: FIXED_DT,
+            started_at=FIXED_DT,
+            memory_store=store,
+        )
+    )
+    durable_status, durable_memory = durable.get("/memory", {"limit": ["0"]})
+
+    assert execute_status == 200
+    assert memory_status == 200
+    assert memory["schema_version"] == "zero.memory.snapshot.v1"
+    assert memory["source"] == "ephemeral-engine-decisions"
+    assert memory["stats"]["active_entries"] == 1
+    assert memory["stats"]["privacy"]["contains_live_prices"] is False
+    assert "40500" not in json.dumps(memory)
+    assert durable_status == 200
+    assert durable_memory["source"] == "memory-store"
+    assert durable_memory["stats"]["path"] == str(store.path)
+    assert durable_memory["entries"] == []
 
 
 def test_paper_api_metrics_tracks_requests_and_execute_outcomes() -> None:

@@ -37,6 +37,13 @@ network-index-page-example:
 runtime-loop-example:
     PYTHONPATH="$PWD/engine/src" python3 examples/runtime-loop/run.py
 
+memory-core-example:
+    rm -rf artifacts/memory-example
+    PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.memory extract --decisions examples/memory-core/decisions.jsonl --store artifacts/memory-example/memory.jsonl --knowledge artifacts/memory-example/knowledge.md --now 2026-05-01T00:00:00Z
+    test -f artifacts/memory-example/memory.jsonl
+    test -f artifacts/memory-example/knowledge.md
+    ! rg '40500|1400|notional_usd|private_key|wallet_address' artifacts/memory-example
+
 network-pages-smoke:
     scripts/network_pages_smoke.py
 
@@ -201,6 +208,7 @@ docs-check:
     test -f docs/mcp/transcript.jsonl
     test -f docs/api-compatibility.md
     test -f docs/runtime-bus.md
+    test -f docs/memory-core.md
     test -f docs/strategy-plugins.md
     test -f docs/market-data-adapters.md
     test -f docs/positioning.md
@@ -248,6 +256,8 @@ docs-check:
     test -f examples/market-data-adapter/run.py
     test -f examples/runtime-loop/README.md
     test -x examples/runtime-loop/run.py
+    test -f examples/memory-core/README.md
+    test -f examples/memory-core/decisions.jsonl
     test -f examples/network-leaderboard/README.md
     test -f examples/network-leaderboard/build.py
     test -f examples/network-leaderboard/profiles.jsonl
@@ -260,6 +270,7 @@ docs-check:
     test -f contracts/paper-api/v2_status.json
     test -f contracts/paper-api/execute_accepted.json
     test -f contracts/paper-api/execute_rejected.json
+    test -f contracts/paper-api/memory.json
     test -f contracts/deployment/claim.json
     test -f contracts/deployment/heartbeat.json
     test -f contracts/live/evidence.json
@@ -345,4 +356,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke fresh-clone-rehearsal example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness
+ci: lint test paper-api-smoke fresh-clone-rehearsal example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example memory-core-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness

@@ -26,6 +26,7 @@ SOURCES = (
     "docs/architecture.md",
     "docs/cli-quickstart.md",
     "docs/api.md",
+    "docs/memory-core.md",
     "docs/mcp.md",
     "docs/mcp/transcript.jsonl",
     "docs/api-compatibility.md",

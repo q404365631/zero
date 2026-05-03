@@ -21,7 +21,7 @@ end.
 | Product narrative | 99 | Clear category around autonomous operating systems for self-custodial onchain operations, with public runtime, terminal, evolution, network, intelligence, capability boundary, and operator proof path separated cleanly. |
 | CLI readiness | 99 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, `/live-cockpit`, `/live-certify`, `/immune`, friction-gated `/resume-entries`, friction-gated engine-backed `/execute` with receipt-hash rendering, operator-context audit headers, operator-local runtime partitions, a one-command live canary operator evidence workflow, and a verified read-only live cockpit drill bundle exist. Remaining full-screen TUI cockpit layout and real canary evidence are external. |
 | Engine runtime | 91 | Deterministic paper runtime, bounded OODA cycle records, strategy runner SDK, declarative paper strategies, append-only decision journal, durable runtime bus contracts, restart replay, read-only Hyperliquid info adapter, live-mid paper execution, traceable audit export, live custody preflight, account reconciliation, dry-run live certification, immune breaker packets, live execution receipt packets, maintained live canary rehearsal collector, verifier, exchange-evidence normalizer, operator report workflow, and operator report verifier, public-safe signed live evidence packets, fail-closed model gateway plumbing, and live-executor interfaces exist. Still missing public production OODA parity and real exchange canary proof from an operator-owned run. |
-| Self-evolution loop | 20 | The full ZERO product needs local memory, genesis proposals, guardian review, red-team, paper canaries, calibration, promote/rollback gates, and evolve. These are now tracked as core public extraction work, not optional future polish. |
+| Self-evolution loop | 35 | Local memory is now implemented with typed public-safe entries, TTLs, deduplication, append-only JSONL, generated `knowledge.md`, `/memory`, fixture-backed CLI extraction, and read-only MCP snapshots. Genesis proposals, guardian review, red-team, paper canaries, calibration, promote/rollback gates, and evolve remain. |
 | Safety and risk | 93 | CLI risk asymmetry, local custody validation, dry-run order validation, preflight refusal, account-reconciliation gate, live-submit idempotency model, no-retry exchange-error records, dry-run live certification drills, `zero.immune.v1` breakers, dead-man heartbeat contract, max notional/loss/order-rate policy, pause, kill, reduce-only flatten, fail-closed canary rehearsal, hash-only live evidence capture, verified cockpit drill tamper rejection, threat model, and P0/P1 runbooks exist. Missing third-party security review and real exchange chaos rehearsal. |
 | API contracts | 99 | Paper fixtures are pinned across Python and Rust, OpenAPI documents the local paper runtime, compatibility rules are explicit, `/operator/context` exposes audit identity, `/deployment/claim` exposes signature-ready runtime identity, `/deployment/heartbeat` exposes signature-ready public liveness, `/hl/status` exposes read-only market status, `/hl/account` and `/hl/reconcile` expose account truth, `/immune` exposes risk-blocking breaker state, `/live/cockpit` exposes consolidated live operator state, `/live/certification` exposes dry-run safety evidence, `/live/receipts` exposes public-safe local execution receipts, `/live/evidence` exposes a hash-only signed canary evidence bundle, `/market/quote` names the active price source, `/health` plus `/v2/status` expose recovery state, `/metrics` plus `/audit/export` expose observable runtime state, `/network/*` exposes public proof packets and hosted-compatible ingestion, `/intelligence/*` exposes delayed intelligence, model gateway status, model gateway health, model gateway audit, and billing-ready commercial API contracts, `/v1/intelligence/*` exposes hosted-compatible auth, scopes, rate-limit headers, usage events, webhook signatures, and export jobs, `/live/preflight` exposes a non-secret live-readiness gate, and `POST /live/*` controls are typed in the CLI. Missing production hosted compatibility policy. |
 | Deployment | 89 | Docker path, Railway config, healthcheck, restart policy, `PORT`-aware start script, durable journal replay, traceable paper decisions, Railway remote doctor, redacted deployment evidence pack, Railway smoke test, and Railway incident runbook exist. Missing live deployed project proof and authenticated remote log capture evidence. |
@@ -41,18 +41,18 @@ the full operating-system/product score: external security review, human
 fresh-clone feedback from at least one serious engineer, and a real
 operator-owned live canary evidence bundle.
 
-**Full ZERO operating-system readiness: 87/100.**
+**Full ZERO operating-system readiness: 89/100.**
 
 It is still not a hosted custody product, and real capital operation remains
 self-custodial and operator-owned. The public repo must not imply that a new
 operator can run unattended live capital safely without canary evidence,
-external review, production runtime parity, and the public self-evolution loop
+external review, production runtime parity, and the remaining public self-evolution loop
 documented in [Private Engine Capability Gap Audit](private-engine-capability-gap-audit.md).
 
 For the larger target, ZERO is not yet 100/100 as a complete autonomous
 operating system. The remaining work is tracked in the
 [ZERO Autonomous OS Completion Plan](autonomous-os-plan.md): public
-memory/genesis/evolve, production strategy runners, durable runtime bus,
+genesis/evolve, production strategy runners, durable runtime bus,
 Hyperliquid reconciliation, live execution certification, immune controls,
 terminal live cockpit, signed deployment identity verification, LLM gateway,
 hosted Network ingestion, ZERO Intelligence API, deployment evidence,
@@ -100,7 +100,7 @@ ZERO is 100/100 when a new serious operator can:
 
 ## Execution Cycles
 
-Forecast after the capability audit: **8 major cycles remain before the public
+Forecast after Cycle 28: **7 major cycles remain before the public
 repo should be treated as the complete ZERO autonomous operating system.** The
 repo can be upgraded publicly before those cycles finish, but the README and
 docs must keep the paper/live and self-evolution boundaries honest.
