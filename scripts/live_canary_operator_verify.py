@@ -125,6 +125,8 @@ def verify(args: argparse.Namespace) -> dict[str, Any]:
     report = load_json(report_path)
     summary = report.get("summary") if isinstance(report.get("summary"), dict) else {}
     privacy = report.get("privacy") if isinstance(report.get("privacy"), dict) else {}
+    policy = report.get("policy") if isinstance(report.get("policy"), dict) else {}
+    policy_summary = policy.get("summary") if isinstance(policy.get("summary"), dict) else {}
 
     add(
         findings,
@@ -154,6 +156,29 @@ def verify(args: argparse.Namespace) -> dict[str, Any]:
         "accepted receipt has exchange evidence",
         "accepted live receipt without exchange evidence",
     )
+    add(
+        findings,
+        policy.get("schema_version") == "zero.live_canary_policy.v1",
+        "policy_schema",
+        "zero.live_canary_policy.v1",
+        "operator report missing live canary policy",
+    )
+    add(
+        findings,
+        bool(summary.get("publishable_canary_evidence"))
+        is bool(policy_summary.get("publishable_canary_evidence")),
+        "policy_publishable_matches_summary",
+        "policy publishable flag matches summary",
+        "policy publishable flag does not match operator summary",
+    )
+    if summary.get("live_order_accepted"):
+        add(
+            findings,
+            policy_summary.get("qualified") is True,
+            "policy_qualified_for_accepted_canary",
+            "accepted canary is policy-qualified",
+            "accepted canary is not policy-qualified",
+        )
 
     if sha_path.is_file():
         entries = read_sha256s(sha_path)

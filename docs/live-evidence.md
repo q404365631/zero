@@ -43,6 +43,16 @@ This is still not a substitute for exchange-side records. A valid canary
 evidence bundle must also include Hyperliquid order/fill records and show that
 `/pause-entries`, `/flatten-all`, and `/kill` were available and captured.
 
+`GET /live/canary-policy` returns `zero.live_canary_policy.v1`, the policy
+packet that decides how the evidence can be used. It separates qualified
+refusal proof from publishable live canary proof:
+
+- refusal proof can show fail-closed behavior without claiming live execution;
+- accepted live receipts require exchange-side evidence and follow-through
+  captures before they are publishable;
+- the next recommended operator action is explicit, so a not-ready deployment
+  cannot be marketed as live.
+
 Use `scripts/live_canary_exchange_evidence.py` to attach those exchange-side
 records without publishing raw venue payloads:
 
@@ -63,7 +73,8 @@ IDs, raw client order IDs, or raw venue payloads.
 
 `scripts/live_canary_operator.py` is the higher-level workflow for operators.
 It collects or finalizes the bundle, attaches exchange evidence, runs the
-verifier, and writes `operator_report.json` with public-safe status and next
-actions. `scripts/live_canary_operator_verify.py` then verifies the operator
-report, recursive checksums, redaction posture, accepted-live exchange-evidence
-rules, and nested canary bundle.
+verifier, embeds the live canary policy, and writes `operator_report.json` with
+public-safe status and next actions. `scripts/live_canary_operator_verify.py`
+then verifies the operator report, recursive checksums, redaction posture,
+policy consistency, accepted-live exchange-evidence rules, and nested canary
+bundle.

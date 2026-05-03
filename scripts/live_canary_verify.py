@@ -116,6 +116,7 @@ def verify_bundle(args: argparse.Namespace) -> dict[str, Any]:
 
     manifest = load_json(manifest_path)
     summary = manifest.get("summary", {}) if isinstance(manifest, dict) else {}
+    policy = manifest.get("policy", {}) if isinstance(manifest, dict) else {}
     steps = manifest.get("steps", []) if isinstance(manifest, dict) else []
     mode = manifest.get("collector", {}).get("mode") if isinstance(manifest, dict) else None
 
@@ -134,6 +135,13 @@ def verify_bundle(args: argparse.Namespace) -> dict[str, Any]:
             args.require_mode,
             f"expected mode={args.require_mode}, got {mode}",
         )
+    add(
+        findings,
+        policy.get("schema_version") == "zero.live_canary_policy.v1",
+        "policy_schema",
+        "zero.live_canary_policy.v1",
+        "manifest missing live canary policy",
+    )
 
     sha_entries = read_sha256s(sha_path)
     expected_files = {path.name for path in bundle.iterdir() if path.is_file() and path.name != "SHA256SUMS"}

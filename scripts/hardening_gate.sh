@@ -115,6 +115,9 @@ contains "zero_get_decision_stack" docs/mcp/transcript.jsonl
 contains "zero://decision/stack" docs/mcp/transcript.jsonl
 contains "zero.live_evidence.v1" docs/live-evidence.md
 contains "ZERO_LIVE_EVIDENCE_SIGNING_KEY" docs/live-evidence.md
+contains "zero.live_canary_policy.v1" docs/live-canary-operator.md
+contains "/live/canary-policy" docs/live-evidence.md
+contains "scripts/live_canary_policy.py" docs/live-canary-operator.md
 contains "shasum -a 256 -c SHA256SUMS" .github/RELEASE_TEMPLATE.md
 contains "package registry publication remains disabled" .github/RELEASE_TEMPLATE.md
 contains "gh attestation verify zero-linux" .github/RELEASE_TEMPLATE.md
@@ -214,8 +217,10 @@ scripts/issue_template_check.py >/dev/null
 scripts/label_taxonomy_check.py >/dev/null
 scripts/github_label_sync.py --validate-config >/dev/null
 scripts/codeowners_check.py >/dev/null
+python3 -m py_compile scripts/live_cockpit_drill.py
 python3 -m py_compile scripts/live_cockpit_drill_verify.py
 python3 -m py_compile scripts/live_cockpit_drill_tamper_rehearsal.py
+python3 -m py_compile scripts/live_canary_policy.py
 rm -rf scripts/__pycache__
 scripts/registry_readiness.py >/dev/null
 PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check

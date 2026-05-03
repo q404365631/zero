@@ -70,7 +70,7 @@ guarded by preflight checks.
 | --- | --- |
 | Paper engine | Runnable now with deterministic fixtures, local API, CLI, Docker, and Railway paths. |
 | Live market data | Runnable now through read-only Hyperliquid public info calls when enabled. |
-| Live readiness | Runnable now as local preflight, cockpit, certification, reconciliation, immune, receipt, and evidence contracts. |
+| Live readiness | Runnable now as local preflight, cockpit, certification, reconciliation, immune, receipt, evidence, and canary-policy contracts. |
 | Live execution | Code boundary exists, but live capital remains operator-owned and gated until local custody, preflight, journal, kill-switch, reconciliation, and canary evidence pass. |
 | Self-evolution | Local memory, genesis proposal core, research command chain, decision-stack lenses/layers/modifiers, and paper-only evolve gates exist now with redacted extraction, append-only journals, guardian classification, hunt/edge/convergence/thesis/score/meta/sharpen reports, public evaluation surfaces, red-team review, paper canary, calibration, API readouts, and expanded read-only MCP snapshots for runtime status, health, journal, rejection audit, memory stats, immune state, backtest summary, evidence bundle, and safety catalog. Real mutation, promotion, and rollback remain planned public extraction. |
 | Public proof | Runnable now through redacted Network contracts, canary bundles, exchange-evidence normalization, recursive checksums, and operator report verification. |
@@ -109,6 +109,9 @@ flowchart LR
   without placing capital at risk.
 - Capture signed, public-safe live evidence packets for supervised canary
   rehearsal without leaking credentials or raw private journals.
+- Inspect the live canary policy lifecycle for readiness, arm/disarm, launch
+  window, evidence, shadow review, qualification, follow-through, and next
+  action through `/live/canary-policy`.
 - Run the maintained live canary rehearsal collector in fail-closed public
   paper mode, or in explicit operator-owned canary mode when local live gates
   are ready.
@@ -145,8 +148,8 @@ ZERO should earn trust through behavior that another engineer can verify:
 3. Rehearse a live canary in fail-closed mode.
 4. Attach public-safe exchange-side evidence when an operator-owned live canary
    is ready.
-5. Verify the bundle, recursive checksums, privacy flags, and report with local
-   scripts before publishing anything.
+5. Verify the bundle, recursive checksums, privacy flags, live canary policy,
+   and report with local scripts before publishing anything.
 
 That flow is implemented for refusal-mode rehearsal today. Accepted live canary
 evidence requires an operator-owned Hyperliquid wallet and explicit local live
@@ -212,6 +215,9 @@ $ curl -fsS http://127.0.0.1:8765/live/certification
 $ curl -fsS http://127.0.0.1:8765/live/evidence
 {"schema_version": "zero.live_evidence.v1", "live_mode": "refused", "evidence_hash": "sha256:..."}
 
+$ curl -fsS http://127.0.0.1:8765/live/canary-policy
+{"schema_version": "zero.live_canary_policy.v1", "summary": {"ready_for_canary": false, "next_step": "fix_live_preflight_before_canary"}}
+
 $ scripts/live_canary_rehearsal.py http://127.0.0.1:8765 --mode refusal
 zero live canary rehearsal: wrote artifacts/live-canary-rehearsal/... mode=refusal risk_ready=False attempted=True accepted=False
 
@@ -220,6 +226,9 @@ zero live canary exchange evidence: wrote artifacts/live-canary-rehearsal/.../ex
 
 $ scripts/live_canary_verify.py artifacts/live-canary-rehearsal/... --require-mode refusal --require-exchange-evidence
 zero live canary verify: ok=True checks=... fail=0
+
+$ scripts/live_canary_policy.py artifacts/live-canary-rehearsal/...
+zero live canary policy: qualified=True publishable=False refusal_qualified=True next=keep_public_claim_at_refusal_proof
 
 $ scripts/live_canary_operator.py http://127.0.0.1:8765 --mode refusal
 zero live canary operator: ok=True bundle=artifacts/live-canary-operator/.../bundle exchange=True report=artifacts/live-canary-operator/.../operator_report.json

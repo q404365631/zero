@@ -67,7 +67,7 @@ local genesis, or the operator terminal as proprietary features.
 | Research command chain | Hunt, edge, convergence, thesis, score, meta, and sharpen form a learning/research loop. | Public docs mention autonomous OS, but not the full command chain. | Add public command contracts and deterministic fixture-backed reports. |
 | Real decision engine | Multi-lens evaluation, layered signals, risk gates, sizing modifiers, and rejection learning. | Public runtime now exposes a paper-only lens/layer/modifier decision stack over API, MCP, OpenAPI, docs, and tests. | Add production OODA parity, rejection learner, regime/correlation gates, and execution-quality feedback. |
 | MCP surface | Internal MCP can inspect and operate many engine surfaces. | Public MCP exposes expanded read-only local/operator surfaces with explicit safety classes. | Add risk-reducing local controls only after the operator policy and friction contract are public. |
-| Live canary lifecycle | Readiness, policy, launch, evidence, report, qualification, shadow review, follow-through. | Public has rehearsal, evidence, verification, and operator report flows. | Add policy/follow-through/qualification contracts and fixtures. |
+| Live canary lifecycle | Readiness, policy, launch, evidence, report, qualification, shadow review, follow-through. | Public has rehearsal, evidence, verification, policy qualification, cockpit-drill policy capture, and operator report flows. | Attach real operator-owned exchange evidence from an accepted canary. |
 | Agent daemon | Persistent agents, approvals, proposals, operator app, and communication loop. | Public has agent contribution docs and a thin MCP. | Add local proposal queue and approval surfaces before hosted agents. |
 | Perception layer | Sensor, cross-asset, liquidations, universe, market data service, and setup detection. | Public has market adapter examples and read-only Hyperliquid status. | Add public sensor interfaces, fixture stores, and live-read-only adapters. |
 | Recovery and operations | Honest checks, Hyperliquid state checks, recovery CLI, watchdog, log rotation. | Public has incident docs, deployment evidence, and readiness gates. | Add operator-safe diagnostics and recovery commands with no secret access. |
@@ -282,20 +282,34 @@ Exit gate:
 - operator-owned live evidence can be attached and verified without leaking raw
   venue payloads or secrets.
 
+Current public status:
+
+- `/live/canary-policy` exposes `zero.live_canary_policy.v1` with readiness,
+  arm/disarm, launch-window, evidence, shadow-review, qualification,
+  follow-through, and next-step fields.
+- Rehearsal bundles and operator reports embed the same policy object.
+- `scripts/live_canary_policy.py` renders the policy from rehearsal bundles,
+  cockpit drill bundles, manifests, or operator reports.
+- The canary verifiers reject missing policy packets and operator-report policy
+  contradictions.
+- Public paper smoke exercises refusal-mode policy qualification without
+  claiming accepted live execution.
+
 ## Revised Score
 
 Public repo readiness remains **100/100** as a launch artifact.
 
-Full ZERO operating-system readiness is **96/100** after Cycle 33. The score
-increased because the public agent surface now exposes the local/operator
-inspection plane with explicit read-only safety classes: status, health,
-journals, rejection audit, memory, genesis, research, decision stack, evolve,
-immune, backtest, evidence, proof, and safety catalog. The remaining
-self-evolution loop is still core product architecture, not polish.
+Full ZERO operating-system readiness is **97/100** after Cycle 34. The score
+increased because the live canary lifecycle now has a public policy contract:
+readiness, arm/disarm, launch window, exchange evidence, shadow review,
+qualification, follow-through, and next-step recommendation can be inspected
+and verified without leaking venue payloads or secrets. The remaining
+self-evolution and production OODA gaps are still core product architecture,
+not polish.
 
 The path back to 100/100 is now clearer:
 
 1. real mutation/promotion and rollback loop;
 2. risk-reducing MCP controls with enforceable local operator friction;
-3. live canary policy parity and operator-owned exchange evidence;
-4. real production OODA parity, rejection learner, and execution-quality feedback.
+3. real production OODA parity, rejection learner, and execution-quality feedback;
+4. external operator-owned accepted-canary evidence and security review.

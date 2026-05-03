@@ -879,8 +879,20 @@ paths:
           description: Live cockpit packet.
           content:
             application/json:
+            schema:
+              $ref: "#/components/schemas/LiveCockpitResponse"
+  /live/canary-policy:
+    get:
+      tags: [live]
+      operationId: getLiveCanaryPolicy
+      summary: Read-only live canary policy lifecycle and next-step recommendation.
+      responses:
+        "200":
+          description: Canary policy lifecycle packet.
+          content:
+            application/json:
               schema:
-                $ref: "#/components/schemas/LiveCockpitResponse"
+                $ref: "#/components/schemas/LiveCanaryPolicyResponse"
   /live/certification:
     get:
       tags: [live]
@@ -2121,6 +2133,48 @@ components:
           type: string
         operator_context:
           $ref: "#/components/schemas/OperatorContextResponse"
+      additionalProperties: true
+    LiveCanaryPolicyResponse:
+      type: object
+      required:
+        - schema_version
+        - policy_version
+        - generated_at
+        - mode
+        - summary
+        - policy
+        - phases
+        - recommendation
+        - privacy
+      properties:
+        schema_version:
+          const: zero.live_canary_policy.v1
+        policy_version:
+          type: string
+        generated_at:
+          type: string
+          format: date-time
+        summary:
+          type: object
+          required:
+            - ready_for_canary
+            - policy_armed
+            - live_order_attempted
+            - live_order_accepted
+            - publishable_canary_evidence
+            - qualified
+            - next_step
+          additionalProperties: true
+        phases:
+          type: array
+          items:
+            type: object
+            required: [name, status, detail, evidence]
+            additionalProperties: true
+        recommendation:
+          type: object
+          required: [action, risk_direction, reason]
+          additionalProperties: true
       additionalProperties: true
     LiveCertificationResponse:
       type: object

@@ -39,6 +39,7 @@ from zero_engine.intelligence import (
 )
 from zero_engine.journal import DecisionJournal
 from zero_engine.live import HyperliquidSdkAdapter, LiveExecutionPolicy, LiveExecutor
+from zero_engine.live_canary_policy import build_live_canary_policy, inputs_from_runtime
 from zero_engine.live_certification import run_live_certification
 from zero_engine.memory import MemoryStore, extract_from_decisions, knowledge_markdown
 from zero_engine.model_gateway import ModelGateway, ModelGatewayConfig
@@ -568,6 +569,7 @@ class PaperApi:
             "/hl/status": lambda: self.hl_status(query),
             "/immune": self.immune,
             "/live/cockpit": lambda: self.live_cockpit(operator_context),
+            "/live/canary-policy": lambda: self.live_canary_policy(operator_context),
             "/live/receipts": lambda: self.live_receipts(operator_context),
             "/intelligence/catalog": self.intelligence_catalog,
             "/intelligence/commercial": self.intelligence_commercial,
@@ -894,6 +896,24 @@ class PaperApi:
 
     def live_certification(self) -> dict[str, Any]:
         return run_live_certification().to_dict()
+
+    def live_canary_policy(self, operator_context: OperatorContext | None = None) -> dict[str, Any]:
+        operator_context = operator_context or self.state.operator_context()
+        generated_at = self.state.now_iso()
+        preflight = self.live_preflight()
+        cockpit = self.live_cockpit(operator_context)
+        certification = self.live_certification()
+        evidence = self.live_evidence(operator_context)
+        return build_live_canary_policy(
+            inputs_from_runtime(
+                generated_at=generated_at,
+                preflight=preflight,
+                cockpit=cockpit,
+                certification=certification,
+                evidence=evidence,
+                operator_context=operator_context.to_dict(),
+            )
+        )
 
     def live_cockpit(self, operator_context: OperatorContext | None = None) -> dict[str, Any]:
         operator_context = operator_context or self.state.operator_context()

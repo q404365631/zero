@@ -15,6 +15,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "engine" / "src"))
+
+from zero_engine.live_canary_policy import build_live_canary_policy, inputs_from_rehearsal
+
 
 SCHEMA_VERSION = "zero.live_canary_rehearsal.v1"
 DEFAULT_TIMEOUT_SECONDS = 8.0
@@ -361,6 +366,7 @@ def main() -> int:
         "controls_ready": bool(preflight_payload.get("controls_ready")),
         "cockpit_risk_increasing_allowed": bool(cockpit_payload.get("risk_increasing_allowed")),
         "certification_passed": bool(cert_payload.get("passed")),
+        "live_start_certified": bool(cert_payload.get("live_start_certified")),
         "live_order_attempted": live_order_attempted,
         "live_order_accepted": live_order_accepted,
         "live_order_reason": live_order_reason,
@@ -398,6 +404,7 @@ def main() -> int:
         "summary": summary,
         "steps": steps,
     }
+    manifest["policy"] = build_live_canary_policy(inputs_from_rehearsal(manifest))
     write_json(output_dir / "manifest.json", manifest, idempotency_key=idempotency_key)
     manifest["files"] = build_file_inventory(output_dir)
     write_json(output_dir / "manifest.json", manifest, idempotency_key=idempotency_key)

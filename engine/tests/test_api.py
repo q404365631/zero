@@ -506,6 +506,24 @@ def test_live_cockpit_combines_preflight_immune_certification_and_next_action() 
     assert "/kill" in payload["operator_actions"]["risk_reducing"]
 
 
+def test_live_canary_policy_endpoint_exposes_lifecycle_without_arming_live_risk() -> None:
+    status, payload = PaperApi(PaperApiState(clock=lambda: FIXED_DT, started_at=FIXED_DT)).get(
+        "/live/canary-policy",
+        {},
+    )
+
+    assert status == 200
+    assert payload["schema_version"] == "zero.live_canary_policy.v1"
+    assert payload["summary"]["ready_for_canary"] is False
+    assert payload["summary"]["policy_armed"] is False
+    assert payload["summary"]["publishable_canary_evidence"] is False
+    assert payload["recommendation"]["action"] == "fix_live_preflight_before_canary"
+    phases = {phase["name"]: phase for phase in payload["phases"]}
+    assert phases["readiness"]["status"] == "blocked"
+    assert phases["policy_arm"]["status"] == "disarmed"
+    assert payload["privacy"]["contains_exchange_credentials"] is False
+
+
 def test_deployment_heartbeat_reflects_live_dead_man_liveness() -> None:
     adapter = RecordingExchangeAdapter()
     executor = LiveExecutor(adapter=adapter, enabled=True, clock=lambda: FIXED_TS)

@@ -44,8 +44,8 @@ scripts/live_cockpit_drill.py http://127.0.0.1:8765
 The script writes `artifacts/live-cockpit-drill/<timestamp>/manifest.json`,
 the raw redacted packets, and `SHA256SUMS`. It collects `/health`,
 `/v2/status`, `/live/preflight`, `/live/cockpit`, `/immune`, `/hl/reconcile`,
-`/live/certification`, `/live/receipts`, `/live/evidence`, `/metrics`, and
-`/audit/export?limit=100`.
+`/live/certification`, `/live/receipts`, `/live/evidence`,
+`/live/canary-policy`, `/metrics`, and `/audit/export?limit=100`.
 
 Verify a captured bundle before sharing it or treating it as launch evidence:
 
@@ -72,6 +72,8 @@ semantic cockpit tampering are rejected.
 
 Do not treat `ready=true` as permission to scale capital. It means local
 controls are coherent enough for an operator-owned tiny-capital canary. Capture
-the cockpit packet, `/live/preflight`, `/immune`, `/hl/reconcile`,
-`/live/certification`, `/metrics`, and `/audit/export?limit=1000` before and
-after the canary.
+the cockpit packet, `/live/preflight`, `/live/canary-policy`, `/immune`,
+`/hl/reconcile`, `/live/certification`, `/metrics`, and
+`/audit/export?limit=1000` before and after the canary. A launch claim is not
+publishable until the canary policy qualifies the evidence and follow-through
+captures.

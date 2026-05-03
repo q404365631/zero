@@ -25,8 +25,9 @@ PACKETS: tuple[tuple[str, str, str | None], ...] = (
     ("07_live_certification", "07_live_certification.json", "zero.live_certification.v1"),
     ("08_live_receipts", "08_live_receipts.json", "zero.live_execution_receipts.v1"),
     ("09_live_evidence", "09_live_evidence.json", "zero.live_evidence.v1"),
-    ("10_metrics", "10_metrics.json", "zero.metrics.v1"),
-    ("11_audit_export", "11_audit_export.json", "zero.audit.v1"),
+    ("10_live_canary_policy", "10_live_canary_policy.json", "zero.live_canary_policy.v1"),
+    ("11_metrics", "11_metrics.json", "zero.metrics.v1"),
+    ("12_audit_export", "12_audit_export.json", "zero.audit.v1"),
 )
 
 
@@ -126,6 +127,7 @@ def replay_summary(bundle: Path) -> dict[str, Any]:
     certification = packet_payload(bundle, "07_live_certification.json")
     receipts = packet_payload(bundle, "08_live_receipts.json")
     evidence = packet_payload(bundle, "09_live_evidence.json")
+    canary_policy = packet_payload(bundle, "10_live_canary_policy.json")
     return {
         "live_mode": cockpit.get("live_mode", preflight.get("live_mode")),
         "ready": cockpit.get("ready"),
@@ -139,6 +141,8 @@ def replay_summary(bundle: Path) -> dict[str, Any]:
         "live_records_total": receipts.get("summary", {}).get("total"),
         "live_records_accepted": receipts.get("summary", {}).get("accepted"),
         "evidence_hash": evidence.get("evidence_hash"),
+        "canary_policy_qualified": canary_policy.get("summary", {}).get("qualified"),
+        "canary_policy_next_step": canary_policy.get("summary", {}).get("next_step"),
     }
 
 
@@ -248,6 +252,7 @@ def verify_bundle(args: argparse.Namespace) -> dict[str, Any]:
     preflight = packet_payload(bundle, "03_live_preflight.json")
     immune = packet_payload(bundle, "05_immune.json")
     certification = packet_payload(bundle, "07_live_certification.json")
+    canary_policy = packet_payload(bundle, "10_live_canary_policy.json")
     if args.expect_refusal:
         add(
             findings,
@@ -278,6 +283,13 @@ def verify_bundle(args: argparse.Namespace) -> dict[str, Any]:
         "certification",
         "dry-run certification passed",
         "live certification did not pass dry-run",
+    )
+    add(
+        findings,
+        canary_policy.get("summary", {}).get("policy_armed") is False,
+        "canary_policy",
+        "canary policy disarmed",
+        "canary policy unexpectedly armed",
     )
 
     text = body_text(bundle)

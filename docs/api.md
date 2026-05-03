@@ -374,6 +374,13 @@ private data. Set
 `ZERO_LIVE_EVIDENCE_SIGNING_KEY` to attach a local HMAC-SHA256 signature without
 echoing key material.
 
+`GET /live/canary-policy` returns `zero.live_canary_policy.v1`: the public
+policy lifecycle for supervised live canary evidence. It reports readiness,
+policy arm/disarm state, launch-window rules, required evidence, shadow review,
+qualification, follow-through status, whether refusal evidence is qualified,
+whether accepted live evidence is publishable, and the next recommended
+operator action. It never arms live risk by itself.
+
 `scripts/live_canary_rehearsal.py URL --mode refusal` is the maintained local
 collector for the canary path. It captures preflight, heartbeat, cockpit,
 certification, reconciliation, fail-closed live execute evidence when the
@@ -396,21 +403,23 @@ accepted ZERO receipt has exchange-side evidence.
 
 `scripts/live_canary_operator.py URL --mode refusal` wraps the full public-safe
 operator workflow: collect rehearsal bundle, attach exchange evidence, run the
-verifier, and write `operator_report.json`. For accepted live canary receipts,
-the operator workflow refuses to produce a passing report unless a matching
-Hyperliquid order/fill export is attached.
+verifier, embed the live canary policy, and write `operator_report.json`. For
+accepted live canary receipts, the operator workflow refuses to produce a
+passing report unless a matching Hyperliquid order/fill export is attached and
+the policy qualifies the report.
 
 `scripts/live_canary_operator_verify.py DIR` independently verifies the
 operator workflow directory. It checks recursive `SHA256SUMS`, operator-report
 privacy flags, common redaction leaks, accepted-live exchange-evidence rules,
-and the nested canary bundle verifier.
+the embedded policy, and the nested canary bundle verifier.
 
 `scripts/live_cockpit_drill.py URL` collects the read-only live cockpit stack
 into a public-safe drill bundle. It captures `/health`, `/v2/status`,
 `/live/preflight`, `/live/cockpit`, `/immune`, `/hl/reconcile`,
-`/live/certification`, `/live/receipts`, `/live/evidence`, `/metrics`, and
-`/audit/export?limit=100`, then writes `manifest.json` and `SHA256SUMS`. In
-public paper mode it fails unless live readiness remains fail-closed.
+`/live/certification`, `/live/receipts`, `/live/evidence`,
+`/live/canary-policy`, `/metrics`, and `/audit/export?limit=100`, then writes
+`manifest.json` and `SHA256SUMS`. In public paper mode it fails unless live
+readiness remains fail-closed.
 `scripts/live_cockpit_drill_verify.py DIR` independently verifies a captured
 bundle by recomputing checksums, checking packet schemas, replaying the
 manifest summary from packet payloads, and enforcing redaction rules.

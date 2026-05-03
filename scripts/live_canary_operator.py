@@ -13,6 +13,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "engine" / "src"))
+
+from zero_engine.live_canary_policy import build_live_canary_policy, inputs_from_rehearsal
+
 
 SCHEMA_VERSION = "zero.live_canary_operator.v1"
 RISK_CONFIRMATION = "I_UNDERSTAND_THIS_CAN_PLACE_A_REAL_HYPERLIQUID_ORDER"
@@ -328,6 +333,16 @@ def main() -> int:
         "failures": failures,
         "next_actions": next_actions(args, accepted_receipts, exchange_attached, failures),
     }
+    manifest = load_json(bundle / "manifest.json") if (bundle / "manifest.json").is_file() else {}
+    report["policy"] = build_live_canary_policy(
+        inputs_from_rehearsal(
+            manifest if isinstance(manifest, dict) else {},
+            operator_report=report,
+        )
+    )
+    report["summary"]["publishable_canary_evidence"] = bool(
+        report["policy"]["summary"]["publishable_canary_evidence"]
+    )
     write_json(report_path(workflow_dir), report)
     write_sha256s(workflow_dir)
     if args.json:

@@ -124,7 +124,7 @@ guarded by preflight checks.
 | --- | --- |
 | Paper engine | Runnable now with deterministic fixtures, local API, CLI, Docker, and Railway paths. |
 | Live market data | Runnable now through read-only Hyperliquid public info calls when enabled. |
-| Live readiness | Runnable now as local preflight, cockpit, certification, reconciliation, immune, receipt, and evidence contracts. |
+| Live readiness | Runnable now as local preflight, cockpit, certification, reconciliation, immune, receipt, evidence, and canary-policy contracts. |
 | Live execution | Code boundary exists, but live capital remains operator-owned and gated until local custody, preflight, journal, kill-switch, reconciliation, and canary evidence pass. |
 | Self-evolution | Local memory, genesis proposal core, research command chain, decision-stack lenses/layers/modifiers, and paper-only evolve gates exist now with redacted extraction, append-only journals, guardian classification, hunt/edge/convergence/thesis/score/meta/sharpen reports, public evaluation surfaces, red-team review, paper canary, calibration, API readouts, and expanded read-only MCP snapshots for runtime status, health, journal, rejection audit, memory stats, immune state, backtest summary, evidence bundle, and safety catalog. Real mutation, promotion, and rollback remain planned public extraction. |
 | Public proof | Runnable now through redacted Network contracts, canary bundles, exchange-evidence normalization, recursive checksums, and operator report verification. |
@@ -163,6 +163,9 @@ flowchart LR
   without placing capital at risk.
 - Capture signed, public-safe live evidence packets for supervised canary
   rehearsal without leaking credentials or raw private journals.
+- Inspect the live canary policy lifecycle for readiness, arm/disarm, launch
+  window, evidence, shadow review, qualification, follow-through, and next
+  action through `/live/canary-policy`.
 - Run the maintained live canary rehearsal collector in fail-closed public
   paper mode, or in explicit operator-owned canary mode when local live gates
   are ready.
@@ -199,8 +202,8 @@ ZERO should earn trust through behavior that another engineer can verify:
 3. Rehearse a live canary in fail-closed mode.
 4. Attach public-safe exchange-side evidence when an operator-owned live canary
    is ready.
-5. Verify the bundle, recursive checksums, privacy flags, and report with local
-   scripts before publishing anything.
+5. Verify the bundle, recursive checksums, privacy flags, live canary policy,
+   and report with local scripts before publishing anything.
 
 That flow is implemented for refusal-mode rehearsal today. Accepted live canary
 evidence requires an operator-owned Hyperliquid wallet and explicit local live
@@ -266,6 +269,9 @@ $ curl -fsS http://127.0.0.1:8765/live/certification
 $ curl -fsS http://127.0.0.1:8765/live/evidence
 {"schema_version": "zero.live_evidence.v1", "live_mode": "refused", "evidence_hash": "sha256:..."}
 
+$ curl -fsS http://127.0.0.1:8765/live/canary-policy
+{"schema_version": "zero.live_canary_policy.v1", "summary": {"ready_for_canary": false, "next_step": "fix_live_preflight_before_canary"}}
+
 $ scripts/live_canary_rehearsal.py http://127.0.0.1:8765 --mode refusal
 zero live canary rehearsal: wrote artifacts/live-canary-rehearsal/... mode=refusal risk_ready=False attempted=True accepted=False
 
@@ -274,6 +280,9 @@ zero live canary exchange evidence: wrote artifacts/live-canary-rehearsal/.../ex
 
 $ scripts/live_canary_verify.py artifacts/live-canary-rehearsal/... --require-mode refusal --require-exchange-evidence
 zero live canary verify: ok=True checks=... fail=0
+
+$ scripts/live_canary_policy.py artifacts/live-canary-rehearsal/...
+zero live canary policy: qualified=True publishable=False refusal_qualified=True next=keep_public_claim_at_refusal_proof
 
 $ scripts/live_canary_operator.py http://127.0.0.1:8765 --mode refusal
 zero live canary operator: ok=True bundle=artifacts/live-canary-operator/.../bundle exchange=True report=artifacts/live-canary-operator/.../operator_report.json
@@ -1935,6 +1944,13 @@ private data. Set
 `ZERO_LIVE_EVIDENCE_SIGNING_KEY` to attach a local HMAC-SHA256 signature without
 echoing key material.
 
+`GET /live/canary-policy` returns `zero.live_canary_policy.v1`: the public
+policy lifecycle for supervised live canary evidence. It reports readiness,
+policy arm/disarm state, launch-window rules, required evidence, shadow review,
+qualification, follow-through status, whether refusal evidence is qualified,
+whether accepted live evidence is publishable, and the next recommended
+operator action. It never arms live risk by itself.
+
 `scripts/live_canary_rehearsal.py URL --mode refusal` is the maintained local
 collector for the canary path. It captures preflight, heartbeat, cockpit,
 certification, reconciliation, fail-closed live execute evidence when the
@@ -1957,21 +1973,23 @@ accepted ZERO receipt has exchange-side evidence.
 
 `scripts/live_canary_operator.py URL --mode refusal` wraps the full public-safe
 operator workflow: collect rehearsal bundle, attach exchange evidence, run the
-verifier, and write `operator_report.json`. For accepted live canary receipts,
-the operator workflow refuses to produce a passing report unless a matching
-Hyperliquid order/fill export is attached.
+verifier, embed the live canary policy, and write `operator_report.json`. For
+accepted live canary receipts, the operator workflow refuses to produce a
+passing report unless a matching Hyperliquid order/fill export is attached and
+the policy qualifies the report.
 
 `scripts/live_canary_operator_verify.py DIR` independently verifies the
 operator workflow directory. It checks recursive `SHA256SUMS`, operator-report
 privacy flags, common redaction leaks, accepted-live exchange-evidence rules,
-and the nested canary bundle verifier.
+the embedded policy, and the nested canary bundle verifier.
 
 `scripts/live_cockpit_drill.py URL` collects the read-only live cockpit stack
 into a public-safe drill bundle. It captures `/health`, `/v2/status`,
 `/live/preflight`, `/live/cockpit`, `/immune`, `/hl/reconcile`,
-`/live/certification`, `/live/receipts`, `/live/evidence`, `/metrics`, and
-`/audit/export?limit=100`, then writes `manifest.json` and `SHA256SUMS`. In
-public paper mode it fails unless live readiness remains fail-closed.
+`/live/certification`, `/live/receipts`, `/live/evidence`,
+`/live/canary-policy`, `/metrics`, and `/audit/export?limit=100`, then writes
+`manifest.json` and `SHA256SUMS`. In public paper mode it fails unless live
+readiness remains fail-closed.
 `scripts/live_cockpit_drill_verify.py DIR` independently verifies a captured
 bundle by recomputing checksums, checking packet schemas, replaying the
 manifest summary from packet payloads, and enforcing redaction rules.
@@ -3166,18 +3184,18 @@ end.
 |---|---:|---|
 | Public repo hygiene | 100 | Strong CI, release artifacts, governance, docs, clean boundaries, first-class GitHub product page, first-10-minutes guide, reproducible demo capture, fresh source-tree rehearsal, threat model, incident runbooks, distribution policy, hardening gate, and public-readiness gate. |
 | Product narrative | 99 | Clear category around autonomous operating systems for self-custodial onchain operations, with public runtime, terminal, evolution, network, intelligence, capability boundary, and operator proof path separated cleanly. |
-| CLI readiness | 99 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, `/live-cockpit`, `/live-certify`, `/immune`, friction-gated `/resume-entries`, friction-gated engine-backed `/execute` with receipt-hash rendering, operator-context audit headers, operator-local runtime partitions, a one-command live canary operator evidence workflow, and a verified read-only live cockpit drill bundle exist. Remaining full-screen TUI cockpit layout and real canary evidence are external. |
-| Engine runtime | 92 | Deterministic paper runtime, bounded OODA cycle records, strategy runner SDK, declarative paper strategies, public lens/layer/modifier decision stack, append-only decision journal, durable runtime bus contracts, restart replay, read-only Hyperliquid info adapter, live-mid paper execution, traceable audit export, live custody preflight, account reconciliation, dry-run live certification, immune breaker packets, live execution receipt packets, maintained live canary rehearsal collector, verifier, exchange-evidence normalizer, operator report workflow, and operator report verifier, public-safe signed live evidence packets, fail-closed model gateway plumbing, and live-executor interfaces exist. Still missing public production OODA parity and real exchange canary proof from an operator-owned run. |
+| CLI readiness | 99 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, `/live-cockpit`, `/live-certify`, `/immune`, friction-gated `/resume-entries`, friction-gated engine-backed `/execute` with receipt-hash rendering, operator-context audit headers, operator-local runtime partitions, a one-command live canary operator evidence workflow, canary policy renderer, and a verified read-only live cockpit drill bundle exist. Remaining full-screen TUI cockpit layout and real canary evidence are external. |
+| Engine runtime | 93 | Deterministic paper runtime, bounded OODA cycle records, strategy runner SDK, declarative paper strategies, public lens/layer/modifier decision stack, append-only decision journal, durable runtime bus contracts, restart replay, read-only Hyperliquid info adapter, live-mid paper execution, traceable audit export, live custody preflight, account reconciliation, dry-run live certification, immune breaker packets, live execution receipt packets, maintained live canary rehearsal collector, verifier, exchange-evidence normalizer, live canary policy lifecycle, operator report workflow, and operator report verifier, public-safe signed live evidence packets, fail-closed model gateway plumbing, and live-executor interfaces exist. Still missing public production OODA parity and real exchange canary proof from an operator-owned run. |
 | Self-evolution loop | 67 | Local memory, genesis proposal core, paper-only research command chain, public decision-stack review, and paper-only evolve gates are now implemented with typed public-safe entries, append-only JSONL journals, generated `knowledge.md`, `/memory`, `/genesis`, `/research`, `/decision/stack`, `/evolve`, fixture-backed CLI extraction/classification/research/decision-stack output, guardian sample floors, protected path escalation, hunt/edge/convergence/thesis/score/meta/sharpen reports, lenses/layers/modifiers, red-team review, deterministic paper canary, calibration, and expanded read-only MCP status/health/journal/rejection/memory/immune/backtest/evidence/safety surfaces. Real mutation, promotion, and rollback remain. |
-| Safety and risk | 93 | CLI risk asymmetry, local custody validation, dry-run order validation, preflight refusal, account-reconciliation gate, live-submit idempotency model, no-retry exchange-error records, dry-run live certification drills, `zero.immune.v1` breakers, dead-man heartbeat contract, max notional/loss/order-rate policy, pause, kill, reduce-only flatten, fail-closed canary rehearsal, hash-only live evidence capture, verified cockpit drill tamper rejection, threat model, and P0/P1 runbooks exist. Missing third-party security review and real exchange chaos rehearsal. |
-| API contracts | 99 | Paper fixtures are pinned across Python and Rust, OpenAPI documents the local paper runtime, compatibility rules are explicit, `/memory` exposes redacted local learning, `/genesis` exposes plan-only proposal classification, `/research` exposes paper-only research reports, `/decision/stack` exposes lens/layer/modifier evaluation shape, `/evaluate/{coin}` embeds that stack while preserving CLI fields, `/evolve` exposes paper-only evolve gates, `/operator/context` exposes audit identity, `/deployment/claim` exposes signature-ready runtime identity, `/deployment/heartbeat` exposes signature-ready public liveness, `/hl/status` exposes read-only market status, `/hl/account` and `/hl/reconcile` expose account truth, `/immune` exposes risk-blocking breaker state, `/live/cockpit` exposes consolidated live operator state, `/live/certification` exposes dry-run safety evidence, `/live/receipts` exposes public-safe local execution receipts, `/live/evidence` exposes a hash-only signed canary evidence bundle, `/market/quote` names the active price source, `/health` plus `/v2/status` expose recovery state, `/metrics` plus `/audit/export` expose observable runtime state, `/network/*` exposes public proof packets and hosted-compatible ingestion, `/intelligence/*` exposes delayed intelligence, model gateway status, model gateway health, model gateway audit, and billing-ready commercial API contracts, `/v1/intelligence/*` exposes hosted-compatible auth, scopes, rate-limit headers, usage events, webhook signatures, and export jobs, `/live/preflight` exposes a non-secret live-readiness gate, and `POST /live/*` controls are typed in the CLI. Missing production hosted compatibility policy. |
+| Safety and risk | 94 | CLI risk asymmetry, local custody validation, dry-run order validation, preflight refusal, account-reconciliation gate, live-submit idempotency model, no-retry exchange-error records, dry-run live certification drills, `zero.immune.v1` breakers, dead-man heartbeat contract, max notional/loss/order-rate policy, pause, kill, reduce-only flatten, fail-closed canary rehearsal, canary policy qualification, hash-only live evidence capture, verified cockpit drill tamper rejection, threat model, and P0/P1 runbooks exist. Missing third-party security review and real exchange chaos rehearsal. |
+| API contracts | 99 | Paper fixtures are pinned across Python and Rust, OpenAPI documents the local paper runtime, compatibility rules are explicit, `/memory` exposes redacted local learning, `/genesis` exposes plan-only proposal classification, `/research` exposes paper-only research reports, `/decision/stack` exposes lens/layer/modifier evaluation shape, `/evaluate/{coin}` embeds that stack while preserving CLI fields, `/evolve` exposes paper-only evolve gates, `/operator/context` exposes audit identity, `/deployment/claim` exposes signature-ready runtime identity, `/deployment/heartbeat` exposes signature-ready public liveness, `/hl/status` exposes read-only market status, `/hl/account` and `/hl/reconcile` expose account truth, `/immune` exposes risk-blocking breaker state, `/live/cockpit` exposes consolidated live operator state, `/live/certification` exposes dry-run safety evidence, `/live/receipts` exposes public-safe local execution receipts, `/live/evidence` exposes a hash-only signed canary evidence bundle, `/live/canary-policy` exposes the live canary lifecycle and qualification contract, `/market/quote` names the active price source, `/health` plus `/v2/status` expose recovery state, `/metrics` plus `/audit/export` expose observable runtime state, `/network/*` exposes public proof packets and hosted-compatible ingestion, `/intelligence/*` exposes delayed intelligence, model gateway status, model gateway health, model gateway audit, and billing-ready commercial API contracts, `/v1/intelligence/*` exposes hosted-compatible auth, scopes, rate-limit headers, usage events, webhook signatures, and export jobs, `/live/preflight` exposes a non-secret live-readiness gate, and `POST /live/*` controls are typed in the CLI. Missing production hosted compatibility policy. |
 | Deployment | 89 | Docker path, Railway config, healthcheck, restart policy, `PORT`-aware start script, durable journal replay, traceable paper decisions, Railway remote doctor, redacted deployment evidence pack, Railway smoke test, and Railway incident runbook exist. Missing live deployed project proof and authenticated remote log capture evidence. |
-| Observability and audit | 100 | HTTP trace IDs, operator context packets, operator-local state partitions, live-control action logs, traced paper decisions, metrics, idempotency counters, replay counts, retention/redaction metadata, structured audit export, checksum-chained runtime events, local state snapshots, immune breaker packets, Hyperliquid reconciliation packets, live cockpit packets, live execution receipt hashes, dry-run live certification packets, hash-only signed live evidence bundles, live canary bundle verification, live cockpit drill replay verification, live cockpit drill tamper rehearsal, public-safe exchange evidence attachment, public-safe operator reports, recursive operator evidence checksums, operator report verification, model gateway health packets, model gateway audit bundles, deployment evidence manifests, and required incident artifacts are documented. Remaining production work is external log drains/signing, not public-runtime audit shape. |
+| Observability and audit | 100 | HTTP trace IDs, operator context packets, operator-local state partitions, live-control action logs, traced paper decisions, metrics, idempotency counters, replay counts, retention/redaction metadata, structured audit export, checksum-chained runtime events, local state snapshots, immune breaker packets, Hyperliquid reconciliation packets, live cockpit packets, live execution receipt hashes, dry-run live certification packets, hash-only signed live evidence bundles, live canary policy packets, live canary bundle verification, live cockpit drill replay verification, live cockpit drill tamper rehearsal, public-safe exchange evidence attachment, public-safe operator reports, recursive operator evidence checksums, operator report verification, model gateway health packets, model gateway audit bundles, deployment evidence manifests, and required incident artifacts are documented. Remaining production work is external log drains/signing, not public-runtime audit shape. |
 | Security and custody | 92 | No secrets needed for first run; Hyperliquid private keys have operator-scoped keychain/env helpers, redaction tests, a non-secret preflight gate, optional SDK-backed live adapter, threat model, secret-leak runbook, dependency policy, SBOM/provenance metadata, and release provenance policy. Missing external security review. |
 | ZERO Network | 70 | Public-safe local profile packets, proof hashes, deployment claim hashes, deployment heartbeat hashes, verification badges, leaderboard rows, opt-in local publish logs, hosted-compatible ingestion, proof validation, duplicate refusal, metric-consistency checks, and accepted-only leaderboard output exist. Missing production hosted service persistence, public hosted pages, stale-publication windows, sybil policy, and signed identity verification. |
 | ZERO Intelligence | 78 | Delayed public snapshots, catalog, billing-ready commercial contract, hosted-compatible `/v1/intelligence/*` reads/writes, token-gated paid scopes, actual rate-limit headers, usage events, HMAC-SHA256 webhook signature fixtures, aggregate export jobs, plan/scope model, dataset names, fail-closed model gateway status, model gateway health probes, model gateway audit bundles, mock/local provider conformance, real external model adapters, bounded retry/cost policy, hosted key-management rules, plan boundary, and opt-in local export packets exist. Missing production hosted persistence, billing provider integration, warehouse-backed realtime/history feeds, production webhook delivery, commercial terms, live hosted key-management implementation, and hosted audit retention. |
 | Release and distribution | 98 | GitHub release artifacts, checksums, SBOM/provenance bundle, recorded `v0.1.1` clean-download release evidence, published-release evidence command, release verifier, tamper-detection rehearsal, draft-release rollback rehearsal, Homebrew formula renderer, attestations, installer, registry-readiness gate, package dry-run, distribution readiness policy, release template hardening checks, dependency policy, and rollback rules exist. Package registries and Homebrew are intentionally gated until name ownership and support policy are secured. |
-| Documentation for operators | 100 | Good local docs, operator isolation docs, Hyperliquid read-only boundary docs, live-paper quote docs, immune-system docs, live cockpit docs, live cockpit drill bundle, verifier, and tamper rehearsal, live certification docs, live evidence docs, live canary rehearsal docs, Railway paper deploy, remote-doctor, and evidence-pack docs, restart recovery docs, audit/metrics docs, live-preflight warnings, threat model, and incident runbooks. Missing real exchange drill evidence only as external proof, not documented workflow. |
+| Documentation for operators | 100 | Good local docs, operator isolation docs, Hyperliquid read-only boundary docs, live-paper quote docs, immune-system docs, live cockpit docs, live cockpit drill bundle, verifier, and tamper rehearsal, live certification docs, live evidence docs, live canary policy/operator docs, Railway paper deploy, remote-doctor, and evidence-pack docs, restart recovery docs, audit/metrics docs, live-preflight warnings, threat model, and incident runbooks. Missing real exchange drill evidence only as external proof, not documented workflow. |
 
 **Public repo readiness: 100/100.**
 
@@ -3188,7 +3206,7 @@ the full operating-system/product score: external security review, human
 fresh-clone feedback from at least one serious engineer, and a real
 operator-owned live canary evidence bundle.
 
-**Full ZERO operating-system readiness: 96/100.**
+**Full ZERO operating-system readiness: 97/100.**
 
 It is still not a hosted custody product, and real capital operation remains
 self-custodial and operator-owned. The public repo must not imply that a new
@@ -3247,7 +3265,7 @@ ZERO is 100/100 when a new serious operator can:
 
 ## Execution Cycles
 
-Forecast after Cycle 33: **3 major cycles remain before the public
+Forecast after Cycle 34: **2-3 major cycles remain before the public
 repo should be treated as the complete ZERO autonomous operating system.** The
 repo can be upgraded publicly before those cycles finish, but the README and
 docs must keep the paper/live and self-evolution boundaries honest.
@@ -4506,7 +4524,7 @@ local genesis, or the operator terminal as proprietary features.
 | Research command chain | Hunt, edge, convergence, thesis, score, meta, and sharpen form a learning/research loop. | Public docs mention autonomous OS, but not the full command chain. | Add public command contracts and deterministic fixture-backed reports. |
 | Real decision engine | Multi-lens evaluation, layered signals, risk gates, sizing modifiers, and rejection learning. | Public runtime now exposes a paper-only lens/layer/modifier decision stack over API, MCP, OpenAPI, docs, and tests. | Add production OODA parity, rejection learner, regime/correlation gates, and execution-quality feedback. |
 | MCP surface | Internal MCP can inspect and operate many engine surfaces. | Public MCP exposes expanded read-only local/operator surfaces with explicit safety classes. | Add risk-reducing local controls only after the operator policy and friction contract are public. |
-| Live canary lifecycle | Readiness, policy, launch, evidence, report, qualification, shadow review, follow-through. | Public has rehearsal, evidence, verification, and operator report flows. | Add policy/follow-through/qualification contracts and fixtures. |
+| Live canary lifecycle | Readiness, policy, launch, evidence, report, qualification, shadow review, follow-through. | Public has rehearsal, evidence, verification, policy qualification, cockpit-drill policy capture, and operator report flows. | Attach real operator-owned exchange evidence from an accepted canary. |
 | Agent daemon | Persistent agents, approvals, proposals, operator app, and communication loop. | Public has agent contribution docs and a thin MCP. | Add local proposal queue and approval surfaces before hosted agents. |
 | Perception layer | Sensor, cross-asset, liquidations, universe, market data service, and setup detection. | Public has market adapter examples and read-only Hyperliquid status. | Add public sensor interfaces, fixture stores, and live-read-only adapters. |
 | Recovery and operations | Honest checks, Hyperliquid state checks, recovery CLI, watchdog, log rotation. | Public has incident docs, deployment evidence, and readiness gates. | Add operator-safe diagnostics and recovery commands with no secret access. |
@@ -4721,23 +4739,37 @@ Exit gate:
 - operator-owned live evidence can be attached and verified without leaking raw
   venue payloads or secrets.
 
+Current public status:
+
+- `/live/canary-policy` exposes `zero.live_canary_policy.v1` with readiness,
+  arm/disarm, launch-window, evidence, shadow-review, qualification,
+  follow-through, and next-step fields.
+- Rehearsal bundles and operator reports embed the same policy object.
+- `scripts/live_canary_policy.py` renders the policy from rehearsal bundles,
+  cockpit drill bundles, manifests, or operator reports.
+- The canary verifiers reject missing policy packets and operator-report policy
+  contradictions.
+- Public paper smoke exercises refusal-mode policy qualification without
+  claiming accepted live execution.
+
 ## Revised Score
 
 Public repo readiness remains **100/100** as a launch artifact.
 
-Full ZERO operating-system readiness is **96/100** after Cycle 33. The score
-increased because the public agent surface now exposes the local/operator
-inspection plane with explicit read-only safety classes: status, health,
-journals, rejection audit, memory, genesis, research, decision stack, evolve,
-immune, backtest, evidence, proof, and safety catalog. The remaining
-self-evolution loop is still core product architecture, not polish.
+Full ZERO operating-system readiness is **97/100** after Cycle 34. The score
+increased because the live canary lifecycle now has a public policy contract:
+readiness, arm/disarm, launch window, exchange evidence, shadow review,
+qualification, follow-through, and next-step recommendation can be inspected
+and verified without leaking venue payloads or secrets. The remaining
+self-evolution and production OODA gaps are still core product architecture,
+not polish.
 
 The path back to 100/100 is now clearer:
 
 1. real mutation/promotion and rollback loop;
 2. risk-reducing MCP controls with enforceable local operator friction;
-3. live canary policy parity and operator-owned exchange evidence;
-4. real production OODA parity, rejection learner, and execution-quality feedback.
+3. real production OODA parity, rejection learner, and execution-quality feedback;
+4. external operator-owned accepted-canary evidence and security review.
 ````
 
 

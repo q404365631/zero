@@ -170,6 +170,8 @@ curl -fsS "${API}/live/cockpit" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.live_cockpit.v1"; assert p["ready"] is False; assert p["risk_increasing_allowed"] is False; assert p["operator_context"]["handle"] == "local-operator"; assert p["preflight"]["summary"]["failed"] >= 1; assert "/kill" in p["operator_actions"]["risk_reducing"]'
 curl -fsS "${API}/live/certification" \
   | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.live_certification.v1"; assert p["mode"] == "dry_run"; assert p["passed"] is True; assert p["summary"]["orders_placed_live"] == 0'
+curl -fsS "${API}/live/canary-policy" \
+  | "${PYTHON_BIN}" -c 'import json,sys; p=json.load(sys.stdin); assert p["schema_version"] == "zero.live_canary_policy.v1"; assert p["summary"]["ready_for_canary"] is False; assert p["summary"]["policy_armed"] is False; assert p["summary"]["publishable_canary_evidence"] is False; assert p["recommendation"]["action"] == "fix_live_preflight_before_canary"'
 curl -fsS \
   -H "content-type: application/json" \
   -d '{}' \
@@ -187,10 +189,13 @@ COCKPIT_DRILL_DIR="$(mktemp -d)"
 "${PYTHON_BIN}" scripts/live_cockpit_drill.py "${API}" \
   --output "${COCKPIT_DRILL_DIR}" \
   --forbid-token smoke-1 >/tmp/zero-paper-api-live-cockpit-drill.txt
-"${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); body=json.dumps(m); assert m["schema_version"] == "zero.live_cockpit_drill.v1"; assert m["summary"]["ok"] is True; assert m["summary"]["ready"] is False; assert m["summary"]["risk_increasing_allowed"] is False; assert (d/"SHA256SUMS").is_file(); assert "smoke-1" not in body; assert "trace-" not in body' \
+"${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); p=json.loads((d/"10_live_canary_policy.json").read_text(encoding="utf-8"))["payload"]; body=json.dumps(m); assert m["schema_version"] == "zero.live_cockpit_drill.v1"; assert m["summary"]["ok"] is True; assert m["summary"]["ready"] is False; assert m["summary"]["risk_increasing_allowed"] is False; assert m["summary"]["canary_policy_qualified"] is False; assert p["schema_version"] == "zero.live_canary_policy.v1"; assert p["summary"]["policy_armed"] is False; assert (d/"SHA256SUMS").is_file(); assert "smoke-1" not in body; assert "trace-" not in body' \
   "${COCKPIT_DRILL_DIR}"
 "${PYTHON_BIN}" scripts/live_cockpit_drill_verify.py "${COCKPIT_DRILL_DIR}" \
   --forbid-token smoke-1 >/tmp/zero-paper-api-live-cockpit-drill-verify.txt
+"${PYTHON_BIN}" scripts/live_canary_policy.py "${COCKPIT_DRILL_DIR}" \
+  >/tmp/zero-paper-api-live-cockpit-drill-policy.txt
+grep -q "next=fix_live_preflight_before_canary" /tmp/zero-paper-api-live-cockpit-drill-policy.txt
 "${PYTHON_BIN}" scripts/live_cockpit_drill_tamper_rehearsal.py "${COCKPIT_DRILL_DIR}" \
   --forbid-token smoke-1 >/tmp/zero-paper-api-live-cockpit-drill-tamper.txt
 
@@ -206,7 +211,7 @@ CANARY_DIR="$(mktemp -d)"
   --mode refusal \
   --idempotency-key smoke-live-canary-refusal \
   --output "${CANARY_DIR}" >/tmp/zero-paper-api-live-canary-rehearsal.txt
-"${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); e=(d/"91_live_evidence.json").read_text(encoding="utf-8"); assert m["schema_version"] == "zero.live_canary_rehearsal.v1"; assert m["summary"]["live_order_attempted"] is True; assert m["summary"]["live_order_accepted"] is False; assert m["summary"]["live_order_reason"] == "live executor not configured"; assert m["summary"]["evidence_hash"].startswith("sha256:"); assert (d/"SHA256SUMS").is_file(); assert "smoke-live-canary-refusal" not in e; assert "\"trace_id\": \"trace-" not in e' \
+"${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); e=(d/"91_live_evidence.json").read_text(encoding="utf-8"); assert m["schema_version"] == "zero.live_canary_rehearsal.v1"; assert m["policy"]["schema_version"] == "zero.live_canary_policy.v1"; assert m["policy"]["summary"]["refusal_evidence_qualified"] is True; assert m["summary"]["live_order_attempted"] is True; assert m["summary"]["live_order_accepted"] is False; assert m["summary"]["live_order_reason"] == "live executor not configured"; assert m["summary"]["evidence_hash"].startswith("sha256:"); assert (d/"SHA256SUMS").is_file(); assert "smoke-live-canary-refusal" not in e; assert "\"trace_id\": \"trace-" not in e' \
   "${CANARY_DIR}"
 EXCHANGE_SOURCE="$(mktemp)"
 printf '{"orders":[],"fills":[]}\n' >"${EXCHANGE_SOURCE}"
@@ -217,12 +222,14 @@ rm -f "${EXCHANGE_SOURCE}"
   --require-mode refusal \
   --require-exchange-evidence \
   --forbid-token smoke-live-canary-refusal >/tmp/zero-paper-api-live-canary-verify.txt
+"${PYTHON_BIN}" scripts/live_canary_policy.py "${CANARY_DIR}" >/tmp/zero-paper-api-live-canary-policy.txt
+grep -q "refusal_qualified=True" /tmp/zero-paper-api-live-canary-policy.txt
 OPERATOR_DIR="$(mktemp -d)"
 "${PYTHON_BIN}" scripts/live_canary_operator.py "${API}" \
   --mode refusal \
   --idempotency-key smoke-live-canary-operator-refusal \
   --output "${OPERATOR_DIR}" >/tmp/zero-paper-api-live-canary-operator.txt
-"${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); r=json.loads((d/"operator_report.json").read_text(encoding="utf-8")); body=json.dumps(r); assert r["schema_version"] == "zero.live_canary_operator.v1"; assert r["ok"] is True; assert r["summary"]["exchange_evidence_attached"] is True; assert r["summary"]["auto_empty_exchange_export"] is True; assert (d/"bundle"/"exchange_evidence.json").is_file(); assert "smoke-live-canary-operator-refusal" not in body' \
+"${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); r=json.loads((d/"operator_report.json").read_text(encoding="utf-8")); body=json.dumps(r); assert r["schema_version"] == "zero.live_canary_operator.v1"; assert r["ok"] is True; assert r["policy"]["schema_version"] == "zero.live_canary_policy.v1"; assert r["policy"]["summary"]["refusal_evidence_qualified"] is True; assert r["summary"]["exchange_evidence_attached"] is True; assert r["summary"]["auto_empty_exchange_export"] is True; assert (d/"bundle"/"exchange_evidence.json").is_file(); assert "smoke-live-canary-operator-refusal" not in body' \
   "${OPERATOR_DIR}"
 "${PYTHON_BIN}" scripts/live_canary_operator_verify.py "${OPERATOR_DIR}" \
   --forbid-token smoke-live-canary-operator-refusal >/tmp/zero-paper-api-live-canary-operator-verify.txt

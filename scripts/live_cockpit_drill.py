@@ -30,8 +30,9 @@ PACKETS: tuple[tuple[str, str, str | None], ...] = (
     ("07_live_certification", "/live/certification", "zero.live_certification.v1"),
     ("08_live_receipts", "/live/receipts", "zero.live_execution_receipts.v1"),
     ("09_live_evidence", "/live/evidence", "zero.live_evidence.v1"),
-    ("10_metrics", "/metrics", "zero.metrics.v1"),
-    ("11_audit_export", "/audit/export?limit=100", "zero.audit.v1"),
+    ("10_live_canary_policy", "/live/canary-policy", "zero.live_canary_policy.v1"),
+    ("11_metrics", "/metrics", "zero.metrics.v1"),
+    ("12_audit_export", "/audit/export?limit=100", "zero.audit.v1"),
 )
 
 REDACTION_PATTERNS: tuple[tuple[str, str], ...] = (
@@ -266,6 +267,7 @@ def validate_packets(
     immune = packet_payload(packets["05_immune"])
     reconciliation = packet_payload(packets["06_hl_reconcile"])
     certification = packet_payload(packets["07_live_certification"])
+    canary_policy = packet_payload(packets["10_live_canary_policy"])
 
     if expect_refusal:
         add(
@@ -322,6 +324,13 @@ def validate_packets(
         "dry-run certification passed",
         "live certification did not pass dry-run",
     )
+    add(
+        checks,
+        canary_policy.get("summary", {}).get("policy_armed") is False,
+        "operator:canary_policy",
+        "canary policy disarmed",
+        "canary policy unexpectedly armed",
+    )
 
     text = body_text(output_dir)
     leak_patterns = {
@@ -351,6 +360,7 @@ def build_summary(packets: dict[str, dict[str, Any]]) -> dict[str, Any]:
     certification = packet_payload(packets["07_live_certification"])
     receipts = packet_payload(packets["08_live_receipts"])
     evidence = packet_payload(packets["09_live_evidence"])
+    canary_policy = packet_payload(packets["10_live_canary_policy"])
     return {
         "live_mode": cockpit.get("live_mode", preflight.get("live_mode")),
         "ready": cockpit.get("ready"),
@@ -364,6 +374,8 @@ def build_summary(packets: dict[str, dict[str, Any]]) -> dict[str, Any]:
         "live_records_total": receipts.get("summary", {}).get("total"),
         "live_records_accepted": receipts.get("summary", {}).get("accepted"),
         "evidence_hash": evidence.get("evidence_hash"),
+        "canary_policy_qualified": canary_policy.get("summary", {}).get("qualified"),
+        "canary_policy_next_step": canary_policy.get("summary", {}).get("next_step"),
     }
 
 
