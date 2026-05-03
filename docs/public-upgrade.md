@@ -23,6 +23,8 @@ marketing copy. The first public impression should be:
 - Keep live execution self-custodial and explicit.
 - Keep ZERO Intelligence as the commercial data product created by verified
   autonomous behavior.
+- Keep local memory, genesis, evolve, guardian review, paper canary, and
+  calibration loops open because they are part of the self-custodial runtime.
 - Do not imply guaranteed returns, hosted custody, or unattended live safety.
 
 ## Public Launch Surface
@@ -31,6 +33,7 @@ marketing copy. The first public impression should be:
 | --- | --- |
 | Runtime | Paper engine, local API, durable journal, runtime bus, strategy runners, safety gates, read-only Hyperliquid data, and live-readiness contracts. |
 | Terminal | Doctor, status, risk, replay, cockpit/readiness views, and friction-preserving risk controls. |
+| Evolution | Local memory, genesis proposals, guardian policy, red-team review, paper canary, calibration, and promote/rollback gates. |
 | Network | Redacted local proof packets, profile contracts, leaderboard contracts, and static page examples. |
 | Intelligence | Delayed public snapshots, catalog contracts, commercial API contracts, rate-limit and webhook fixtures, and clear subscription boundary. |
 | Contribution | Agent guide, scoped backlog, issue forms, PR template, safety review path, and one-command gates. |
@@ -120,6 +123,31 @@ just release-rehearsal
 just draft-release-rehearsal
 just release-evidence v0.1.1
 just fresh-clone-rehearsal
+just public-readiness
+```
+
+### Cycle D: Self-Evolution Publicization
+
+Goal: expose the adaptive loop that makes ZERO a complete autonomous operating
+system, without publishing private operator data or commercial intelligence.
+
+Publicize:
+
+- memory taxonomy and append-only knowledge extraction;
+- genesis proposal schema, journal, and guardian policy;
+- evolve reports for missing commands and experiments;
+- builder, red-team, paper canary, calibration, and local promotion gates;
+- read-only and risk-reducing MCP/API surfaces for memory and genesis.
+
+Keep private:
+
+- private journals, production trades, production wallets, private deployment
+  details, proprietary datasets, and hosted aggregate intelligence.
+
+Exit gate:
+
+```bash
+just ci
 just public-readiness
 ```
 

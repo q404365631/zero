@@ -20,6 +20,7 @@
 - [Production Readiness](production-readiness.md)
 - [Public Upgrade Plan](public-upgrade.md)
 - [Autonomous OS Plan](autonomous-os-plan.md)
+- [Capability Gap Audit](private-engine-capability-gap-audit.md)
 - [Roadmap](roadmap.md)
 
 ## Build And Run

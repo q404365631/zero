@@ -64,6 +64,7 @@ required=(
   docs/llms-full.txt
   docs/mcp.md
   docs/mcp/transcript.jsonl
+  docs/private-engine-capability-gap-audit.md
   docs/label-taxonomy.md
   docs/proof/README.md
   docs/proof/demo/README.md
@@ -123,6 +124,8 @@ fi
 echo "-- public product honesty"
 file_contains "Autonomous operating system for self-custodial onchain operations" README.md
 file_contains "paper mode" README.md
+file_contains "Self-evolution" docs/private-engine-capability-gap-audit.md
+file_contains "Full ZERO operating-system readiness: 87/100" docs/production-readiness.md
 file_contains "not yet a complete autonomous capital terminal" docs/production-readiness.md
 file_contains "Do not publish this private monorepo wholesale" docs/public-upgrade.md
 

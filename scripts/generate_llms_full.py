@@ -37,6 +37,7 @@ SOURCES = (
     "docs/production-readiness.md",
     "docs/public-upgrade.md",
     "docs/autonomous-os-plan.md",
+    "docs/private-engine-capability-gap-audit.md",
     "docs/agentic-contribution.md",
     "docs/review-ownership.md",
     "docs/label-taxonomy.md",

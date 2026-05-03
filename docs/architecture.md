@@ -3,12 +3,15 @@
 ZERO is an autonomous operating system for self-custodial onchain operations,
 starting with onchain perpetual markets.
 
-ZERO has four product surfaces:
+ZERO has five product surfaces:
 
 - ZERO Runtime: local autonomous operations engine with paper mode, safety
   gates, API, journals, and extension contracts.
 - ZERO Terminal: operator CLI for setup, diagnostics, state inspection, replay,
   and supervised actions.
+- ZERO Evolution: local memory, genesis proposals, guardian review, red-team,
+  paper canaries, calibration, and evolve loops that let the system improve
+  under evidence and review.
 - ZERO Network: public profiles, leaderboards, verification badges, and public decision-flow proof.
 - ZERO Intelligence: delayed public snapshots plus a commercial API and
   subscription layer for realtime intelligence, history, cohorts, webhooks, and
@@ -48,6 +51,22 @@ checksum-chained `zero.runtime.event.v1` events and a fast boot snapshot. See
 [runtime-bus.md](runtime-bus.md) for the local event contract. Live-capable
 runtime work must preserve the same cycle visibility and fail closed when
 safety or reconciliation checks are not ready.
+
+## Public Evolution Flow
+
+```text
+runtime journal -> memory -> knowledge -> genesis proposal -> guardian
+                -> build/red-team -> paper canary -> calibration
+                -> promote or rollback -> evolve backlog
+```
+
+The public repo does not yet implement this full loop. It is now tracked as a
+core extraction target in
+[Private Engine Capability Gap Audit](private-engine-capability-gap-audit.md).
+Local memory, genesis, and evolve belong in open source because they are part
+of a self-custodial operator's runtime. Commercial ZERO Intelligence begins
+when many verified runtimes opt into aggregate realtime behavior, cohorts,
+history, webhooks, redistribution, or operational SLAs.
 
 ## Commercial Flow
 

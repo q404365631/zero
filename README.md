@@ -60,6 +60,7 @@ guarded by preflight checks.
 | --- | --- | --- |
 | ZERO Runtime | Python engine for paper execution, live-readiness contracts, journals, safety gates, strategy adapters, venue adapter interfaces, and canary evidence. | Open source |
 | ZERO Terminal | Rust CLI/TUI for setup, diagnostics, state inspection, replay, live cockpit views, and supervised actions. | Open source |
+| ZERO Evolution | Local memory, genesis proposals, guardian review, red-team, paper canaries, calibration, and evolve loops that let ZERO improve under review. | Open-source target |
 | ZERO Network | Public-safe profiles, leaderboards, verification badges, and proof packets. | Open source contracts |
 | ZERO Intelligence | Delayed public snapshots plus commercial realtime APIs, history, cohorts, webhooks, exports, and SLAs. | Open contracts + paid access |
 
@@ -71,6 +72,7 @@ guarded by preflight checks.
 | Live market data | Runnable now through read-only Hyperliquid public info calls when enabled. |
 | Live readiness | Runnable now as local preflight, cockpit, certification, reconciliation, immune, receipt, and evidence contracts. |
 | Live execution | Code boundary exists, but live capital remains operator-owned and gated until local custody, preflight, journal, kill-switch, reconciliation, and canary evidence pass. |
+| Self-evolution | Planned public extraction: local memory, genesis, evolve, guardian policy, red-team, paper canary, and calibration loops. |
 | Public proof | Runnable now through redacted Network contracts, canary bundles, exchange-evidence normalization, recursive checksums, and operator report verification. |
 | Commercial API | Contracted now as ZERO Intelligence; production hosted persistence, billing, warehouse history, and SLAs are commercial work. |
 
@@ -112,6 +114,11 @@ flowchart LR
 - Deploy the paper runtime on Railway or Docker.
 - Generate public-safe Network index, profile pages, leaderboard pages, and
   Intelligence contract artifacts.
+
+The self-evolving loop that makes ZERO a complete autonomous operating system
+is now tracked as a first-class public extraction target: local memory,
+genesis, evolve, guardian review, red-team, paper canary, calibration, and
+promotion gates. See [Private Engine Capability Gap Audit](docs/private-engine-capability-gap-audit.md).
 
 ## Operator Proof Path
 
@@ -413,6 +420,7 @@ Machine-readable entrypoints:
 - [Production Readiness](docs/production-readiness.md)
 - [Public Upgrade Plan](docs/public-upgrade.md)
 - [Autonomous OS Plan](docs/autonomous-os-plan.md)
+- [Capability Gap Audit](docs/private-engine-capability-gap-audit.md)
 - [Agentic Contribution](docs/agentic-contribution.md)
 - [Launch Scorecard](docs/launch-scorecard.md)
 - [Roadmap](docs/roadmap.md)

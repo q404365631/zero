@@ -13,10 +13,14 @@
 - Threat model and incident runbooks
 - Static ZERO Network index, profile, and leaderboard page builders with smoke gate
 - Autonomous OS completion plan
+- Private engine capability gap audit
 
 ## Near Term
 
 - Autonomous runtime loop and durable runtime bus
+- Public memory/genesis/evolve self-evolution loop
+- Guardian policy, red-team, paper canary, calibration, and promote/rollback gates
+- Research command chain: hunt, edge, convergence, thesis, score, meta, sharpen
 - Strategy runner SDK
 - Hyperliquid account reconciliation
 - Live execution certification harness

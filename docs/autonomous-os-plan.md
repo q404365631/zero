@@ -6,9 +6,11 @@ operations.
 
 The current public repo is strong as an open-source product page, contributor
 surface, CLI, paper runtime, and safety-first launch artifact. It is not yet a
-complete autonomous real-capital operating system. The remaining work is mostly
+complete autonomous real-capital operating system. The remaining work is
 runtime truth, live exchange evidence, multi-operator isolation, public Network
-ingestion, and commercial Intelligence infrastructure.
+ingestion, commercial Intelligence infrastructure, and the public
+self-evolution loop: memory, genesis, guardian review, red-team, canary,
+calibration, and evolve.
 
 ## North Star
 
@@ -28,6 +30,8 @@ ZERO reaches 100/100 when a serious operator can:
 - restart without losing runtime state, idempotency state, risk state, or
   position truth;
 - export an audit bundle that explains every cycle and every decision;
+- learn from local outcomes through memory, genesis proposals, paper canaries,
+  calibration, and reviewable promotion gates;
 - opt into public ZERO Network publishing without leaking secrets;
 - consume delayed public ZERO Intelligence snapshots for free;
 - pay for realtime ZERO Intelligence API access when speed, history, scale,
@@ -42,6 +46,8 @@ Open:
 - paper trading
 - venue adapters needed for self-custodial operation
 - local journals and audit exports
+- local memory, genesis, evolve, proposal journals, paper canaries, red-team
+  review, and calibration gates
 - strategy and market-data extension contracts
 - ZERO Network proof contracts, profiles, leaderboards, and delayed public
   snapshots
@@ -67,6 +73,7 @@ speed, scale, history, and reliability.
 | Product narrative | 98 | keep narrative aligned as runtime becomes real |
 | CLI readiness | 97 | richer TUI cockpit layout, operator automation examples |
 | Engine runtime | 90 | live canary evidence, richer exchange history reconciliation |
+| Self-evolution loop | 20 | public memory/genesis/evolve, guardian policy, red-team, paper canary, calibration, and promote/rollback gates |
 | Safety and risk | 94 | real exchange chaos drills, external review |
 | API contracts | 98 | signed live runtime packets, production hosted compatibility policy |
 | Deployment | 89 | live Railway proof, authenticated remote log evidence |
@@ -82,6 +89,11 @@ speed, scale, history, and reliability.
 Each cycle should land as a small, reviewable merge to `main` with tests, docs,
 and a scorecard update. A cycle is done only when local `just ci` and remote
 CI/security workflows pass.
+
+The capability baseline is documented in
+[Private Engine Capability Gap Audit](private-engine-capability-gap-audit.md).
+That audit supersedes the earlier assumption that only hosted Network,
+Intelligence, and external proof remained.
 
 ### Cycle 12: Autonomous Runtime Loop
 

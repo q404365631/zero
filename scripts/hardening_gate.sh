@@ -40,6 +40,7 @@ required_files=(
   "docs/releases/v0.1.1-evidence.md"
   "docs/production-readiness.md"
   "docs/public-upgrade.md"
+  "docs/private-engine-capability-gap-audit.md"
   "docs/label-taxonomy.md"
   "docs/mcp.md"
   "docs/mcp/transcript.jsonl"
@@ -90,6 +91,9 @@ contains "threat model" docs/production-readiness.md
 contains "incident runbooks" docs/production-readiness.md
 contains "Public repo readiness" docs/public-upgrade.md
 contains "Full ZERO operating-system readiness" docs/public-upgrade.md
+contains "Private Engine Capability Gap Audit" docs/private-engine-capability-gap-audit.md
+contains "Cycle 28: Memory Core" docs/private-engine-capability-gap-audit.md
+contains "Cycle 29: Genesis Proposal Core" docs/private-engine-capability-gap-audit.md
 contains "zero.live_evidence.v1" docs/live-evidence.md
 contains "ZERO_LIVE_EVIDENCE_SIGNING_KEY" docs/live-evidence.md
 contains "shasum -a 256 -c SHA256SUMS" .github/RELEASE_TEMPLATE.md
