@@ -106,6 +106,34 @@ credentials.
 The pinned contract fixture lives at
 [contracts/network/ingestion.json](../contracts/network/ingestion.json).
 
+## Profile And Identity Verification
+
+`scripts/network_profile_verify.py` verifies a public profile packet before it
+is accepted into Network tooling or shared as operator proof:
+
+```bash
+curl -fsS "$ZERO_API/network/profile" > profile.json
+
+scripts/network_profile_verify.py profile.json \
+  --identity-bundle artifacts/deployment-identity/current \
+  --require-signed-identity
+```
+
+The verifier emits `zero.network.profile_verification.v1` and checks:
+
+- profile schema and public-safety redaction;
+- recomputed `zero.network.proof.v1` proof hash;
+- leaderboard row binding to the profile proof hash;
+- deployment claim and heartbeat hashes bound to the profile;
+- deployment heartbeat bound to the deployment claim;
+- optional signed `zero.deployment_identity_evidence.v1` bundle;
+- optional hosted-compatible consent and ingestion acceptance.
+
+This makes the public Network boundary explicit: profiles are aggregate and
+open, while signed deployment identity is operator-owned evidence that can be
+verified without exposing exchange credentials, wallet material, trace IDs, or
+raw decisions.
+
 ## Public Index Page Builder
 
 The public repository includes a deterministic static index for checked Network

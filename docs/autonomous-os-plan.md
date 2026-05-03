@@ -85,7 +85,7 @@ speed, scale, history, and reliability.
 | Deployment | 96 | live Railway proof, external production log-drain evidence |
 | Observability and audit | 97 | signed bundles, metrics backend, log drains |
 | Security and custody | 91 | external review, key-handling drill evidence |
-| ZERO Network | 70 | hosted identity verification, public pages, production ingestion service |
+| ZERO Network | 78 | profile-plus-signed-identity verifier exists; hosted identity service, public pages, and production ingestion service remain |
 | ZERO Intelligence | 70 | production hosted service persistence, billing provider, history storage, terms |
 | Release and distribution | 99 | external registry ownership evidence and public Homebrew tap publication |
 | Operator docs | 98 | real exchange drill evidence |
@@ -564,6 +564,10 @@ Current progress:
   and `/deployment/heartbeat` into a public-safe bundle, verify their hashes
   and binding, and optionally sign the identity payload with an operator-owned
   OpenSSL key without including private key material.
+- Added `scripts/network_profile_verify.py` to verify
+  `zero.network.profile.v1` packets against recomputed proof hashes,
+  deployment claim/heartbeat binding, and optional signed deployment identity
+  bundles.
 - The doctor checks health, recovery durability, market data source, metrics,
   immune state, live-preflight refusal, live cockpit refusal, public Network
   privacy, delayed Intelligence privacy, hosted-compatible rate-limit headers,
