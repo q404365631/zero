@@ -199,6 +199,37 @@ async fn live_evidence_renders_hash_only_bundle() {
 }
 
 #[tokio::test]
+async fn live_receipts_renders_public_safe_receipt_summary() {
+    let (mock, ctx) = ctx_with_mock().await;
+    let out = dispatch(&ctx, "/live-receipts").await.unwrap().unwrap();
+
+    assert_eq!(out.risk, Some(RiskDirection::Neutral));
+    let OutputLine::Command(s) = &out.lines[0] else {
+        panic!("expected Command, got {:?}", out.lines);
+    };
+    assert!(s.contains("live-receipts:"), "receipts row: {s}");
+    assert!(s.contains("status=empty"), "status field: {s}");
+    assert!(s.contains("total=0"), "total field: {s}");
+    assert!(s.contains("accepted=0"), "accepted field: {s}");
+    assert!(s.contains("hash=sha256:cdcdcdcdcdcd..."), "hash field: {s}");
+    assert!(
+        out.lines.iter().any(
+            |line| matches!(line, OutputLine::System(s) if s.contains("operator: handle=mock-operator"))
+        ),
+        "operator context missing: {:?}",
+        out.lines
+    );
+    assert!(
+        out.lines.iter().any(
+            |line| matches!(line, OutputLine::System(s) if s.contains("credentials=false") && s.contains("idempotency_tokens=false"))
+        ),
+        "privacy boundary missing: {:?}",
+        out.lines
+    );
+    mock.shutdown().await;
+}
+
+#[tokio::test]
 async fn live_canary_policy_renders_readiness_and_claim_boundary() {
     let (mock, ctx) = ctx_with_mock().await;
     let out = dispatch(&ctx, "/live-canary").await.unwrap().unwrap();

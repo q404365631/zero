@@ -23,6 +23,8 @@ ZERO reaches 100/100 when a serious operator can:
   policy, and immune controls;
 - verify production-parity OODA behavior from the operator terminal with
   `/runtime-parity`;
+- inspect public-safe live execution receipts from the operator terminal with
+  `/live-receipts`;
 - verify the live canary policy lifecycle from the operator terminal with
   `/live-canary`;
 - inspect every accepted and rejected decision through the terminal;

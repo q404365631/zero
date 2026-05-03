@@ -599,6 +599,7 @@ async fn run(ctx: &DispatchContext, cmd: &Command) -> DispatchOutput {
         Command::LiveCertify => live_certify_cmd(ctx).await,
         Command::LiveCockpit => live_cockpit_cmd(ctx).await,
         Command::LiveEvidence => live_evidence_cmd(ctx).await,
+        Command::LiveReceipts => live_receipts_cmd(ctx).await,
         Command::LiveCanaryPolicy => live_canary_policy_cmd(ctx).await,
         Command::RuntimeParity => runtime_parity_cmd(ctx).await,
         Command::Immune => immune_cmd(ctx).await,
@@ -698,6 +699,7 @@ const HELP_LINES: &[&str] = &[
     "  /live-certify        — dry-run live execution certification",
     "  /live-cockpit        — live readiness cockpit",
     "  /live-evidence       — hash-only live evidence bundle",
+    "  /live-receipts       — public-safe execution receipts",
     "  /live-canary         — live canary readiness and proof policy",
     "  /runtime-parity      — production-parity OODA report",
     "  /immune              — immune breaker state",
@@ -1190,6 +1192,58 @@ async fn live_evidence_cmd(ctx: &DispatchContext) -> DispatchOutput {
     out
 }
 
+async fn live_receipts_cmd(ctx: &DispatchContext) -> DispatchOutput {
+    let mut out = DispatchOutput::default();
+    let Some(http) = require_http(ctx, &mut out) else {
+        return out;
+    };
+    match http.live_receipts().await {
+        Ok(receipts) => {
+            let total = json_u64(&receipts.summary, "total");
+            let accepted = json_u64(&receipts.summary, "accepted");
+            let refused = json_u64(&receipts.summary, "refused");
+            let exchange_error = json_u64(&receipts.summary, "exchange_error");
+            let status = receipts
+                .summary
+                .get("status")
+                .and_then(serde_json::Value::as_str)
+                .unwrap_or("unknown");
+            let hash_short = short_sha(&receipts.receipts_hash);
+            out.lines.push(OutputLine::command(format!(
+                "live-receipts: status={status}  total={total}  accepted={accepted}  refused={refused}  exchange_error={exchange_error}  hash=sha256:{hash_short}..."
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  operator: handle={} id={} role={} scope={}",
+                receipts.operator_context.handle,
+                receipts.operator_context.operator_id,
+                receipts.operator_context.role,
+                receipts.operator_context.scope
+            )));
+            out.lines.push(OutputLine::system(format!(
+                "  privacy: credentials={} wallet={} raw_ack={} trace_tokens={} idempotency_tokens={}",
+                json_bool(&receipts.privacy, "contains_exchange_credentials"),
+                json_bool(&receipts.privacy, "contains_wallet_material"),
+                json_bool(&receipts.privacy, "contains_raw_venue_ack_payload"),
+                json_bool(&receipts.privacy, "contains_trace_tokens"),
+                json_bool(&receipts.privacy, "contains_idempotency_tokens")
+            )));
+            for receipt in receipts.receipts.iter().take(8) {
+                out.lines.push(OutputLine::system(format!(
+                    "  receipt: accepted={} status={} reason={} hash=sha256:{}...",
+                    receipt.accepted,
+                    receipt.status,
+                    receipt.reason,
+                    short_sha(&receipt.receipt_hash)
+                )));
+            }
+        }
+        Err(e) => out
+            .lines
+            .push(OutputLine::alert(format!("live-receipts: {e}"))),
+    }
+    out
+}
+
 async fn live_canary_policy_cmd(ctx: &DispatchContext) -> DispatchOutput {
     let mut out = DispatchOutput::default();
     let Some(http) = require_http(ctx, &mut out) else {
@@ -1349,6 +1403,14 @@ fn json_bool(map: &std::collections::BTreeMap<String, serde_json::Value>, key: &
     map.get(key)
         .and_then(serde_json::Value::as_bool)
         .unwrap_or(false)
+}
+
+fn short_sha(hash: &str) -> String {
+    hash.strip_prefix("sha256:")
+        .unwrap_or(hash)
+        .chars()
+        .take(12)
+        .collect()
 }
 
 async fn quote_cmd(ctx: &DispatchContext, symbol: Option<&str>) -> DispatchOutput {

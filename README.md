@@ -114,6 +114,8 @@ flowchart LR
 - Query Hyperliquid read-only market data without exposing funds.
 - Exercise live-readiness, immune, reconciliation, and certification contracts
   without placing capital at risk.
+- Inspect public-safe local live execution receipts from the operator CLI,
+  including accepted/refused/exchange-error counts and hash-only receipt proof.
 - Capture signed, public-safe live evidence packets for supervised canary
   rehearsal without leaking credentials or raw private journals.
 - Inspect the live canary policy lifecycle for readiness, arm/disarm, launch
@@ -201,6 +203,9 @@ live-cockpit: live_mode=refused  ready=false  risk_allowed=false
 
 $ zero --api http://127.0.0.1:8765 run runtime-parity
 runtime-parity: ok=true  production_ooda=true  paper_only=true  live_trading_claimed=false
+
+$ zero --api http://127.0.0.1:8765 run live-receipts
+live-receipts: status=empty  total=0  accepted=0  refused=0  exchange_error=0
 
 $ zero --api http://127.0.0.1:8765 run live-canary
 live-canary: ready=false  armed=false  qualified=true  publishable=false  accepted_live=false

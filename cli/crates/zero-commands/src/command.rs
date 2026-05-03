@@ -94,6 +94,8 @@ pub enum Command {
     LiveCockpit,
     /// `/live-evidence` — hash-only signed canary evidence bundle.
     LiveEvidence,
+    /// `/live-receipts` — public-safe local live execution receipt bundle.
+    LiveReceipts,
     /// `/live-canary` — readiness, arm/disarm, and evidence qualification policy.
     LiveCanaryPolicy,
     /// `/runtime-parity` — production-parity OODA report with live-shadow refusal.
@@ -529,6 +531,7 @@ impl Command {
             | Self::LiveCertify
             | Self::LiveCockpit
             | Self::LiveEvidence
+            | Self::LiveReceipts
             | Self::LiveCanaryPolicy
             | Self::RuntimeParity
             | Self::Immune
@@ -634,6 +637,7 @@ impl Command {
             Self::LiveCertify => "/live-certify",
             Self::LiveCockpit => "/live-cockpit",
             Self::LiveEvidence => "/live-evidence",
+            Self::LiveReceipts => "/live-receipts",
             Self::LiveCanaryPolicy => "/live-canary",
             Self::RuntimeParity => "/runtime-parity",
             Self::Immune => "/immune",
@@ -766,6 +770,11 @@ pub const COMMAND_CATALOG: &[CommandInfo] = &[
     CommandInfo {
         name: "/live-evidence",
         summary: "hash-only live evidence bundle",
+        risk: RiskDirection::Neutral,
+    },
+    CommandInfo {
+        name: "/live-receipts",
+        summary: "public-safe execution receipts",
         risk: RiskDirection::Neutral,
     },
     CommandInfo {
@@ -1015,6 +1024,9 @@ pub fn resolve(line: &ParsedLine) -> Option<Command> {
         "live-certify" | "certify-live" | "live-certification" => Command::LiveCertify,
         "live-cockpit" | "cockpit" | "live" => Command::LiveCockpit,
         "live-evidence" | "evidence" | "canary-evidence" => Command::LiveEvidence,
+        "live-receipts" | "receipts" | "execution-receipts" | "live-execution-receipts" => {
+            Command::LiveReceipts
+        }
         "live-canary" | "live-canary-policy" | "canary" | "canary-policy" => {
             Command::LiveCanaryPolicy
         }
@@ -1473,6 +1485,7 @@ mod tests {
         assert_eq!(Command::LiveCertify.risk(), RiskDirection::Neutral);
         assert_eq!(Command::LiveCockpit.risk(), RiskDirection::Neutral);
         assert_eq!(Command::LiveEvidence.risk(), RiskDirection::Neutral);
+        assert_eq!(Command::LiveReceipts.risk(), RiskDirection::Neutral);
         assert_eq!(Command::LiveCanaryPolicy.risk(), RiskDirection::Neutral);
         assert_eq!(Command::RuntimeParity.risk(), RiskDirection::Neutral);
         assert_eq!(Command::Immune.risk(), RiskDirection::Neutral);
@@ -1526,6 +1539,8 @@ mod tests {
         assert_eq!(r("/cockpit"), Some(Command::LiveCockpit));
         assert_eq!(r("/live-evidence"), Some(Command::LiveEvidence));
         assert_eq!(r("/canary-evidence"), Some(Command::LiveEvidence));
+        assert_eq!(r("/live-receipts"), Some(Command::LiveReceipts));
+        assert_eq!(r("/receipts"), Some(Command::LiveReceipts));
         assert_eq!(r("/live-canary"), Some(Command::LiveCanaryPolicy));
         assert_eq!(r("/canary-policy"), Some(Command::LiveCanaryPolicy));
         assert_eq!(r("/runtime-parity"), Some(Command::RuntimeParity));

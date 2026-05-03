@@ -405,16 +405,29 @@ Implemented in `cli/crates/zero-engine-client` and `cli/crates/zero-commands`:
 - extended the mock engine and dispatcher/client tests so the CLI cannot claim
   publishable accepted-live proof from refusal-mode evidence.
 
+### Cycle 40: Operator CLI Live-Receipts Surface
+
+Implemented in `cli/crates/zero-commands`:
+
+- added the neutral `/live-receipts` slash command, with aliases `/receipts`,
+  `/execution-receipts`, and `/live-execution-receipts`;
+- rendered the public-safe live execution receipt packet an operator needs to
+  see before any canary claim: total, accepted, refused, exchange-error count,
+  receipt-bundle hash, operator identity, privacy flags, and recent
+  hash-only receipt rows;
+- extended dispatcher tests so the terminal locks the empty/refused receipt
+  boundary and never implies accepted live proof from a zero-receipt packet.
+
 ## Revised Score
 
 Public repo readiness remains **100/100** as a launch artifact.
 
 Full ZERO operating-system readiness is **100/100** as a public repo contract
-after Cycle 39. The score increased because the public runtime now has an
+after Cycle 40. The score increased because the public runtime now has an
 executable production-parity OODA report, rejection/execution-quality feedback,
 live-shadow fail-closed evidence, a first-class operator CLI renderer for that
 proof, and a first-class terminal renderer for live canary policy qualification
-in addition to local evolve apply/rollback.
+plus live execution receipts in addition to local evolve apply/rollback.
 
 The remaining work is no longer missing public-runtime shape. It is external
 product proof and launch operation:
