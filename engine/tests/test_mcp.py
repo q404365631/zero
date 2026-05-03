@@ -34,6 +34,7 @@ def test_tools_are_read_only() -> None:
         "zero_get_genesis_proposals",
         "zero_get_evolve_status",
         "zero_get_research_report",
+        "zero_get_decision_stack",
     ]
     assert not any("execute" in name or "live" in name or "order" in name for name in names)
     assert all("Read-only" in tool["description"] for tool in tools)
@@ -51,7 +52,7 @@ def test_tools_list_and_call_paper_results() -> None:
     )
 
     assert listed is not None
-    assert len(listed["result"]["tools"]) == 8
+    assert len(listed["result"]["tools"]) == 9
     assert called is not None
     payload = json.loads(called["result"]["content"][0]["text"])
     assert payload["schema_version"] == "zero.mcp.paper_results.v1"
@@ -80,6 +81,7 @@ def test_resources_list_and_read() -> None:
         "zero://genesis/proposals",
         "zero://evolve/status",
         "zero://research/report",
+        "zero://decision/stack",
     }
     assert read is not None
     proof = json.loads(read["result"]["contents"][0]["text"])
@@ -166,6 +168,26 @@ def test_research_report_is_paper_only_and_read_only() -> None:
     assert payload["summary"]["sample_size"] == 2
 
 
+def test_decision_stack_is_paper_only_and_read_only() -> None:
+    called = mcp.handle_request(
+        {
+            "jsonrpc": "2.0",
+            "id": 11,
+            "method": "tools/call",
+            "params": {"name": "zero_get_decision_stack", "arguments": {}},
+        }
+    )
+
+    assert called is not None
+    payload = json.loads(called["result"]["content"][0]["text"])
+    assert payload["schema_version"] == "zero.mcp.decision_stack.v1"
+    assert payload["paper_only"] is True
+    assert payload["decision"]["allowed_to_execute_live"] is False
+    assert payload["lenses"][0]["lens"] == "price_action"
+    assert payload["layers"][0]["layer"] == "data_freshness"
+    assert payload["modifiers"][0]["modifier"] == "rejection_first"
+
+
 def test_unknown_tool_returns_json_rpc_error() -> None:
     response = mcp.handle_request(
         {
@@ -190,6 +212,7 @@ def test_installed_package_fallback_stays_read_only(monkeypatch) -> None:
     genesis = mcp.get_genesis_proposals()
     evolve = mcp.get_evolve_status()
     research = mcp.get_research_report()
+    decision_stack = mcp.get_decision_stack()
     scenario_text = mcp.read_resource("zero://paper/scenario")
 
     assert paper["mode"] == "paper"
@@ -200,4 +223,6 @@ def test_installed_package_fallback_stays_read_only(monkeypatch) -> None:
     assert evolve["paper_only"] is True
     assert research["paper_only"] is True
     assert research["pushes_to_remote"] is False
+    assert decision_stack["paper_only"] is True
+    assert decision_stack["decision"]["allowed_to_execute_live"] is False
     assert "paper-launch-smoke" in scenario_text

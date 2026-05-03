@@ -65,7 +65,7 @@ local genesis, or the operator terminal as proprietary features.
 | --- | --- | --- | --- |
 | Self-evolution | Memory extracts rules, research explains what to study, genesis proposes/builds changes, red-team attacks diffs, canary/calibration gates promotion. | Memory core, research command chain, genesis proposal classification, and paper-only evolve gates are now present as public subsystems. | Add real mutation/promotion and rollback. |
 | Research command chain | Hunt, edge, convergence, thesis, score, meta, and sharpen form a learning/research loop. | Public docs mention autonomous OS, but not the full command chain. | Add public command contracts and deterministic fixture-backed reports. |
-| Real decision engine | Multi-lens evaluation, layered signals, risk gates, sizing modifiers, and rejection learning. | Public runtime has paper engine, runners, safety, and live-readiness primitives. | Port lens/layer/modifier interfaces and fixtures before porting live behavior. |
+| Real decision engine | Multi-lens evaluation, layered signals, risk gates, sizing modifiers, and rejection learning. | Public runtime now exposes a paper-only lens/layer/modifier decision stack over API, MCP, OpenAPI, docs, and tests. | Add production OODA parity, rejection learner, regime/correlation gates, and execution-quality feedback. |
 | MCP surface | Internal MCP can inspect and operate many engine surfaces. | Public MCP exposes a minimal read-only paper demo. | Expand read-only and risk-reducing local MCP tools with explicit safety classes. |
 | Live canary lifecycle | Readiness, policy, launch, evidence, report, qualification, shadow review, follow-through. | Public has rehearsal, evidence, verification, and operator report flows. | Add policy/follow-through/qualification contracts and fixtures. |
 | Agent daemon | Persistent agents, approvals, proposals, operator app, and communication loop. | Public has agent contribution docs and a thin MCP. | Add local proposal queue and approval surfaces before hosted agents. |
@@ -198,7 +198,9 @@ Current public status:
   and does not claim live PnL.
 - Documented in [Research Command Chain](research.md).
 
-### Cycle 32: Public Intelligence Engine Parity
+### Cycle 32: Decision Stack
+
+First public slice of intelligence engine parity.
 
 Port the real decision interfaces:
 
@@ -214,6 +216,21 @@ Exit gate:
 - a contributor can add one lens, one layer, or one sizing modifier with a
   fixture and conformance test.
 - every decision path still flows through safety and paper/live separation.
+
+Current public status:
+
+- Implemented the first public decision-stack contract in
+  `engine/src/zero_engine/decision.py`.
+- `/decision/stack` exposes `zero.decision.stack.v1`.
+- `/evaluate/{coin}` embeds the same stack while preserving CLI-compatible
+  fields.
+- `zero_get_decision_stack` and `zero://decision/stack` expose the same
+  read-only contract to coding agents.
+- Covered by decision, API, MCP, OpenAPI, and `just decision-stack-example`
+  checks.
+- The public stack never grants live execution authority and reports
+  `allowed_to_execute_live: false`.
+- Documented in [Decision Stack](decision-stack.md).
 
 ### Cycle 33: Expanded Local MCP
 
@@ -253,14 +270,15 @@ Exit gate:
 
 Public repo readiness remains **100/100** as a launch artifact.
 
-Full ZERO operating-system readiness is **94/100** after Cycle 31. The score
-increased because public research-chain evidence now exists as code, tests,
-docs, API readouts, and MCP snapshots. The remaining self-evolution loop is
-still core product architecture, not polish.
+Full ZERO operating-system readiness is **95/100** after Cycle 32. The score
+increased because the real decision-engine shape is no longer hidden behind a
+single `/evaluate` fixture: lenses, layers, and modifiers now have a public
+contract, OpenAPI surface, MCP tool, docs, and tests. The remaining
+self-evolution loop is still core product architecture, not polish.
 
 The path back to 100/100 is now clearer:
 
 1. real mutation/promotion and rollback loop;
-2. real lens/layer/modifier decision interfaces;
-3. expanded agent/MCP operation surface;
-4. live canary policy parity and operator-owned exchange evidence.
+2. expanded agent/MCP operation surface;
+3. live canary policy parity and operator-owned exchange evidence;
+4. real production OODA parity, rejection learner, and execution-quality feedback.

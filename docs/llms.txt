@@ -40,6 +40,7 @@
 - [Memory Core](memory-core.md)
 - [Genesis](genesis.md)
 - [Research Command Chain](research.md)
+- [Decision Stack](decision-stack.md)
 - [Evolve Harness](evolve.md)
 - [API](api.md)
 - [MCP Server](mcp.md)

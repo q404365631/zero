@@ -78,6 +78,18 @@ research-example:
     rg '"pushes_to_remote": false' artifacts/research-example/research.json
     ! rg 'private_key|wallet_address|exchange_order_id|notional_usd' artifacts/research-example
 
+decision-stack-example:
+    rm -rf artifacts/decision-stack-example
+    mkdir -p artifacts/decision-stack-example
+    PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.decision --coin BTC --price 40500 --source paper:fixture --sample-size 4 > artifacts/decision-stack-example/decision-stack.json
+    test -f artifacts/decision-stack-example/decision-stack.json
+    rg '"schema_version": "zero.decision.stack.v1"' artifacts/decision-stack-example/decision-stack.json
+    rg '"lenses"' artifacts/decision-stack-example/decision-stack.json
+    rg '"layers"' artifacts/decision-stack-example/decision-stack.json
+    rg '"modifiers"' artifacts/decision-stack-example/decision-stack.json
+    rg '"allowed_to_execute_live": false' artifacts/decision-stack-example/decision-stack.json
+    ! rg 'private_key|wallet_address|exchange_order_id|notional_usd|idempotency_key' artifacts/decision-stack-example
+
 network-pages-smoke:
     scripts/network_pages_smoke.py
 
@@ -246,6 +258,7 @@ docs-check:
     test -f docs/genesis.md
     test -f docs/evolve.md
     test -f docs/research.md
+    test -f docs/decision-stack.md
     test -f docs/strategy-plugins.md
     test -f docs/market-data-adapters.md
     test -f docs/positioning.md
@@ -315,6 +328,7 @@ docs-check:
     test -f contracts/paper-api/genesis.json
     test -f contracts/paper-api/evolve.json
     test -f contracts/paper-api/research.json
+    test -f contracts/paper-api/decision_stack.json
     test -f contracts/deployment/claim.json
     test -f contracts/deployment/heartbeat.json
     test -f contracts/live/evidence.json
@@ -400,4 +414,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke fresh-clone-rehearsal example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example memory-core-example genesis-example evolve-example research-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness
+ci: lint test paper-api-smoke fresh-clone-rehearsal example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example memory-core-example genesis-example evolve-example research-example decision-stack-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness

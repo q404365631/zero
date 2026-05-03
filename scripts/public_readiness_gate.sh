@@ -68,6 +68,7 @@ required=(
   docs/genesis.md
   docs/evolve.md
   docs/research.md
+  docs/decision-stack.md
   docs/private-engine-capability-gap-audit.md
   docs/label-taxonomy.md
   docs/proof/README.md
@@ -129,11 +130,12 @@ echo "-- public product honesty"
 file_contains "Autonomous operating system for self-custodial onchain operations" README.md
 file_contains "paper mode" README.md
 file_contains "Self-evolution" docs/private-engine-capability-gap-audit.md
-file_contains "Full ZERO operating-system readiness: 94/100" docs/production-readiness.md
+file_contains "Full ZERO operating-system readiness: 95/100" docs/production-readiness.md
 file_contains "zero.memory.entry.v1" docs/memory-core.md
 file_contains "zero.genesis.proposal.v1" docs/genesis.md
 file_contains "zero.evolve.run.v1" docs/evolve.md
 file_contains "zero.research.report.v1" docs/research.md
+file_contains "zero.decision.stack.v1" docs/decision-stack.md
 file_contains "not yet a complete autonomous capital terminal" docs/production-readiness.md
 file_contains "Do not publish this private monorepo wholesale" docs/public-upgrade.md
 

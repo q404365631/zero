@@ -18,6 +18,7 @@ from typing import Any, Callable
 from urllib.parse import parse_qs, urlparse
 
 from zero_engine.deployment import DeploymentIdentityConfig, deployment_claim, deployment_heartbeat
+from zero_engine.decision import DecisionQuote, build_decision_stack, evaluation_from_stack
 from zero_engine.evolve import snapshot_from_fixture as evolve_snapshot_from_fixture
 from zero_engine.genesis import GenesisJournal, Proposal, snapshot_from_proposals
 from zero_engine.hyperliquid import (
@@ -58,7 +59,6 @@ from zero_engine.reconciliation import (
     reconcile_positions,
 )
 from zero_engine.research import snapshot_from_fixture as research_snapshot_from_fixture
-from zero_engine.safety import evaluate_order
 
 
 DEFAULT_PRICES = {
@@ -553,6 +553,7 @@ class PaperApi:
             "/positions": self.positions,
             "/risk": self.risk,
             "/brief": self.brief,
+            "/decision/stack": lambda: self.decision_stack(query),
             "/regime": lambda: self.regime(query),
             "/pulse": lambda: self.pulse(query),
             "/approaching": self.approaching,
@@ -1285,30 +1286,25 @@ class PaperApi:
     def evaluate(self, raw_symbol: str, trace_id: str | None = None) -> dict[str, Any]:
         symbol = raw_symbol.upper()
         quote = self.state.quote_for(symbol)
-        intent = OrderIntent(symbol, Side.BUY, quantity=1 / quote.price, price=quote.price, confidence=0.9)
-        decision = evaluate_order(intent, self.state.engine.limits, self.state.engine.positions.get(symbol))
-        payload = {
-            "coin": symbol,
-            "price": quote.price,
-            "price_source": quote.source,
-            "consensus": 90 if decision.allowed else 0,
-            "conviction": 0.9,
-            "direction": "LONG" if decision.allowed else "NONE",
-            "regime": "PAPER",
-            "layers": [
-                {
-                    "layer": "risk",
-                    "passed": decision.allowed,
-                    "value": {"notional_usd": round(intent.notional_usd, 2)},
-                    "detail": decision.reason,
-                }
-            ],
-            "data_fresh": True,
-            "timestamp": self.state.now_iso(),
-        }
-        if trace_id:
-            payload["trace_id"] = trace_id
-        return payload
+        stack = build_decision_stack(
+            DecisionQuote(symbol=symbol, price=quote.price, source=quote.source),
+            self.state.engine.limits,
+            self.state.engine.positions.get(symbol),
+            generated_at=self.state.now(),
+            sample_size=len(self.state.engine.decisions),
+        )
+        return evaluation_from_stack(stack, trace_id=trace_id)
+
+    def decision_stack(self, query: dict[str, list[str]]) -> dict[str, Any]:
+        symbol = (first(query, "coin") or "BTC").upper()
+        quote = self.state.quote_for(symbol)
+        return build_decision_stack(
+            DecisionQuote(symbol=symbol, price=quote.price, source=quote.source),
+            self.state.engine.limits,
+            self.state.engine.positions.get(symbol),
+            generated_at=self.state.now(),
+            sample_size=len(self.state.engine.decisions),
+        )
 
     def pulse(self, query: dict[str, list[str]]) -> dict[str, Any]:
         limit = int(first(query, "limit") or "20")

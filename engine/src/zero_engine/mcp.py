@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, TextIO
 
 from zero_engine import PaperEngine, load_scenario, load_strategy_runner, parse_scenario
+from zero_engine.decision import fixture_stack
 from zero_engine.evolve import snapshot_from_fixture as evolve_snapshot_from_fixture
 from zero_engine.genesis import Proposal, load_proposals, snapshot_from_proposals
 from zero_engine.memory import extract_from_decisions, isoformat
@@ -346,6 +347,15 @@ def get_research_report() -> JsonMap:
     }
 
 
+def get_decision_stack() -> JsonMap:
+    stack = fixture_stack(generated_at=parse_mcp_time())
+    return {
+        **stack,
+        "schema_version": "zero.mcp.decision_stack.v1",
+        "paper_only": True,
+    }
+
+
 def get_proof_pack() -> JsonMap:
     root = find_repo_root()
     if root is None:
@@ -396,6 +406,11 @@ def tool_definitions() -> list[JsonMap]:
             "description": "Read-only paper-only research command-chain report.",
             "inputSchema": empty_schema,
         },
+        {
+            "name": "zero_get_decision_stack",
+            "description": "Read-only paper-only lens, layer, and modifier decision stack.",
+            "inputSchema": empty_schema,
+        },
     ]
 
 
@@ -408,6 +423,7 @@ TOOLS: dict[str, Callable[[], JsonMap]] = {
     "zero_get_genesis_proposals": get_genesis_proposals,
     "zero_get_evolve_status": get_evolve_status,
     "zero_get_research_report": get_research_report,
+    "zero_get_decision_stack": get_decision_stack,
 }
 
 
@@ -455,6 +471,12 @@ def resource_definitions() -> list[JsonMap]:
             "description": "Paper-only hunt, edge, convergence, thesis, score, meta, and sharpen report.",
             "mimeType": "application/json",
         },
+        {
+            "uri": "zero://decision/stack",
+            "name": "Demo Decision Stack",
+            "description": "Paper-only lens, layer, and modifier decision stack for coding agents.",
+            "mimeType": "application/json",
+        },
     ]
 
 
@@ -476,6 +498,8 @@ def read_resource(uri: str) -> str:
         return json.dumps(get_evolve_status(), indent=2, sort_keys=True)
     if uri == "zero://research/report":
         return json.dumps(get_research_report(), indent=2, sort_keys=True)
+    if uri == "zero://decision/stack":
+        return json.dumps(get_decision_stack(), indent=2, sort_keys=True)
     raise KeyError(uri)
 
 

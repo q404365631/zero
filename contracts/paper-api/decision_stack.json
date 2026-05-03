@@ -1,0 +1,143 @@
+{
+  "coin": "BTC",
+  "decision": {
+    "allowed_to_execute_live": false,
+    "consensus": 75,
+    "conviction": 0.6674,
+    "direction": "LONG",
+    "reason": "allowed",
+    "verdict": "PASS"
+  },
+  "generated_at": "2026-05-01T00:00:00Z",
+  "layers": [
+    {
+      "blocks_entry": true,
+      "detail": "price source available for paper evaluation",
+      "kind": "preflight",
+      "layer": "data_freshness",
+      "passed": true,
+      "value": {
+        "source": "paper:static"
+      }
+    },
+    {
+      "blocks_entry": true,
+      "detail": "allowed",
+      "kind": "risk",
+      "layer": "risk_bounds",
+      "passed": true,
+      "value": {
+        "paper_exposure_unit": 1.0
+      }
+    },
+    {
+      "blocks_entry": false,
+      "detail": "public sample is below promotion floor; paper evaluation remains non-blocking",
+      "kind": "calibration",
+      "layer": "sample_floor",
+      "passed": true,
+      "value": {
+        "met": false,
+        "minimum": 30,
+        "public_sample_size": 0
+      }
+    },
+    {
+      "blocks_entry": true,
+      "detail": "evaluation is paper-first and does not submit live orders",
+      "kind": "custody",
+      "layer": "paper_boundary",
+      "passed": true,
+      "value": {
+        "live_order_emitted": false
+      }
+    }
+  ],
+  "lenses": [
+    {
+      "confidence": 0.62,
+      "evidence": {
+        "last_price": 40500.0,
+        "source": "paper:static",
+        "uses_live_exchange_credentials": false
+      },
+      "family": "market",
+      "lens": "price_action",
+      "public_safe": true,
+      "signal": "constructive",
+      "status": "active",
+      "weight": 0.22
+    },
+    {
+      "confidence": 1.0,
+      "evidence": {
+        "paper_exposure_unit": 1.0,
+        "reason": "allowed"
+      },
+      "family": "risk",
+      "lens": "risk_capacity",
+      "public_safe": true,
+      "signal": "pass",
+      "status": "active",
+      "weight": 0.34
+    },
+    {
+      "confidence": 0.35,
+      "evidence": {
+        "public_sample_size": 0,
+        "requires_more_paper_decisions": true
+      },
+      "family": "memory",
+      "lens": "memory_context",
+      "public_safe": true,
+      "signal": "insufficient_sample",
+      "status": "active",
+      "weight": 0.18
+    },
+    {
+      "confidence": 0.8,
+      "evidence": {
+        "dead_man_switch_required_for_live": true,
+        "paper_mode": true
+      },
+      "family": "safety",
+      "lens": "operator_liveness",
+      "public_safe": true,
+      "signal": "ready",
+      "status": "active",
+      "weight": 0.26
+    }
+  ],
+  "mode": "paper",
+  "modifiers": [
+    {
+      "bounded": true,
+      "direction": "down",
+      "effect": "confidence_adjustment",
+      "modifier": "rejection_first",
+      "reason": "insufficient public calibration sample",
+      "value": 0.08
+    },
+    {
+      "bounded": true,
+      "direction": "down",
+      "effect": "live_mode_gate",
+      "modifier": "operator_friction",
+      "reason": "risk-increasing live action requires explicit local confirmation",
+      "value": 1.0
+    }
+  ],
+  "paper_only": true,
+  "price": {
+    "last": 40500.0,
+    "source": "paper:static",
+    "uses_live_exchange_credentials": false
+  },
+  "privacy": {
+    "contains_exchange_credentials": false,
+    "contains_private_notes": false,
+    "contains_venue_order_material": false,
+    "contains_wallet_material": false
+  },
+  "schema_version": "zero.decision.stack.v1"
+}

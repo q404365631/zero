@@ -48,6 +48,7 @@ required_files=(
   "docs/genesis.md"
   "docs/evolve.md"
   "docs/research.md"
+  "docs/decision-stack.md"
   "docs/live-evidence.md"
   ".github/RELEASE_TEMPLATE.md"
 )
@@ -99,15 +100,19 @@ contains "Private Engine Capability Gap Audit" docs/private-engine-capability-ga
 contains "Cycle 28: Memory Core" docs/private-engine-capability-gap-audit.md
 contains "Cycle 29: Genesis Proposal Core" docs/private-engine-capability-gap-audit.md
 contains "Cycle 31: Research Command Chain" docs/private-engine-capability-gap-audit.md
+contains "Cycle 32: Decision Stack" docs/private-engine-capability-gap-audit.md
 contains "zero.genesis.proposal.v1" docs/genesis.md
 contains "zero.evolve.run.v1" docs/evolve.md
 contains "zero.research.report.v1" docs/research.md
+contains "zero.decision.stack.v1" docs/decision-stack.md
 contains "zero_get_genesis_proposals" docs/mcp/transcript.jsonl
 contains "zero://genesis/proposals" docs/mcp/transcript.jsonl
 contains "zero_get_evolve_status" docs/mcp/transcript.jsonl
 contains "zero://evolve/status" docs/mcp/transcript.jsonl
 contains "zero_get_research_report" docs/mcp/transcript.jsonl
 contains "zero://research/report" docs/mcp/transcript.jsonl
+contains "zero_get_decision_stack" docs/mcp/transcript.jsonl
+contains "zero://decision/stack" docs/mcp/transcript.jsonl
 contains "zero.live_evidence.v1" docs/live-evidence.md
 contains "ZERO_LIVE_EVIDENCE_SIGNING_KEY" docs/live-evidence.md
 contains "shasum -a 256 -c SHA256SUMS" .github/RELEASE_TEMPLATE.md

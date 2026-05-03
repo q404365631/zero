@@ -60,7 +60,7 @@ guarded by preflight checks.
 | --- | --- | --- |
 | ZERO Runtime | Python engine for paper execution, live-readiness contracts, journals, safety gates, strategy adapters, venue adapter interfaces, and canary evidence. | Open source |
 | ZERO Terminal | Rust CLI/TUI for setup, diagnostics, state inspection, replay, live cockpit views, and supervised actions. | Open source |
-| ZERO Evolution | Local memory, genesis proposals, research reports, guardian review, red-team, paper canaries, calibration, and evolve loops that let ZERO improve under review. | Memory, genesis, research, and paper-only evolve gates open; remaining promotion loop in progress |
+| ZERO Evolution | Local memory, genesis proposals, research reports, decision-stack review, guardian review, red-team, paper canaries, calibration, and evolve loops that let ZERO improve under review. | Memory, genesis, research, decision stack, and paper-only evolve gates open; remaining promotion loop in progress |
 | ZERO Network | Public-safe profiles, leaderboards, verification badges, and proof packets. | Open source contracts |
 | ZERO Intelligence | Delayed public snapshots plus commercial realtime APIs, history, cohorts, webhooks, exports, and SLAs. | Open contracts + paid access |
 
@@ -72,7 +72,7 @@ guarded by preflight checks.
 | Live market data | Runnable now through read-only Hyperliquid public info calls when enabled. |
 | Live readiness | Runnable now as local preflight, cockpit, certification, reconciliation, immune, receipt, and evidence contracts. |
 | Live execution | Code boundary exists, but live capital remains operator-owned and gated until local custody, preflight, journal, kill-switch, reconciliation, and canary evidence pass. |
-| Self-evolution | Local memory, genesis proposal core, research command chain, and paper-only evolve gates exist now with redacted extraction, append-only journals, guardian classification, hunt/edge/convergence/thesis/score/meta/sharpen reports, red-team review, paper canary, calibration, API readouts, and MCP snapshots. Real mutation, promotion, and rollback remain planned public extraction. |
+| Self-evolution | Local memory, genesis proposal core, research command chain, decision-stack lenses/layers/modifiers, and paper-only evolve gates exist now with redacted extraction, append-only journals, guardian classification, hunt/edge/convergence/thesis/score/meta/sharpen reports, public evaluation surfaces, red-team review, paper canary, calibration, API readouts, and MCP snapshots. Real mutation, promotion, and rollback remain planned public extraction. |
 | Public proof | Runnable now through redacted Network contracts, canary bundles, exchange-evidence normalization, recursive checksums, and operator report verification. |
 | Commercial API | Contracted now as ZERO Intelligence; production hosted persistence, billing, warehouse history, and SLAs are commercial work. |
 
@@ -99,6 +99,8 @@ flowchart LR
   mutating the checkout or pushing a branch.
 - Run the paper-only research command chain for hunt, edge, convergence,
   thesis, score, meta, and sharpen reports from public fixtures.
+- Inspect the public decision stack for lenses, layers, modifiers, and
+  paper/live separation.
 - Add a declarative paper strategy runner with conformance output.
 - Start a local paper API and inspect operator state.
 - Use the Rust CLI for health checks, status, replay, and supervised actions.
@@ -125,10 +127,12 @@ flowchart LR
 
 The self-evolving loop that makes ZERO a complete autonomous operating system
 is now partially implemented: local memory, genesis proposal classification,
-paper-only research, and paper-only evolve gates exist, while real mutation,
-promotion, and rollback remain first-class public extraction targets. See
+paper-only research, public decision-stack review, and paper-only evolve gates
+exist, while real mutation, promotion, and rollback remain first-class public
+extraction targets. See
 [Memory Core](docs/memory-core.md), [Genesis](docs/genesis.md),
-[Research Command Chain](docs/research.md), [Evolve Harness](docs/evolve.md), and
+[Research Command Chain](docs/research.md), [Decision Stack](docs/decision-stack.md),
+[Evolve Harness](docs/evolve.md), and
 [Private Engine Capability Gap Audit](docs/private-engine-capability-gap-audit.md).
 
 ## Operator Proof Path
@@ -417,6 +421,7 @@ Machine-readable entrypoints:
 - [Memory Core](docs/memory-core.md)
 - [Genesis](docs/genesis.md)
 - [Research Command Chain](docs/research.md)
+- [Decision Stack](docs/decision-stack.md)
 - [Evolve Harness](docs/evolve.md)
 - [MCP Server](docs/mcp.md)
 - [MCP Transcript](docs/mcp/transcript.jsonl)
@@ -432,6 +437,7 @@ Machine-readable entrypoints:
 - [API](docs/api.md)
 - [Memory Core](docs/memory-core.md)
 - [Research Command Chain](docs/research.md)
+- [Decision Stack](docs/decision-stack.md)
 - [MCP Server](docs/mcp.md)
 - [OpenAPI Contract](openapi/zero-paper-api.v1.yaml)
 - [API Compatibility](docs/api-compatibility.md)

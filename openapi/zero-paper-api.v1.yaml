@@ -96,6 +96,24 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BriefResponse"
+  /decision/stack:
+    get:
+      tags: [paper]
+      operationId: getDecisionStack
+      summary: Paper lens, layer, and modifier decision stack.
+      parameters:
+        - $ref: "#/components/parameters/CoinQuery"
+      responses:
+        "200":
+          description: Decision stack packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionStackResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "503":
+          $ref: "#/components/responses/Unavailable"
   /regime:
     get:
       tags: [operator]
@@ -1196,6 +1214,64 @@ components:
       type: object
       required: [coin, price, price_source, consensus, conviction, direction, regime, layers, data_fresh, timestamp]
       additionalProperties: true
+    DecisionStackResponse:
+      type: object
+      required:
+        - schema_version
+        - mode
+        - paper_only
+        - coin
+        - generated_at
+        - price
+        - lenses
+        - layers
+        - modifiers
+        - decision
+        - privacy
+      properties:
+        schema_version:
+          type: string
+          const: zero.decision.stack.v1
+        mode:
+          type: string
+          const: paper
+        paper_only:
+          type: boolean
+          const: true
+        coin:
+          type: string
+        generated_at:
+          type: string
+          format: date-time
+        price:
+          type: object
+          additionalProperties: true
+        lenses:
+          type: array
+          items:
+            type: object
+            required: [lens, family, status, signal, confidence, weight, evidence, public_safe]
+            additionalProperties: true
+        layers:
+          type: array
+          items:
+            type: object
+            required: [layer, kind, passed, value, detail, blocks_entry]
+            additionalProperties: true
+        modifiers:
+          type: array
+          items:
+            type: object
+            required: [modifier, effect, direction, value, reason, bounded]
+            additionalProperties: true
+        decision:
+          type: object
+          required: [verdict, direction, consensus, conviction, allowed_to_execute_live, reason]
+          additionalProperties: true
+        privacy:
+          type: object
+          additionalProperties: true
+      additionalProperties: false
     PulseResponse:
       type: object
       required: [events]

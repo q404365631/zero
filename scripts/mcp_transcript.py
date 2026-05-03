@@ -63,16 +63,28 @@ REQUESTS: tuple[dict[str, Any], ...] = (
         "method": "tools/call",
         "params": {"name": "zero_get_research_report", "arguments": {}},
     },
-    {"jsonrpc": "2.0", "id": 11, "method": "resources/list", "params": {}},
     {
         "jsonrpc": "2.0",
-        "id": 12,
+        "id": 11,
+        "method": "tools/call",
+        "params": {"name": "zero_get_decision_stack", "arguments": {}},
+    },
+    {"jsonrpc": "2.0", "id": 12, "method": "resources/list", "params": {}},
+    {
+        "jsonrpc": "2.0",
+        "id": 13,
+        "method": "resources/read",
+        "params": {"uri": "zero://decision/stack"},
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 14,
         "method": "resources/read",
         "params": {"uri": "zero://research/report"},
     },
     {
         "jsonrpc": "2.0",
-        "id": 13,
+        "id": 15,
         "method": "resources/read",
         "params": {"uri": "zero://proof/demo"},
     },
@@ -141,13 +153,28 @@ def validate(entries: list[dict[str, Any]]) -> None:
     ):
         raise RuntimeError("transcript research report must remain paper-only and local-only")
 
-    research_resource = entries[9]["response"]
+    decision_response = entries[8]["response"]
+    decision_text = decision_response["result"]["content"][0]["text"]
+    decision = json.loads(decision_text)
+    if (
+        decision["paper_only"] is not True
+        or decision["decision"]["allowed_to_execute_live"] is not False
+    ):
+        raise RuntimeError("transcript decision stack must remain paper-only and non-executing")
+
+    decision_resource = entries[10]["response"]
+    decision_resource_text = decision_resource["result"]["contents"][0]["text"]
+    decision_resource_payload = json.loads(decision_resource_text)
+    if decision_resource_payload["decision"]["allowed_to_execute_live"] is not False:
+        raise RuntimeError("transcript decision resource must not grant live execution")
+
+    research_resource = entries[11]["response"]
     research_resource_text = research_resource["result"]["contents"][0]["text"]
     research_resource_payload = json.loads(research_resource_text)
     if research_resource_payload["paper_only"] is not True:
         raise RuntimeError("transcript research resource must remain paper-only")
 
-    proof_response = entries[10]["response"]
+    proof_response = entries[12]["response"]
     proof_text = proof_response["result"]["contents"][0]["text"]
     proof = json.loads(proof_text)
     boundary = proof["claim_boundary"]

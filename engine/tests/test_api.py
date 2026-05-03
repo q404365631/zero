@@ -223,6 +223,57 @@ def test_paper_api_exposes_paper_only_research_snapshot() -> None:
     assert payload["reports"]["convergence"]["status"] == "insufficient-public-sample"
 
 
+def test_paper_api_exposes_decision_stack() -> None:
+    status, payload = PaperApi(PaperApiState(clock=lambda: FIXED_DT)).get(
+        "/decision/stack",
+        {"coin": ["SOL"]},
+    )
+
+    assert status == 200
+    assert payload["schema_version"] == "zero.decision.stack.v1"
+    assert payload["mode"] == "paper"
+    assert payload["paper_only"] is True
+    assert payload["coin"] == "SOL"
+    assert [lens["lens"] for lens in payload["lenses"]] == [
+        "price_action",
+        "risk_capacity",
+        "memory_context",
+        "operator_liveness",
+    ]
+    assert [layer["layer"] for layer in payload["layers"]] == [
+        "data_freshness",
+        "risk_bounds",
+        "sample_floor",
+        "paper_boundary",
+    ]
+    assert [modifier["modifier"] for modifier in payload["modifiers"]] == [
+        "rejection_first",
+        "operator_friction",
+    ]
+    assert payload["decision"]["allowed_to_execute_live"] is False
+    body = json.dumps(payload)
+    assert "private_key" not in body
+    assert "wallet_address" not in body
+    assert "exchange_order_id" not in body
+
+
+def test_paper_api_evaluate_embeds_decision_stack_without_breaking_cli_fields() -> None:
+    status, payload = PaperApi(PaperApiState(clock=lambda: FIXED_DT)).get(
+        "/evaluate/BTC",
+        {},
+        trace_id="trace-eval",
+    )
+
+    assert status == 200
+    assert payload["schema_version"] == "zero.decision.evaluation.v1"
+    assert payload["coin"] == "BTC"
+    assert payload["direction"] == "LONG"
+    assert payload["decision_stack"]["schema_version"] == "zero.decision.stack.v1"
+    assert payload["lenses"][0]["lens"] == "price_action"
+    assert payload["modifiers"][0]["modifier"] == "rejection_first"
+    assert payload["trace_id"] == "trace-eval"
+
+
 def test_paper_api_audit_export_includes_traceable_decisions(tmp_path) -> None:
     journal = DecisionJournal(tmp_path / "decisions.jsonl")
     api = PaperApi(

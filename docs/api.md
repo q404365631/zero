@@ -102,7 +102,7 @@ contract:
 
 - `GET /`, `/health`, `/v2/status`
 - `GET /positions`, `/risk`, `/brief`
-- `GET /regime`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
+- `GET /regime`, `/decision/stack`, `/evaluate/{coin}`, `/pulse`, `/approaching`, `/rejections`, `/journal`
 - `GET /metrics`, `/immune`, `/memory`, `/genesis`, `/evolve`, `/research`, `/audit/export`
 - `GET /deployment/claim`, `/deployment/heartbeat`, `/network/profile`, `/network/leaderboard`
 - `GET /intelligence/snapshot`, `/intelligence/catalog`, `/intelligence/commercial`, `/intelligence/model-gateway`
@@ -181,6 +181,14 @@ sharpen. It never mutates the checkout, pushes a branch, deploys a service,
 places an order, or claims live PnL. The fixture-backed snapshot exists so
 agents can inspect what ZERO should study next before genesis/evolve gates are
 used.
+
+`GET /decision/stack?coin=BTC` returns `zero.decision.stack.v1`, the public
+lens/layer/modifier shape behind paper evaluation. Lenses explain weighted
+views, layers explain gates, and modifiers explain bounded confidence or
+operator-friction adjustments. The public stack is read-only and always reports
+`allowed_to_execute_live=false`; live authority remains with the local
+self-custodial runtime and its preflight controls. `GET /evaluate/{coin}` keeps
+the CLI-compatible fields and embeds the same stack as `decision_stack`.
 
 `GET /audit/export?limit=100` returns a structured `zero.audit.v1` export with
 runtime summary, retention/redaction metadata, metrics, recovery state, and the
