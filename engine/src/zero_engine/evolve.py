@@ -21,6 +21,10 @@ EVOLVE_RUN_SCHEMA_VERSION = "zero.evolve.run.v1"
 EVOLVE_STATUS_SCHEMA_VERSION = "zero.evolve.status.v1"
 EVOLVE_SNAPSHOT_SCHEMA_VERSION = "zero.evolve.snapshot.v1"
 EVOLVE_POLICY_VERSION = "zero.evolve.policy.v1"
+EVOLVE_PROMOTION_PLAN_SCHEMA_VERSION = "zero.evolve.promotion_plan.v1"
+EVOLVE_ROLLBACK_PLAN_SCHEMA_VERSION = "zero.evolve.rollback_plan.v1"
+EVOLVE_PROMOTION_VERIFICATION_SCHEMA_VERSION = "zero.evolve.promotion_verification.v1"
+PROMOTION_APPROVAL_PHRASE = "I_APPROVE_ZERO_EVOLVE_LOCAL_PROMOTION"
 ALLOWED_PATCH_ROOTS = ("docs/", "examples/")
 FORBIDDEN_PATCH_ROOTS = (
     "engine/src/zero_engine/live.py",
@@ -29,9 +33,7 @@ FORBIDDEN_PATCH_ROOTS = (
     "engine/src/zero_engine/safety.py",
     "cli/crates/zero-commands/src/dispatch.rs",
 )
-SENSITIVE_TEXT_RE = re.compile(
-    r"(?:0x[a-fA-F0-9]{32,}|[A-Za-z0-9_=-]{40,}|sk-[A-Za-z0-9_-]{20,})"
-)
+SENSITIVE_TEXT_RE = re.compile(r"(?:0x[a-fA-F0-9]{32,}|[A-Za-z0-9_=-]{40,}|sk-[A-Za-z0-9_-]{20,})")
 
 
 def utc_now() -> datetime:
@@ -65,6 +67,7 @@ def paths_allowed(paths: Iterable[str]) -> bool:
 class BuildArtifact:
     proposal: Proposal
     sandbox_dir: Path
+    repo_root: Path
     generated_at: datetime
 
     @property
@@ -90,22 +93,33 @@ class BuildArtifact:
         self.sandbox_dir.mkdir(parents=True, exist_ok=True)
         patch_path = self.sandbox_dir / "candidate.patch"
         patch_path.write_text(self.patch_text, encoding="utf-8")
+        candidate_tree = self.sandbox_dir / "candidate-tree"
+        mutations = materialize_candidate_tree(
+            repo_root=self.repo_root,
+            target_paths=self.proposal.target_paths,
+            candidate_tree=candidate_tree,
+            marker=f"<!-- ZERO evolve proposal: {self.proposal.id} -->",
+        )
         manifest = {
             "schema_version": "zero.evolve.build.v1",
             "generated_at": isoformat(self.generated_at),
             "mode": "paper-only",
             "branch_name": self.branch_name,
             "sandbox_dir": str(self.sandbox_dir),
+            "candidate_tree": str(candidate_tree),
             "applies_to_checkout": False,
+            "mutates_sandbox": True,
             "pushes_to_remote": False,
             "proposal_id": self.proposal.id,
             "target_paths": list(self.proposal.target_paths),
             "patch_path": str(patch_path),
             "patch_hash": stable_hash({"patch": self.patch_text}),
+            "mutations": mutations,
             "checks": {
                 "target_paths_allowed": paths_allowed(self.proposal.target_paths),
                 "proposal_accepted": True,
                 "protected_classes_empty": not self.proposal.protected_classes,
+                "candidate_tree_materialized": bool(mutations),
             },
         }
         (self.sandbox_dir / "build.json").write_text(
@@ -113,6 +127,39 @@ class BuildArtifact:
             encoding="utf-8",
         )
         return manifest
+
+
+def materialize_candidate_tree(
+    *,
+    repo_root: Path,
+    target_paths: Iterable[str],
+    candidate_tree: Path,
+    marker: str,
+) -> list[JsonMap]:
+    mutations: list[JsonMap] = []
+    candidate_tree.mkdir(parents=True, exist_ok=True)
+    for raw_target in target_paths:
+        target = raw_target.lstrip("/")
+        if not paths_allowed([target]):
+            continue
+        source_path = repo_root / target
+        original_text = source_path.read_text(encoding="utf-8") if source_path.is_file() else ""
+        candidate_text = original_text.rstrip() + "\n\n" + marker + "\n"
+        candidate_path = candidate_tree / target
+        candidate_path.parent.mkdir(parents=True, exist_ok=True)
+        candidate_path.write_text(candidate_text, encoding="utf-8")
+        mutations.append(
+            {
+                "target_path": target,
+                "source_path": target,
+                "candidate_path": str(candidate_path),
+                "original_hash": stable_hash({"path": target, "content": original_text}),
+                "candidate_hash": stable_hash({"path": target, "content": candidate_text}),
+                "operation": "append_public_evolve_marker",
+                "applies_to_checkout": False,
+            }
+        )
+    return mutations
 
 
 def red_team_review(build: JsonMap) -> JsonMap:
@@ -154,7 +201,9 @@ def run_paper_canary(repo_root: Path, *, generated_at: datetime) -> JsonMap:
         "decisions": len(engine.decisions),
         "fills": len(engine.fills),
         "rejections": len(engine.rejections),
-        "open_positions": len([position for position in engine.positions.values() if position.quantity != 0]),
+        "open_positions": len(
+            [position for position in engine.positions.values() if position.quantity != 0]
+        ),
         "baseline": {
             "decisions": 4,
             "fills": 2,
@@ -214,6 +263,116 @@ def promotion_decision(
     }
 
 
+def build_promotion_plan(
+    *,
+    build: Mapping[str, Any] | None,
+    red_team: Mapping[str, Any] | None,
+    canary: Mapping[str, Any],
+    calibration: Mapping[str, Any],
+    promotion: Mapping[str, Any],
+    generated_at: datetime,
+) -> JsonMap:
+    eligible = bool(promotion.get("promotable_after_human_review"))
+    return {
+        "schema_version": EVOLVE_PROMOTION_PLAN_SCHEMA_VERSION,
+        "generated_at": isoformat(generated_at),
+        "mode": "local-sandbox",
+        "plan_only": True,
+        "eligible_for_local_apply": eligible,
+        "applies_to_checkout": False,
+        "pushes_to_remote": False,
+        "places_orders": False,
+        "requires_human_approval": True,
+        "required_approval_phrase": PROMOTION_APPROVAL_PHRASE,
+        "branch_name": None if build is None else build.get("branch_name"),
+        "patch_hash": None if build is None else build.get("patch_hash"),
+        "candidate_tree": None if build is None else build.get("candidate_tree"),
+        "mutations": [] if build is None else list(build.get("mutations", [])),
+        "gates": {
+            "build": bool(build and build.get("checks", {}).get("candidate_tree_materialized")),
+            "red_team": bool(red_team and red_team.get("verdict") == "pass"),
+            "paper_canary": bool(canary.get("fills") == canary.get("baseline", {}).get("fills")),
+            "calibration": bool(calibration.get("passed")),
+            "rollback_plan_required": True,
+            "human_approval": False,
+        },
+        "safety": {
+            "checkout_mutation_default": "forbidden",
+            "remote_push_default": "forbidden",
+            "live_code_mutation_default": "forbidden",
+            "candidate_scope": list(ALLOWED_PATCH_ROOTS),
+        },
+    }
+
+
+def build_rollback_plan(
+    *,
+    build: Mapping[str, Any] | None,
+    promotion_plan: Mapping[str, Any],
+    generated_at: datetime,
+) -> JsonMap:
+    mutations = [] if build is None else list(build.get("mutations", []))
+    restores = [
+        {
+            "target_path": mutation["target_path"],
+            "restore_hash": mutation["original_hash"],
+            "candidate_hash": mutation["candidate_hash"],
+            "action": "discard_candidate_and_restore_original_before_checkout_apply",
+        }
+        for mutation in mutations
+        if isinstance(mutation, dict)
+    ]
+    rollback_hash = stable_hash(
+        {"restores": restores, "patch_hash": promotion_plan.get("patch_hash")}
+    )
+    return {
+        "schema_version": EVOLVE_ROLLBACK_PLAN_SCHEMA_VERSION,
+        "generated_at": isoformat(generated_at),
+        "mode": "local-sandbox",
+        "plan_only": True,
+        "rollback_ready": bool(restores),
+        "applies_to_checkout": False,
+        "pushes_to_remote": False,
+        "restores": restores,
+        "rollback_hash": rollback_hash,
+        "instructions": [
+            "do not promote if rollback_ready is false",
+            "verify original hashes before any local apply",
+            "discard candidate tree to abandon the proposal",
+            "rerun paper canary and calibration after any approved local apply",
+        ],
+    }
+
+
+def verify_promotion_artifacts(
+    *,
+    promotion_plan: Mapping[str, Any],
+    rollback_plan: Mapping[str, Any],
+    generated_at: datetime,
+) -> JsonMap:
+    checks = {
+        "promotion_schema": promotion_plan.get("schema_version")
+        == EVOLVE_PROMOTION_PLAN_SCHEMA_VERSION,
+        "rollback_schema": rollback_plan.get("schema_version")
+        == EVOLVE_ROLLBACK_PLAN_SCHEMA_VERSION,
+        "promotion_does_not_apply_checkout": promotion_plan.get("applies_to_checkout") is False,
+        "rollback_does_not_apply_checkout": rollback_plan.get("applies_to_checkout") is False,
+        "promotion_does_not_push": promotion_plan.get("pushes_to_remote") is False,
+        "rollback_does_not_push": rollback_plan.get("pushes_to_remote") is False,
+        "approval_phrase_required": promotion_plan.get("required_approval_phrase")
+        == PROMOTION_APPROVAL_PHRASE,
+        "rollback_ready": rollback_plan.get("rollback_ready") is True,
+    }
+    ok = all(checks.values())
+    return {
+        "schema_version": EVOLVE_PROMOTION_VERIFICATION_SCHEMA_VERSION,
+        "generated_at": isoformat(generated_at),
+        "ok": ok,
+        "checks": checks,
+        "failures": [name for name, passed in checks.items() if not passed],
+    }
+
+
 def run_evolve(
     *,
     decisions: Iterable[GuardianDecision],
@@ -240,6 +399,7 @@ def run_evolve(
         artifact = BuildArtifact(
             proposal=selected,
             sandbox_dir=output_path / "worktree",
+            repo_root=root,
             generated_at=now,
         )
         build = artifact.write()
@@ -257,6 +417,24 @@ def run_evolve(
         calibration=calibration,
         generated_at=now,
     )
+    promotion_plan = build_promotion_plan(
+        build=build,
+        red_team=red_team,
+        canary=canary,
+        calibration=calibration,
+        promotion=promotion,
+        generated_at=now,
+    )
+    rollback_plan = build_rollback_plan(
+        build=build,
+        promotion_plan=promotion_plan,
+        generated_at=now,
+    )
+    promotion_verification = verify_promotion_artifacts(
+        promotion_plan=promotion_plan,
+        rollback_plan=rollback_plan,
+        generated_at=now,
+    )
     payload = {
         "schema_version": EVOLVE_RUN_SCHEMA_VERSION,
         "generated_at": isoformat(now),
@@ -271,6 +449,9 @@ def run_evolve(
         "paper_canary": canary,
         "calibration": calibration,
         "promotion": promotion,
+        "promotion_plan": promotion_plan,
+        "rollback_plan": rollback_plan,
+        "promotion_verification": promotion_verification,
         "policy": evolve_policy(),
     }
     (output_path / "evolve-run.json").write_text(
@@ -289,6 +470,8 @@ def evolve_policy() -> JsonMap:
         "requires_red_team_pass": True,
         "requires_paper_canary": True,
         "requires_calibration_pass": True,
+        "requires_rollback_plan": True,
+        "requires_promotion_artifact_verification": True,
         "promotion_is_local_only": True,
         "remote_push_allowed": False,
     }
@@ -305,6 +488,9 @@ def status_snapshot(run_path: str | Path, *, now: datetime | None = None) -> Jso
         "run_present": run is not None,
         "mode": run.get("mode") if run else "missing",
         "promotion": run.get("promotion") if run else None,
+        "promotion_plan": run.get("promotion_plan") if run else None,
+        "rollback_plan": run.get("rollback_plan") if run else None,
+        "promotion_verification": run.get("promotion_verification") if run else None,
         "policy": evolve_policy(),
     }
 
@@ -318,10 +504,9 @@ def fixture_root(repo_root: str | Path) -> Path | None:
         candidates.append(candidate)
         candidates.append(candidate.parent)
     for candidate in candidates:
-        if (
-            (candidate / "examples" / "genesis" / "proposals.jsonl").is_file()
-            and (candidate / "examples" / "paper-trading" / "scenario.json").is_file()
-        ):
+        if (candidate / "examples" / "genesis" / "proposals.jsonl").is_file() and (
+            candidate / "examples" / "paper-trading" / "scenario.json"
+        ).is_file():
             return candidate
     return None
 
@@ -355,6 +540,24 @@ def snapshot_from_fixture(repo_root: str | Path, *, now: datetime | None = None)
             calibration=calibration,
             generated_at=now,
         )
+        promotion_plan = build_promotion_plan(
+            build=None,
+            red_team=None,
+            canary=canary,
+            calibration=calibration,
+            promotion=promotion,
+            generated_at=now,
+        )
+        rollback_plan = build_rollback_plan(
+            build=None,
+            promotion_plan=promotion_plan,
+            generated_at=now,
+        )
+        promotion_verification = verify_promotion_artifacts(
+            promotion_plan=promotion_plan,
+            rollback_plan=rollback_plan,
+            generated_at=now,
+        )
         return {
             "schema_version": EVOLVE_SNAPSHOT_SCHEMA_VERSION,
             "generated_at": isoformat(now),
@@ -369,6 +572,9 @@ def snapshot_from_fixture(repo_root: str | Path, *, now: datetime | None = None)
             "paper_canary": canary,
             "calibration": calibration,
             "promotion": promotion,
+            "promotion_plan": promotion_plan,
+            "rollback_plan": rollback_plan,
+            "promotion_verification": promotion_verification,
             "policy": evolve_policy(),
             "source": "fixture-unavailable",
         }
@@ -390,7 +596,9 @@ def main(argv: list[str] | None = None) -> int:
 
     run = subcommands.add_parser("run", help="run build/red-team/canary/calibration gates")
     run.add_argument("--genesis-journal", help="append-only genesis journal")
-    run.add_argument("--proposals", help="proposal JSONL input; planned ephemerally if journal is omitted")
+    run.add_argument(
+        "--proposals", help="proposal JSONL input; planned ephemerally if journal is omitted"
+    )
     run.add_argument("--output", required=True, help="evolve artifact directory")
     run.add_argument("--repo-root", default=".", help="ZERO source checkout")
     run.add_argument("--now", help="UTC timestamp override for deterministic runs")

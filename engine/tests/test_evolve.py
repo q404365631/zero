@@ -54,8 +54,29 @@ def test_evolve_runs_build_red_team_canary_calibration_and_local_promotion(tmp_p
     assert payload["promotion"]["promotable_after_human_review"] is True
     assert payload["promotion"]["promoted"] is False
     assert payload["promotion"]["requires_human_approval"] is True
+    assert payload["promotion_plan"]["schema_version"] == "zero.evolve.promotion_plan.v1"
+    assert payload["promotion_plan"]["eligible_for_local_apply"] is True
+    assert payload["promotion_plan"]["applies_to_checkout"] is False
+    assert payload["promotion_plan"]["pushes_to_remote"] is False
+    assert (
+        payload["promotion_plan"]["required_approval_phrase"]
+        == "I_APPROVE_ZERO_EVOLVE_LOCAL_PROMOTION"
+    )
+    assert payload["rollback_plan"]["schema_version"] == "zero.evolve.rollback_plan.v1"
+    assert payload["rollback_plan"]["rollback_ready"] is True
+    assert payload["rollback_plan"]["pushes_to_remote"] is False
+    assert (
+        payload["promotion_verification"]["schema_version"]
+        == "zero.evolve.promotion_verification.v1"
+    )
+    assert payload["promotion_verification"]["ok"] is True
     assert (tmp_path / "evolve-run.json").is_file()
     assert (tmp_path / "worktree" / "candidate.patch").is_file()
+    candidate = tmp_path / "worktree" / "candidate-tree" / "docs" / "strategy-plugins.md"
+    assert candidate.is_file()
+    assert "ZERO evolve proposal: sha256:genesis-accepted-docs" in candidate.read_text(
+        encoding="utf-8"
+    )
 
 
 def test_evolve_status_reads_run_artifact(tmp_path) -> None:
@@ -65,6 +86,9 @@ def test_evolve_status_reads_run_artifact(tmp_path) -> None:
     assert status["schema_version"] == "zero.evolve.status.v1"
     assert status["run_present"] is True
     assert status["promotion"]["pushes_to_remote"] is False
+    assert status["promotion_plan"]["pushes_to_remote"] is False
+    assert status["rollback_plan"]["rollback_ready"] is True
+    assert status["promotion_verification"]["ok"] is True
 
 
 def test_evolve_red_team_blocks_secret_like_patch(tmp_path) -> None:
@@ -90,11 +114,16 @@ def test_snapshot_from_fixture_is_public_safe(tmp_path, monkeypatch) -> None:
 
     assert snapshot["schema_version"] == "zero.evolve.snapshot.v1"
     assert snapshot["promotion"]["pushes_to_remote"] is False
+    assert snapshot["promotion_plan"]["applies_to_checkout"] is False
+    assert snapshot["rollback_plan"]["rollback_ready"] is True
+    assert snapshot["promotion_verification"]["ok"] is True
     assert "0x1234567890" not in body
     assert "sk_live_" not in body
 
 
-def test_snapshot_from_fixture_fails_closed_when_examples_are_not_packaged(tmp_path, monkeypatch) -> None:
+def test_snapshot_from_fixture_fails_closed_when_examples_are_not_packaged(
+    tmp_path, monkeypatch
+) -> None:
     monkeypatch.setenv("ZERO_REPO_ROOT", str(tmp_path / "missing"))
     monkeypatch.chdir(tmp_path)
 
@@ -104,6 +133,9 @@ def test_snapshot_from_fixture_fails_closed_when_examples_are_not_packaged(tmp_p
     assert snapshot["source"] == "fixture-unavailable"
     assert snapshot["promotion"]["pushes_to_remote"] is False
     assert snapshot["promotion"]["promotable_after_human_review"] is False
+    assert snapshot["promotion_plan"]["eligible_for_local_apply"] is False
+    assert snapshot["rollback_plan"]["rollback_ready"] is False
+    assert snapshot["promotion_verification"]["ok"] is False
     assert snapshot["paper_canary"]["status"] == "fixture_unavailable"
 
 
@@ -129,3 +161,5 @@ def test_evolve_policy_forbids_remote_promotion() -> None:
 
     assert policy["remote_push_allowed"] is False
     assert policy["promotion_is_local_only"] is True
+    assert policy["requires_rollback_plan"] is True
+    assert policy["requires_promotion_artifact_verification"] is True

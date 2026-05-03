@@ -1409,7 +1409,7 @@ components:
       additionalProperties: false
     EvolveSnapshotResponse:
       type: object
-      required: [schema_version, generated_at, source, mode, applies_to_checkout, pushes_to_remote, input_decisions, selected_proposal_id, accepted_candidates, build, red_team, paper_canary, calibration, promotion, policy]
+      required: [schema_version, generated_at, source, mode, applies_to_checkout, pushes_to_remote, input_decisions, selected_proposal_id, accepted_candidates, build, red_team, paper_canary, calibration, promotion, promotion_plan, rollback_plan, promotion_verification, policy]
       properties:
         schema_version:
           type: string
@@ -1454,6 +1454,18 @@ components:
         promotion:
           type: object
           required: [schema_version, generated_at, mode, promotable_after_human_review, promoted, pushes_to_remote, requires_human_approval, gates, reason]
+          additionalProperties: true
+        promotion_plan:
+          type: object
+          required: [schema_version, generated_at, mode, plan_only, eligible_for_local_apply, applies_to_checkout, pushes_to_remote, places_orders, requires_human_approval, required_approval_phrase, gates, safety]
+          additionalProperties: true
+        rollback_plan:
+          type: object
+          required: [schema_version, generated_at, mode, plan_only, rollback_ready, applies_to_checkout, pushes_to_remote, restores, rollback_hash, instructions]
+          additionalProperties: true
+        promotion_verification:
+          type: object
+          required: [schema_version, generated_at, ok, checks, failures]
           additionalProperties: true
         policy:
           type: object

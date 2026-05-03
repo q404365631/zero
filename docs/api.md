@@ -170,10 +170,12 @@ execution paths. Protected execution, sizing, stops, circuit breaker, live
 adapter, and immune-core proposals require human review.
 
 `GET /evolve` returns a `zero.evolve.snapshot.v1` paper-only view of the
-builder, red-team, paper-canary, calibration, and promotion gates. It never
-mutates the checkout, pushes a branch, deploys a service, or promotes a change.
-The fixture-backed snapshot selects the accepted genesis docs/example proposal
-and proves that promotion remains local-only and human-approved.
+builder, red-team, paper-canary, calibration, promotion, promotion-plan,
+rollback-plan, and promotion-verification gates. It never mutates the checkout,
+pushes a branch, deploys a service, or promotes a change. The fixture-backed
+snapshot selects the accepted genesis docs/example proposal, materializes a
+sandbox candidate tree, and proves that promotion remains local-only,
+rollback-gated, and human-approved.
 
 `GET /research` returns a `zero.research.snapshot.v1` paper-only view of the
 research command chain: hunt, edge, convergence, thesis, score, meta, and

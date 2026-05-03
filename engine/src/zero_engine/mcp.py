@@ -119,7 +119,10 @@ EMBEDDED_GENESIS_PROPOSALS = (
         title="Document strategy-runner acceptance floor",
         summary="Promote the fixture-backed strategy runner acceptance floor into contributor docs.",
         target_paths=("docs/strategy-plugins.md", "examples/strategy-runner/README.md"),
-        evidence_refs=("docs/proof/demo/proof-pack.json", "examples/strategy-runner/close-strength.yaml"),
+        evidence_refs=(
+            "docs/proof/demo/proof-pack.json",
+            "examples/strategy-runner/close-strength.yaml",
+        ),
         sample_size=42,
         risk_tier="medium",
         revert_plan="Revert the documentation update and keep the runner fixture unchanged.",
@@ -711,7 +714,7 @@ def resource_definitions() -> list[JsonMap]:
         {
             "uri": "zero://evolve/status",
             "name": "Demo Evolve Status",
-            "description": "Paper-only builder, red-team, canary, and calibration status.",
+            "description": "Paper-only builder, red-team, canary, calibration, promotion-plan, and rollback evidence.",
             "mimeType": "application/json",
         },
         {

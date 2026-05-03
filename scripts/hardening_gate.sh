@@ -103,6 +103,9 @@ contains "Cycle 31: Research Command Chain" docs/private-engine-capability-gap-a
 contains "Cycle 32: Decision Stack" docs/private-engine-capability-gap-audit.md
 contains "zero.genesis.proposal.v1" docs/genesis.md
 contains "zero.evolve.run.v1" docs/evolve.md
+contains "zero.evolve.promotion_plan.v1" docs/evolve.md
+contains "zero.evolve.rollback_plan.v1" docs/evolve.md
+contains "zero.evolve.promotion_verification.v1" docs/evolve.md
 contains "zero.research.report.v1" docs/research.md
 contains "zero.decision.stack.v1" docs/decision-stack.md
 contains "zero_get_genesis_proposals" docs/mcp/transcript.jsonl

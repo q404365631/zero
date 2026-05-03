@@ -4,13 +4,36 @@
   "build": {
     "applies_to_checkout": false,
     "branch_name": "codex/evolve/document-strategy-runner-acceptance-floor-genesis-acce",
+    "candidate_tree": "/tmp/zero-evolve-snapshot/worktree/candidate-tree",
     "checks": {
+      "candidate_tree_materialized": true,
       "proposal_accepted": true,
       "protected_classes_empty": true,
       "target_paths_allowed": true
     },
     "generated_at": "2026-05-01T00:00:00Z",
     "mode": "paper-only",
+    "mutates_sandbox": true,
+    "mutations": [
+      {
+        "applies_to_checkout": false,
+        "candidate_hash": "sha256:528dafdca281adca492031e67f50daefdc1df914c9e84a318872651fe9802e31",
+        "candidate_path": "/tmp/zero-evolve-snapshot/worktree/candidate-tree/docs/strategy-plugins.md",
+        "operation": "append_public_evolve_marker",
+        "original_hash": "sha256:2015ad89f84a858e917345e8fd60b699380d6c62baf759e1a15ce6f7f087a12d",
+        "source_path": "docs/strategy-plugins.md",
+        "target_path": "docs/strategy-plugins.md"
+      },
+      {
+        "applies_to_checkout": false,
+        "candidate_hash": "sha256:4d65e11bf4e11b63909a4fd00bb6b0728e7a21b9226467820bf26f7919c4e67c",
+        "candidate_path": "/tmp/zero-evolve-snapshot/worktree/candidate-tree/examples/strategy-runner/README.md",
+        "operation": "append_public_evolve_marker",
+        "original_hash": "sha256:efd9b1e61ae7af389318ff9893abbcf9420778ea2e6d28526070f69f6c99e102",
+        "source_path": "examples/strategy-runner/README.md",
+        "target_path": "examples/strategy-runner/README.md"
+      }
+    ],
     "patch_hash": "sha256:1b47c6fd03705246a2d7a6ca2d00c62f5c92cc1a7a0d8413714b677935a53b6b",
     "patch_path": "/tmp/zero-evolve-snapshot/worktree/candidate.patch",
     "proposal_id": "sha256:genesis-accepted-docs",
@@ -71,7 +94,9 @@
     "requires_accepted_genesis_decision": true,
     "requires_calibration_pass": true,
     "requires_paper_canary": true,
+    "requires_promotion_artifact_verification": true,
     "requires_red_team_pass": true,
+    "requires_rollback_plan": true,
     "schema_version": "zero.evolve.policy.v1"
   },
   "promotion": {
@@ -91,6 +116,74 @@
     "requires_human_approval": true,
     "schema_version": "zero.evolve.promotion.v1"
   },
+  "promotion_plan": {
+    "applies_to_checkout": false,
+    "branch_name": "codex/evolve/document-strategy-runner-acceptance-floor-genesis-acce",
+    "candidate_tree": "/tmp/zero-evolve-snapshot/worktree/candidate-tree",
+    "eligible_for_local_apply": true,
+    "gates": {
+      "build": true,
+      "calibration": true,
+      "human_approval": false,
+      "paper_canary": true,
+      "red_team": true,
+      "rollback_plan_required": true
+    },
+    "generated_at": "2026-05-01T00:00:00Z",
+    "mode": "local-sandbox",
+    "mutations": [
+      {
+        "applies_to_checkout": false,
+        "candidate_hash": "sha256:528dafdca281adca492031e67f50daefdc1df914c9e84a318872651fe9802e31",
+        "candidate_path": "/tmp/zero-evolve-snapshot/worktree/candidate-tree/docs/strategy-plugins.md",
+        "operation": "append_public_evolve_marker",
+        "original_hash": "sha256:2015ad89f84a858e917345e8fd60b699380d6c62baf759e1a15ce6f7f087a12d",
+        "source_path": "docs/strategy-plugins.md",
+        "target_path": "docs/strategy-plugins.md"
+      },
+      {
+        "applies_to_checkout": false,
+        "candidate_hash": "sha256:4d65e11bf4e11b63909a4fd00bb6b0728e7a21b9226467820bf26f7919c4e67c",
+        "candidate_path": "/tmp/zero-evolve-snapshot/worktree/candidate-tree/examples/strategy-runner/README.md",
+        "operation": "append_public_evolve_marker",
+        "original_hash": "sha256:efd9b1e61ae7af389318ff9893abbcf9420778ea2e6d28526070f69f6c99e102",
+        "source_path": "examples/strategy-runner/README.md",
+        "target_path": "examples/strategy-runner/README.md"
+      }
+    ],
+    "patch_hash": "sha256:1b47c6fd03705246a2d7a6ca2d00c62f5c92cc1a7a0d8413714b677935a53b6b",
+    "places_orders": false,
+    "plan_only": true,
+    "pushes_to_remote": false,
+    "required_approval_phrase": "I_APPROVE_ZERO_EVOLVE_LOCAL_PROMOTION",
+    "requires_human_approval": true,
+    "safety": {
+      "candidate_scope": [
+        "docs/",
+        "examples/"
+      ],
+      "checkout_mutation_default": "forbidden",
+      "live_code_mutation_default": "forbidden",
+      "remote_push_default": "forbidden"
+    },
+    "schema_version": "zero.evolve.promotion_plan.v1"
+  },
+  "promotion_verification": {
+    "checks": {
+      "approval_phrase_required": true,
+      "promotion_does_not_apply_checkout": true,
+      "promotion_does_not_push": true,
+      "promotion_schema": true,
+      "rollback_does_not_apply_checkout": true,
+      "rollback_does_not_push": true,
+      "rollback_ready": true,
+      "rollback_schema": true
+    },
+    "failures": [],
+    "generated_at": "2026-05-01T00:00:00Z",
+    "ok": true,
+    "schema_version": "zero.evolve.promotion_verification.v1"
+  },
   "pushes_to_remote": false,
   "red_team": {
     "findings": [],
@@ -104,6 +197,36 @@
     "proposal_id": "sha256:genesis-accepted-docs",
     "schema_version": "zero.evolve.red_team.v1",
     "verdict": "pass"
+  },
+  "rollback_plan": {
+    "applies_to_checkout": false,
+    "generated_at": "2026-05-01T00:00:00Z",
+    "instructions": [
+      "do not promote if rollback_ready is false",
+      "verify original hashes before any local apply",
+      "discard candidate tree to abandon the proposal",
+      "rerun paper canary and calibration after any approved local apply"
+    ],
+    "mode": "local-sandbox",
+    "plan_only": true,
+    "pushes_to_remote": false,
+    "restores": [
+      {
+        "action": "discard_candidate_and_restore_original_before_checkout_apply",
+        "candidate_hash": "sha256:528dafdca281adca492031e67f50daefdc1df914c9e84a318872651fe9802e31",
+        "restore_hash": "sha256:2015ad89f84a858e917345e8fd60b699380d6c62baf759e1a15ce6f7f087a12d",
+        "target_path": "docs/strategy-plugins.md"
+      },
+      {
+        "action": "discard_candidate_and_restore_original_before_checkout_apply",
+        "candidate_hash": "sha256:4d65e11bf4e11b63909a4fd00bb6b0728e7a21b9226467820bf26f7919c4e67c",
+        "restore_hash": "sha256:efd9b1e61ae7af389318ff9893abbcf9420778ea2e6d28526070f69f6c99e102",
+        "target_path": "examples/strategy-runner/README.md"
+      }
+    ],
+    "rollback_hash": "sha256:f70d2c76397775f2658015b6ef331beef3c8251158d9a8ee81b75c65e7d64743",
+    "rollback_ready": true,
+    "schema_version": "zero.evolve.rollback_plan.v1"
   },
   "schema_version": "zero.evolve.snapshot.v1",
   "selected_proposal_id": "sha256:genesis-accepted-docs",

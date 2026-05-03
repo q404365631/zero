@@ -112,7 +112,9 @@ def test_paper_api_journal_reads_persisted_decisions(tmp_path) -> None:
 
 
 def test_paper_api_memory_snapshot_reads_ephemeral_and_durable_memory(tmp_path) -> None:
-    api = PaperApi(PaperApiState(engine=PaperEngine(clock=lambda: FIXED_TS), clock=lambda: FIXED_DT))
+    api = PaperApi(
+        PaperApiState(engine=PaperEngine(clock=lambda: FIXED_TS), clock=lambda: FIXED_DT)
+    )
     execute_status, _ = api.post(
         "/execute",
         {"coin": "BTC", "side": "buy", "size": 0.01, "idempotency_key": "memory-fill"},
@@ -207,6 +209,11 @@ def test_paper_api_exposes_paper_only_evolve_snapshot() -> None:
     assert payload["red_team"]["verdict"] == "pass"
     assert payload["calibration"]["passed"] is True
     assert payload["promotion"]["requires_human_approval"] is True
+    assert payload["promotion_plan"]["schema_version"] == "zero.evolve.promotion_plan.v1"
+    assert payload["promotion_plan"]["applies_to_checkout"] is False
+    assert payload["rollback_plan"]["schema_version"] == "zero.evolve.rollback_plan.v1"
+    assert payload["rollback_plan"]["rollback_ready"] is True
+    assert payload["promotion_verification"]["ok"] is True
 
 
 def test_paper_api_exposes_paper_only_research_snapshot() -> None:
@@ -441,7 +448,9 @@ def test_live_preflight_can_pass_when_executor_and_controls_are_ready(tmp_path) 
     executor.heartbeat()
     api = PaperApi(
         PaperApiState(
-            engine=PaperEngine(clock=lambda: FIXED_TS, journal=DecisionJournal(tmp_path / "d.jsonl")),
+            engine=PaperEngine(
+                clock=lambda: FIXED_TS, journal=DecisionJournal(tmp_path / "d.jsonl")
+            ),
             hyperliquid=HyperliquidInfoClient(transport=transport),
             live_wallet_address="0x0000000000000000000000000000000000000000",
             live_api_private_key="0x" + ("1" * 64),
@@ -624,7 +633,9 @@ def test_live_execute_uses_live_executor_and_preserves_idempotency() -> None:
     )
     body = {"coin": "BTC", "side": "buy", "size": 0.01, "idempotency_key": "live-fill"}
 
-    first_status, first = api.post("/execute", body, trace_id="trace-live", expose_trace=True, mode="live")
+    first_status, first = api.post(
+        "/execute", body, trace_id="trace-live", expose_trace=True, mode="live"
+    )
     second_status, second = api.post(
         "/execute",
         {**body, "size": 0.02},
@@ -677,9 +688,7 @@ def test_live_execute_blocks_risk_increase_when_reconciliation_drift_exists() ->
     def transport(_endpoint: str, payload: dict[str, Any], _timeout_s: float) -> Any:
         if payload["type"] == "clearinghouseState":
             return {
-                "assetPositions": [
-                    {"position": {"coin": "BTC", "szi": "0.01", "entryPx": "50000"}}
-                ]
+                "assetPositions": [{"position": {"coin": "BTC", "szi": "0.01", "entryPx": "50000"}}]
             }
         if payload["type"] == "openOrders":
             return []
@@ -746,7 +755,9 @@ def test_live_kill_blocks_later_live_execute() -> None:
         mode="live",
         operator_context=operator_context,
     )
-    audit_status, audit = api.get("/audit/export", {"limit": ["10"]}, operator_context=operator_context)
+    audit_status, audit = api.get(
+        "/audit/export", {"limit": ["10"]}, operator_context=operator_context
+    )
     cockpit_status, cockpit = api.get("/live/cockpit", {}, operator_context=operator_context)
 
     assert kill_status == 200

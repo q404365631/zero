@@ -63,7 +63,7 @@ local genesis, or the operator terminal as proprietary features.
 
 | Area | Internal capability | Public state | Gap |
 | --- | --- | --- | --- |
-| Self-evolution | Memory extracts rules, research explains what to study, genesis proposes/builds changes, red-team attacks diffs, canary/calibration gates promotion. | Memory core, research command chain, genesis proposal classification, and paper-only evolve gates are now present as public subsystems. | Add real mutation/promotion and rollback. |
+| Self-evolution | Memory extracts rules, research explains what to study, genesis proposes/builds changes, red-team attacks diffs, canary/calibration gates promotion. | Memory core, research command chain, genesis proposal classification, paper-only evolve gates, sandbox candidate mutation, promotion plans, rollback plans, and promotion verification are now present as public subsystems. | Add production checkout promotion and rollback execution. |
 | Research command chain | Hunt, edge, convergence, thesis, score, meta, and sharpen form a learning/research loop. | Public docs mention autonomous OS, but not the full command chain. | Add public command contracts and deterministic fixture-backed reports. |
 | Real decision engine | Multi-lens evaluation, layered signals, risk gates, sizing modifiers, and rejection learning. | Public runtime now exposes a paper-only lens/layer/modifier decision stack over API, MCP, OpenAPI, docs, and tests. | Add production OODA parity, rejection learner, regime/correlation gates, and execution-quality feedback. |
 | MCP surface | Internal MCP can inspect and operate many engine surfaces. | Public MCP exposes expanded read-only local/operator surfaces with explicit safety classes. | Add risk-reducing local controls only after the operator policy and friction contract are public. |
@@ -295,21 +295,54 @@ Current public status:
 - Public paper smoke exercises refusal-mode policy qualification without
   claiming accepted live execution.
 
+### Cycle 35: Local Promotion And Rollback Evidence
+
+Complete the public self-evolution promotion evidence layer:
+
+- materialized sandbox candidate tree;
+- original and candidate hashes for every allowed mutation;
+- local promotion plan;
+- rollback plan;
+- promotion artifact verification;
+- explicit approval phrase;
+- no checkout mutation and no remote push.
+
+Exit gate:
+
+- `/evolve`, `zero_get_evolve_status`, and contract fixtures expose promotion,
+  rollback, and verification evidence.
+- public CI proves the plan is local-only and rollback-ready.
+- generated candidates remain limited to `docs/` and `examples/`.
+
+Current public status:
+
+- `zero.evolve.run.v1` now includes `promotion_plan`,
+  `rollback_plan`, and `promotion_verification`.
+- The evolve build materializes candidate files under a sandbox candidate tree
+  and hashes both original and candidate content.
+- `zero.evolve.promotion_plan.v1` requires
+  `I_APPROVE_ZERO_EVOLVE_LOCAL_PROMOTION` and records
+  `applies_to_checkout=false`, `pushes_to_remote=false`, and
+  `places_orders=false`.
+- `zero.evolve.rollback_plan.v1` records restore hashes and fails closed when
+  no rollback target exists.
+- `zero.evolve.promotion_verification.v1` rejects plans that can mutate the
+  checkout or push remotely.
+
 ## Revised Score
 
 Public repo readiness remains **100/100** as a launch artifact.
 
-Full ZERO operating-system readiness is **97/100** after Cycle 34. The score
-increased because the live canary lifecycle now has a public policy contract:
-readiness, arm/disarm, launch window, exchange evidence, shadow review,
-qualification, follow-through, and next-step recommendation can be inspected
-and verified without leaking venue payloads or secrets. The remaining
-self-evolution and production OODA gaps are still core product architecture,
-not polish.
+Full ZERO operating-system readiness is **98/100** after Cycle 35. The score
+increased because the public self-evolution loop now produces local promotion
+and rollback evidence: sandbox candidate mutation, original/candidate hashes,
+promotion plan, rollback plan, and artifact verification. The remaining
+production OODA and production checkout promotion gaps are still core product
+architecture, not polish.
 
 The path back to 100/100 is now clearer:
 
-1. real mutation/promotion and rollback loop;
+1. production checkout promotion and rollback execution;
 2. risk-reducing MCP controls with enforceable local operator friction;
 3. real production OODA parity, rejection learner, and execution-quality feedback;
 4. external operator-owned accepted-canary evidence and security review.

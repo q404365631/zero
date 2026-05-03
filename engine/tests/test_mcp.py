@@ -303,6 +303,9 @@ def test_evolve_status_is_paper_only_and_local() -> None:
     assert payload["paper_only"] is True
     assert payload["pushes_to_remote"] is False
     assert payload["promotion"]["requires_human_approval"] is True
+    assert payload["promotion_plan"]["pushes_to_remote"] is False
+    assert payload["rollback_plan"]["rollback_ready"] is True
+    assert payload["promotion_verification"]["ok"] is True
 
 
 def test_research_report_is_paper_only_and_read_only() -> None:

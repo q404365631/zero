@@ -29,7 +29,8 @@ marketing copy. The first public impression should be:
   proposal classification is open in [Genesis](genesis.md). Paper-only research
   is open in [Research Command Chain](research.md). The lens/layer/modifier
   decision stack is open in [Decision Stack](decision-stack.md). Paper-only
-  evolve gates are open in [Evolve Harness](evolve.md).
+  evolve gates plus local sandbox promotion and rollback evidence are open in
+  [Evolve Harness](evolve.md).
 - Do not imply guaranteed returns, hosted custody, or unattended live safety.
 
 ## Public Launch Surface
@@ -38,7 +39,7 @@ marketing copy. The first public impression should be:
 | --- | --- |
 | Runtime | Paper engine, local API, durable journal, runtime bus, strategy runners, safety gates, read-only Hyperliquid data, and live-readiness contracts. |
 | Terminal | Doctor, status, risk, replay, cockpit/readiness views, and friction-preserving risk controls. |
-| Evolution | Local memory, research command chain, decision-stack review, genesis proposal core, and paper-only evolve gates now exist; real mutation, promotion, and rollback remain. |
+| Evolution | Local memory, research command chain, decision-stack review, genesis proposal core, paper-only evolve gates, sandbox candidate mutation, promotion plans, rollback plans, and promotion verification now exist; production checkout promotion remains. |
 | Network | Redacted local proof packets, profile contracts, leaderboard contracts, and static page examples. |
 | Intelligence | Delayed public snapshots, catalog contracts, commercial API contracts, rate-limit and webhook fixtures, and clear subscription boundary. |
 | Contribution | Agent guide, scoped backlog, issue forms, PR template, safety review path, and one-command gates. |

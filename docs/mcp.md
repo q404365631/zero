@@ -69,7 +69,7 @@ capability.
 | `zero_get_memory_snapshot` | `read_only_public` | Returns public-safe memory extracted from bundled paper decisions. |
 | `zero_get_memory_stats` | `read_only_public` | Returns aggregate memory stats without entry bodies. |
 | `zero_get_genesis_proposals` | `read_only_public` | Returns plan-only genesis proposal classifications. |
-| `zero_get_evolve_status` | `read_only_public` | Returns paper-only builder/red-team/canary/calibration gate status. |
+| `zero_get_evolve_status` | `read_only_public` | Returns paper-only builder, red-team, canary, calibration, promotion-plan, and rollback evidence. |
 | `zero_get_research_report` | `read_only_public` | Returns paper-only hunt/edge/convergence/thesis/score/meta/sharpen reports. |
 | `zero_get_decision_stack` | `read_only_public` | Returns the public paper-only lens/layer/modifier decision stack. |
 | `zero_get_immune_status` | `read_only_public` | Returns paper immune breaker and risk-allowance status. |
