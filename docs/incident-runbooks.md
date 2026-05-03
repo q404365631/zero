@@ -58,7 +58,10 @@ records reconcile, and the remediation commit passes `just ci`.
 ## P1: Railway Runtime Down
 
 1. Run `scripts/deployment_evidence.sh "$ZERO_RAILWAY_URL"` and preserve the
-   evidence folder with the incident notes.
+   evidence folder with the incident notes. For shared deployments, include
+   `--railway-logs --signing-key "$ZERO_DEPLOYMENT_EVIDENCE_SIGNING_KEY"` and
+   verify the folder with `scripts/deployment_evidence_verify.py DIR
+   --require-signature`.
 2. Confirm Railway injected `PORT` and the service listens on `0.0.0.0:$PORT`.
 3. Confirm the volume is mounted at `/data` and `ZERO_JOURNAL_PATH` points to
    `/data/decisions.jsonl`.

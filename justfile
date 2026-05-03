@@ -371,6 +371,7 @@ docs-check:
     test -x scripts/railway_start.sh
     test -x scripts/railway_doctor.py
     test -x scripts/deployment_evidence.py
+    test -x scripts/deployment_evidence_verify.py
     test -x scripts/deployment_evidence.sh
     test -x scripts/live_canary_rehearsal.py
     test -x scripts/live_canary_verify.py

@@ -212,6 +212,8 @@ python3 scripts/deployment_evidence.py "${API}" \
   --output "${EVIDENCE_DIR}" >/tmp/zero-railway-deployment-evidence.txt
 python3 -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); audit=(d/"audit_export.json").read_text(encoding="utf-8"); assert m["schema_version"] == "zero.deployment_evidence.v1"; assert m["doctor"]["summary"]["fail"] == 0; assert (d/"SHA256SUMS").is_file(); assert "\"trace_id\": \"trace-" not in audit; assert "railway-smoke" not in audit' \
   "${EVIDENCE_DIR}"
+python3 scripts/deployment_evidence_verify.py "${EVIDENCE_DIR}" \
+  --forbid-token railway-smoke >/tmp/zero-railway-deployment-evidence-verify.txt
 
 docker rm -f "${CONTAINER_NAME}" >/dev/null
 start_container

@@ -118,7 +118,9 @@ incident, capture a redacted evidence folder:
 scripts/deployment_evidence.sh "$ZERO_RAILWAY_URL"
 scripts/deployment_evidence.sh "$ZERO_RAILWAY_URL" \
   --token "$ZERO_INTELLIGENCE_API_TOKEN" \
-  --railway-logs
+  --railway-logs \
+  --signing-key "$ZERO_DEPLOYMENT_EVIDENCE_SIGNING_KEY" \
+  --signer "$ZERO_DEPLOYMENT_OWNER"
 ```
 
 By default the collector writes to
@@ -133,11 +135,26 @@ By default the collector writes to
   authenticated;
 - `manifest.json` with git context, doctor summary, file inventory, and
   redaction policy;
-- `SHA256SUMS` for the captured files.
+- `SHA256SUMS` for the captured files;
+- optional `EVIDENCE_SIGNATURE.json` when an evidence signing key is supplied.
 
 The collector redacts supplied tokens, authorization values, private/signing key
 patterns, trace IDs, and smoke idempotency keys. Treat the output as
 operator-review evidence, not as a substitute for private journal custody.
+
+Verify the folder before sharing it:
+
+```bash
+scripts/deployment_evidence_verify.py artifacts/deployment-evidence/<timestamp>
+scripts/deployment_evidence_verify.py artifacts/deployment-evidence/<timestamp> \
+  --signing-key "$ZERO_DEPLOYMENT_EVIDENCE_SIGNING_KEY" \
+  --require-signature
+```
+
+The signature is an operator-owned HMAC-SHA256 promotion record over
+`manifest.json` and `SHA256SUMS`. It proves the captured pack was not modified
+after local signing; it is not a public identity system or a replacement for a
+future external signing service.
 
 ## Journal Recovery
 

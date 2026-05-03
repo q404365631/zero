@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hmac
 import hashlib
 import json
 import os
@@ -21,6 +22,7 @@ from railway_doctor import build_report, normalize_base_url, run_checks
 
 
 SCHEMA_VERSION = "zero.deployment_evidence.v1"
+SIGNATURE_SCHEMA_VERSION = "zero.deployment_evidence_signature.v1"
 DEFAULT_TIMEOUT_SECONDS = 8.0
 DEFAULT_AUDIT_LIMIT = 100
 DEFAULT_LOG_LINES = 200
@@ -111,6 +113,19 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=DEFAULT_LOG_LINES,
         help="Number of Railway log lines to request when --railway-logs is set.",
+    )
+    parser.add_argument(
+        "--signing-key",
+        default=os.environ.get("ZERO_DEPLOYMENT_EVIDENCE_SIGNING_KEY", ""),
+        help=(
+            "Optional HMAC-SHA256 signing key for the evidence pack. The key is "
+            "never written; only EVIDENCE_SIGNATURE.json is emitted."
+        ),
+    )
+    parser.add_argument(
+        "--signer",
+        default=os.environ.get("ZERO_DEPLOYMENT_EVIDENCE_SIGNER", "local-operator"),
+        help="Signer label to include in EVIDENCE_SIGNATURE.json when signing is enabled.",
     )
     return parser.parse_args()
 
@@ -253,7 +268,7 @@ def collect_railway_logs(output_dir: Path, *, lines: int, secrets: tuple[str, ..
 def build_file_inventory(output_dir: Path) -> list[dict[str, Any]]:
     files: list[dict[str, Any]] = []
     for path in sorted(output_dir.iterdir()):
-        if not path.is_file() or path.name in {"SHA256SUMS", "manifest.json"}:
+        if not path.is_file() or path.name in {"SHA256SUMS", "manifest.json", "EVIDENCE_SIGNATURE.json"}:
             continue
         files.append(
             {
@@ -268,9 +283,52 @@ def build_file_inventory(output_dir: Path) -> list[dict[str, Any]]:
 def write_sha256s(output_dir: Path) -> None:
     lines = []
     for path in sorted(output_dir.iterdir()):
-        if path.is_file() and path.name != "SHA256SUMS":
+        if path.is_file() and path.name not in {"SHA256SUMS", "EVIDENCE_SIGNATURE.json"}:
             lines.append(f"{sha256(path)}  {path.name}")
     (output_dir / "SHA256SUMS").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def read_sha256s(path: Path) -> dict[str, str]:
+    entries: dict[str, str] = {}
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        if not raw.strip():
+            continue
+        digest, _, name = raw.partition("  ")
+        entries[name] = digest
+    return entries
+
+
+def evidence_signature_payload(output_dir: Path, *, signing_key: str, signer: str) -> dict[str, Any]:
+    sha_path = output_dir / "SHA256SUMS"
+    files = read_sha256s(sha_path)
+    signed_payload = {
+        "schema_version": "zero.deployment_evidence_signature_payload.v1",
+        "manifest_sha256": sha256(output_dir / "manifest.json"),
+        "sha256s_sha256": sha256(sha_path),
+        "files": files,
+    }
+    signed_payload_hash = "sha256:" + hashlib.sha256(
+        json.dumps(signed_payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    signature = hmac.new(
+        signing_key.encode("utf-8"),
+        signed_payload_hash.encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+    return {
+        "schema_version": SIGNATURE_SCHEMA_VERSION,
+        "algorithm": "hmac-sha256",
+        "signer": signer,
+        "signed_payload_hash": signed_payload_hash,
+        "signature": f"v1={signature}",
+        "key_material_included": False,
+        "covers": {
+            "manifest": "manifest.json",
+            "checksums": "SHA256SUMS",
+            "file_count": len(files),
+        },
+        "signed_payload": signed_payload,
+    }
 
 
 def main() -> int:
@@ -283,7 +341,15 @@ def main() -> int:
 
     output_dir = args.output or default_output_dir()
     output_dir.mkdir(parents=True, exist_ok=True)
-    secrets = tuple(secret for secret in (args.token, os.environ.get("ZERO_INTELLIGENCE_WEBHOOK_SIGNING_KEY", "")) if secret)
+    secrets = tuple(
+        secret
+        for secret in (
+            args.token,
+            args.signing_key,
+            os.environ.get("ZERO_INTELLIGENCE_WEBHOOK_SIGNING_KEY", ""),
+        )
+        if secret
+    )
 
     generated_at = datetime.now(timezone.utc).isoformat()
     checks = run_checks(
@@ -341,6 +407,12 @@ def main() -> int:
     manifest["files"] = inventory
     write_json(output_dir / "manifest.json", manifest, secrets)
     write_sha256s(output_dir)
+    if args.signing_key:
+        write_json(
+            output_dir / "EVIDENCE_SIGNATURE.json",
+            evidence_signature_payload(output_dir, signing_key=args.signing_key, signer=args.signer),
+            secrets,
+        )
 
     summary = doctor["summary"]
     print(

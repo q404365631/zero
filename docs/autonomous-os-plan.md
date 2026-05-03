@@ -82,7 +82,7 @@ speed, scale, history, and reliability.
 | Self-evolution loop | 100 | public memory, research command chain, genesis proposal classification, production-parity OODA reports, local apply, rollback, and paper-first evolve gates exist; protected live-code evolution remains human-reviewed by design |
 | Safety and risk | 94 | real exchange chaos drills, external review |
 | API contracts | 100 | public runtime contracts are complete; hosted compatibility is commercial launch work |
-| Deployment | 92 | live Railway proof, production log-drain/signing evidence |
+| Deployment | 94 | live Railway proof, external production log-drain/public-signing evidence |
 | Observability and audit | 97 | signed bundles, metrics backend, log drains |
 | Security and custody | 91 | external review, key-handling drill evidence |
 | ZERO Network | 70 | hosted identity verification, public pages, production ingestion service |
@@ -555,7 +555,11 @@ Current progress:
   Railway-style paper services.
 - Added `scripts/deployment_evidence.py` and `scripts/deployment_evidence.sh`
   to collect a redacted deployment evidence folder with doctor output, public
-  runtime packets, optional Railway logs, manifest metadata, and checksums.
+  runtime packets, optional Railway logs, manifest metadata, checksums, and an
+  optional operator-owned HMAC signature artifact.
+- Added `scripts/deployment_evidence_verify.py` to recompute `SHA256SUMS`,
+  validate the manifest inventory, enforce redaction rules, and verify signed
+  evidence packs when a signing key is supplied.
 - The doctor checks health, recovery durability, market data source, metrics,
   immune state, live-preflight refusal, live cockpit refusal, public Network
   privacy, delayed Intelligence privacy, hosted-compatible rate-limit headers,
@@ -564,11 +568,11 @@ Current progress:
   evidence collector, failing CI on any failed deployment check or leaked trace
   data in the evidence pack.
 - Railway deployment docs and the P1 incident runbook now start from the doctor
-  report and deployment evidence pack instead of ad hoc curl-only checks.
+  report, verifier, and deployment evidence pack instead of ad hoc curl-only
+  checks.
 
-Remaining scope before Cycle 25: real deployed Railway proof, authenticated
-Railway log capture evidence, rollback rehearsal, and signed deployment
-evidence.
+Remaining scope before Cycle 25: real deployed Railway proof, external log-drain
+evidence, rollback rehearsal, and public signing/identity evidence.
 
 ### Cycle 25: Release, Registry, And Supply Chain
 

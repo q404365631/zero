@@ -205,6 +205,8 @@ EVIDENCE_DIR="$(mktemp -d)"
   --output "${EVIDENCE_DIR}" >/tmp/zero-paper-api-deployment-evidence.txt
 "${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); audit=(d/"audit_export.json").read_text(encoding="utf-8"); assert m["schema_version"] == "zero.deployment_evidence.v1"; assert m["doctor"]["summary"]["fail"] == 0; assert (d/"SHA256SUMS").is_file(); assert "\"trace_id\": \"trace-" not in audit; assert "smoke-1" not in audit' \
   "${EVIDENCE_DIR}"
+"${PYTHON_BIN}" scripts/deployment_evidence_verify.py "${EVIDENCE_DIR}" \
+  --forbid-token smoke-1 >/tmp/zero-paper-api-deployment-evidence-verify.txt
 
 RAILWAY_LOG_CMD="$(mktemp)"
 printf '%s\n' \
@@ -217,11 +219,20 @@ RAILWAY_LOG_EVIDENCE_DIR="$(mktemp -d)"
 ZERO_RAILWAY_LOG_COMMAND="${RAILWAY_LOG_CMD}" \
   "${PYTHON_BIN}" scripts/deployment_evidence.py "${API}" \
     --token smoke-intelligence-token \
+    --signing-key smoke-deployment-evidence-signing-key \
+    --signer ci-smoke \
     --output "${RAILWAY_LOG_EVIDENCE_DIR}" \
     --railway-logs \
     --railway-log-lines 5 >/tmp/zero-paper-api-deployment-evidence-logs.txt
-"${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); s=json.loads((d/"railway_logs_status.json").read_text(encoding="utf-8")); logs=(d/"railway_logs.txt").read_text(encoding="utf-8"); assert m["railway_logs"]["requested"] is True; assert m["railway_logs"]["captured"] is True; assert s["captured"] is True; assert "Authorization: REDACTED" in logs; assert "private_key=REDACTED" in logs; assert "TRACE_REDACTED" in logs; assert "smoke-railway-log-token" not in logs; assert "smoke-intelligence-token" not in logs; assert "railway-secret" not in logs; assert (d/"SHA256SUMS").is_file()' \
+"${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); s=json.loads((d/"railway_logs_status.json").read_text(encoding="utf-8")); sig=json.loads((d/"EVIDENCE_SIGNATURE.json").read_text(encoding="utf-8")); logs=(d/"railway_logs.txt").read_text(encoding="utf-8"); shas=(d/"SHA256SUMS").read_text(encoding="utf-8"); assert m["railway_logs"]["requested"] is True; assert m["railway_logs"]["captured"] is True; assert s["captured"] is True; assert sig["schema_version"] == "zero.deployment_evidence_signature.v1"; assert sig["algorithm"] == "hmac-sha256"; assert sig["key_material_included"] is False; assert "EVIDENCE_SIGNATURE.json" not in shas; assert "Authorization: REDACTED" in logs; assert "private_key=REDACTED" in logs; assert "TRACE_REDACTED" in logs; assert "smoke-railway-log-token" not in logs; assert "smoke-intelligence-token" not in logs; assert "smoke-deployment-evidence-signing-key" not in json.dumps(sig); assert "railway-secret" not in logs; assert (d/"SHA256SUMS").is_file()' \
   "${RAILWAY_LOG_EVIDENCE_DIR}"
+"${PYTHON_BIN}" scripts/deployment_evidence_verify.py "${RAILWAY_LOG_EVIDENCE_DIR}" \
+  --signing-key smoke-deployment-evidence-signing-key \
+  --require-signature \
+  --forbid-token smoke-railway-log-token \
+  --forbid-token smoke-intelligence-token \
+  --forbid-token smoke-deployment-evidence-signing-key \
+  --forbid-token railway-secret >/tmp/zero-paper-api-deployment-evidence-logs-verify.txt
 rm -f "${RAILWAY_LOG_CMD}"
 
 CANARY_DIR="$(mktemp -d)"
