@@ -183,6 +183,13 @@ curl -fsS \
 "${PYTHON_BIN}" -c 'import json,sys; p=json.load(open(sys.argv[1], encoding="utf-8")); assert p["schema_version"] == "zero.railway_doctor.v1"; assert p["summary"]["fail"] == 0' \
   /tmp/zero-paper-api-railway-doctor.json
 
+COCKPIT_DRILL_DIR="$(mktemp -d)"
+"${PYTHON_BIN}" scripts/live_cockpit_drill.py "${API}" \
+  --output "${COCKPIT_DRILL_DIR}" \
+  --forbid-token smoke-1 >/tmp/zero-paper-api-live-cockpit-drill.txt
+"${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); body=json.dumps(m); assert m["schema_version"] == "zero.live_cockpit_drill.v1"; assert m["summary"]["ok"] is True; assert m["summary"]["ready"] is False; assert m["summary"]["risk_increasing_allowed"] is False; assert (d/"SHA256SUMS").is_file(); assert "smoke-1" not in body; assert "trace-" not in body' \
+  "${COCKPIT_DRILL_DIR}"
+
 EVIDENCE_DIR="$(mktemp -d)"
 "${PYTHON_BIN}" scripts/deployment_evidence.py "${API}" \
   --token smoke-intelligence-token \

@@ -370,6 +370,13 @@ operator workflow directory. It checks recursive `SHA256SUMS`, operator-report
 privacy flags, common redaction leaks, accepted-live exchange-evidence rules,
 and the nested canary bundle verifier.
 
+`scripts/live_cockpit_drill.py URL` collects the read-only live cockpit stack
+into a public-safe drill bundle. It captures `/health`, `/v2/status`,
+`/live/preflight`, `/live/cockpit`, `/immune`, `/hl/reconcile`,
+`/live/certification`, `/live/receipts`, `/live/evidence`, `/metrics`, and
+`/audit/export?limit=100`, then writes `manifest.json` and `SHA256SUMS`. In
+public paper mode it fails unless live readiness remains fail-closed.
+
 `GET /operator/context` returns the operator audit identity currently attached
 to requests. The engine resolves it from `X-Zero-Operator-*` headers,
 `ZERO_OPERATOR_*` environment variables, or the local default. Live control

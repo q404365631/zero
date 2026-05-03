@@ -106,6 +106,8 @@ flowchart LR
   verify it against ZERO live receipts without exposing raw venue payloads.
 - Run and verify a one-command live canary operator workflow that collects,
   attaches, verifies, checksums, and reports public-safe evidence.
+- Capture a read-only live cockpit drill bundle for preflight, immune,
+  reconciliation, certification, receipt, evidence, metrics, and audit packets.
 - Package release assets with checksums.
 - Deploy the paper runtime on Railway or Docker.
 - Generate public-safe Network index, profile pages, leaderboard pages, and
@@ -190,6 +192,9 @@ zero live canary operator: ok=True bundle=artifacts/live-canary-operator/.../bun
 
 $ scripts/live_canary_operator_verify.py artifacts/live-canary-operator/...
 zero live canary operator verify: ok=True checks=... fail=0
+
+$ scripts/live_cockpit_drill.py http://127.0.0.1:8765
+zero live cockpit drill: ok=True ready=False risk_allowed=False fail=0 output=artifacts/live-cockpit-drill/...
 
 $ curl -fsS http://127.0.0.1:8765/immune
 {"schema_version": "zero.immune.v1", "risk_increasing_allowed": false}

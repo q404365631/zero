@@ -33,6 +33,25 @@ commands:
 `/resume-entries` is intentionally friction-gated because it can reopen new
 risk-increasing entries.
 
+## Drill Bundle
+
+For a repeatable operator drill, collect the full read-only cockpit stack:
+
+```bash
+scripts/live_cockpit_drill.py http://127.0.0.1:8765
+```
+
+The script writes `artifacts/live-cockpit-drill/<timestamp>/manifest.json`,
+the raw redacted packets, and `SHA256SUMS`. It collects `/health`,
+`/v2/status`, `/live/preflight`, `/live/cockpit`, `/immune`, `/hl/reconcile`,
+`/live/certification`, `/live/receipts`, `/live/evidence`, `/metrics`, and
+`/audit/export?limit=100`.
+
+In public paper mode the drill fails unless live readiness is fail-closed:
+`ready=false`, `live_mode=refused`, and `risk_increasing_allowed=false`. It
+also checks schema versions, risk-reducing actions, dry-run certification,
+checksums, and common redaction leaks.
+
 ## Launch Rule
 
 Do not treat `ready=true` as permission to scale capital. It means local
