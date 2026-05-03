@@ -16,12 +16,18 @@ read-only/live boundaries, public proof packets, and intelligence contracts.
 > Not another trading bot. ZERO is the control plane that makes autonomous
 > onchain operations inspectable, interruptible, and self-custodial.
 
+ZERO has three non-negotiable product rules:
+
+- The engine is open source and useful without a hosted ZERO control plane.
+- Operators keep custody; live-capital paths are local, explicit, and gated.
+- Public reputation is built from redacted proof, not screenshots or claims.
+
 ## Current Launch Status
 
-This repository is being prepared as the public product page and open-core
-engineering home for ZERO. It is useful today for paper-mode runtime work,
-operator-terminal development, safety-gate design, public proof contracts, and
-ZERO Intelligence API contract work.
+This repository is the public product page and open-core engineering home for
+ZERO. It is useful today for paper-mode runtime work, operator-terminal
+development, safety-gate design, public proof contracts, and ZERO Intelligence
+API contract work.
 
 It is not yet a promise that a new operator can clone the repo and run a fully
 autonomous live-capital system unattended. Live-capable code must pass local
@@ -52,10 +58,21 @@ guarded by preflight checks.
 
 | Surface | Role | Public status |
 | --- | --- | --- |
-| ZERO Runtime | Python engine for paper execution, live-readiness contracts, journals, safety gates, strategy adapters, and venue adapter interfaces. | Open source |
-| ZERO Terminal | Rust CLI/TUI for setup, diagnostics, state inspection, replay, and supervised actions. | Open source |
+| ZERO Runtime | Python engine for paper execution, live-readiness contracts, journals, safety gates, strategy adapters, venue adapter interfaces, and canary evidence. | Open source |
+| ZERO Terminal | Rust CLI/TUI for setup, diagnostics, state inspection, replay, live cockpit views, and supervised actions. | Open source |
 | ZERO Network | Public-safe profiles, leaderboards, verification badges, and proof packets. | Open source contracts |
 | ZERO Intelligence | Delayed public snapshots plus commercial realtime APIs, history, cohorts, webhooks, exports, and SLAs. | Open contracts + paid access |
+
+## Capability Boundary
+
+| Capability | Public repo state |
+| --- | --- |
+| Paper engine | Runnable now with deterministic fixtures, local API, CLI, Docker, and Railway paths. |
+| Live market data | Runnable now through read-only Hyperliquid public info calls when enabled. |
+| Live readiness | Runnable now as local preflight, cockpit, certification, reconciliation, immune, receipt, and evidence contracts. |
+| Live execution | Code boundary exists, but live capital remains operator-owned and gated until local custody, preflight, journal, kill-switch, reconciliation, and canary evidence pass. |
+| Public proof | Runnable now through redacted Network contracts, canary bundles, exchange-evidence normalization, recursive checksums, and operator report verification. |
+| Commercial API | Contracted now as ZERO Intelligence; production hosted persistence, billing, warehouse history, and SLAs are commercial work. |
 
 ```mermaid
 flowchart LR
@@ -93,6 +110,23 @@ flowchart LR
 - Deploy the paper runtime on Railway or Docker.
 - Generate public-safe Network index, profile pages, leaderboard pages, and
   Intelligence contract artifacts.
+
+## Operator Proof Path
+
+ZERO should earn trust through behavior that another engineer can verify:
+
+1. Run paper mode locally or on Railway.
+2. Inspect runtime, risk, live cockpit, immune, account, and reconciliation
+   packets through the CLI/API.
+3. Rehearse a live canary in fail-closed mode.
+4. Attach public-safe exchange-side evidence when an operator-owned live canary
+   is ready.
+5. Verify the bundle, recursive checksums, privacy flags, and report with local
+   scripts before publishing anything.
+
+That flow is implemented for refusal-mode rehearsal today. Accepted live canary
+evidence requires an operator-owned Hyperliquid wallet and explicit local live
+configuration; it is not part of public CI.
 
 ## See It Run
 

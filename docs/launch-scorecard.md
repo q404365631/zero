@@ -31,6 +31,8 @@ reserved for ZERO Intelligence.
   `PROVENANCE.json`
 - Draft GitHub Release rollback rehearsal and Homebrew formula renderer
 - GitHub artifact attestations for release asset provenance
+- One-command live canary operator workflow with public-safe report,
+  exchange-evidence attachment, recursive checksums, and local verifier
 - Threat model, incident runbooks, distribution policy, and hardening gate
 - Dependency and supply-chain policy with vulnerability response rules
 - One-line CLI install path with checksum and attestation verification
@@ -38,7 +40,8 @@ reserved for ZERO Intelligence.
 - Package dry-run gate for Python artifacts and the Rust crate graph
 - Shared paper API contract fixtures pinned by Python API tests and Rust client tests
 - First-class GitHub product page with category narrative, quickstart, safety
-  model, open-core boundary, and contributor paths
+  model, open-core boundary, capability boundary, operator proof path, and
+  contributor paths
 - First-10-minutes guide and reproducible terminal demo capture for source and
   installed release binaries
 - Public contribution, security, governance, support, and issue templates
