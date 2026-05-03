@@ -346,6 +346,11 @@ engine is not ready, receipts, live evidence, metrics, audit export, manifest,
 and `SHA256SUMS`. `--mode canary` can submit a real live order only after an
 explicit confirmation string and ready live gates.
 
+`scripts/live_canary_verify.py DIR` verifies the local bundle before it is used
+as launch evidence. It recomputes `SHA256SUMS`, checks required packets and
+status codes, compares manifest receipt/evidence fields to the packet payloads,
+and fails on common unredacted trace/idempotency/token shapes.
+
 `GET /operator/context` returns the operator audit identity currently attached
 to requests. The engine resolves it from `X-Zero-Operator-*` headers,
 `ZERO_OPERATOR_*` environment variables, or the local default. Live control

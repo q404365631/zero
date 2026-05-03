@@ -56,6 +56,16 @@ heartbeat, cockpit, certification, reconciliation, a fail-closed live execute
 attempt when the engine is not ready, `/live/receipts`, `/live/evidence`,
 metrics, audit export, a manifest, and `SHA256SUMS`.
 
+Verify the bundle before sharing it:
+
+```bash
+scripts/live_canary_verify.py artifacts/live-canary-rehearsal/<timestamp> \
+  --require-mode refusal
+```
+
+The verifier checks required packets, `SHA256SUMS`, manifest consistency,
+receipt/evidence hashes, HTTP status codes, and common redaction failures.
+
 For an operator-owned real canary, the command is intentionally explicit:
 
 ```bash
