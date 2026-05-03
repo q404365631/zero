@@ -101,6 +101,8 @@ Goal: produce the evidence a serious engineer expects before starring,
 installing, or contributing.
 
 - Fresh-clone demo transcript.
+- Fresh source-tree rehearsal in CI, proving the public gates and paper API
+  work outside the maintainer checkout.
 - Railway paper deployment evidence.
 - Release rehearsal evidence.
 - OpenSSF Scorecard enabled.
@@ -113,6 +115,7 @@ Exit gate:
 ```bash
 just release-rehearsal
 just draft-release-rehearsal
+just fresh-clone-rehearsal
 just public-readiness
 ```
 

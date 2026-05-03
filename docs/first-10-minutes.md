@@ -105,6 +105,17 @@ Use an installed release binary instead of compiling the CLI:
 ZERO_BIN="$(command -v zero)" scripts/demo_capture.sh
 ```
 
+Maintainers can rehearse the same public source boundary from a temporary clean
+tree:
+
+```bash
+just fresh-clone-rehearsal
+```
+
+That command copies only publishable source files, verifies the public and
+hardening gates, runs the paper example, and smokes the paper API through the
+CLI outside the maintainer checkout.
+
 ## 6. Run The Local Gate
 
 Before opening a pull request:

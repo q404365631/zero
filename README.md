@@ -270,6 +270,14 @@ terminal demo capture, run:
 scripts/demo_capture.sh
 ```
 
+Maintainers can also prove the publishable source tree works outside this
+checkout by copying it into a temporary directory, rerunning hardening, and
+smoking the paper API through the CLI:
+
+```bash
+just fresh-clone-rehearsal
+```
+
 Use an installed release binary for the same capture:
 
 ```bash

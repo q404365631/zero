@@ -47,6 +47,9 @@ reserved for ZERO Intelligence.
   contributor paths
 - First-10-minutes guide and reproducible terminal demo capture for source and
   installed release binaries
+- Fresh source-tree rehearsal that copies the publishable checkout into a
+  temporary directory, reruns hardening, and smokes the paper API through the
+  CLI
 - Public contribution, security, governance, support, and issue templates
 - First-release notes template and ready-to-create contributor issue set
 - Public boundary audit from the private repo

@@ -60,6 +60,7 @@ bash -n scripts/package_dry_run.sh
 bash -n scripts/release_rehearsal.sh
 bash -n scripts/draft_release_rehearsal.sh
 bash -n scripts/paper_api_smoke.sh
+bash -n scripts/fresh_clone_rehearsal.sh
 bash -n scripts/railway_smoke.sh
 bash -n scripts/railway_start.sh
 bash -n scripts/deployment_evidence.sh

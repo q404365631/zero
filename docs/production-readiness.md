@@ -17,7 +17,7 @@ end.
 
 | Dimension | Score | Status |
 |---|---:|---|
-| Public repo hygiene | 99 | Strong CI, release artifacts, governance, docs, clean boundaries, first-class GitHub product page, first-10-minutes guide, reproducible demo capture, threat model, incident runbooks, distribution policy, hardening gate, and public-readiness gate. |
+| Public repo hygiene | 100 | Strong CI, release artifacts, governance, docs, clean boundaries, first-class GitHub product page, first-10-minutes guide, reproducible demo capture, fresh source-tree rehearsal, threat model, incident runbooks, distribution policy, hardening gate, and public-readiness gate. |
 | Product narrative | 99 | Clear category around autonomous operating systems for self-custodial onchain operations, with public runtime, terminal, network, intelligence, capability boundary, and operator proof path separated cleanly. |
 | CLI readiness | 99 | Mature Rust terminal, doctor, TUI, friction gates, tests, release binary path, recovery-aware status output, live-preflight diagnostics, `/live-cockpit`, `/live-certify`, `/immune`, friction-gated `/resume-entries`, friction-gated engine-backed `/execute` with receipt-hash rendering, operator-context audit headers, operator-local runtime partitions, a one-command live canary operator evidence workflow, and a verified read-only live cockpit drill bundle exist. Remaining full-screen TUI cockpit layout and real canary evidence are external. |
 | Engine runtime | 91 | Deterministic paper runtime, bounded OODA cycle records, strategy runner SDK, declarative paper strategies, append-only decision journal, durable runtime bus contracts, restart replay, read-only Hyperliquid info adapter, live-mid paper execution, traceable audit export, live custody preflight, account reconciliation, dry-run live certification, immune breaker packets, live execution receipt packets, maintained live canary rehearsal collector, verifier, exchange-evidence normalizer, operator report workflow, and operator report verifier, public-safe signed live evidence packets, fail-closed model gateway plumbing, and live-executor interfaces exist. Still missing public production OODA parity and real exchange canary proof from an operator-owned run. |
@@ -31,12 +31,13 @@ end.
 | Release and distribution | 97 | GitHub release artifacts, checksums, SBOM/provenance bundle, published-release evidence command, release verifier, tamper-detection rehearsal, draft-release rollback rehearsal, Homebrew formula renderer, attestations, installer, registry-readiness gate, package dry-run, distribution readiness policy, release template hardening checks, dependency policy, and rollback rules exist. Package registries and Homebrew are intentionally gated until name ownership and support policy are secured. |
 | Documentation for operators | 100 | Good local docs, operator isolation docs, Hyperliquid read-only boundary docs, live-paper quote docs, immune-system docs, live cockpit docs, live cockpit drill bundle, verifier, and tamper rehearsal, live certification docs, live evidence docs, live canary rehearsal docs, Railway paper deploy, remote-doctor, and evidence-pack docs, restart recovery docs, audit/metrics docs, live-preflight warnings, threat model, and incident runbooks. Missing real exchange drill evidence only as external proof, not documented workflow. |
 
-**Public repo readiness: 98/100.**
+**Public repo readiness: 99/100.**
 
 This is credible for a public open-source launch repository. The remaining four
 points are external proof: clean release artifacts from the public repository,
-external security review, fresh-clone feedback from at least one serious
-engineer, and a real operator-owned live canary evidence bundle.
+external security review, human fresh-clone feedback from at least one serious
+engineer, and a real operator-owned live canary evidence bundle. The automated
+fresh source-tree rehearsal now guards the mechanical clone path in CI.
 
 **Full ZERO operating-system readiness: 90/100.**
 

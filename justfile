@@ -45,6 +45,9 @@ paper-api:
 paper-api-smoke:
     scripts/paper_api_smoke.sh
 
+fresh-clone-rehearsal:
+    scripts/fresh_clone_rehearsal.sh
+
 demo-capture:
     scripts/demo_capture.sh
 
@@ -236,6 +239,7 @@ docs-check:
     test -x scripts/live_cockpit_drill.py
     test -x scripts/live_cockpit_drill_verify.py
     test -x scripts/live_cockpit_drill_tamper_rehearsal.py
+    test -x scripts/fresh_clone_rehearsal.sh
     test -x scripts/railway_smoke.sh
     test -f Dockerfile
     test -f compose.yaml
@@ -261,4 +265,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness
+ci: lint test paper-api-smoke fresh-clone-rehearsal example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness

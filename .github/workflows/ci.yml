@@ -120,6 +120,7 @@ jobs:
           test -x scripts/live_cockpit_drill.py
           test -x scripts/live_cockpit_drill_verify.py
           test -x scripts/live_cockpit_drill_tamper_rehearsal.py
+          test -x scripts/fresh_clone_rehearsal.sh
           test -x scripts/live_canary_rehearsal.py
           test -x scripts/live_canary_verify.py
           test -x scripts/live_canary_exchange_evidence.py
@@ -315,6 +316,18 @@ jobs:
         run: rustup show
       - name: Smoke local paper API through CLI
         run: scripts/paper_api_smoke.sh
+
+  fresh-clone-rehearsal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.12"
+      - name: Rust toolchain
+        run: rustup show
+      - name: Rehearse a fresh source checkout
+        run: scripts/fresh_clone_rehearsal.sh
 
   package-dry-run:
     runs-on: ubuntu-latest
