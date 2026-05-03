@@ -8,6 +8,7 @@ required_files=(
   "docs/safety-model.md"
   "docs/release.md"
   "docs/production-readiness.md"
+  "docs/public-upgrade.md"
   ".github/RELEASE_TEMPLATE.md"
 )
 
@@ -34,6 +35,8 @@ rg -q "release rehearsal" docs/release.md
 rg -q "draft release rehearsal" docs/release.md
 rg -q "threat model" docs/production-readiness.md
 rg -q "incident runbooks" docs/production-readiness.md
+rg -q "Public repo readiness" docs/public-upgrade.md
+rg -q "Full ZERO operating-system readiness" docs/public-upgrade.md
 rg -q "shasum -a 256 -c SHA256SUMS" .github/RELEASE_TEMPLATE.md
 rg -q "package registry publication remains disabled" .github/RELEASE_TEMPLATE.md
 rg -q "gh attestation verify zero-linux" .github/RELEASE_TEMPLATE.md
@@ -62,5 +65,8 @@ python3 -m py_compile scripts/release_evidence.py
 python3 -m py_compile scripts/registry_readiness.py
 python3 -m py_compile scripts/release_provenance.py
 python3 -m py_compile scripts/homebrew_formula.py
+rm -rf scripts/__pycache__
 scripts/registry_readiness.py >/dev/null
 scripts/draft_release_rehearsal.sh >/dev/null
+rm -rf scripts/__pycache__
+scripts/public_readiness_gate.sh >/dev/null

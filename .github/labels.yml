@@ -25,6 +25,12 @@
 - name: ci
   color: "cfd3d7"
   description: Continuous integration and repository automation.
+- name: design
+  color: "f9d0c4"
+  description: Operator-facing design, public pages, or documentation IA.
+- name: contracts
+  color: "5319e7"
+  description: Public API, Network, Intelligence, or proof packet contracts.
 - name: release
   color: "fbca04"
   description: Release packaging, artifacts, or versioning.

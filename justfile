@@ -51,6 +51,9 @@ demo-capture:
 hardening-gate:
     scripts/hardening_gate.sh
 
+public-readiness:
+    scripts/public_readiness_gate.sh
+
 package-dry-run:
     scripts/package_dry_run.sh
 
@@ -127,6 +130,7 @@ docs-check:
     test -f docs/operator-isolation.md
     test -f docs/immune-system.md
     test -f docs/production-readiness.md
+    test -f docs/public-upgrade.md
     test -f docs/autonomous-os-plan.md
     test -f docs/agentic-contribution.md
     test -f docs/release.md
@@ -191,6 +195,7 @@ docs-check:
     test -x scripts/release_rehearsal.sh
     test -x scripts/draft_release_rehearsal.sh
     test -x scripts/hardening_gate.sh
+    test -x scripts/public_readiness_gate.sh
     test -x scripts/railway_start.sh
     test -x scripts/railway_doctor.py
     test -x scripts/deployment_evidence.py
@@ -211,7 +216,7 @@ container-demo: container-build
 container-example: container-build
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-lint: engine-lint cli-lint docs-check hardening-gate
+lint: engine-lint cli-lint docs-check hardening-gate public-readiness
 
 test: engine-test cli-test
 
@@ -220,4 +225,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal
+ci: lint test paper-api-smoke example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness

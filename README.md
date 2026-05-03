@@ -16,6 +16,19 @@ read-only/live boundaries, public proof packets, and intelligence contracts.
 > Not another trading bot. ZERO is the control plane that makes autonomous
 > onchain operations inspectable, interruptible, and self-custodial.
 
+## Current Launch Status
+
+This repository is being prepared as the public product page and open-core
+engineering home for ZERO. It is useful today for paper-mode runtime work,
+operator-terminal development, safety-gate design, public proof contracts, and
+ZERO Intelligence API contract work.
+
+It is not yet a promise that a new operator can clone the repo and run a fully
+autonomous live-capital system unattended. Live-capable code must pass local
+custody, reconciliation, immune, journal, dead-man, and operator-friction
+checks before risk can increase. Treat live mode as a self-custodial canary
+path, not a shortcut.
+
 ## Why ZERO Exists
 
 Onchain markets are open 24/7. Leverage punishes attention failure. The old
@@ -39,7 +52,7 @@ guarded by preflight checks.
 
 | Surface | Role | Public status |
 | --- | --- | --- |
-| ZERO Runtime | Python engine for paper/live execution, journals, safety gates, strategy adapters, and venue adapters. | Open source |
+| ZERO Runtime | Python engine for paper execution, live-readiness contracts, journals, safety gates, strategy adapters, and venue adapter interfaces. | Open source |
 | ZERO Terminal | Rust CLI/TUI for setup, diagnostics, state inspection, replay, and supervised actions. | Open source |
 | ZERO Network | Public-safe profiles, leaderboards, verification badges, and proof packets. | Open source contracts |
 | ZERO Intelligence | Delayed public snapshots plus commercial realtime APIs, history, cohorts, webhooks, exports, and SLAs. | Open contracts + paid access |
@@ -63,6 +76,8 @@ flowchart LR
 - Start a local paper API and inspect operator state.
 - Use the Rust CLI for health checks, status, replay, and supervised actions.
 - Query Hyperliquid read-only market data without exposing funds.
+- Exercise live-readiness, immune, reconciliation, and certification contracts
+  without placing capital at risk.
 - Package release assets with checksums.
 - Deploy the paper runtime on Railway or Docker.
 - Generate public-safe Network index, profile pages, leaderboard pages, and
@@ -291,6 +306,7 @@ invariants.
 - [ZERO Intelligence](docs/zero-intelligence.md)
 - [Model Gateway](docs/model-gateway.md)
 - [Production Readiness](docs/production-readiness.md)
+- [Public Upgrade Plan](docs/public-upgrade.md)
 - [Autonomous OS Plan](docs/autonomous-os-plan.md)
 - [Agentic Contribution](docs/agentic-contribution.md)
 - [Launch Scorecard](docs/launch-scorecard.md)

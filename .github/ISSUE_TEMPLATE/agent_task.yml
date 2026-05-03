@@ -1,0 +1,43 @@
+name: Agent task
+description: Propose a scoped task for coding, review, or design agents
+title: "agent: "
+labels: ["needs triage"]
+body:
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Exact files, modules, or docs the agent should own.
+    validations:
+      required: true
+  - type: textarea
+    id: invariant
+    attributes:
+      label: Safety invariant
+      description: What behavior must not regress?
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - engine
+        - cli
+        - docs
+        - examples
+        - contracts
+        - design
+        - ci
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: Required checks
+      description: Commands the agent or reviewer should run.
+      value: |
+        just docs-check
+        just public-readiness
+    validations:
+      required: true
