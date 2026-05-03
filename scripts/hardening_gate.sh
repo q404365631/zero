@@ -36,6 +36,7 @@ required_files=(
   "docs/releases/v0.1.1-evidence.md"
   "docs/production-readiness.md"
   "docs/public-upgrade.md"
+  "docs/label-taxonomy.md"
   "docs/mcp.md"
   "docs/mcp/transcript.jsonl"
   "docs/live-evidence.md"
@@ -115,6 +116,13 @@ contains "Safety Impact" .github/ISSUE_TEMPLATE/bug_report.yml
 contains "Agentic contribution guide" .github/ISSUE_TEMPLATE/config.yml
 contains "proof-pack" .github/labels.yml
 contains "mcp" .github/labels.yml
+contains "market-data" .github/labels.yml
+contains "network" .github/labels.yml
+contains "security" .github/labels.yml
+contains "containers" .github/labels.yml
+contains "packaging" .github/labels.yml
+contains "Label Taxonomy" docs/label-taxonomy.md
+contains "safety-critical" docs/label-taxonomy.md
 contains "Agent Operating Guide" docs/llms.txt
 contains "live_correlation" docs/proof/demo/proof-pack.json
 contains "unavailable" docs/proof/demo/proof-pack.json
@@ -150,9 +158,11 @@ python3 -m py_compile scripts/generate_llms_full.py
 python3 -m py_compile scripts/proof_pack.py
 python3 -m py_compile scripts/mcp_transcript.py
 python3 -m py_compile scripts/issue_template_check.py
+python3 -m py_compile scripts/label_taxonomy_check.py
 PYTHONPATH="$PWD/engine/src" python3 -m py_compile engine/src/zero_engine/mcp.py
 PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke >/dev/null
 scripts/issue_template_check.py >/dev/null
+scripts/label_taxonomy_check.py >/dev/null
 python3 -m py_compile scripts/live_cockpit_drill_verify.py
 python3 -m py_compile scripts/live_cockpit_drill_tamper_rehearsal.py
 rm -rf scripts/__pycache__

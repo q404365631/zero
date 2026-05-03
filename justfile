@@ -54,6 +54,9 @@ demo-capture:
 issue-template-check:
     scripts/issue_template_check.py
 
+label-taxonomy-check:
+    scripts/label_taxonomy_check.py
+
 hardening-gate:
     scripts/hardening_gate.sh
 
@@ -202,6 +205,7 @@ docs-check:
     test -f docs/public-upgrade.md
     test -f docs/autonomous-os-plan.md
     test -f docs/agentic-contribution.md
+    test -f docs/label-taxonomy.md
     test -f docs/release.md
     test -f docs/releases/v0.1.1.md
     test -f docs/releases/v0.1.1-evidence.md
@@ -257,6 +261,7 @@ docs-check:
     test -x scripts/install.sh
     test -x scripts/demo_capture.sh
     test -x scripts/issue_template_check.py
+    test -x scripts/label_taxonomy_check.py
     test -x scripts/openapi_contract_check.py
     test -x scripts/network_pages_smoke.py
     test -x scripts/package_dry_run.sh
@@ -291,6 +296,7 @@ docs-check:
     test -f docs/railway-deploy.md
     python3 scripts/openapi_contract_check.py
     scripts/issue_template_check.py
+    scripts/label_taxonomy_check.py
     PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
     PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
     scripts/generate_llms_full.py --check
@@ -305,7 +311,7 @@ container-demo: container-build
 container-example: container-build
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-lint: engine-lint cli-lint docs-check issue-template-check hardening-gate public-readiness
+lint: engine-lint cli-lint docs-check issue-template-check label-taxonomy-check hardening-gate public-readiness
 
 test: engine-test cli-test
 

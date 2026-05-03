@@ -47,6 +47,10 @@ Use the issue template that matches the work:
   launch surfaces.
 - `Documentation gap`: missing, stale, misleading, or agent-hostile docs.
 
+Labels are defined in [docs/label-taxonomy.md](docs/label-taxonomy.md). If a
+new issue lane needs a new label, update `.github/labels.yml` and the taxonomy
+checker in the same pull request.
+
 ## Safety-Critical Changes
 
 Changes to sizing, order execution, risk gates, kill switches, authentication, secret handling, or operator friction require:

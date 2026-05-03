@@ -69,4 +69,5 @@
 
 - [Agentic Contribution](agentic-contribution.md)
 - [Issue Templates](../.github/ISSUE_TEMPLATE/agent_task.yml)
+- [Label Taxonomy](label-taxonomy.md)
 - [Full LLM Context](llms-full.txt)

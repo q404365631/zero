@@ -31,6 +31,9 @@
 - name: strategy
   color: "bfdadc"
   description: Strategy API, plugin, runner, or deterministic strategy example.
+- name: market-data
+  color: "c5def5"
+  description: Market-data adapter interfaces, fixtures, and examples.
 - name: good-first-strategy
   color: "0e8a16"
   description: Paper-only strategy contribution suitable for a first engine PR.
@@ -46,6 +49,18 @@
 - name: contracts
   color: "5319e7"
   description: Public API, Network, Intelligence, or proof packet contracts.
+- name: network
+  color: "0052cc"
+  description: ZERO Network profiles, leaderboards, and publication contracts.
+- name: security
+  color: "b60205"
+  description: Security docs, vulnerability response, or public proof privacy.
+- name: containers
+  color: "bfd4f2"
+  description: Docker, Compose, or container smoke paths.
+- name: packaging
+  color: "d93f0b"
+  description: Package registries, Homebrew, release artifacts, or installers.
 - name: docs-gap
   color: "0075ca"
   description: Missing, stale, misleading, or agent-hostile documentation.

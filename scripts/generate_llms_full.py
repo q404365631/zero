@@ -37,6 +37,7 @@ SOURCES = (
     "docs/public-upgrade.md",
     "docs/autonomous-os-plan.md",
     "docs/agentic-contribution.md",
+    "docs/label-taxonomy.md",
     ".github/ISSUE_TEMPLATE/agent_task.yml",
     ".github/ISSUE_TEMPLATE/strategy_example.yml",
     ".github/ISSUE_TEMPLATE/safety_review.yml",

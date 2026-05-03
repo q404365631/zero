@@ -75,6 +75,7 @@ required=(
   docs/llms-full.txt
   docs/mcp.md
   docs/mcp/transcript.jsonl
+  docs/label-taxonomy.md
   docs/proof/README.md
   docs/proof/demo/README.md
   docs/proof/demo/proof-pack.json

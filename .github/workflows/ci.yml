@@ -84,6 +84,7 @@ jobs:
           test -f docs/public-upgrade.md
           test -f docs/autonomous-os-plan.md
           test -f docs/agentic-contribution.md
+          test -f docs/label-taxonomy.md
           test -f docs/release.md
           test -f docs/releases/v0.1.1.md
           test -f docs/releases/v0.1.1-evidence.md
@@ -125,6 +126,7 @@ jobs:
           test -x scripts/install.sh
           test -x scripts/demo_capture.sh
           test -x scripts/issue_template_check.py
+          test -x scripts/label_taxonomy_check.py
           test -x scripts/openapi_contract_check.py
           test -x scripts/public_readiness_gate.sh
           test -x scripts/network_pages_smoke.py
@@ -155,6 +157,7 @@ jobs:
           test -f docs/railway-deploy.md
           test -f .github/RELEASE_TEMPLATE.md
           scripts/issue_template_check.py
+          scripts/label_taxonomy_check.py
           python3 scripts/openapi_contract_check.py
           PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
           PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
