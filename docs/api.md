@@ -379,6 +379,9 @@ public paper mode it fails unless live readiness remains fail-closed.
 `scripts/live_cockpit_drill_verify.py DIR` independently verifies a captured
 bundle by recomputing checksums, checking packet schemas, replaying the
 manifest summary from packet payloads, and enforcing redaction rules.
+`scripts/live_cockpit_drill_tamper_rehearsal.py DIR` proves the verifier
+rejects both checksum drift and semantic cockpit tampering before the bundle is
+used as operator-readiness evidence.
 
 `GET /operator/context` returns the operator audit identity currently attached
 to requests. The engine resolves it from `X-Zero-Operator-*` headers,

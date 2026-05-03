@@ -105,6 +105,9 @@ live-cockpit-drill url="http://127.0.0.1:8765":
 live-cockpit-drill-verify dir:
     scripts/live_cockpit_drill_verify.py "{{dir}}"
 
+live-cockpit-drill-tamper-rehearsal dir:
+    scripts/live_cockpit_drill_tamper_rehearsal.py "{{dir}}"
+
 checksum output *artifacts:
     python3 scripts/write_sha256s.py "{{output}}" {{artifacts}}
 
@@ -232,6 +235,7 @@ docs-check:
     test -x scripts/live_canary_operator_verify.py
     test -x scripts/live_cockpit_drill.py
     test -x scripts/live_cockpit_drill_verify.py
+    test -x scripts/live_cockpit_drill_tamper_rehearsal.py
     test -x scripts/railway_smoke.sh
     test -f Dockerfile
     test -f compose.yaml

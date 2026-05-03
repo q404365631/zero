@@ -53,8 +53,12 @@ jobs:
           test -f docs/zero-network.md
           test -f docs/zero-intelligence.md
           test -f docs/dependency-policy.md
+          test -f docs/live-cockpit.md
+          test -f docs/live-certification.md
           test -f docs/hyperliquid-readonly.md
           test -f docs/live-evidence.md
+          test -f docs/live-canary-operator.md
+          test -f docs/immune-system.md
           test -f docs/production-readiness.md
           test -f docs/public-upgrade.md
           test -f docs/autonomous-os-plan.md
@@ -113,6 +117,14 @@ jobs:
           test -x scripts/railway_doctor.py
           test -x scripts/deployment_evidence.py
           test -x scripts/deployment_evidence.sh
+          test -x scripts/live_cockpit_drill.py
+          test -x scripts/live_cockpit_drill_verify.py
+          test -x scripts/live_cockpit_drill_tamper_rehearsal.py
+          test -x scripts/live_canary_rehearsal.py
+          test -x scripts/live_canary_verify.py
+          test -x scripts/live_canary_exchange_evidence.py
+          test -x scripts/live_canary_operator.py
+          test -x scripts/live_canary_operator_verify.py
           test -x scripts/railway_smoke.sh
           test -f railway.toml
           test -f docs/railway-deploy.md

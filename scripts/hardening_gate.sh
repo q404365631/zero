@@ -70,6 +70,8 @@ python3 -m py_compile scripts/release_evidence.py
 python3 -m py_compile scripts/registry_readiness.py
 python3 -m py_compile scripts/release_provenance.py
 python3 -m py_compile scripts/homebrew_formula.py
+python3 -m py_compile scripts/live_cockpit_drill_verify.py
+python3 -m py_compile scripts/live_cockpit_drill_tamper_rehearsal.py
 rm -rf scripts/__pycache__
 scripts/registry_readiness.py >/dev/null
 scripts/draft_release_rehearsal.sh >/dev/null

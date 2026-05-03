@@ -191,6 +191,8 @@ COCKPIT_DRILL_DIR="$(mktemp -d)"
   "${COCKPIT_DRILL_DIR}"
 "${PYTHON_BIN}" scripts/live_cockpit_drill_verify.py "${COCKPIT_DRILL_DIR}" \
   --forbid-token smoke-1 >/tmp/zero-paper-api-live-cockpit-drill-verify.txt
+"${PYTHON_BIN}" scripts/live_cockpit_drill_tamper_rehearsal.py "${COCKPIT_DRILL_DIR}" \
+  --forbid-token smoke-1 >/tmp/zero-paper-api-live-cockpit-drill-tamper.txt
 
 EVIDENCE_DIR="$(mktemp -d)"
 "${PYTHON_BIN}" scripts/deployment_evidence.py "${API}" \

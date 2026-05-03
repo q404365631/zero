@@ -35,7 +35,7 @@ reserved for ZERO Intelligence.
   exchange-evidence attachment, recursive checksums, and local verifier
 - Live cockpit drill bundle for read-only preflight, immune, reconciliation,
   certification, receipts, evidence, metrics, and audit packets, plus a local
-  verifier that replays packet-derived readiness
+  verifier and tamper rehearsal that replay packet-derived readiness
 - Threat model, incident runbooks, distribution policy, and hardening gate
 - Dependency and supply-chain policy with vulnerability response rules
 - One-line CLI install path with checksum and attestation verification
