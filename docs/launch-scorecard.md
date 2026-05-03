@@ -29,6 +29,9 @@ reserved for ZERO Intelligence.
 - Release verifier and tamper-detection rehearsal
 - Release SBOM/provenance bundle with checksummed `SBOM.spdx.json` and
   `PROVENANCE.json`
+- Published `v0.1.1` release evidence from a clean GitHub download, including
+  checksum verification, release verifier output, executable attestations, and
+  Homebrew formula rendering
 - Draft GitHub Release rollback rehearsal and Homebrew formula renderer
 - GitHub artifact attestations for release asset provenance
 - One-command live canary operator workflow with public-safe report,

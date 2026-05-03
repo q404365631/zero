@@ -7,6 +7,7 @@ required_files=(
   "docs/distribution.md"
   "docs/safety-model.md"
   "docs/release.md"
+  "docs/releases/v0.1.1-evidence.md"
   "docs/production-readiness.md"
   "docs/public-upgrade.md"
   "docs/live-evidence.md"
@@ -56,6 +57,8 @@ contains "shasum -a 256 -c SHA256SUMS" .github/RELEASE_TEMPLATE.md
 contains "package registry publication remains disabled" .github/RELEASE_TEMPLATE.md
 contains "gh attestation verify zero-linux" .github/RELEASE_TEMPLATE.md
 contains "scripts/release_evidence.py <tag>" .github/RELEASE_TEMPLATE.md
+contains "zero.release_evidence.v1" docs/releases/v0.1.1-evidence.md
+contains "verification.fail=0" docs/releases/v0.1.1-evidence.md
 
 python3 -m json.tool contracts/intelligence/snapshot.json >/dev/null
 python3 -m json.tool contracts/intelligence/catalog.json >/dev/null

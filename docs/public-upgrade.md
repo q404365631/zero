@@ -103,6 +103,9 @@ installing, or contributing.
 - Fresh-clone demo transcript.
 - Fresh source-tree rehearsal in CI, proving the public gates and paper API
   work outside the maintainer checkout.
+- Published `v0.1.1` clean-download release evidence with checksums,
+  executable attestations, release verifier output, and Homebrew formula
+  rendering.
 - Railway paper deployment evidence.
 - Release rehearsal evidence.
 - OpenSSF Scorecard enabled.
@@ -115,6 +118,7 @@ Exit gate:
 ```bash
 just release-rehearsal
 just draft-release-rehearsal
+just release-evidence v0.1.1
 just fresh-clone-rehearsal
 just public-readiness
 ```

@@ -108,6 +108,9 @@ The evidence command downloads the release, verifies `SHA256SUMS`, runs
 renders the Homebrew formula from the downloaded checksum manifest. It does not
 publish package registries or mutate release assets.
 
+The current `v0.1.1` clean-download verification is recorded in
+[docs/releases/v0.1.1-evidence.md](releases/v0.1.1-evidence.md).
+
 ## Hardening Gate
 
 Run the local hardening gate before tagging or publishing:

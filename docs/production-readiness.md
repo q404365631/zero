@@ -28,16 +28,17 @@ end.
 | Security and custody | 92 | No secrets needed for first run; Hyperliquid private keys have operator-scoped keychain/env helpers, redaction tests, a non-secret preflight gate, optional SDK-backed live adapter, threat model, secret-leak runbook, dependency policy, SBOM/provenance metadata, and release provenance policy. Missing external security review. |
 | ZERO Network | 70 | Public-safe local profile packets, proof hashes, deployment claim hashes, deployment heartbeat hashes, verification badges, leaderboard rows, opt-in local publish logs, hosted-compatible ingestion, proof validation, duplicate refusal, metric-consistency checks, and accepted-only leaderboard output exist. Missing production hosted service persistence, public hosted pages, stale-publication windows, sybil policy, and signed identity verification. |
 | ZERO Intelligence | 78 | Delayed public snapshots, catalog, billing-ready commercial contract, hosted-compatible `/v1/intelligence/*` reads/writes, token-gated paid scopes, actual rate-limit headers, usage events, HMAC-SHA256 webhook signature fixtures, aggregate export jobs, plan/scope model, dataset names, fail-closed model gateway status, model gateway health probes, model gateway audit bundles, mock/local provider conformance, real external model adapters, bounded retry/cost policy, hosted key-management rules, plan boundary, and opt-in local export packets exist. Missing production hosted persistence, billing provider integration, warehouse-backed realtime/history feeds, production webhook delivery, commercial terms, live hosted key-management implementation, and hosted audit retention. |
-| Release and distribution | 97 | GitHub release artifacts, checksums, SBOM/provenance bundle, published-release evidence command, release verifier, tamper-detection rehearsal, draft-release rollback rehearsal, Homebrew formula renderer, attestations, installer, registry-readiness gate, package dry-run, distribution readiness policy, release template hardening checks, dependency policy, and rollback rules exist. Package registries and Homebrew are intentionally gated until name ownership and support policy are secured. |
+| Release and distribution | 98 | GitHub release artifacts, checksums, SBOM/provenance bundle, recorded `v0.1.1` clean-download release evidence, published-release evidence command, release verifier, tamper-detection rehearsal, draft-release rollback rehearsal, Homebrew formula renderer, attestations, installer, registry-readiness gate, package dry-run, distribution readiness policy, release template hardening checks, dependency policy, and rollback rules exist. Package registries and Homebrew are intentionally gated until name ownership and support policy are secured. |
 | Documentation for operators | 100 | Good local docs, operator isolation docs, Hyperliquid read-only boundary docs, live-paper quote docs, immune-system docs, live cockpit docs, live cockpit drill bundle, verifier, and tamper rehearsal, live certification docs, live evidence docs, live canary rehearsal docs, Railway paper deploy, remote-doctor, and evidence-pack docs, restart recovery docs, audit/metrics docs, live-preflight warnings, threat model, and incident runbooks. Missing real exchange drill evidence only as external proof, not documented workflow. |
 
-**Public repo readiness: 99/100.**
+**Public repo readiness: 100/100.**
 
-This is credible for a public open-source launch repository. The remaining four
-points are external proof: clean release artifacts from the public repository,
-external security review, human fresh-clone feedback from at least one serious
-engineer, and a real operator-owned live canary evidence bundle. The automated
-fresh source-tree rehearsal now guards the mechanical clone path in CI.
+This is credible for a public open-source launch repository. Clean release
+artifacts, fresh source-tree rehearsal, contribution paths, public gates, and
+product boundary docs are now in place. The remaining external proof belongs to
+the full operating-system/product score: external security review, human
+fresh-clone feedback from at least one serious engineer, and a real
+operator-owned live canary evidence bundle.
 
 **Full ZERO operating-system readiness: 90/100.**
 
