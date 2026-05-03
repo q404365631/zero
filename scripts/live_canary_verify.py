@@ -14,6 +14,7 @@ from typing import Any
 
 SCHEMA_VERSION = "zero.live_canary_verify.v1"
 REHEARSAL_SCHEMA_VERSION = "zero.live_canary_rehearsal.v1"
+EXCHANGE_EVIDENCE_SCHEMA_VERSION = "zero.live_canary_exchange_evidence.v1"
 
 
 @dataclass(frozen=True)
@@ -44,6 +45,11 @@ def parse_args() -> argparse.Namespace:
         "--require-live-accepted",
         action="store_true",
         help="Require the bundle to contain an accepted live canary order.",
+    )
+    parser.add_argument(
+        "--require-exchange-evidence",
+        action="store_true",
+        help="Require exchange_evidence.json and verify it against ZERO receipts.",
     )
     parser.add_argument(
         "--forbid-token",
@@ -270,7 +276,78 @@ def verify_bundle(args: argparse.Namespace) -> dict[str, Any]:
             "canary mode ran without ready risk gates",
         )
 
+    exchange_evidence_path = bundle / "exchange_evidence.json"
+    if exchange_evidence_path.is_file():
+        verify_exchange_evidence(bundle, exchange_evidence_path, findings)
+    elif args.require_exchange_evidence:
+        add(
+            findings,
+            False,
+            "exchange_evidence",
+            "exchange_evidence.json present",
+            "exchange_evidence.json missing",
+        )
+
     return build_report(args, findings, manifest=manifest)
+
+
+def verify_exchange_evidence(bundle: Path, path: Path, findings: list[Finding]) -> None:
+    payload = load_json(path)
+    receipts_payload = packet_payload(bundle, "90_live_receipts.json")
+    receipt_summary = receipts_payload.get("summary", {}) if isinstance(receipts_payload, dict) else {}
+    summary = payload.get("summary", {}) if isinstance(payload, dict) else {}
+    privacy = payload.get("privacy", {}) if isinstance(payload, dict) else {}
+    source = payload.get("source", {}) if isinstance(payload, dict) else {}
+
+    add(
+        findings,
+        payload.get("schema_version") == EXCHANGE_EVIDENCE_SCHEMA_VERSION,
+        "exchange_evidence_schema",
+        EXCHANGE_EVIDENCE_SCHEMA_VERSION,
+        f"expected {EXCHANGE_EVIDENCE_SCHEMA_VERSION}",
+    )
+    add(
+        findings,
+        source.get("raw_included") is False,
+        "exchange_evidence_raw_source",
+        "raw source omitted",
+        "raw source must not be included",
+    )
+    add(
+        findings,
+        "file_name" not in source and bool(source.get("file_name_hash")),
+        "exchange_evidence_source_name",
+        "source filename hashed",
+        "source filename must be hashed, not embedded",
+    )
+    privacy_flags = (
+        "wallet_addresses_included",
+        "raw_order_ids_included",
+        "raw_client_order_ids_included",
+        "raw_venue_payload_included",
+    )
+    for flag in privacy_flags:
+        add(
+            findings,
+            privacy.get(flag) is False,
+            f"exchange_evidence_privacy:{flag}",
+            "omitted",
+            f"{flag} must be false",
+        )
+    add(
+        findings,
+        summary.get("accepted_receipts") == receipt_summary.get("accepted"),
+        "exchange_evidence_receipt_count",
+        "matches live receipts",
+        "accepted receipt count does not match live receipts",
+    )
+    add(
+        findings,
+        summary.get("complete") is True,
+        "exchange_evidence_complete",
+        "all accepted receipts matched",
+        "one or more accepted receipts lack exchange-side evidence",
+    )
 
 
 def build_report(

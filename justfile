@@ -90,6 +90,9 @@ live-canary-rehearsal url:
 live-canary-verify dir:
     scripts/live_canary_verify.py "{{dir}}"
 
+live-canary-exchange-evidence bundle source:
+    scripts/live_canary_exchange_evidence.py "{{bundle}}" "{{source}}"
+
 checksum output *artifacts:
     python3 scripts/write_sha256s.py "{{output}}" {{artifacts}}
 
@@ -211,6 +214,7 @@ docs-check:
     test -x scripts/deployment_evidence.sh
     test -x scripts/live_canary_rehearsal.py
     test -x scripts/live_canary_verify.py
+    test -x scripts/live_canary_exchange_evidence.py
     test -x scripts/railway_smoke.sh
     test -f Dockerfile
     test -f compose.yaml

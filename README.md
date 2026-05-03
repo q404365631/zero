@@ -85,6 +85,8 @@ flowchart LR
   are ready.
 - Verify canary evidence bundles locally before sharing them as launch or
   incident evidence.
+- Attach public-safe exchange-side order/fill evidence to canary bundles and
+  verify it against ZERO live receipts without exposing raw venue payloads.
 - Package release assets with checksums.
 - Deploy the paper runtime on Railway or Docker.
 - Generate public-safe Network index, profile pages, leaderboard pages, and
@@ -141,8 +143,11 @@ $ curl -fsS http://127.0.0.1:8765/live/evidence
 $ scripts/live_canary_rehearsal.py http://127.0.0.1:8765 --mode refusal
 zero live canary rehearsal: wrote artifacts/live-canary-rehearsal/... mode=refusal risk_ready=False attempted=True accepted=False
 
-$ scripts/live_canary_verify.py artifacts/live-canary-rehearsal/... --require-mode refusal
-zero live canary verify: ok=True checks=34 fail=0
+$ scripts/live_canary_exchange_evidence.py artifacts/live-canary-rehearsal/... hyperliquid-export.json
+zero live canary exchange evidence: wrote artifacts/live-canary-rehearsal/.../exchange_evidence.json matched=0 accepted=0
+
+$ scripts/live_canary_verify.py artifacts/live-canary-rehearsal/... --require-mode refusal --require-exchange-evidence
+zero live canary verify: ok=True checks=... fail=0
 
 $ curl -fsS http://127.0.0.1:8765/immune
 {"schema_version": "zero.immune.v1", "risk_increasing_allowed": false}

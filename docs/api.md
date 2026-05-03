@@ -351,6 +351,14 @@ as launch evidence. It recomputes `SHA256SUMS`, checks required packets and
 status codes, compares manifest receipt/evidence fields to the packet payloads,
 and fails on common unredacted trace/idempotency/token shapes.
 
+`scripts/live_canary_exchange_evidence.py DIR hyperliquid-export.json` attaches
+public-safe exchange-side evidence to the same canary bundle. It hashes the raw
+source file, hashes raw venue identifiers, normalizes only symbol/side/quantity
+and optional price, matches accepted ZERO receipts by symbol/side/quantity, and
+refreshes `SHA256SUMS`. `scripts/live_canary_verify.py DIR
+--require-exchange-evidence` then fails unless the packet is present and every
+accepted ZERO receipt has exchange-side evidence.
+
 `GET /operator/context` returns the operator audit identity currently attached
 to requests. The engine resolves it from `X-Zero-Operator-*` headers,
 `ZERO_OPERATOR_*` environment variables, or the local default. Live control

@@ -66,6 +66,25 @@ scripts/live_canary_verify.py artifacts/live-canary-rehearsal/<timestamp> \
 The verifier checks required packets, `SHA256SUMS`, manifest consistency,
 receipt/evidence hashes, HTTP status codes, and common redaction failures.
 
+When the bundle represents a real canary, attach the operator-owned
+Hyperliquid order/fill export before sharing evidence:
+
+```bash
+scripts/live_canary_exchange_evidence.py \
+  artifacts/live-canary-rehearsal/<timestamp> \
+  hyperliquid-export.json \
+  --require-match
+
+scripts/live_canary_verify.py artifacts/live-canary-rehearsal/<timestamp> \
+  --require-mode canary \
+  --require-live-accepted \
+  --require-exchange-evidence
+```
+
+The exchange evidence packet hashes the raw export and venue identifiers,
+omits raw wallet/order/client-order data, and matches accepted ZERO receipts by
+symbol, side, and quantity.
+
 For an operator-owned real canary, the command is intentionally explicit:
 
 ```bash

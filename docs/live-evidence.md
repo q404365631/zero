@@ -42,3 +42,21 @@ acknowledgement. `/live/evidence` only includes the artifact hash.
 This is still not a substitute for exchange-side records. A valid canary
 evidence bundle must also include Hyperliquid order/fill records and show that
 `/pause-entries`, `/flatten-all`, and `/kill` were available and captured.
+
+Use `scripts/live_canary_exchange_evidence.py` to attach those exchange-side
+records without publishing raw venue payloads:
+
+```bash
+scripts/live_canary_exchange_evidence.py \
+  artifacts/live-canary-rehearsal/<timestamp> \
+  hyperliquid-export.json \
+  --require-match
+
+scripts/live_canary_verify.py artifacts/live-canary-rehearsal/<timestamp> \
+  --require-exchange-evidence
+```
+
+The generated `exchange_evidence.json` includes normalized order/fill facts,
+hashes of raw records and venue identifiers, a source-file hash, receipt
+matches, and checksum updates. It does not include wallet addresses, raw order
+IDs, raw client order IDs, or raw venue payloads.

@@ -197,8 +197,14 @@ CANARY_DIR="$(mktemp -d)"
   --output "${CANARY_DIR}" >/tmp/zero-paper-api-live-canary-rehearsal.txt
 "${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); e=(d/"91_live_evidence.json").read_text(encoding="utf-8"); assert m["schema_version"] == "zero.live_canary_rehearsal.v1"; assert m["summary"]["live_order_attempted"] is True; assert m["summary"]["live_order_accepted"] is False; assert m["summary"]["live_order_reason"] == "live executor not configured"; assert m["summary"]["evidence_hash"].startswith("sha256:"); assert (d/"SHA256SUMS").is_file(); assert "smoke-live-canary-refusal" not in e; assert "\"trace_id\": \"trace-" not in e' \
   "${CANARY_DIR}"
+EXCHANGE_SOURCE="$(mktemp)"
+printf '{"orders":[],"fills":[]}\n' >"${EXCHANGE_SOURCE}"
+"${PYTHON_BIN}" scripts/live_canary_exchange_evidence.py "${CANARY_DIR}" "${EXCHANGE_SOURCE}" \
+  --require-match >/tmp/zero-paper-api-live-canary-exchange-evidence.txt
+rm -f "${EXCHANGE_SOURCE}"
 "${PYTHON_BIN}" scripts/live_canary_verify.py "${CANARY_DIR}" \
   --require-mode refusal \
+  --require-exchange-evidence \
   --forbid-token smoke-live-canary-refusal >/tmp/zero-paper-api-live-canary-verify.txt
 
 (
