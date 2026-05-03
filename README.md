@@ -375,6 +375,7 @@ Machine-readable entrypoints:
 - [docs/llms-full.txt](docs/llms-full.txt)
 - [AGENTS.md](AGENTS.md)
 - [OpenAPI Contract](openapi/zero-paper-api.v1.yaml)
+- [MCP Server](docs/mcp.md)
 
 ## Documentation
 
@@ -385,6 +386,7 @@ Machine-readable entrypoints:
 - [Proof Packs](docs/proof/README.md)
 - [CLI Quickstart](docs/cli-quickstart.md)
 - [API](docs/api.md)
+- [MCP Server](docs/mcp.md)
 - [OpenAPI Contract](openapi/zero-paper-api.v1.yaml)
 - [API Compatibility](docs/api-compatibility.md)
 - [Operator Context](docs/operator-context.md)

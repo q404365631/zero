@@ -36,6 +36,7 @@
 - [Architecture](architecture.md)
 - [Runtime Bus](runtime-bus.md)
 - [API](api.md)
+- [MCP Server](mcp.md)
 - [API Compatibility](api-compatibility.md)
 - [OpenAPI v1](../openapi/zero-paper-api.v1.yaml)
 - [Strategy Plugins](strategy-plugins.md)

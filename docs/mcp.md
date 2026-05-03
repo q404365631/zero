@@ -1,0 +1,63 @@
+# ZERO MCP Server
+
+`zero-mcp` is a dependency-free, stdio MCP-compatible server for coding agents
+and operator tooling. It exposes only public-safe, read-only ZERO surfaces:
+bundled strategies, deterministic paper results, paper position state, and the
+demo proof-pack manifest.
+
+It does not expose live execution, order placement, approval, wallet, secret, or
+venue-write tools. The server is for inspection and local development until live
+operator capabilities have passed the public readiness gates.
+
+## Run
+
+From a source checkout, the server reads the checked-in scenario and proof-pack
+artifacts:
+
+```bash
+PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
+PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp
+```
+
+After installing the engine package, the same command works with an embedded
+public demo fallback. Use a source checkout when you need file-hash verification
+against `docs/proof/demo`.
+
+```bash
+zero-mcp --smoke
+zero-mcp
+```
+
+The server reads newline-delimited JSON-RPC messages from stdin and writes
+newline-delimited JSON-RPC responses to stdout.
+
+## Tools
+
+| Tool | Purpose |
+| --- | --- |
+| `zero_list_strategies` | Lists bundled paper strategies and contributor examples. |
+| `zero_get_paper_results` | Replays the deterministic bundled paper scenario. |
+| `zero_get_position_state` | Returns paper position state derived from the scenario. |
+| `zero_get_proof_pack` | Returns the public-safe demo proof-pack manifest. |
+
+All tools are read-only. None can place, approve, cancel, or route live orders.
+
+## Resources
+
+| URI | Purpose |
+| --- | --- |
+| `zero://paper/scenario` | Bundled deterministic paper scenario. |
+| `zero://paper/results` | Generated paper replay result. |
+| `zero://proof/demo` | Demo proof-pack manifest. |
+
+## Smoke Contract
+
+`zero-mcp --smoke` verifies that:
+
+- The exposed tool set contains no live execution tools.
+- Every tool returns a JSON object.
+- The demo proof pack does not claim live trading or paper/live correlation.
+- The public source checkout contains the bundled proof and paper artifacts.
+
+The smoke command is part of the public readiness gates so this agent surface
+cannot silently drift into a write-capable trading interface.

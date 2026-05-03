@@ -24,6 +24,7 @@ SOURCES = (
     "docs/architecture.md",
     "docs/cli-quickstart.md",
     "docs/api.md",
+    "docs/mcp.md",
     "docs/api-compatibility.md",
     "docs/runtime-bus.md",
     "docs/safety-model.md",

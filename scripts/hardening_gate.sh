@@ -21,6 +21,7 @@ required_files=(
   "docs/releases/v0.1.1-evidence.md"
   "docs/production-readiness.md"
   "docs/public-upgrade.md"
+  "docs/mcp.md"
   "docs/live-evidence.md"
   ".github/RELEASE_TEMPLATE.md"
 )
@@ -77,6 +78,8 @@ contains "scripts/release_evidence.py <tag>" .github/RELEASE_TEMPLATE.md
 contains "zero.release_evidence.v1" docs/releases/v0.1.1-evidence.md
 contains "verification.fail=0" docs/releases/v0.1.1-evidence.md
 contains "ZERO LLM Full Context" docs/llms-full.txt
+contains "read-only" docs/mcp.md
+contains "zero-mcp" docs/mcp.md
 contains "Machine-readable entrypoints" README.md
 contains "Stewardship Pledge" GOVERNANCE.md
 contains "canonical operating guide" .github/copilot-instructions.md
@@ -113,6 +116,8 @@ python3 -m py_compile scripts/release_provenance.py
 python3 -m py_compile scripts/homebrew_formula.py
 python3 -m py_compile scripts/generate_llms_full.py
 python3 -m py_compile scripts/proof_pack.py
+PYTHONPATH="$PWD/engine/src" python3 -m py_compile engine/src/zero_engine/mcp.py
+PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke >/dev/null
 python3 -m py_compile scripts/live_cockpit_drill_verify.py
 python3 -m py_compile scripts/live_cockpit_drill_tamper_rehearsal.py
 rm -rf scripts/__pycache__

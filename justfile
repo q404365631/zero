@@ -156,6 +156,7 @@ docs-check:
     test -f docs/demo-terminal.md
     test -f docs/cli-quickstart.md
     test -f docs/api.md
+    test -f docs/mcp.md
     test -f docs/api-compatibility.md
     test -f docs/runtime-bus.md
     test -f docs/strategy-plugins.md
@@ -269,6 +270,7 @@ docs-check:
     test -f railway.toml
     test -f docs/railway-deploy.md
     python3 scripts/openapi_contract_check.py
+    PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
     scripts/generate_llms_full.py --check
     PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py --check
 
