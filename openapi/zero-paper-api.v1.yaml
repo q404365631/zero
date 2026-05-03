@@ -262,6 +262,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ResearchSnapshotResponse"
+  /runtime/parity:
+    get:
+      tags: [runtime]
+      operationId: getRuntimeParity
+      summary: Production-parity OODA report with disabled live shadow execution.
+      responses:
+        "200":
+          description: Runtime production-parity packet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RuntimeParityResponse"
   /metrics:
     get:
       tags: [audit]
@@ -1558,6 +1570,75 @@ components:
         research:
           type: object
           additionalProperties: true
+      additionalProperties: false
+    RuntimeParityResponse:
+      type: object
+      required: [schema_version, generated_at, mode, paper_only, places_live_orders, scenario, cycles_requested, cycles_run, phase_order, paper, live_shadow, runtime_bus, feedback, certification, checks, ok, claim_boundary, parity_hash]
+      properties:
+        schema_version:
+          type: string
+          const: zero.runtime.production_parity.v1
+        generated_at:
+          type: string
+          format: date-time
+        source:
+          type: string
+        available:
+          type: boolean
+        mode:
+          type: string
+          const: production-parity
+        paper_only:
+          type: boolean
+          const: true
+        places_live_orders:
+          type: boolean
+          const: false
+        scenario:
+          type: string
+        cycles_requested:
+          type: integer
+          minimum: 1
+        cycles_run:
+          type: integer
+          minimum: 1
+        phase_order:
+          type: array
+          items:
+            type: string
+        paper:
+          type: object
+          required: [decisions, fills, rejections, open_positions, recent_cycles]
+          additionalProperties: true
+        live_shadow:
+          type: object
+          required: [mode, accepted, refused, adapter_orders_placed, records]
+          additionalProperties: true
+        runtime_bus:
+          type: object
+          required: [integrity, snapshot]
+          additionalProperties: true
+        feedback:
+          type: object
+          required: [schema_version, sample_size, cycles, fills, rejections, rejection_rate, execution_quality, items]
+          additionalProperties: true
+        certification:
+          type: object
+          required: [schema_version, mode, passed, live_start_certified, summary]
+          additionalProperties: true
+        checks:
+          type: object
+          additionalProperties:
+            type: boolean
+        ok:
+          type: boolean
+        claim_boundary:
+          type: object
+          required: [production_ooda_parity, live_trading_claimed, operator_owned_canary_required_for_live_claim, protected_live_code_evolution_allowed, remote_push_allowed]
+          additionalProperties: true
+        parity_hash:
+          type: string
+          pattern: "^sha256:"
       additionalProperties: false
     ImmuneResponse:
       type: object

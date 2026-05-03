@@ -28,6 +28,7 @@ def test_tools_are_read_only() -> None:
     assert names == [
         "zero_list_strategies",
         "zero_get_runtime_status",
+        "zero_get_runtime_parity",
         "zero_get_health",
         "zero_get_paper_results",
         "zero_get_position_state",
@@ -73,7 +74,7 @@ def test_tools_list_and_call_paper_results() -> None:
     )
 
     assert listed is not None
-    assert len(listed["result"]["tools"]) == 18
+    assert len(listed["result"]["tools"]) == 19
     assert called is not None
     payload = json.loads(called["result"]["content"][0]["text"])
     assert payload["schema_version"] == "zero.mcp.paper_results.v1"
@@ -99,6 +100,7 @@ def test_resources_list_and_read() -> None:
         "zero://paper/results",
         "zero://runtime/status",
         "zero://runtime/health",
+        "zero://runtime/parity",
         "zero://journal/tail",
         "zero://rejections/audit",
         "zero://proof/demo",
@@ -167,6 +169,38 @@ def test_runtime_status_and_health_are_public_safe() -> None:
     assert health["schema_version"] == "zero.mcp.health_status.v1"
     assert health["mode"] == "paper"
     assert health["paper_only"] is True
+
+
+def test_runtime_parity_is_public_safe_and_fail_closed() -> None:
+    parity_call = mcp.handle_request(
+        {
+            "jsonrpc": "2.0",
+            "id": 131,
+            "method": "tools/call",
+            "params": {"name": "zero_get_runtime_parity", "arguments": {}},
+        }
+    )
+    resource_call = mcp.handle_request(
+        {
+            "jsonrpc": "2.0",
+            "id": 132,
+            "method": "resources/read",
+            "params": {"uri": "zero://runtime/parity"},
+        }
+    )
+
+    assert parity_call is not None
+    parity = json.loads(parity_call["result"]["content"][0]["text"])
+    assert parity["schema_version"] == "zero.mcp.runtime_parity.v1"
+    assert parity["paper_only"] is True
+    assert parity["places_live_orders"] is False
+    assert parity["live_shadow"]["adapter_orders_placed"] == 0
+    assert parity["claim_boundary"]["live_trading_claimed"] is False
+
+    assert resource_call is not None
+    resource = json.loads(resource_call["result"]["contents"][0]["text"])
+    assert resource["schema_version"] == "zero.mcp.runtime_parity.v1"
+    assert resource["ok"] is True
 
 
 def test_journal_tail_and_rejection_audit_are_paper_only() -> None:
@@ -261,7 +295,7 @@ def test_immune_backtest_evidence_and_safety_catalog_are_read_only() -> None:
     assert catalog["default"] == "read_only_public"
     assert catalog["risk_increasing_tools"] == []
     assert catalog["risk_reducing_tools"] == []
-    assert len(catalog["read_only_tools"]) == 18
+    assert len(catalog["read_only_tools"]) == 19
     assert all(tool["canPlaceOrders"] is False for tool in catalog["read_only_tools"])
 
 
@@ -375,6 +409,7 @@ def test_installed_package_fallback_stays_read_only(monkeypatch) -> None:
     research = mcp.get_research_report()
     decision_stack = mcp.get_decision_stack()
     runtime = mcp.get_runtime_status()
+    parity = mcp.get_runtime_parity()
     health = mcp.get_health_status()
     journal = mcp.get_journal_tail()
     audit = mcp.get_rejection_audit()
@@ -396,6 +431,9 @@ def test_installed_package_fallback_stays_read_only(monkeypatch) -> None:
     assert decision_stack["paper_only"] is True
     assert decision_stack["decision"]["allowed_to_execute_live"] is False
     assert runtime["paper_only"] is True
+    assert parity["paper_only"] is True
+    assert parity["places_live_orders"] is False
+    assert parity["claim_boundary"]["live_trading_claimed"] is False
     assert health["paper_only"] is True
     assert journal["paper_only"] is True
     assert audit["paper_only"] is True

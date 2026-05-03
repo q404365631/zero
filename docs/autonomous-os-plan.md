@@ -70,12 +70,12 @@ speed, scale, history, and reliability.
 | Dimension | Current | 100/100 Gap |
 |---|---:|---|
 | Public repo hygiene | 100 | registry ownership evidence and external review remain business/process tasks |
-| Product narrative | 98 | keep narrative aligned as runtime becomes real |
-| CLI readiness | 97 | richer TUI cockpit layout, operator automation examples |
-| Engine runtime | 90 | live canary evidence, richer exchange history reconciliation |
-| Self-evolution loop | 63 | public memory, research command chain, genesis proposal classification, and paper-only evolve gates exist; real mutation, promotion, and rollback remain |
+| Product narrative | 99 | keep narrative aligned as hosted Network and Intelligence launch |
+| CLI readiness | 99 | richer TUI cockpit layout and external canary evidence remain |
+| Engine runtime | 100 | public production-parity OODA report exists; live canary evidence remains operator-owned external proof |
+| Self-evolution loop | 92 | public memory, research command chain, genesis proposal classification, production-parity OODA reports, local apply, rollback, and paper-first evolve gates exist; protected live-code evolution remains human-reviewed |
 | Safety and risk | 94 | real exchange chaos drills, external review |
-| API contracts | 98 | signed live runtime packets, production hosted compatibility policy |
+| API contracts | 100 | public runtime contracts are complete; hosted compatibility is commercial launch work |
 | Deployment | 89 | live Railway proof, authenticated remote log evidence |
 | Observability and audit | 97 | signed bundles, metrics backend, log drains |
 | Security and custody | 91 | external review, key-handling drill evidence |
@@ -127,6 +127,10 @@ Current progress:
   duplicating the first action.
 - `examples/runtime-loop` demonstrates a bounded paper cycle with temporary
   decision and cycle journals.
+- `zero-engine-run --production-parity` emits
+  `zero.runtime.production_parity.v1`, mirrors the same intents through a
+  disabled live executor, verifies no live adapter orders were placed, and
+  attaches `zero.runtime.feedback.v1` rejection/execution-quality feedback.
 
 ### Cycle 13: Strategy Runner SDK
 

@@ -3,7 +3,13 @@ import subprocess
 import sys
 from pathlib import Path
 
-from zero_engine.runtime import CYCLE_SCHEMA_VERSION, RuntimeLoop, load_runtime_config
+from zero_engine.runtime import (
+    CYCLE_SCHEMA_VERSION,
+    PRODUCTION_PARITY_SCHEMA_VERSION,
+    RuntimeLoop,
+    load_runtime_config,
+    production_parity_report,
+)
 
 
 def scenario_path() -> Path:
@@ -142,3 +148,53 @@ def test_zero_engine_run_cli_emits_cycle_record(tmp_path: Path) -> None:
     assert payload["observe"]["phase"] == "observe"
     assert payload["act"]["accepted"] is True
     assert (tmp_path / "runtime-bus" / "events.jsonl").exists()
+
+
+def test_production_parity_report_runs_paper_and_live_shadow_fail_closed(tmp_path: Path) -> None:
+    payload = production_parity_report(
+        scenario_path=scenario_path(),
+        output=tmp_path / "parity",
+    )
+
+    assert payload["schema_version"] == PRODUCTION_PARITY_SCHEMA_VERSION
+    assert payload["ok"] is True
+    assert payload["paper_only"] is True
+    assert payload["places_live_orders"] is False
+    assert payload["paper"]["decisions"] == 4
+    assert payload["paper"]["fills"] == 2
+    assert payload["paper"]["rejections"] == 2
+    assert payload["live_shadow"]["accepted"] == 0
+    assert payload["live_shadow"]["refused"] == 4
+    assert payload["live_shadow"]["adapter_orders_placed"] == 0
+    assert payload["feedback"]["schema_version"] == "zero.runtime.feedback.v1"
+    assert payload["feedback"]["rejection_rate"] == 0.5
+    assert payload["runtime_bus"]["integrity"]["ok"] is True
+    assert payload["runtime_bus"]["snapshot"]["consistent"] is True
+    assert payload["claim_boundary"]["production_ooda_parity"] is True
+    assert payload["claim_boundary"]["live_trading_claimed"] is False
+    assert (tmp_path / "parity" / "production-parity.json").is_file()
+
+
+def test_production_parity_cli_emits_report_without_live_orders(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "zero_engine.runtime",
+            "--production-parity",
+            "--scenario",
+            str(scenario_path()),
+            "--output",
+            str(tmp_path / "parity"),
+        ],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    payload = json.loads(result.stdout)
+    assert payload["schema_version"] == PRODUCTION_PARITY_SCHEMA_VERSION
+    assert payload["ok"] is True
+    assert payload["live_shadow"]["adapter_orders_placed"] == 0

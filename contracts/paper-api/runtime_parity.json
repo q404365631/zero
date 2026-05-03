@@ -1,0 +1,468 @@
+{
+  "available": true,
+  "certification": {
+    "live_start_certified": true,
+    "mode": "dry_run",
+    "passed": true,
+    "schema_version": "zero.live_certification.v1",
+    "summary": {
+      "exchange": "fake",
+      "failed": 0,
+      "orders_placed_live": 0,
+      "passed": 10,
+      "secrets_required": false,
+      "total": 10
+    }
+  },
+  "checks": {
+    "dry_run_live_certification": true,
+    "live_adapter_no_orders": true,
+    "live_shadow_count": true,
+    "live_shadow_fail_closed": true,
+    "operator_owned_canary_required": true,
+    "paper_boundary": true,
+    "paper_cycle_count": true,
+    "phase_order": true,
+    "protected_live_code_mutation_blocked": true,
+    "runtime_bus_integrity": true,
+    "runtime_snapshot_consistent": true,
+    "shared_idempotency_keys": true
+  },
+  "claim_boundary": {
+    "live_trading_claimed": false,
+    "operator_owned_canary_required_for_live_claim": true,
+    "production_ooda_parity": true,
+    "protected_live_code_evolution_allowed": false,
+    "remote_push_allowed": false
+  },
+  "cycles_requested": 4,
+  "cycles_run": 4,
+  "feedback": {
+    "by_rejection_reason": {
+      "order notional exceeds limit": 2
+    },
+    "by_rejection_symbol": {
+      "ETH": 1,
+      "SOL": 1
+    },
+    "cycles": 4,
+    "execution_quality": {
+      "exchange_fill_quality_claimed": false,
+      "live_slippage_claimed": false,
+      "paper_fill_quality_available": true,
+      "requires_operator_owned_live_evidence": true
+    },
+    "fills": 2,
+    "generated_at": "2026-05-01T00:00:00Z",
+    "items": [
+      {
+        "count": 2,
+        "reason": "order notional exceeds limit",
+        "risk_direction": "down",
+        "suggested_action": "lower candidate size or raise the explicit risk limit after review"
+      }
+    ],
+    "rejection_rate": 0.5,
+    "rejections": 2,
+    "sample_size": 4,
+    "schema_version": "zero.runtime.feedback.v1"
+  },
+  "generated_at": "2026-05-01T00:00:00Z",
+  "live_shadow": {
+    "accepted": 0,
+    "adapter_orders_placed": 0,
+    "mode": "disabled-fail-closed",
+    "records": [
+      {
+        "accepted": false,
+        "as_of": 1777845275.512173,
+        "exchange_response": {},
+        "idempotency_key": "runtime-paper-launch-smoke-1",
+        "notional_usd": 400.0,
+        "operator_context": {
+          "handle": "production-parity-harness",
+          "operator_id": "production-parity-harness",
+          "role": "system",
+          "schema_version": "zero.operator_context.v1",
+          "scope": "public-proof",
+          "source": "zero.runtime.production_parity"
+        },
+        "price": 40000.0,
+        "quantity": 0.01,
+        "reason": "live executor disabled",
+        "reduce_only": false,
+        "side": "buy",
+        "status": "refused",
+        "symbol": "BTC",
+        "trace_id": "production-parity-cycle-1"
+      },
+      {
+        "accepted": false,
+        "as_of": 1777845275.512183,
+        "exchange_response": {},
+        "idempotency_key": "runtime-paper-launch-smoke-2",
+        "notional_usd": 3000.0,
+        "operator_context": {
+          "handle": "production-parity-harness",
+          "operator_id": "production-parity-harness",
+          "role": "system",
+          "schema_version": "zero.operator_context.v1",
+          "scope": "public-proof",
+          "source": "zero.runtime.production_parity"
+        },
+        "price": 3000.0,
+        "quantity": 1.0,
+        "reason": "live executor disabled",
+        "reduce_only": false,
+        "side": "buy",
+        "status": "refused",
+        "symbol": "ETH",
+        "trace_id": "production-parity-cycle-2"
+      },
+      {
+        "accepted": false,
+        "as_of": 1777845275.5121899,
+        "exchange_response": {},
+        "idempotency_key": "runtime-paper-launch-smoke-3",
+        "notional_usd": 202.5,
+        "operator_context": {
+          "handle": "production-parity-harness",
+          "operator_id": "production-parity-harness",
+          "role": "system",
+          "schema_version": "zero.operator_context.v1",
+          "scope": "public-proof",
+          "source": "zero.runtime.production_parity"
+        },
+        "price": 40500.0,
+        "quantity": 0.005,
+        "reason": "live executor disabled",
+        "reduce_only": true,
+        "side": "sell",
+        "status": "refused",
+        "symbol": "BTC",
+        "trace_id": "production-parity-cycle-3"
+      },
+      {
+        "accepted": false,
+        "as_of": 1777845275.5121942,
+        "exchange_response": {},
+        "idempotency_key": "runtime-paper-launch-smoke-4",
+        "notional_usd": 1400.0,
+        "operator_context": {
+          "handle": "production-parity-harness",
+          "operator_id": "production-parity-harness",
+          "role": "system",
+          "schema_version": "zero.operator_context.v1",
+          "scope": "public-proof",
+          "source": "zero.runtime.production_parity"
+        },
+        "price": 140.0,
+        "quantity": 10.0,
+        "reason": "live executor disabled",
+        "reduce_only": false,
+        "side": "buy",
+        "status": "refused",
+        "symbol": "SOL",
+        "trace_id": "production-parity-cycle-4"
+      }
+    ],
+    "refused": 4
+  },
+  "mode": "production-parity",
+  "ok": true,
+  "paper": {
+    "decisions": 4,
+    "fills": 2,
+    "open_positions": 1,
+    "recent_cycles": [
+      {
+        "act": {
+          "accepted": false,
+          "decision": {
+            "allowed": false,
+            "as_of": 1777845275.5075588,
+            "confidence": 0.93,
+            "idempotency_key": "runtime-paper-launch-smoke-2",
+            "notional_usd": 3000.0,
+            "price": 3000.0,
+            "quantity": 1.0,
+            "reason": "order notional exceeds limit",
+            "reduce_only": false,
+            "side": "buy",
+            "source": "runtime:paper-launch-smoke",
+            "symbol": "ETH",
+            "trace_id": "runtime-cycle-2"
+          },
+          "phase": "act",
+          "reason": "order notional exceeds limit"
+        },
+        "as_of": 1777845275.5076249,
+        "cycle_id": 2,
+        "decide": {
+          "idempotency_key": "runtime-paper-launch-smoke-2",
+          "intent": {
+            "confidence": 0.93,
+            "notional_usd": 3000.0,
+            "price": 3000.0,
+            "quantity": 1.0,
+            "reduce_only": false,
+            "side": "buy",
+            "symbol": "ETH"
+          },
+          "phase": "decide",
+          "risk_posture": "exposed",
+          "source": "runtime:paper-launch-smoke"
+        },
+        "learn": {
+          "decisions": 2,
+          "fills": 1,
+          "open_positions": 1,
+          "phase": "learn",
+          "rejections": 1
+        },
+        "mode": "paper",
+        "observe": {
+          "cycle_id": 2,
+          "decisions_seen": 1,
+          "fills_seen": 1,
+          "market_source": "scenario:orders",
+          "open_positions": [
+            {
+              "avg_price": 40000.0,
+              "notional_usd": 400.0,
+              "quantity": 0.01,
+              "symbol": "BTC"
+            }
+          ],
+          "phase": "observe",
+          "recovery": {
+            "decisions_recovered": 0,
+            "durable": false,
+            "fills_recovered": 0,
+            "journal_path": null,
+            "last_decision_ts": null,
+            "positions_recovered": 0,
+            "rejections_recovered": 0,
+            "source": "memory",
+            "status": "ephemeral"
+          },
+          "rejections_seen": 0,
+          "scenario": "paper-launch-smoke"
+        },
+        "orient": {
+          "limits": {
+            "max_notional_usd": 500.0,
+            "max_position_notional_usd": 900.0,
+            "min_confidence": 0.7
+          },
+          "phase": "orient",
+          "risk_posture": "exposed",
+          "stale_data": false,
+          "total_position_notional_usd": 400.0
+        },
+        "schema_version": "zero.runtime.cycle.v1"
+      },
+      {
+        "act": {
+          "accepted": true,
+          "decision": {
+            "allowed": true,
+            "as_of": 1777845275.508779,
+            "confidence": 0.1,
+            "idempotency_key": "runtime-paper-launch-smoke-3",
+            "notional_usd": 202.5,
+            "price": 40500.0,
+            "quantity": 0.005,
+            "reason": "reduce-only orders bypass risk-increasing friction",
+            "reduce_only": true,
+            "side": "sell",
+            "source": "runtime:paper-launch-smoke",
+            "symbol": "BTC",
+            "trace_id": "runtime-cycle-3"
+          },
+          "phase": "act",
+          "reason": "reduce-only orders bypass risk-increasing friction"
+        },
+        "as_of": 1777845275.5088482,
+        "cycle_id": 3,
+        "decide": {
+          "idempotency_key": "runtime-paper-launch-smoke-3",
+          "intent": {
+            "confidence": 0.1,
+            "notional_usd": 202.5,
+            "price": 40500.0,
+            "quantity": 0.005,
+            "reduce_only": true,
+            "side": "sell",
+            "symbol": "BTC"
+          },
+          "phase": "decide",
+          "risk_posture": "exposed",
+          "source": "runtime:paper-launch-smoke"
+        },
+        "learn": {
+          "decisions": 3,
+          "fills": 2,
+          "open_positions": 1,
+          "phase": "learn",
+          "rejections": 1
+        },
+        "mode": "paper",
+        "observe": {
+          "cycle_id": 3,
+          "decisions_seen": 2,
+          "fills_seen": 1,
+          "market_source": "scenario:orders",
+          "open_positions": [
+            {
+              "avg_price": 40000.0,
+              "notional_usd": 400.0,
+              "quantity": 0.01,
+              "symbol": "BTC"
+            }
+          ],
+          "phase": "observe",
+          "recovery": {
+            "decisions_recovered": 0,
+            "durable": false,
+            "fills_recovered": 0,
+            "journal_path": null,
+            "last_decision_ts": null,
+            "positions_recovered": 0,
+            "rejections_recovered": 0,
+            "source": "memory",
+            "status": "ephemeral"
+          },
+          "rejections_seen": 1,
+          "scenario": "paper-launch-smoke"
+        },
+        "orient": {
+          "limits": {
+            "max_notional_usd": 500.0,
+            "max_position_notional_usd": 900.0,
+            "min_confidence": 0.7
+          },
+          "phase": "orient",
+          "risk_posture": "exposed",
+          "stale_data": false,
+          "total_position_notional_usd": 400.0
+        },
+        "schema_version": "zero.runtime.cycle.v1"
+      },
+      {
+        "act": {
+          "accepted": false,
+          "decision": {
+            "allowed": false,
+            "as_of": 1777845275.510302,
+            "confidence": 0.95,
+            "idempotency_key": "runtime-paper-launch-smoke-4",
+            "notional_usd": 1400.0,
+            "price": 140.0,
+            "quantity": 10.0,
+            "reason": "order notional exceeds limit",
+            "reduce_only": false,
+            "side": "buy",
+            "source": "runtime:paper-launch-smoke",
+            "symbol": "SOL",
+            "trace_id": "runtime-cycle-4"
+          },
+          "phase": "act",
+          "reason": "order notional exceeds limit"
+        },
+        "as_of": 1777845275.5104141,
+        "cycle_id": 4,
+        "decide": {
+          "idempotency_key": "runtime-paper-launch-smoke-4",
+          "intent": {
+            "confidence": 0.95,
+            "notional_usd": 1400.0,
+            "price": 140.0,
+            "quantity": 10.0,
+            "reduce_only": false,
+            "side": "buy",
+            "symbol": "SOL"
+          },
+          "phase": "decide",
+          "risk_posture": "exposed",
+          "source": "runtime:paper-launch-smoke"
+        },
+        "learn": {
+          "decisions": 4,
+          "fills": 2,
+          "open_positions": 1,
+          "phase": "learn",
+          "rejections": 2
+        },
+        "mode": "paper",
+        "observe": {
+          "cycle_id": 4,
+          "decisions_seen": 3,
+          "fills_seen": 2,
+          "market_source": "scenario:orders",
+          "open_positions": [
+            {
+              "avg_price": 40000.0,
+              "notional_usd": 200.0,
+              "quantity": 0.005,
+              "symbol": "BTC"
+            }
+          ],
+          "phase": "observe",
+          "recovery": {
+            "decisions_recovered": 0,
+            "durable": false,
+            "fills_recovered": 0,
+            "journal_path": null,
+            "last_decision_ts": null,
+            "positions_recovered": 0,
+            "rejections_recovered": 0,
+            "source": "memory",
+            "status": "ephemeral"
+          },
+          "rejections_seen": 1,
+          "scenario": "paper-launch-smoke"
+        },
+        "orient": {
+          "limits": {
+            "max_notional_usd": 500.0,
+            "max_position_notional_usd": 900.0,
+            "min_confidence": 0.7
+          },
+          "phase": "orient",
+          "risk_posture": "exposed",
+          "stale_data": false,
+          "total_position_notional_usd": 200.0
+        },
+        "schema_version": "zero.runtime.cycle.v1"
+      }
+    ],
+    "rejections": 2
+  },
+  "paper_only": true,
+  "parity_hash": "sha256:cef4898aa4cee3d75e77c681ca3525708692c1ca3c65a21bc24dbbf0fc83c528",
+  "phase_order": [
+    "observe",
+    "orient",
+    "decide",
+    "act",
+    "learn"
+  ],
+  "places_live_orders": false,
+  "runtime_bus": {
+    "integrity": {
+      "events": 20,
+      "last_checksum": "sha256:b06e475b2db47b15e5ddb7d988f09034333c9adc9fc6260c3134862c45573bb7",
+      "ok": true,
+      "reason": "ok"
+    },
+    "snapshot": {
+      "consistent": true,
+      "present": true,
+      "reason": "ok"
+    }
+  },
+  "scenario": "paper-launch-smoke",
+  "schema_version": "zero.runtime.production_parity.v1",
+  "source": "bundled-paper-scenario"
+}

@@ -51,3 +51,21 @@ snapshot, and every event.
 The bus is private operator state by default. Public ZERO Network and ZERO
 Intelligence exports must stay aggregate and redacted; raw bus events include
 traceable runtime details and are not a public profile surface.
+
+## Production-Parity Report
+
+`zero-engine-run --production-parity` writes
+`zero.runtime.production_parity.v1` to the chosen output directory:
+
+```bash
+PYTHONPATH="$PWD/engine/src" zero-engine-run \
+  --production-parity \
+  --scenario examples/paper-trading/scenario.json \
+  --output artifacts/runtime-parity
+```
+
+The report runs the same OODA phase order as the paper runtime, mirrors each
+intent through a disabled live executor, verifies zero adapter orders were
+placed, checks the runtime-bus checksum chain, and emits
+`zero.runtime.feedback.v1` rejection/execution-quality feedback. It is a
+production-shape parity proof, not live trading proof.

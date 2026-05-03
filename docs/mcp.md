@@ -50,9 +50,9 @@ coding agent can initialize the server, list tools, inspect bundled strategies,
 replay deterministic paper results, inspect redacted local memory and aggregate
 stats, inspect plan-only genesis proposals, inspect paper-only evolve gates,
 inspect paper-only research reports, inspect the lens/layer/modifier decision
-stack, inspect journal/rejection/immune/evidence/backtest surfaces, list
-resources, and read the proof pack without gaining any live execution
-capability.
+stack, inspect production-parity OODA reports, inspect
+journal/rejection/immune/evidence/backtest surfaces, list resources, and read
+the proof pack without gaining any live execution capability.
 
 ## Tools
 
@@ -60,6 +60,7 @@ capability.
 | --- | --- | --- |
 | `zero_list_strategies` | `read_only_public` | Lists bundled paper strategies and contributor examples. |
 | `zero_get_runtime_status` | `read_only_public` | Returns paper runtime status derived from the bundled scenario. |
+| `zero_get_runtime_parity` | `read_only_public` | Returns production-parity OODA evidence with disabled live shadow execution. |
 | `zero_get_health` | `read_only_public` | Returns paper runtime health, dependencies, and breaker status. |
 | `zero_get_paper_results` | `read_only_public` | Replays the deterministic bundled paper scenario. |
 | `zero_get_position_state` | `read_only_public` | Returns paper position state derived from the scenario. |
@@ -88,6 +89,7 @@ All tools declare `canPlaceOrders=false`, `canChangeRuntimeState=false`, and
 | `zero://paper/results` | Generated paper replay result. |
 | `zero://runtime/status` | Paper runtime status. |
 | `zero://runtime/health` | Paper runtime health, dependencies, and breakers. |
+| `zero://runtime/parity` | Production-parity OODA report with live shadow fail-closed evidence. |
 | `zero://journal/tail` | Paper decision journal tail. |
 | `zero://rejections/audit` | Paper rejection audit grouped by stage and reason. |
 | `zero://proof/demo` | Demo proof-pack manifest. |

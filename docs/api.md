@@ -186,6 +186,14 @@ places an order, or claims live PnL. The fixture-backed snapshot exists so
 agents can inspect what ZERO should study next before genesis/evolve gates are
 used.
 
+`GET /runtime/parity` returns `zero.runtime.production_parity.v1`. It runs the
+bundled paper OODA loop, mirrors the same idempotency keys and intents through a
+disabled live executor, proves the live shadow path refuses every order, emits
+checksum-chained runtime-bus integrity, dry-run live certification status, and a
+rejection/execution-quality feedback packet. It places no live orders and does
+not claim live trading proof; operator-owned canary evidence is still required
+for any live claim.
+
 `GET /decision/stack?coin=BTC` returns `zero.decision.stack.v1`, the public
 lens/layer/modifier shape behind paper evaluation. Lenses explain weighted
 views, layers explain gates, and modifiers explain bounded confidence or

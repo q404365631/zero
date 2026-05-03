@@ -15,6 +15,7 @@ from zero_engine.evolve import snapshot_from_fixture as evolve_snapshot_from_fix
 from zero_engine.genesis import Proposal, load_proposals, snapshot_from_proposals
 from zero_engine.memory import extract_from_decisions, isoformat
 from zero_engine.research import snapshot_from_fixture as research_snapshot_from_fixture
+from zero_engine.runtime import production_parity_snapshot
 
 SERVER_NAME = "zero-mcp"
 SERVER_VERSION = "0.1.1"
@@ -317,6 +318,32 @@ def get_runtime_status() -> JsonMap:
     }
 
 
+def get_runtime_parity() -> JsonMap:
+    root = find_repo_root()
+    if root is None:
+        return {
+            "schema_version": "zero.mcp.runtime_parity.v1",
+            "mode": "production-parity",
+            "paper_only": True,
+            "places_live_orders": False,
+            "available": False,
+            "ok": False,
+            "reason": "source checkout required for bundled scenario",
+            "claim_boundary": {
+                "production_ooda_parity": False,
+                "live_trading_claimed": False,
+                "operator_owned_canary_required_for_live_claim": True,
+                "protected_live_code_evolution_allowed": False,
+                "remote_push_allowed": False,
+            },
+        }
+    return {
+        **production_parity_snapshot(root, now=parse_mcp_time()),
+        "schema_version": "zero.mcp.runtime_parity.v1",
+        "paper_only": True,
+    }
+
+
 def get_health_status() -> JsonMap:
     return {
         **demo_api().health(),
@@ -544,6 +571,11 @@ def tool_definitions() -> list[JsonMap]:
             "inputSchema": empty_schema,
         },
         {
+            "name": "zero_get_runtime_parity",
+            "description": "Read-only production-parity OODA report with disabled live shadow execution.",
+            "inputSchema": empty_schema,
+        },
+        {
             "name": "zero_get_health",
             "description": "Read-only paper runtime health, dependency, and breaker status.",
             "inputSchema": empty_schema,
@@ -630,6 +662,7 @@ def tool_definitions() -> list[JsonMap]:
 TOOLS: dict[str, Callable[[], JsonMap]] = {
     "zero_list_strategies": list_strategies,
     "zero_get_runtime_status": get_runtime_status,
+    "zero_get_runtime_parity": get_runtime_parity,
     "zero_get_health": get_health_status,
     "zero_get_paper_results": get_paper_results,
     "zero_get_position_state": get_position_state,
@@ -673,6 +706,12 @@ def resource_definitions() -> list[JsonMap]:
             "uri": "zero://runtime/health",
             "name": "Demo Runtime Health",
             "description": "Read-only paper runtime health, dependencies, and breakers.",
+            "mimeType": "application/json",
+        },
+        {
+            "uri": "zero://runtime/parity",
+            "name": "Demo Runtime Production Parity",
+            "description": "Read-only production-parity OODA report with live shadow fail-closed evidence.",
             "mimeType": "application/json",
         },
         {
@@ -768,6 +807,8 @@ def read_resource(uri: str) -> str:
         return json.dumps(get_runtime_status(), indent=2, sort_keys=True)
     if uri == "zero://runtime/health":
         return json.dumps(get_health_status(), indent=2, sort_keys=True)
+    if uri == "zero://runtime/parity":
+        return json.dumps(get_runtime_parity(), indent=2, sort_keys=True)
     if uri == "zero://journal/tail":
         return json.dumps(get_journal_tail(), indent=2, sort_keys=True)
     if uri == "zero://rejections/audit":

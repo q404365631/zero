@@ -60,6 +60,7 @@ from zero_engine.reconciliation import (
     reconcile_positions,
 )
 from zero_engine.research import snapshot_from_fixture as research_snapshot_from_fixture
+from zero_engine.runtime import production_parity_snapshot
 
 
 DEFAULT_PRICES = {
@@ -75,7 +76,10 @@ GENESIS_FIXTURE_PROPOSALS = (
         title="Document strategy-runner acceptance floor",
         summary="Promote the fixture-backed strategy runner acceptance floor into contributor docs.",
         target_paths=("docs/strategy-plugins.md", "examples/strategy-runner/README.md"),
-        evidence_refs=("docs/proof/demo/proof-pack.json", "examples/strategy-runner/close-strength.yaml"),
+        evidence_refs=(
+            "docs/proof/demo/proof-pack.json",
+            "examples/strategy-runner/close-strength.yaml",
+        ),
         sample_size=42,
         risk_tier="medium",
         revert_plan="Revert the documentation update and keep the runner fixture unchanged.",
@@ -412,7 +416,11 @@ class PaperApiState:
 
     def reconcile_hyperliquid_account(self) -> ReconciliationReport:
         local_positions = local_account_positions(self.engine.positions)
-        if self.hyperliquid is None or not self.live_wallet_address or not is_hex_address(self.live_wallet_address):
+        if (
+            self.hyperliquid is None
+            or not self.live_wallet_address
+            or not is_hex_address(self.live_wallet_address)
+        ):
             return reconcile_positions(
                 local_positions=local_positions,
                 exchange_snapshot=None,
@@ -563,6 +571,7 @@ class PaperApi:
             "/genesis": self.genesis,
             "/evolve": self.evolve,
             "/research": self.research,
+            "/runtime/parity": self.runtime_parity,
             "/audit/export": lambda: self.audit_export(query, operator_context),
             "/hl/account": self.hl_account,
             "/hl/reconcile": self.hl_reconcile,
@@ -594,7 +603,9 @@ class PaperApi:
         }
         if path.startswith("/evaluate/"):
             try:
-                return HTTPStatus.OK, self.evaluate(path.removeprefix("/evaluate/"), trace_id=trace_id)
+                return HTTPStatus.OK, self.evaluate(
+                    path.removeprefix("/evaluate/"), trace_id=trace_id
+                )
             except RuntimeError as exc:
                 return HTTPStatus.SERVICE_UNAVAILABLE, {"error": str(exc)}
             except ValueError as exc:
@@ -709,7 +720,9 @@ class PaperApi:
         if path == "/live/kill":
             return HTTPStatus.OK, self.live_kill(trace_id, operator_context)
         if path == "/live/flatten":
-            return HTTPStatus.OK, self.live_flatten(trace_id=trace_id, operator_context=operator_context)
+            return HTTPStatus.OK, self.live_flatten(
+                trace_id=trace_id, operator_context=operator_context
+            )
         return HTTPStatus.NOT_FOUND, {"error": "not found", "path": path}
 
     def root(self) -> dict[str, Any]:
@@ -824,9 +837,7 @@ class PaperApi:
 
         immune = self.immune(reconciliation=reconciliation)
         open_breakers = [
-            breaker["name"]
-            for breaker in immune["breakers"]
-            if breaker["blocks_risk"]
+            breaker["name"] for breaker in immune["breakers"] if breaker["blocks_risk"]
         ]
         add(
             "immune_breakers",
@@ -953,7 +964,9 @@ class PaperApi:
         elif not certification["passed"] or not certification["live_start_certified"]:
             next_action = "rerun live certification and resolve failed drills"
         else:
-            next_action = "ready for operator-owned tiny-capital canary; capture the evidence bundle"
+            next_action = (
+                "ready for operator-owned tiny-capital canary; capture the evidence bundle"
+            )
 
         return {
             "schema_version": "zero.live_cockpit.v1",
@@ -1024,10 +1037,7 @@ class PaperApi:
                 "risk_reducing": ["/pause-entries", "/kill", "/flatten-all"],
                 "risk_increasing": ["/resume-entries"],
                 "read_only": ["/live-cockpit", "/live-certify", "/immune", "/hl-reconcile"],
-                "recent": [
-                    record.to_dict()
-                    for record in self.state.operator_action_log[-10:]
-                ],
+                "recent": [record.to_dict() for record in self.state.operator_action_log[-10:]],
             },
         }
 
@@ -1081,7 +1091,9 @@ class PaperApi:
             ),
             live_evidence_artifact("audit_export", audit, "captured"),
             live_evidence_artifact("deployment_claim", claim, "captured"),
-            live_evidence_artifact("deployment_heartbeat", heartbeat, heartbeat["liveness"]["status"]),
+            live_evidence_artifact(
+                "deployment_heartbeat", heartbeat, heartbeat["liveness"]["status"]
+            ),
         ]
         body = {
             "schema_version": "zero.live_evidence.v1",
@@ -1350,7 +1362,8 @@ class PaperApi:
         records = [
             record
             for record in self.state.engine.decisions
-            if not record.decision.allowed and (coin is None or record.intent.symbol == coin.upper())
+            if not record.decision.allowed
+            and (coin is None or record.intent.symbol == coin.upper())
         ]
         return {"rejections": [rejection_to_wire(record) for record in records[-limit:]]}
 
@@ -1382,7 +1395,8 @@ class PaperApi:
                     [p for p in self.state.engine.positions.values() if p.quantity != 0]
                 ),
                 "acceptance_rate": round(
-                    len([record for record in decisions if record.decision.allowed]) / len(decisions),
+                    len([record for record in decisions if record.decision.allowed])
+                    / len(decisions),
                     4,
                 )
                 if decisions
@@ -1446,8 +1460,7 @@ class PaperApi:
             "deployment_claim": claim,
             "deployment_heartbeat": heartbeat,
             "operator_actions": [
-                record.to_dict()
-                for record in self.state.operator_action_log[-limit:]
+                record.to_dict() for record in self.state.operator_action_log[-limit:]
             ],
             "decisions": decisions,
         }
@@ -1491,7 +1504,9 @@ class PaperApi:
             "source": source,
             "stats": stats,
             "entries": [entry.to_dict() for entry in recent],
-            "knowledge": knowledge_markdown(entries, generated_at=now) if first(query, "format") == "md" else None,
+            "knowledge": knowledge_markdown(entries, generated_at=now)
+            if first(query, "format") == "md"
+            else None,
         }
 
     def genesis(self) -> dict[str, Any]:
@@ -1502,17 +1517,26 @@ class PaperApi:
         return snapshot_from_proposals(GENESIS_FIXTURE_PROPOSALS, now=self.state.now())
 
     def evolve(self) -> dict[str, Any]:
-        return evolve_snapshot_from_fixture(os.environ.get("ZERO_REPO_ROOT", Path.cwd()), now=self.state.now())
+        return evolve_snapshot_from_fixture(
+            os.environ.get("ZERO_REPO_ROOT", Path.cwd()), now=self.state.now()
+        )
 
     def research(self) -> dict[str, Any]:
         return research_snapshot_from_fixture(
             os.environ.get("ZERO_REPO_ROOT", Path.cwd()), now=self.state.now()
         )
 
+    def runtime_parity(self) -> dict[str, Any]:
+        return production_parity_snapshot(
+            os.environ.get("ZERO_REPO_ROOT", Path.cwd()), now=self.state.now()
+        )
+
     def network_profile(self) -> dict[str, Any]:
         generated_at = self.state.now_iso()
         claim = self.deployment_claim(generated_at=generated_at)
-        heartbeat = self.deployment_heartbeat(generated_at=generated_at, deployment_claim_packet=claim)
+        heartbeat = self.deployment_heartbeat(
+            generated_at=generated_at, deployment_claim_packet=claim
+        )
         return public_profile(
             self.state.engine,
             config=self.network_config(),
@@ -1542,7 +1566,9 @@ class PaperApi:
         )
         generated_at = self.state.now_iso()
         claim = self.deployment_claim(generated_at=generated_at)
-        heartbeat = self.deployment_heartbeat(generated_at=generated_at, deployment_claim_packet=claim)
+        heartbeat = self.deployment_heartbeat(
+            generated_at=generated_at, deployment_claim_packet=claim
+        )
         profile = public_profile(
             self.state.engine,
             config=config,
@@ -1647,7 +1673,9 @@ class PaperApi:
         else:
             last = executor.last_heartbeat_at
             timeout = executor.policy.dead_man_timeout_s
-            next_required_within_s = None if last is None else max(0.0, round(last + timeout - now_ts, 3))
+            next_required_within_s = (
+                None if last is None else max(0.0, round(last + timeout - now_ts, 3))
+            )
             expired = executor.dead_man_expired()
             liveness = {
                 "status": "expired" if expired else "fresh",
@@ -1745,7 +1773,9 @@ class PaperApi:
                 return status, principal
             return HTTPStatus.OK, self.hosted_intelligence_cohorts(principal)
         if path == "/v1/intelligence/benchmarks":
-            status, principal = self.hosted_intelligence_authorize(headers, "intelligence:benchmarks")
+            status, principal = self.hosted_intelligence_authorize(
+                headers, "intelligence:benchmarks"
+            )
             if status != HTTPStatus.OK:
                 return status, principal
             return HTTPStatus.OK, self.hosted_intelligence_benchmarks(principal)
@@ -1841,7 +1871,9 @@ class PaperApi:
                 "snapshot.realtime.read" if realtime else "snapshot.delayed.read",
                 principal,
                 billable=realtime,
-                extra={"freshness_ms": 0 if realtime else self.state.intelligence_public_delay_s * 1000},
+                extra={
+                    "freshness_ms": 0 if realtime else self.state.intelligence_public_delay_s * 1000
+                },
             ),
             "data": [snapshot],
             **self.hosted_intelligence_rate_limit(str(principal["plan"])),
@@ -1984,7 +2016,8 @@ class PaperApi:
             "generated_at": self.state.now_iso(),
             "account": self.hosted_intelligence_account(principal),
             "export": {
-                "id": "exp_" + hashlib.sha256(self.state.now_iso().encode("utf-8")).hexdigest()[:16],
+                "id": "exp_"
+                + hashlib.sha256(self.state.now_iso().encode("utf-8")).hexdigest()[:16],
                 "format": export_format,
                 "dataset": str(payload.get("dataset") or "verified_behavior_snapshots"),
                 "status": "reference_ready",
@@ -2177,9 +2210,7 @@ class PaperApi:
         quote = self.state.quote_for(symbol)
         intent = OrderIntent(symbol, side, quantity=quantity, price=quote.price, confidence=0.9)
         source = (
-            "api:/execute"
-            if quote.source == "paper:static"
-            else f"api:/execute:{quote.source}"
+            "api:/execute" if quote.source == "paper:static" else f"api:/execute:{quote.source}"
         )
         self.state.engine.submit(
             intent,
@@ -2237,9 +2268,7 @@ class PaperApi:
             immune = self.immune(reconciliation=reconciliation)
             if not immune["risk_increasing_allowed"]:
                 open_breakers = [
-                    breaker["name"]
-                    for breaker in immune["breakers"]
-                    if breaker["blocks_risk"]
+                    breaker["name"] for breaker in immune["breakers"] if breaker["blocks_risk"]
                 ]
                 reason = "immune breaker open: " + ", ".join(open_breakers)
                 if "kill_switch" in open_breakers:
@@ -2288,7 +2317,9 @@ class PaperApi:
             result = {"ok": False, "reason": "live executor not configured"}
         else:
             result = self.state.live_executor.pause()
-        return self.live_control_result("pause_entries", "reduces", result, trace_id, operator_context)
+        return self.live_control_result(
+            "pause_entries", "reduces", result, trace_id, operator_context
+        )
 
     def live_resume(
         self,
@@ -2300,7 +2331,9 @@ class PaperApi:
             result = {"ok": False, "reason": "live executor not configured"}
         else:
             result = self.state.live_executor.resume()
-        return self.live_control_result("resume_entries", "increases", result, trace_id, operator_context)
+        return self.live_control_result(
+            "resume_entries", "increases", result, trace_id, operator_context
+        )
 
     def live_kill(
         self,
@@ -2322,8 +2355,12 @@ class PaperApi:
         operator_context = operator_context or self.state.operator_context()
         if self.state.live_executor is None:
             result = {"ok": False, "reason": "live executor not configured", "orders": []}
-            return self.live_control_result("flatten_all", "reduces", result, trace_id, operator_context)
-        prices = {symbol: self.state.quote_for(symbol).price for symbol in self.state.engine.positions}
+            return self.live_control_result(
+                "flatten_all", "reduces", result, trace_id, operator_context
+            )
+        prices = {
+            symbol: self.state.quote_for(symbol).price for symbol in self.state.engine.positions
+        }
         records = self.state.live_executor.flatten(
             self.state.engine.positions,
             prices,
@@ -2332,7 +2369,9 @@ class PaperApi:
             operator_context=operator_context.to_dict(),
         )
         result = {"ok": True, "orders": [live_response_from_record(record) for record in records]}
-        return self.live_control_result("flatten_all", "reduces", result, trace_id, operator_context)
+        return self.live_control_result(
+            "flatten_all", "reduces", result, trace_id, operator_context
+        )
 
     def live_control_result(
         self,
@@ -2485,7 +2524,9 @@ def live_execution_receipt(record: Any) -> dict[str, Any]:
         "operator_context_hash": sha256_json(record.operator_context or {}),
         "trace_hash": sha256_text(record.trace_id or ""),
         "idempotency_hash": sha256_text(record.idempotency_key or ""),
-        "venue_ack_hash": sha256_json(record.exchange_response) if record.exchange_response else None,
+        "venue_ack_hash": sha256_json(record.exchange_response)
+        if record.exchange_response
+        else None,
     }
     body["receipt_hash"] = sha256_json(body)
     return body
@@ -2765,7 +2806,9 @@ def serve(
                     model_gateway_max_attempts=parse_int_env("ZERO_MODEL_MAX_ATTEMPTS", 1),
                     model_gateway_timeout_s=parse_float_env("ZERO_MODEL_TIMEOUT_S", 30.0),
                     default_operator_id=os.environ.get("ZERO_OPERATOR_ID", "local-operator"),
-                    default_operator_handle=os.environ.get("ZERO_OPERATOR_HANDLE", "local-operator"),
+                    default_operator_handle=os.environ.get(
+                        "ZERO_OPERATOR_HANDLE", "local-operator"
+                    ),
                     default_operator_role=os.environ.get("ZERO_OPERATOR_ROLE", "owner"),
                     default_operator_scope=os.environ.get("ZERO_OPERATOR_SCOPE", "local-private"),
                     default_operator_source=operator_source,
@@ -2875,7 +2918,9 @@ def build_live_executor(dead_man_timeout_s: float) -> LiveExecutor | None:
     try:
         heartbeat = executor.heartbeat()
         if not heartbeat.get("ok"):
-            print(f"zero live executor heartbeat failed during startup: {heartbeat}", file=sys.stderr)
+            print(
+                f"zero live executor heartbeat failed during startup: {heartbeat}", file=sys.stderr
+            )
     except Exception as exc:
         print(f"zero live executor heartbeat failed during startup: {exc}", file=sys.stderr)
     return executor

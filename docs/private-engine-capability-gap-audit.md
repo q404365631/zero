@@ -63,9 +63,9 @@ local genesis, or the operator terminal as proprietary features.
 
 | Area | Internal capability | Public state | Gap |
 | --- | --- | --- | --- |
-| Self-evolution | Memory extracts rules, research explains what to study, genesis proposes/builds changes, red-team attacks diffs, canary/calibration gates promotion. | Memory core, research command chain, genesis proposal classification, paper-first evolve gates, sandbox candidate mutation, promotion plans, exact-phrase local apply, rollback receipts, and promotion verification are now present as public subsystems. | Add protected live-code evolution policy after production OODA parity. |
+| Self-evolution | Memory extracts rules, research explains what to study, genesis proposes/builds changes, red-team attacks diffs, canary/calibration gates promotion. | Memory core, research command chain, genesis proposal classification, production-parity OODA reports, paper-first evolve gates, sandbox candidate mutation, promotion plans, exact-phrase local apply, rollback receipts, and promotion verification are now present as public subsystems. | Protected live-code evolution remains human-reviewed until external operator evidence and review exist. |
 | Research command chain | Hunt, edge, convergence, thesis, score, meta, and sharpen form a learning/research loop. | Public docs mention autonomous OS, but not the full command chain. | Add public command contracts and deterministic fixture-backed reports. |
-| Real decision engine | Multi-lens evaluation, layered signals, risk gates, sizing modifiers, and rejection learning. | Public runtime now exposes a paper-only lens/layer/modifier decision stack over API, MCP, OpenAPI, docs, and tests. | Add production OODA parity, rejection learner, regime/correlation gates, and execution-quality feedback. |
+| Real decision engine | Multi-lens evaluation, layered signals, risk gates, sizing modifiers, and rejection learning. | Public runtime now exposes a paper-only lens/layer/modifier decision stack plus `zero.runtime.production_parity.v1` live-shadow fail-closed parity over API, MCP, OpenAPI, docs, and tests. | Add richer regime/correlation gates and real exchange execution-quality feedback after operator-owned canary evidence. |
 | MCP surface | Internal MCP can inspect and operate many engine surfaces. | Public MCP exposes expanded read-only local/operator surfaces with explicit safety classes. | Add risk-reducing local controls only after the operator policy and friction contract are public. |
 | Live canary lifecycle | Readiness, policy, launch, evidence, report, qualification, shadow review, follow-through. | Public has rehearsal, evidence, verification, policy qualification, cockpit-drill policy capture, and operator report flows. | Attach real operator-owned exchange evidence from an accepted canary. |
 | Agent daemon | Persistent agents, approvals, proposals, operator app, and communication loop. | Public has agent contribution docs and a thin MCP. | Add local proposal queue and approval surfaces before hosted agents. |
@@ -249,7 +249,7 @@ Exit gate:
 
 Current public status:
 
-- `zero-mcp` now exposes 18 read-only tools and 17 resources for strategies,
+- `zero-mcp` now exposes 19 read-only tools and 18 resources for strategies,
   runtime status, health, paper results, positions, journal tail, rejection
   audit, proof pack, memory snapshot/stats, genesis proposals, evolve status,
   research report, decision stack, immune status, backtest report, evidence
@@ -361,20 +361,35 @@ Current public status:
 - Protected runtime paths remain blocked by `ALLOWED_PATCH_ROOTS` and
   `FORBIDDEN_PATCH_ROOTS`.
 
+### Cycle 37: Production-Parity OODA Report
+
+Implemented in `engine/src/zero_engine/runtime.py`:
+
+- `zero.runtime.production_parity.v1` runs the bundled paper OODA loop through
+  observe, orient, decide, act, and learn phases;
+- mirrors every intent and idempotency key through a disabled `LiveExecutor`;
+- proves the live shadow path refuses every order and that the exchange adapter
+  placed zero orders;
+- verifies checksum-chained runtime-bus integrity and snapshot consistency;
+- emits `zero.runtime.feedback.v1` rejection/execution-quality feedback without
+  claiming live slippage or exchange fill quality;
+- exposes the report through `GET /runtime/parity`,
+  `zero_get_runtime_parity`, `zero://runtime/parity`, OpenAPI, and a pinned
+  contract fixture.
+
 ## Revised Score
 
 Public repo readiness remains **100/100** as a launch artifact.
 
-Full ZERO operating-system readiness is **99/100** after Cycle 36. The score
-increased because the public self-evolution loop now has executable local apply
-and rollback, not just evidence: exact approval phrases, prewrite hash
-validation, apply receipts, backup-backed rollback receipts, and no remote push
-or order placement. The remaining production OODA and protected live-code
-evolution gaps are still core product architecture, not polish.
+Full ZERO operating-system readiness is **100/100** as a public repo contract
+after Cycle 37. The score increased because the public runtime now has an
+executable production-parity OODA report, rejection/execution-quality feedback,
+and live-shadow fail-closed evidence in addition to local evolve apply/rollback.
 
-The path back to 100/100 is now clearer:
+The remaining work is no longer missing public-runtime shape. It is external
+product proof and launch operation:
 
-1. real production OODA parity, rejection learner, and execution-quality feedback;
-2. protected live-code evolution policy after production OODA parity;
-3. risk-reducing MCP controls with enforceable local operator friction;
-4. external operator-owned accepted-canary evidence and security review.
+1. operator-owned accepted canary evidence on real Hyperliquid;
+2. third-party security review;
+3. hosted ZERO Network persistence and signed identity verification;
+4. paid ZERO Intelligence deployment, billing, and retention policy.

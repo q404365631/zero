@@ -230,6 +230,23 @@ def test_paper_api_exposes_paper_only_research_snapshot() -> None:
     assert payload["reports"]["convergence"]["status"] == "insufficient-public-sample"
 
 
+def test_paper_api_exposes_runtime_production_parity() -> None:
+    status, payload = PaperApi(PaperApiState(clock=lambda: FIXED_DT)).get("/runtime/parity", {})
+
+    assert status == 200
+    assert payload["schema_version"] == "zero.runtime.production_parity.v1"
+    assert payload["ok"] is True
+    assert payload["paper_only"] is True
+    assert payload["places_live_orders"] is False
+    assert payload["paper"]["decisions"] == 4
+    assert payload["paper"]["fills"] == 2
+    assert payload["paper"]["rejections"] == 2
+    assert payload["live_shadow"]["accepted"] == 0
+    assert payload["live_shadow"]["adapter_orders_placed"] == 0
+    assert payload["claim_boundary"]["production_ooda_parity"] is True
+    assert payload["claim_boundary"]["live_trading_claimed"] is False
+
+
 def test_paper_api_exposes_decision_stack() -> None:
     status, payload = PaperApi(PaperApiState(clock=lambda: FIXED_DT)).get(
         "/decision/stack",

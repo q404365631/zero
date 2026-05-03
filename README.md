@@ -58,7 +58,7 @@ guarded by preflight checks.
 
 | Surface | Role | Public status |
 | --- | --- | --- |
-| ZERO Runtime | Python engine for paper execution, live-readiness contracts, journals, safety gates, strategy adapters, venue adapter interfaces, and canary evidence. | Open source |
+| ZERO Runtime | Python engine for paper execution, production-parity OODA reports, live-readiness contracts, journals, safety gates, strategy adapters, venue adapter interfaces, and canary evidence. | Open source |
 | ZERO Terminal | Rust CLI/TUI for setup, diagnostics, state inspection, replay, live cockpit views, and supervised actions. | Open source |
 | ZERO Evolution | Local memory, genesis proposals, research reports, decision-stack review, guardian review, red-team, paper canaries, calibration, promotion plans, local apply receipts, rollback receipts, and evolve loops that let ZERO improve under review. | Memory, genesis, research, decision stack, paper-first evolve gates, local apply, and rollback execution open; protected promotion remains human-reviewed |
 | ZERO Network | Public-safe profiles, leaderboards, verification badges, and proof packets. | Open source contracts |
@@ -72,7 +72,7 @@ guarded by preflight checks.
 | Live market data | Runnable now through read-only Hyperliquid public info calls when enabled. |
 | Live readiness | Runnable now as local preflight, cockpit, certification, reconciliation, immune, receipt, evidence, and canary-policy contracts. |
 | Live execution | Code boundary exists, but live capital remains operator-owned and gated until local custody, preflight, journal, kill-switch, reconciliation, and canary evidence pass. |
-| Self-evolution | Local memory, genesis proposal core, research command chain, decision-stack lenses/layers/modifiers, and paper-first evolve gates exist now with redacted extraction, append-only journals, guardian classification, hunt/edge/convergence/thesis/score/meta/sharpen reports, public evaluation surfaces, red-team review, sandbox candidate mutation, paper canary, calibration, promotion plan, rollback plan, promotion verification, explicit local apply, rollback receipts, API readouts, and expanded read-only MCP snapshots for runtime status, health, journal, rejection audit, memory stats, immune state, backtest summary, evidence bundle, and safety catalog. Production OODA parity and protected live-code evolution remain planned public work. |
+| Self-evolution | Local memory, genesis proposal core, research command chain, decision-stack lenses/layers/modifiers, production-parity OODA reporting, and paper-first evolve gates exist now with redacted extraction, append-only journals, guardian classification, hunt/edge/convergence/thesis/score/meta/sharpen reports, public evaluation surfaces, live-shadow fail-closed parity, red-team review, sandbox candidate mutation, paper canary, calibration, promotion plan, rollback plan, promotion verification, explicit local apply, rollback receipts, API readouts, and expanded read-only MCP snapshots for runtime status, parity, health, journal, rejection audit, memory stats, immune state, backtest summary, evidence bundle, and safety catalog. Protected live-code evolution remains human-reviewed. |
 | Public proof | Runnable now through redacted Network contracts, canary bundles, exchange-evidence normalization, recursive checksums, and operator report verification. |
 | Commercial API | Contracted now as ZERO Intelligence; production hosted persistence, billing, warehouse history, and SLAs are commercial work. |
 
@@ -91,6 +91,9 @@ flowchart LR
 
 - Run the local paper engine against bundled example candles.
 - Run a bounded paper OODA runtime cycle with durable cycle records.
+- Run a production-parity OODA report that mirrors paper intents through a
+  disabled live executor, proves fail-closed behavior, and emits
+  `zero.runtime.production_parity.v1`.
 - Extract local public-safe memory from paper decisions and generate
   `knowledge.md`.
 - Classify fixture-backed genesis proposals as accepted, rejected, or escalated
@@ -133,11 +136,11 @@ flowchart LR
   Intelligence contract artifacts.
 
 The self-evolving loop that makes ZERO a complete autonomous operating system
-is now partially implemented: local memory, genesis proposal classification,
-paper-only research, public decision-stack review, sandbox candidate mutation,
-promotion/rollback evidence, explicit local apply, rollback receipts, and
-paper-first evolve gates exist, while production OODA parity and protected
-live-code evolution remain first-class public extraction targets. See
+is now implemented as a public-safe control plane: local memory, genesis
+proposal classification, paper-only research, public decision-stack review,
+production-parity OODA reports, sandbox candidate mutation, promotion/rollback
+evidence, explicit local apply, rollback receipts, and paper-first evolve gates
+exist. Protected live-code evolution remains human-reviewed. See
 [Memory Core](docs/memory-core.md), [Genesis](docs/genesis.md),
 [Research Command Chain](docs/research.md), [Decision Stack](docs/decision-stack.md),
 [Evolve Harness](docs/evolve.md), and
