@@ -19,6 +19,8 @@ just lint
 ```
 
 The default contributor path must not require real trading credentials.
+If local test runs leave ignored cache or bytecode files behind, run
+`just stale-artifact-clean` before opening a pull request.
 
 ## Pull Requests
 

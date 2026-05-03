@@ -40,17 +40,6 @@ file_contains() {
   grep -Eq "$pattern" "$path"
 }
 
-find . \
-  -path ./.git -prune -o \
-  -path ./cli/target -prune -o \
-  -path ./node_modules -prune -o \
-  -type d \( \
-    -name __pycache__ -o \
-    -name .pytest_cache -o \
-    -name .ruff_cache -o \
-    -name .mypy_cache \
-  \) -prune -exec rm -rf {} +
-
 echo "-- community health files"
 required=(
   README.md
@@ -93,6 +82,7 @@ required=(
   .github/ISSUE_TEMPLATE/config.yml
   .github/labels.yml
   scripts/github_label_sync.py
+  scripts/stale_artifact_check.sh
   .github/dependabot.yml
   .github/workflows/ci.yml
   .github/workflows/codeql.yml
@@ -106,44 +96,11 @@ for path in "${required[@]}"; do
   fi
 done
 
-echo "-- generated/cache artifacts"
-if find . \
-  -path ./.git -prune -o \
-  -path ./cli/target -prune -o \
-  -path ./node_modules -prune -o \
-  -type d \( \
-    -name __pycache__ -o \
-    -name .pytest_cache -o \
-    -name .ruff_cache -o \
-    -name .mypy_cache \
-  \) -print | sed -n '1,200p' | grep .; then
-  status=1
-else
+echo "-- stale local artifacts"
+if scripts/stale_artifact_check.sh --clean; then
   echo "ok"
-fi
-
-echo "-- forbidden publish artifacts"
-if find . \
-  -path ./.git -prune -o \
-  -path ./cli/target -prune -o \
-  -path ./node_modules -prune -o \
-  -type f \( \
-    -name '*.pyc' -o \
-    -name '*.pyo' -o \
-    -name '*.db' -o \
-    -name '*.db-*' -o \
-    -name '*.sqlite' -o \
-    -name '*.sqlite3' -o \
-    -name '*.wal' -o \
-    -name '*.shm' -o \
-    -name '.env' -o \
-    -name '.env.local' -o \
-    -name '*.pem' -o \
-    -name '*.key' \
-  \) -print | sed -n '1,200p' | grep .; then
-  status=1
 else
-  echo "ok"
+  status=1
 fi
 
 echo "-- forbidden private markers"

@@ -1,4 +1,5 @@
 set shell := ["bash", "-uc"]
+export PYTHONDONTWRITEBYTECODE := "1"
 
 bootstrap:
     cd engine && python3 -m pip install -e ".[dev]"
@@ -65,6 +66,12 @@ github-label-check repo="zero-intel/zero":
 
 github-label-sync repo="zero-intel/zero":
     scripts/github_label_sync.py --repo "{{repo}}" --apply
+
+stale-artifact-check:
+    scripts/stale_artifact_check.sh --check
+
+stale-artifact-clean:
+    scripts/stale_artifact_check.sh --clean
 
 hardening-gate:
     scripts/hardening_gate.sh
@@ -136,13 +143,13 @@ checksum output *artifacts:
     python3 scripts/write_sha256s.py "{{output}}" {{artifacts}}
 
 engine-lint:
-    cd engine && ruff check .
+    cd engine && ruff check --no-cache .
 
 engine-format:
     cd engine && ruff format .
 
 engine-test:
-    cd engine && PYTHONPATH="$PWD/src" pytest
+    cd engine && PYTHONPATH="$PWD/src" pytest -p no:cacheprovider
 
 cli-lint:
     cd cli && cargo fmt --all --check && cargo clippy --workspace --all-targets -- -D warnings
@@ -272,6 +279,7 @@ docs-check:
     test -x scripts/issue_template_check.py
     test -x scripts/label_taxonomy_check.py
     test -x scripts/github_label_sync.py
+    test -x scripts/stale_artifact_check.sh
     test -x scripts/openapi_contract_check.py
     test -x scripts/network_pages_smoke.py
     test -x scripts/package_dry_run.sh
@@ -322,7 +330,7 @@ container-demo: container-build
 container-example: container-build
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-lint: engine-lint cli-lint docs-check issue-template-check label-taxonomy-check github-label-config-check hardening-gate public-readiness
+lint: stale-artifact-clean engine-lint cli-lint docs-check issue-template-check label-taxonomy-check github-label-config-check hardening-gate public-readiness
 
 test: engine-test cli-test
 

@@ -9,6 +9,9 @@ on:
 permissions:
   contents: read
 
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
 jobs:
   engine:
     runs-on: ubuntu-latest
@@ -23,10 +26,10 @@ jobs:
         run: python -m pip install -e ".[dev]"
       - name: Lint
         working-directory: engine
-        run: ruff check .
+        run: ruff check --no-cache .
       - name: Test
         working-directory: engine
-        run: pytest
+        run: pytest -p no:cacheprovider
 
   docs:
     runs-on: ubuntu-latest
@@ -128,6 +131,7 @@ jobs:
           test -x scripts/issue_template_check.py
           test -x scripts/label_taxonomy_check.py
           test -x scripts/github_label_sync.py
+          test -x scripts/stale_artifact_check.sh
           test -x scripts/openapi_contract_check.py
           test -x scripts/public_readiness_gate.sh
           test -x scripts/network_pages_smoke.py

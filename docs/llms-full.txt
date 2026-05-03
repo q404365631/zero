@@ -673,6 +673,8 @@ just lint
 ```
 
 The default contributor path must not require real trading credentials.
+If local test runs leave ignored cache or bytecode files behind, run
+`just stale-artifact-clean` before opening a pull request.
 
 ## Pull Requests
 
@@ -1095,6 +1097,7 @@ just engine-lint
 just engine-test
 just cli-lint
 just cli-test
+just stale-artifact-check
 just ci
 ```
 
@@ -1176,8 +1179,13 @@ Ignored local state includes:
 - `.venv/`
 - `.pytest_cache/`
 - `.ruff_cache/`
+- `__pycache__/`
+- `*.pyc`
 - `target/`
 - `dist/`
+- `build/`
+- `*.egg-info/`
+- `coverage.xml`
 - `*.db`, `*.sqlite*`, `*.wal`, `*.shm`
 - `.env`
 

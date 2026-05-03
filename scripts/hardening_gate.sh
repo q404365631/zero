@@ -20,6 +20,7 @@ required_files=(
   ".github/ISSUE_TEMPLATE/strategy_example.yml"
   ".github/ISSUE_TEMPLATE/config.yml"
   ".github/labels.yml"
+  "scripts/stale_artifact_check.sh"
   "llms.txt"
   "docs/llms.txt"
   "docs/llms-full.txt"
@@ -147,6 +148,7 @@ bash -n scripts/fresh_clone_rehearsal.sh
 bash -n scripts/railway_smoke.sh
 bash -n scripts/railway_start.sh
 bash -n scripts/deployment_evidence.sh
+bash -n scripts/stale_artifact_check.sh
 python3 -m py_compile scripts/railway_doctor.py
 python3 -m py_compile scripts/deployment_evidence.py
 python3 -m py_compile scripts/release_verify.py
@@ -174,4 +176,5 @@ scripts/generate_llms_full.py --check
 PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py --check
 scripts/draft_release_rehearsal.sh >/dev/null
 rm -rf scripts/__pycache__
+scripts/stale_artifact_check.sh --clean >/dev/null
 scripts/public_readiness_gate.sh >/dev/null

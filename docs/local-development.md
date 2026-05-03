@@ -38,6 +38,7 @@ just engine-lint
 just engine-test
 just cli-lint
 just cli-test
+just stale-artifact-check
 just ci
 ```
 
@@ -119,8 +120,13 @@ Ignored local state includes:
 - `.venv/`
 - `.pytest_cache/`
 - `.ruff_cache/`
+- `__pycache__/`
+- `*.pyc`
 - `target/`
 - `dist/`
+- `build/`
+- `*.egg-info/`
+- `coverage.xml`
 - `*.db`, `*.sqlite*`, `*.wal`, `*.shm`
 - `.env`
 
