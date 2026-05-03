@@ -142,6 +142,12 @@ docs-check:
     test "$(readlink CLAUDE.md)" = "AGENTS.md"
     test "$(readlink GEMINI.md)" = "AGENTS.md"
     test -f .cursor/rules/global.mdc
+    test -f .claude/commands/README.md
+    test -f .claude/commands/paper-backtest.md
+    test -f .claude/commands/verify-schema.md
+    test -f .claude/commands/proof-pack.md
+    test -f .claude/commands/mcp-transcript.md
+    test -f .claude/commands/new-strategy.md
     test -f .github/copilot-instructions.md
     test -f llms.txt
     test -f docs/llms.txt

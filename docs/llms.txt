@@ -8,6 +8,7 @@
 
 - [README](../README.md)
 - [Agent Operating Guide](../AGENTS.md)
+- [Agent Commands](../.claude/commands/README.md)
 - [Contributing](../CONTRIBUTING.md)
 - [Governance](../GOVERNANCE.md)
 - [Security](../SECURITY.md)

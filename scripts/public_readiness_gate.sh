@@ -64,6 +64,12 @@ required=(
   AGENTS.md
   CLAUDE.md
   GEMINI.md
+  .claude/commands/README.md
+  .claude/commands/paper-backtest.md
+  .claude/commands/verify-schema.md
+  .claude/commands/proof-pack.md
+  .claude/commands/mcp-transcript.md
+  .claude/commands/new-strategy.md
   llms.txt
   docs/llms.txt
   docs/llms-full.txt

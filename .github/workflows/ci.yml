@@ -36,6 +36,12 @@ jobs:
         run: |
           test -f README.md
           test -f AGENTS.md
+          test -f .claude/commands/README.md
+          test -f .claude/commands/paper-backtest.md
+          test -f .claude/commands/verify-schema.md
+          test -f .claude/commands/proof-pack.md
+          test -f .claude/commands/mcp-transcript.md
+          test -f .claude/commands/new-strategy.md
           test -f CONTRIBUTING.md
           test -f SECURITY.md
           test -f CODE_OF_CONDUCT.md

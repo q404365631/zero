@@ -7,6 +7,7 @@ Use this bundle for retrieval and coding agents. It is not evidence of live trad
 
 - `README.md`
 - `AGENTS.md`
+- `.claude/commands/README.md`
 - `CONTRIBUTING.md`
 - `GOVERNANCE.md`
 - `SECURITY.md`
@@ -421,6 +422,7 @@ Machine-readable entrypoints:
 - [docs/llms.txt](docs/llms.txt)
 - [docs/llms-full.txt](docs/llms-full.txt)
 - [AGENTS.md](AGENTS.md)
+- [Agent Commands](.claude/commands/README.md)
 - [OpenAPI Contract](openapi/zero-paper-api.v1.yaml)
 - [MCP Server](docs/mcp.md)
 - [MCP Transcript](docs/mcp/transcript.jsonl)
@@ -617,6 +619,29 @@ actually lands.
 ````
 
 
+## Source: `.claude/commands/README.md`
+
+````markdown
+# ZERO Agent Commands
+
+These are reusable task recipes for coding agents working in ZERO. They are
+plain Markdown so any agent or engineer can use them; they do not grant extra
+permissions and they must preserve the repository safety invariants in
+`AGENTS.md`.
+
+Use these when assigning small, reviewable agent work:
+
+- [`paper-backtest.md`](paper-backtest.md) - replay deterministic paper fixtures.
+- [`verify-schema.md`](verify-schema.md) - check public API and generated contracts.
+- [`proof-pack.md`](proof-pack.md) - rebuild and verify public-safe proof artifacts.
+- [`mcp-transcript.md`](mcp-transcript.md) - regenerate and validate agent MCP output.
+- [`new-strategy.md`](new-strategy.md) - add a paper-first strategy example.
+
+Every command recipe should end with the smallest relevant check, then `just ci`
+before handoff when the change touches public contracts, packaging, or CI.
+````
+
+
 ## Source: `CONTRIBUTING.md`
 
 ````markdown
@@ -786,6 +811,7 @@ Out of scope:
 
 - [README](../README.md)
 - [Agent Operating Guide](../AGENTS.md)
+- [Agent Commands](../.claude/commands/README.md)
 - [Contributing](../CONTRIBUTING.md)
 - [Governance](../GOVERNANCE.md)
 - [Security](../SECURITY.md)
@@ -3743,6 +3769,20 @@ remain safe and useful.
 - Add docs that clarify operator safety, deployment, or contribution paths.
 - Implement one item from `docs/autonomous-os-plan.md` with tests and docs.
 
+## Command Recipes
+
+Reusable command recipes live in `.claude/commands/`. They are plain Markdown,
+not hidden permissions. Use them as scoped prompts for any coding agent:
+
+- `.claude/commands/paper-backtest.md`
+- `.claude/commands/verify-schema.md`
+- `.claude/commands/proof-pack.md`
+- `.claude/commands/mcp-transcript.md`
+- `.claude/commands/new-strategy.md`
+
+If a command recipe is stale, update the recipe in the same pull request as the
+behavior it describes.
+
 ## Bad Agent Tasks
 
 - Add live execution shortcuts without preflight, kill, and refusal paths.
@@ -3788,6 +3828,13 @@ Before merging agent-authored work, verify:
 - `just ci` passes or the remaining gap is documented;
 - no private repo language, private infrastructure names, or credentials were
   introduced.
+
+## Pull Request Disclosure
+
+Agent-assisted pull requests should fill out `.github/PULL_REQUEST_TEMPLATE.md`
+completely, including the AI assistance field and the safety impact field.
+Maintainers should ask for a narrower diff when an agent PR changes unrelated
+engine, CLI, docs, and release surfaces together.
 
 ## Design Review Checklist
 

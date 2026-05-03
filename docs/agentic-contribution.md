@@ -13,6 +13,20 @@ remain safe and useful.
 - Add docs that clarify operator safety, deployment, or contribution paths.
 - Implement one item from `docs/autonomous-os-plan.md` with tests and docs.
 
+## Command Recipes
+
+Reusable command recipes live in `.claude/commands/`. They are plain Markdown,
+not hidden permissions. Use them as scoped prompts for any coding agent:
+
+- `.claude/commands/paper-backtest.md`
+- `.claude/commands/verify-schema.md`
+- `.claude/commands/proof-pack.md`
+- `.claude/commands/mcp-transcript.md`
+- `.claude/commands/new-strategy.md`
+
+If a command recipe is stale, update the recipe in the same pull request as the
+behavior it describes.
+
 ## Bad Agent Tasks
 
 - Add live execution shortcuts without preflight, kill, and refusal paths.
@@ -58,6 +72,13 @@ Before merging agent-authored work, verify:
 - `just ci` passes or the remaining gap is documented;
 - no private repo language, private infrastructure names, or credentials were
   introduced.
+
+## Pull Request Disclosure
+
+Agent-assisted pull requests should fill out `.github/PULL_REQUEST_TEMPLATE.md`
+completely, including the AI assistance field and the safety impact field.
+Maintainers should ask for a narrower diff when an agent PR changes unrelated
+engine, CLI, docs, and release surfaces together.
 
 ## Design Review Checklist
 

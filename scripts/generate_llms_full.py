@@ -14,6 +14,7 @@ OUTPUT = ROOT / "docs" / "llms-full.txt"
 SOURCES = (
     "README.md",
     "AGENTS.md",
+    ".claude/commands/README.md",
     "CONTRIBUTING.md",
     "GOVERNANCE.md",
     "SECURITY.md",

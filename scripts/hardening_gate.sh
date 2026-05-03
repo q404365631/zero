@@ -5,6 +5,12 @@ required_files=(
   "AGENTS.md"
   "CLAUDE.md"
   "GEMINI.md"
+  ".claude/commands/README.md"
+  ".claude/commands/paper-backtest.md"
+  ".claude/commands/verify-schema.md"
+  ".claude/commands/proof-pack.md"
+  ".claude/commands/mcp-transcript.md"
+  ".claude/commands/new-strategy.md"
   "llms.txt"
   "docs/llms.txt"
   "docs/llms-full.txt"
@@ -86,6 +92,10 @@ contains "zero://proof/demo" docs/mcp/transcript.jsonl
 contains "Machine-readable entrypoints" README.md
 contains "Stewardship Pledge" GOVERNANCE.md
 contains "canonical operating guide" .github/copilot-instructions.md
+contains "ZERO Agent Commands" .claude/commands/README.md
+contains "zero-mcp" .claude/commands/mcp-transcript.md
+contains "paper-only" .claude/commands/proof-pack.md
+contains "AI Assistance" .github/PULL_REQUEST_TEMPLATE.md
 contains "Agent Operating Guide" docs/llms.txt
 contains "live_correlation" docs/proof/demo/proof-pack.json
 contains "unavailable" docs/proof/demo/proof-pack.json
