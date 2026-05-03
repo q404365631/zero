@@ -577,6 +577,10 @@ async fn mode_switch_emits_target() {
     let out = dispatch(&ctx, "/heat-mode").await.unwrap().unwrap();
     assert_eq!(out.mode_change, Some(ModeTarget::Heat));
     assert_eq!(out.risk, Some(RiskDirection::Neutral));
+
+    let out = dispatch(&ctx, "/cockpit-mode").await.unwrap().unwrap();
+    assert_eq!(out.mode_change, Some(ModeTarget::Cockpit));
+    assert_eq!(out.risk, Some(RiskDirection::Neutral));
     mock.shutdown().await;
 }
 

@@ -135,7 +135,9 @@ async fn run_loop(
 // ─── HTTP backfill for the core mirror fields ──────────────────────
 //
 // The WS subscriber is the primary source for `status` / `positions`
-// / `risk` / `regime`. The backfill poller is a defense-in-depth
+// / `risk` / `regime`. The same poller also keeps the read-only
+// `live_cockpit` mirror warm for the full-screen operator cockpit.
+// The backfill poller is a defense-in-depth
 // layer: when the WS is reconnecting (or the engine temporarily
 // stops emitting an event type), this task keeps the mirror
 // populated via cheap HTTP polls. Writes are tagged `Source::Http`
@@ -176,7 +178,7 @@ pub struct EngineStatePoller {
 
 impl EngineStatePoller {
     /// Spawn a backfill poller for `status` / `positions` / `risk`
-    /// / `regime`. Returns immediately — the first poll happens in
+    /// / `regime` / `live_cockpit`. Returns immediately — the first poll happens in
     /// the background task on the first tick.
     #[must_use]
     pub fn spawn(http: HttpClient, state: Arc<RwLock<EngineState>>) -> Self {
@@ -272,6 +274,13 @@ async fn fetch_and_apply(http: &HttpClient, state: &Arc<RwLock<EngineState>>) ->
         Ok(r) => state.write().apply_regime(r, now, Source::Http),
         Err(e) => {
             log_backfill_error("regime", &e);
+            any_failed = true;
+        }
+    }
+    match http.live_cockpit().await {
+        Ok(c) => state.write().apply_live_cockpit(c, now),
+        Err(e) => {
+            log_backfill_error("live_cockpit", &e);
             any_failed = true;
         }
     }
@@ -401,7 +410,7 @@ mod tests {
         let poller =
             EngineStatePoller::spawn_with_interval(http, state.clone(), Duration::from_millis(10));
 
-        // Wait up to 2 s — four sequential HTTP calls per tick,
+        // Wait up to 2 s — five sequential HTTP calls per tick,
         // each ~1 ms on localhost, but CI schedulers are capricious.
         // The read-guard is scoped inside the block so it's dropped
         // before the next `.await` (clippy's await-holding-lock lint
@@ -414,6 +423,7 @@ mod tests {
                     && s.positions.is_some()
                     && s.risk.is_some()
                     && s.regime.is_some()
+                    && s.live_cockpit.is_some()
             };
             if ready {
                 break;
@@ -425,16 +435,17 @@ mod tests {
             tokio::time::sleep(Duration::from_millis(20)).await;
         }
 
-        // All four must be tagged HTTP — backfill path, not push.
+        // All five must be tagged HTTP — backfill path, not push.
         // Snapshot the relevant bits inside a scoped read so the
         // guard is released before the shutdown awaits below.
-        let (src_status, src_positions, src_risk, src_regime, heartbeat) = {
+        let (src_status, src_positions, src_risk, src_regime, src_cockpit, heartbeat) = {
             let s = state.read();
             (
                 s.status.as_ref().unwrap().source,
                 s.positions.as_ref().unwrap().source,
                 s.risk.as_ref().unwrap().source,
                 s.regime.as_ref().unwrap().source,
+                s.live_cockpit.as_ref().unwrap().source,
                 s.last_heartbeat,
             )
         };
@@ -442,6 +453,7 @@ mod tests {
         assert!(matches!(src_positions, Source::Http));
         assert!(matches!(src_risk, Source::Http));
         assert!(matches!(src_regime, Source::Http));
+        assert!(matches!(src_cockpit, Source::Http));
         assert!(
             heartbeat.is_none(),
             "HTTP backfill must not bump last_heartbeat — that's a WS-only signal",

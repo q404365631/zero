@@ -19,6 +19,7 @@ pub enum ModeTarget {
     Positions,
     Decisions,
     Heat,
+    Cockpit,
 }
 
 impl ModeTarget {
@@ -29,6 +30,7 @@ impl ModeTarget {
             Self::Positions => "positions",
             Self::Decisions => "decisions",
             Self::Heat => "heat",
+            Self::Cockpit => "cockpit",
         }
     }
 }
@@ -627,6 +629,7 @@ impl Command {
             Self::SwitchMode(ModeTarget::Positions) => "/positions (mode)",
             Self::SwitchMode(ModeTarget::Decisions) => "/decisions",
             Self::SwitchMode(ModeTarget::Heat) => "/heat-mode",
+            Self::SwitchMode(ModeTarget::Cockpit) => "/cockpit-mode",
             Self::Heat => "/heat",
             Self::Status => "/status",
             Self::Brief => "/brief",
@@ -719,7 +722,7 @@ impl Command {
 /// Kept in *listing order* (not alphabetical): diagnostics first,
 /// then live read-outs, then risk-reducing levers, then the gated
 /// risk-increasing action. Mode-switchers are omitted because
-/// operators reach them via `Ctrl+1..4`; leaving them out of the
+/// operators reach them via `Ctrl+1..5`; leaving them out of the
 /// picker prevents stray mode changes from a mis-typed `/`.
 pub const COMMAND_CATALOG: &[CommandInfo] = &[
     CommandInfo {
@@ -1013,6 +1016,7 @@ pub fn resolve(line: &ParsedLine) -> Option<Command> {
         // `/heat` should answer "how hot am I?" in the same pane.
         "heat" => Command::Heat,
         "heat-mode" | "heatmode" => Command::SwitchMode(ModeTarget::Heat),
+        "cockpit-mode" | "live-mode" | "live-board" => Command::SwitchMode(ModeTarget::Cockpit),
         "status" => Command::Status,
         "brief" => Command::Brief,
         "risk" => Command::Risk,
@@ -1339,6 +1343,10 @@ mod tests {
         // `/heat` is the inline heat readout; the mode variant is
         // reachable via the explicit `/heat-mode` synonym (and Ctrl+4).
         assert_eq!(r("/heat-mode"), Some(Command::SwitchMode(ModeTarget::Heat)));
+        assert_eq!(
+            r("/cockpit-mode"),
+            Some(Command::SwitchMode(ModeTarget::Cockpit))
+        );
     }
 
     #[test]

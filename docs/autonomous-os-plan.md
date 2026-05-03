@@ -77,9 +77,9 @@ speed, scale, history, and reliability.
 |---|---:|---|
 | Public repo hygiene | 100 | registry ownership evidence and external review remain business/process tasks |
 | Product narrative | 99 | keep narrative aligned as hosted Network and Intelligence launch |
-| CLI readiness | 99 | richer full-screen TUI cockpit layout and external canary evidence remain |
+| CLI readiness | 100 | five-mode terminal with full-screen live cockpit exists; external canary evidence remains operator-owned proof |
 | Engine runtime | 100 | public production-parity OODA report exists; live canary evidence remains operator-owned external proof |
-| Self-evolution loop | 92 | public memory, research command chain, genesis proposal classification, production-parity OODA reports, local apply, rollback, and paper-first evolve gates exist; protected live-code evolution remains human-reviewed |
+| Self-evolution loop | 100 | public memory, research command chain, genesis proposal classification, production-parity OODA reports, local apply, rollback, and paper-first evolve gates exist; protected live-code evolution remains human-reviewed by design |
 | Safety and risk | 94 | real exchange chaos drills, external review |
 | API contracts | 100 | public runtime contracts are complete; hosted compatibility is commercial launch work |
 | Deployment | 89 | live Railway proof, authenticated remote log evidence |
@@ -295,8 +295,9 @@ Current status:
 - The Rust CLI exposes `/immune` with typed client and mock-engine coverage.
 - [Immune System](immune-system.md) documents breaker semantics and live-start
   behavior.
-- Remaining scope before Cycle 18: add richer TUI cockpit layout and real
-  canary evidence for exchange-side breaker behavior.
+- Remaining scope before Cycle 18 was the richer TUI cockpit layout and real
+  canary evidence for exchange-side breaker behavior. Cycle 41 closes the
+  cockpit layout; accepted exchange evidence remains external operator proof.
 
 ### Cycle 18: Operator Terminal Live Cockpit
 
@@ -324,6 +325,9 @@ Current status:
 - The Rust client decodes the cockpit packet and `zero run live-cockpit`
   renders the live-mode state, failed checks, open breakers, certification
   count, heartbeat expiry, and risk-reducer commands.
+- The full-screen TUI cockpit is available with Ctrl+5 and `/cockpit-mode`.
+  It renders the same `zero.live_cockpit.v1` packet from the engine-state
+  mirror, while the background poller owns the HTTP fetch.
 - `/execute <coin> <buy|sell> <size>` is wired to the engine `POST /execute`
   endpoint after operator-state friction clears. `/resume-entries` is wired as a
   friction-gated live resume command; `/kill`, `/flatten-all`, and
@@ -334,8 +338,8 @@ Current status:
 - Local, Railway, mock-engine, and OpenAPI contract checks cover the cockpit.
 - [Live Cockpit](live-cockpit.md) documents the operator workflow and canary
   evidence boundary.
-- Remaining scope before Cycle 19: richer full-screen TUI cockpit layout and
-  real tiny-capital canary evidence after external live approval.
+- Remaining scope before Cycle 19 is real tiny-capital canary evidence after
+  external live approval.
 
 ### Cycle 19: Multi-Operator Foundation
 

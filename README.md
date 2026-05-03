@@ -114,6 +114,8 @@ flowchart LR
 - Query Hyperliquid read-only market data without exposing funds.
 - Exercise live-readiness, immune, reconciliation, and certification contracts
   without placing capital at risk.
+- Keep the full-screen terminal cockpit open with Ctrl+5 or `/cockpit-mode`
+  while the read-only `/live/cockpit` packet is polled from the engine.
 - Inspect public-safe local live execution receipts from the operator CLI,
   including accepted/refused/exchange-error counts and hash-only receipt proof.
 - Capture signed, public-safe live evidence packets for supervised canary

@@ -11,7 +11,7 @@ use chrono::{TimeZone, Utc};
 use parking_lot::RwLock;
 use ratatui::Terminal;
 use ratatui::backend::TestBackend;
-use zero_engine_client::{EngineState, Positions, Risk, Source, Stat};
+use zero_engine_client::{EngineState, LiveCockpit, Positions, Risk, Source, Stat};
 use zero_operator_state::{Label, Snapshot as OperatorSnapshot, StateVector};
 use zero_tui::app::log::{EntryKind, LogEntry};
 use zero_tui::app::render::render_at;
@@ -120,6 +120,103 @@ fn heat_mode_with_risk_ok() {
     term.draw(|f| render_at(f, &state, frozen())).unwrap();
     let snap = grid_to_text(&term);
     insta::assert_snapshot!("heat_with_risk_ok", snap);
+}
+
+#[test]
+fn cockpit_mode_renders_live_readiness_board() {
+    let engine: Arc<RwLock<EngineState>> = EngineState::shared();
+    {
+        let mut e = engine.write();
+        let cockpit: LiveCockpit = serde_json::from_value(serde_json::json!({
+            "schema_version": "zero.live_cockpit.v1",
+            "mode": "paper",
+            "live_mode": "refused",
+            "ready": false,
+            "controls_ready": true,
+            "risk_increasing_allowed": false,
+            "next_action": "fix preflight check live_executor: mock has no live executor",
+            "operator_context": {
+                "operator_id": "mock-operator-id",
+                "handle": "mock-operator",
+                "role": "maintainer",
+                "scope": "local-private"
+            },
+            "preflight": {
+                "schema_version": "zero.live_preflight.v1",
+                "ready": false,
+                "live_mode": "refused",
+                "controls_ready": true,
+                "summary": {"total": 9, "passed": 8, "failed": 1},
+                "failed_checks": [
+                    {"name": "live_executor", "status": "fail", "note": "mock has no live executor"}
+                ]
+            },
+            "immune": {
+                "schema_version": "zero.immune.v1",
+                "risk_increasing_allowed": false,
+                "summary": {"total": 3, "open": 2, "closed": 1, "warning": 0, "risk_blocking": 2},
+                "open_breakers": [
+                    {
+                        "name": "dead_man",
+                        "status": "open",
+                        "blocks_risk": true,
+                        "severity": "critical",
+                        "reason": "live executor not configured"
+                    }
+                ]
+            },
+            "reconciliation": {
+                "schema_version": "zero.reconciliation.v1",
+                "status": "ok",
+                "risk_increasing_allowed": true,
+                "reason": "local runtime and Hyperliquid account state are reconciled",
+                "drifts": 0
+            },
+            "certification": {
+                "schema_version": "zero.live_certification.v1",
+                "mode": "dry_run",
+                "passed": true,
+                "live_start_certified": true,
+                "summary": {"total": 10, "passed": 10, "failed": 0},
+                "failed_drills": []
+            },
+            "heartbeat": {
+                "configured": false,
+                "expired": true,
+                "last_heartbeat_at": null,
+                "timeout_s": null
+            },
+            "live_records": {
+                "total": 0,
+                "accepted": 0,
+                "refused": 0,
+                "exchange_error": 0,
+                "recent": []
+            },
+            "operator_actions": {"recent": []}
+        }))
+        .expect("cockpit fixture");
+        e.apply_live_cockpit(cockpit, frozen());
+    }
+    let mut state = AppState::new(engine);
+    state.log = zero_tui::app::log::ConversationLog::with_capacity(2048);
+    state.mode = Mode::Cockpit;
+
+    let backend = TestBackend::new(100, 24);
+    let mut term = Terminal::new(backend).unwrap();
+    term.draw(|f| render_at(f, &state, frozen())).unwrap();
+    let snap = grid_to_text(&term);
+    for needle in [
+        "live cockpit",
+        "live_mode=refused",
+        "risk_allowed=false",
+        "operator: handle=mock-operator",
+        "preflight: passed=8/9 failed=1",
+        "receipts: total=0 accepted=0 refused=0 exchange_error=0",
+        " [LIVE]",
+    ] {
+        assert!(snap.contains(needle), "missing {needle}: {snap}");
+    }
 }
 
 #[test]

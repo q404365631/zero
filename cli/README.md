@@ -143,18 +143,21 @@ Operators can inspect the same read-only account truth with `/hl-account`, the
 live risk gate with `/hl-reconcile`, and the current breaker layer with
 `/immune`. `/live-cockpit` combines preflight, reconciliation, immune breakers,
 certification, heartbeat, recent live records, and the next required action in
-one read-only operator view. The CLI attaches the configured `identity.handle`
-as `X-Zero-Operator-*` audit context, and `/live-cockpit` renders the resolved
-operator identity so team and agentic runs are attributable. `/live-certify`
-runs the dry-run fake-exchange certification harness and prints the drill pass
-count before any real canary is considered. `/runtime-parity` renders the
-production-parity OODA report and disabled live-shadow refusal boundary from
-`/runtime/parity`. `/live-receipts` renders the public-safe execution receipt
-bundle from `/live/receipts`: accepted, refused, exchange-error counts, receipt
-hash, operator identity, and privacy flags. `/live-canary` renders the canary
-policy lifecycle from `/live/canary-policy`: readiness, arm/disarm state,
-qualification, publishability, exchange-evidence state, next action, and phase
-details. `/live-evidence` renders the hash-only canary evidence bundle,
+one read-only operator view. The full-screen TUI cockpit is also available with
+Ctrl+5 or `/cockpit-mode`; it renders the same `/live/cockpit` packet from the
+engine-state mirror without issuing network calls from the draw path. The CLI
+attaches the configured `identity.handle` as `X-Zero-Operator-*` audit context,
+and both cockpit surfaces render the resolved operator identity so team and
+agentic runs are attributable. `/live-certify` runs the dry-run fake-exchange
+certification harness and prints the drill pass count before any real canary is
+considered. `/runtime-parity` renders the production-parity OODA report and
+disabled live-shadow refusal boundary from `/runtime/parity`. `/live-receipts`
+renders the public-safe execution receipt bundle from `/live/receipts`:
+accepted, refused, exchange-error counts, receipt hash, operator identity, and
+privacy flags. `/live-canary` renders the canary policy lifecycle from
+`/live/canary-policy`: readiness, arm/disarm state, qualification,
+publishability, exchange-evidence state, next action, and phase details.
+`/live-evidence` renders the hash-only canary evidence bundle,
 including the evidence hash, signature status, execution-receipt hash artifact,
 and artifact hashes without exposing raw decisions or secrets.
 
@@ -250,9 +253,8 @@ Full explanation and cross-references:
 
 ### Status
 
-M1 in progress. TUI shell, four-mode layout, command
-dispatcher with the risk-asymmetry invariant, SQLite session
-persistence with replay, operator-state classifier, doctor,
-onboarding, daily-wrap, and engine-backed `/execute`. Remaining:
-auto-overlay of `/risk` at friction level 3+ and the final CI
-glue to bind every gate together.
+M1/M2/M3 public terminal work is complete for the open runtime. The TUI has
+conversation, positions, decisions, heat, and live-cockpit modes; the command
+dispatcher enforces risk asymmetry; session replay, operator-state friction,
+doctor, onboarding, daily-wrap, engine-backed `/execute`, live controls,
+canary policy, receipts, and cockpit rendering are covered by CI.

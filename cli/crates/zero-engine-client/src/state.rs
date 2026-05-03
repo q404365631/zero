@@ -19,7 +19,7 @@ use chrono::{DateTime, Utc};
 use parking_lot::RwLock;
 use zero_operator_state::Snapshot as OperatorSnapshot;
 
-use crate::models::{Positions, Regime, Risk, V2Status};
+use crate::models::{LiveCockpit, Positions, Regime, Risk, V2Status};
 use crate::stat::{Source, Stat};
 
 /// A connection health roll-up for the status bar.
@@ -52,6 +52,13 @@ pub struct EngineState {
     pub positions: Option<Stat<Positions>>,
     pub risk: Option<Stat<Risk>>,
     pub regime: Option<Stat<Regime>>,
+    /// Consolidated live-readiness cockpit from `GET /live/cockpit`.
+    /// This is read-only operator state: preflight, immune,
+    /// reconciliation, certification, heartbeat, and local receipt
+    /// counts. It intentionally lives in the same mirror as status,
+    /// positions, risk, and regime so the full-screen TUI cockpit can
+    /// render without issuing network calls from the draw path.
+    pub live_cockpit: Option<Stat<LiveCockpit>>,
     /// Operator behavioral state snapshot mirrored from the engine's
     /// `GET /operator/state` endpoint (ADR-016). The classifier runs
     /// on the engine host; the CLI only renders. `None` means "never
@@ -159,6 +166,15 @@ impl EngineState {
         if matches!(source, Source::Ws) {
             self.last_heartbeat = Some(as_of);
         }
+    }
+
+    /// Merge a live-cockpit packet fetched from the engine.
+    ///
+    /// Cockpit is an HTTP-only surface today and must not bump
+    /// `last_heartbeat`; a healthy cockpit response does not prove
+    /// the market/event feed is alive.
+    pub fn apply_live_cockpit(&mut self, cockpit: LiveCockpit, as_of: DateTime<Utc>) {
+        self.live_cockpit = Some(Stat::new(cockpit, Source::Http).with_as_of(as_of));
     }
 
     /// Record a heartbeat with no payload. Bumps the freshness clock

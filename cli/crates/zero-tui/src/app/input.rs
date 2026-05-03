@@ -81,7 +81,7 @@ fn handle_key_inner(state: &mut AppState, key: KeyEvent) {
         }
     }
 
-    // Mode switchers: Ctrl+0..4.
+    // Mode switchers: Ctrl+0..5.
     if ctrl
         && let KeyCode::Char(c) = key.code
         && let Some(d) = c.to_digit(10)
@@ -663,13 +663,24 @@ mod tests {
     }
 
     #[test]
-    fn ctrl_digit_five_is_unbound() {
+    fn ctrl_digit_five_opens_cockpit_mode() {
         let mut s = mk();
         s.mode = Mode::Decisions;
         handle_key(
             &mut s,
             KeyEvent::new(KeyCode::Char('5'), KeyModifiers::CONTROL),
         );
-        assert_eq!(s.mode, Mode::Decisions, "Ctrl+5 must not change mode");
+        assert_eq!(s.mode, Mode::Cockpit, "Ctrl+5 must open cockpit mode");
+    }
+
+    #[test]
+    fn ctrl_digit_six_is_unbound() {
+        let mut s = mk();
+        s.mode = Mode::Decisions;
+        handle_key(
+            &mut s,
+            KeyEvent::new(KeyCode::Char('6'), KeyModifiers::CONTROL),
+        );
+        assert_eq!(s.mode, Mode::Decisions, "Ctrl+6 must not change mode");
     }
 }

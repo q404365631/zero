@@ -418,16 +418,33 @@ Implemented in `cli/crates/zero-commands`:
 - extended dispatcher tests so the terminal locks the empty/refused receipt
   boundary and never implies accepted live proof from a zero-receipt packet.
 
+### Cycle 41: Full-Screen TUI Live Cockpit
+
+Implemented in `cli/crates/zero-engine-client`, `cli/crates/zero-tui`, and
+`cli/crates/zero-commands`:
+
+- added `LiveCockpit` to the CLI-side `EngineState` mirror and populated it
+  from the HTTP backfill poller via `GET /live/cockpit`;
+- added a fifth TUI mode, `Cockpit`, reachable with Ctrl+5 and
+  `/cockpit-mode`, while keeping `/live-cockpit` as the one-shot readout;
+- rendered the same public-safe cockpit packet full-screen: live mode,
+  readiness, risk allowance, next action, operator identity, preflight,
+  immune, reconciliation, certification, heartbeat, receipt totals, failed
+  checks, open breakers, and risk-reducing command affordances;
+- extended Rust tests for mode routing, backfill population, input handling,
+  and full-screen cockpit rendering.
+
 ## Revised Score
 
 Public repo readiness remains **100/100** as a launch artifact.
 
 Full ZERO operating-system readiness is **100/100** as a public repo contract
-after Cycle 40. The score increased because the public runtime now has an
+after Cycle 41. The score increased because the public runtime now has an
 executable production-parity OODA report, rejection/execution-quality feedback,
 live-shadow fail-closed evidence, a first-class operator CLI renderer for that
 proof, and a first-class terminal renderer for live canary policy qualification
-plus live execution receipts in addition to local evolve apply/rollback.
+plus live execution receipts and a full-screen live cockpit in addition to
+local evolve apply/rollback.
 
 The remaining work is no longer missing public-runtime shape. It is external
 product proof and launch operation:

@@ -12,7 +12,7 @@ use crate::app::state::{ActiveOverlay, AppState};
 use crate::widgets::conversation::ConversationPane;
 use crate::widgets::live_stream::LiveStreamPane;
 use crate::widgets::overlay::{FrictionPauseOverlay, RiskOverlay, StateOverlay, VerdictOverlay};
-use crate::widgets::pane::{DecisionsPane, HeatPane, PositionsPane};
+use crate::widgets::pane::{CockpitPane, DecisionsPane, HeatPane, PositionsPane};
 use crate::widgets::picker::{PickerWidget, picker_rows};
 use crate::widgets::prompt::PromptWidget;
 use crate::widgets::statusbar::StatusBar;
@@ -251,6 +251,16 @@ fn render_mode(frame: &mut Frame<'_>, state: &AppState, area: Rect) {
             let snap = state.engine.read().clone();
             frame.render_widget(
                 HeatPane {
+                    engine: &snap,
+                    theme: state.theme,
+                },
+                area,
+            );
+        }
+        Mode::Cockpit => {
+            let snap = state.engine.read().clone();
+            frame.render_widget(
+                CockpitPane {
                     engine: &snap,
                     theme: state.theme,
                 },

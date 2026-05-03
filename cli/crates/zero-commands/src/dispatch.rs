@@ -680,7 +680,7 @@ fn help() -> DispatchOutput {
         "  /config show         — show resolved config values",
     ));
     out.lines.push(OutputLine::system(
-        "mode switches are also on Ctrl+1..4. Ctrl+0 returns to Conversation.",
+        "mode switches are also on Ctrl+1..5. Ctrl+0 returns to Conversation.",
     ));
     out
 }

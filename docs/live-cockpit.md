@@ -9,6 +9,10 @@ zero --api http://127.0.0.1:8765 run live-cockpit
 curl -fsS 'http://127.0.0.1:8765/live/cockpit' | python3 -m json.tool
 ```
 
+Inside the interactive TUI, press Ctrl+5 or run `/cockpit-mode` to keep the
+same cockpit packet open as a full-screen board. The draw path reads the
+engine-state mirror; the background poller owns the `/live/cockpit` HTTP call.
+
 The response is `zero.live_cockpit.v1` and includes:
 
 - `preflight`: failed custody, journal, reconciliation, risk, and emergency

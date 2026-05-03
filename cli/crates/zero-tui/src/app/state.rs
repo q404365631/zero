@@ -502,7 +502,7 @@ impl AppState {
         };
         s.push(LogEntry::new(
             EntryKind::System,
-            "zero — Ctrl+1..4 switch modes, Ctrl+C or /quit exits, /help for commands.",
+            "zero — Ctrl+1..5 switch modes, Ctrl+C or /quit exits, /help for commands.",
         ));
         // M2 §4: prime the risk overlay on construction. If the
         // engine mirror already carries an L3+/halted snapshot
@@ -992,6 +992,7 @@ fn mode_from_target(t: ModeTarget) -> Mode {
         ModeTarget::Positions => Mode::Positions,
         ModeTarget::Decisions => Mode::Decisions,
         ModeTarget::Heat => Mode::Heat,
+        ModeTarget::Cockpit => Mode::Cockpit,
     }
 }
 
