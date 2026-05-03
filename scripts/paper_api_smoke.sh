@@ -206,6 +206,24 @@ EVIDENCE_DIR="$(mktemp -d)"
 "${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); audit=(d/"audit_export.json").read_text(encoding="utf-8"); assert m["schema_version"] == "zero.deployment_evidence.v1"; assert m["doctor"]["summary"]["fail"] == 0; assert (d/"SHA256SUMS").is_file(); assert "\"trace_id\": \"trace-" not in audit; assert "smoke-1" not in audit' \
   "${EVIDENCE_DIR}"
 
+RAILWAY_LOG_CMD="$(mktemp)"
+printf '%s\n' \
+  '#!/usr/bin/env sh' \
+  'printf "%s\n" "2026-05-04T00:00:00Z Authorization: Bearer smoke-intelligence-token"' \
+  'printf "%s\n" "trace-railway-smoke private_key=railway-secret smoke-railway-log-token"' \
+  >"${RAILWAY_LOG_CMD}"
+chmod +x "${RAILWAY_LOG_CMD}"
+RAILWAY_LOG_EVIDENCE_DIR="$(mktemp -d)"
+ZERO_RAILWAY_LOG_COMMAND="${RAILWAY_LOG_CMD}" \
+  "${PYTHON_BIN}" scripts/deployment_evidence.py "${API}" \
+    --token smoke-intelligence-token \
+    --output "${RAILWAY_LOG_EVIDENCE_DIR}" \
+    --railway-logs \
+    --railway-log-lines 5 >/tmp/zero-paper-api-deployment-evidence-logs.txt
+"${PYTHON_BIN}" -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); m=json.loads((d/"manifest.json").read_text(encoding="utf-8")); s=json.loads((d/"railway_logs_status.json").read_text(encoding="utf-8")); logs=(d/"railway_logs.txt").read_text(encoding="utf-8"); assert m["railway_logs"]["requested"] is True; assert m["railway_logs"]["captured"] is True; assert s["captured"] is True; assert "Authorization: REDACTED" in logs; assert "private_key=REDACTED" in logs; assert "TRACE_REDACTED" in logs; assert "smoke-railway-log-token" not in logs; assert "smoke-intelligence-token" not in logs; assert "railway-secret" not in logs; assert (d/"SHA256SUMS").is_file()' \
+  "${RAILWAY_LOG_EVIDENCE_DIR}"
+rm -f "${RAILWAY_LOG_CMD}"
+
 CANARY_DIR="$(mktemp -d)"
 "${PYTHON_BIN}" scripts/live_canary_rehearsal.py "${API}" \
   --mode refusal \
