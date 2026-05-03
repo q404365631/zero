@@ -12,7 +12,9 @@ It wraps:
 The output is `operator_report.json`, a public-safe report that records command
 status, bundle location, verification status, privacy flags, and next actions.
 It does not include raw private keys, raw exchange exports, raw idempotency
-keys, or the live-risk confirmation phrase.
+keys, or the live-risk confirmation phrase. The workflow also writes recursive
+`SHA256SUMS` for the operator report, nested bundle, and generated evidence
+files.
 
 ## Refusal Proof
 
@@ -36,6 +38,16 @@ Expected result:
 ```text
 zero live canary operator: ok=True bundle=artifacts/live-canary-operator/.../bundle exchange=True report=artifacts/live-canary-operator/.../operator_report.json
 ```
+
+Verify the workflow directory before sharing it:
+
+```bash
+scripts/live_canary_operator_verify.py artifacts/live-canary-operator/<timestamp>
+```
+
+The verifier checks `operator_report.json`, recursive `SHA256SUMS`, privacy
+flags, common redaction leaks, accepted-live-receipt exchange-evidence rules,
+and the nested canary bundle via `scripts/live_canary_verify.py`.
 
 ## Real Canary Finalization
 
@@ -61,6 +73,8 @@ scripts/live_canary_operator.py \
   --exchange-export hyperliquid-export.json \
   --require-live-accepted \
   --require-exchange-evidence
+
+scripts/live_canary_operator_verify.py artifacts/live-canary-operator/<timestamp>
 ```
 
 The final report is publishable only when:

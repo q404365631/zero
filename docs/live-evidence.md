@@ -64,4 +64,6 @@ IDs, raw client order IDs, or raw venue payloads.
 `scripts/live_canary_operator.py` is the higher-level workflow for operators.
 It collects or finalizes the bundle, attaches exchange evidence, runs the
 verifier, and writes `operator_report.json` with public-safe status and next
-actions.
+actions. `scripts/live_canary_operator_verify.py` then verifies the operator
+report, recursive checksums, redaction posture, accepted-live exchange-evidence
+rules, and nested canary bundle.

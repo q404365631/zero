@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import subprocess
@@ -133,6 +134,22 @@ def load_json(path: Path) -> Any:
 
 def write_json(path: Path, payload: Any) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def write_sha256s(workflow_dir: Path) -> None:
+    lines = []
+    for path in sorted(workflow_dir.rglob("*")):
+        if path.is_file() and path.relative_to(workflow_dir).as_posix() != "SHA256SUMS":
+            lines.append(f"{sha256(path)}  {path.relative_to(workflow_dir).as_posix()}")
+    (workflow_dir / "SHA256SUMS").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def manifest_summary(bundle: Path) -> dict[str, Any]:
@@ -312,6 +329,7 @@ def main() -> int:
         "next_actions": next_actions(args, accepted_receipts, exchange_attached, failures),
     }
     write_json(report_path(workflow_dir), report)
+    write_sha256s(workflow_dir)
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))
     else:

@@ -89,6 +89,7 @@ For the one-command refusal proof used by public paper deployments:
 
 ```bash
 scripts/live_canary_operator.py http://127.0.0.1:8765 --mode refusal
+scripts/live_canary_operator_verify.py artifacts/live-canary-operator/<timestamp>
 ```
 
 For a real canary, use the operator command after exporting exchange records:
@@ -100,6 +101,8 @@ scripts/live_canary_operator.py \
   --exchange-export hyperliquid-export.json \
   --require-live-accepted \
   --require-exchange-evidence
+
+scripts/live_canary_operator_verify.py artifacts/live-canary-operator/<timestamp>
 ```
 
 The operator report exits nonzero if accepted live receipts exist without

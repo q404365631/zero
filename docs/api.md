@@ -365,6 +365,11 @@ verifier, and write `operator_report.json`. For accepted live canary receipts,
 the operator workflow refuses to produce a passing report unless a matching
 Hyperliquid order/fill export is attached.
 
+`scripts/live_canary_operator_verify.py DIR` independently verifies the
+operator workflow directory. It checks recursive `SHA256SUMS`, operator-report
+privacy flags, common redaction leaks, accepted-live exchange-evidence rules,
+and the nested canary bundle verifier.
+
 `GET /operator/context` returns the operator audit identity currently attached
 to requests. The engine resolves it from `X-Zero-Operator-*` headers,
 `ZERO_OPERATOR_*` environment variables, or the local default. Live control

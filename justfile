@@ -96,6 +96,9 @@ live-canary-exchange-evidence bundle source:
 live-canary-operator url:
     scripts/live_canary_operator.py "{{url}}"
 
+live-canary-operator-verify workflow:
+    scripts/live_canary_operator_verify.py "{{workflow}}"
+
 checksum output *artifacts:
     python3 scripts/write_sha256s.py "{{output}}" {{artifacts}}
 
@@ -220,6 +223,7 @@ docs-check:
     test -x scripts/live_canary_verify.py
     test -x scripts/live_canary_exchange_evidence.py
     test -x scripts/live_canary_operator.py
+    test -x scripts/live_canary_operator_verify.py
     test -x scripts/railway_smoke.sh
     test -f Dockerfile
     test -f compose.yaml
