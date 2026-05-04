@@ -44,19 +44,6 @@ Acceptance:
 - The example requires no secrets, network access, or live exchange account.
 - Tests cover missing symbols, positive limits, and paper strategy integration.
 
-### Add paper example output summary
-
-Labels: `good first issue`, `docs`, `examples`
-
-Add a short "Expected output" section to `examples/paper-trading/README.md`.
-Use abbreviated JSON, not a long transcript.
-
-Acceptance:
-
-- The README explains fills, rejections, and reduce-only behavior.
-- The example command remains `just example`.
-- The output summary stays deterministic and paper-only.
-
 ### Add Docker daemon troubleshooting note
 
 Labels: `good first issue`, `docs`, `containers`

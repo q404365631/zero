@@ -20,19 +20,6 @@ just github-launch-issue-sync
 The sync only creates missing issues with exact matching titles. It does not
 edit existing issues, reopen closed issues, or delete anything.
 
-## Good First Issue: Add Paper Example Output Summary
-
-Labels: `good first issue`, `docs`, `examples`
-
-Add a short "Expected output" section to `examples/paper-trading/README.md`.
-Use abbreviated JSON, not a long transcript.
-
-Acceptance:
-
-- The README explains fills, rejections, and reduce-only behavior.
-- The example command remains `just example`.
-- The output summary stays deterministic and paper-only.
-
 ## Good First Issue: Add Docker Daemon Troubleshooting Note
 
 Labels: `good first issue`, `docs`, `containers`
@@ -75,3 +62,5 @@ These tasks are no longer part of the launch issue seed:
 
 - ZERO Network stale publication window docs:
   [docs/network-freshness.md](network-freshness.md)
+- Paper example output summary:
+  [examples/paper-trading/README.md](../examples/paper-trading/README.md)
