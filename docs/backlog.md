@@ -107,15 +107,14 @@ Acceptance:
 
 ## Maintainer Tasks
 
-### First release candidate
+### Completed: first public release
 
-Labels: `release`
+The first public release is complete as `v0.1.1`.
 
-Tag the first source-only release after the public repo is created on GitHub and
-CI is green.
+Evidence:
 
-Acceptance:
+- [Release notes](releases/v0.1.1.md)
+- [Clean-download release evidence](releases/v0.1.1-evidence.md)
 
-- Release notes include safety impact and known limitations.
-- Artifacts from `.github/workflows/release.yml` are attached.
-- No claims depend on private production data.
+Do not create new first-release tasks unless a future release target changes
+artifact requirements or public safety claims.

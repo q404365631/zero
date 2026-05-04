@@ -17,6 +17,11 @@ ROOT = Path(__file__).resolve().parents[1]
 ISSUES_PATH = ROOT / "docs/launch-issues.md"
 LABELS_PATH = ROOT / ".github/labels.yml"
 DEFAULT_REPO = "zero-intel/zero"
+SEED_TITLE_PREFIXES = (
+    "Good First Issue:",
+    "Help Wanted:",
+    "Maintainer Task:",
+)
 
 
 class LaunchIssueError(ValueError):
@@ -46,6 +51,10 @@ def parse_launch_issues(path: Path = ISSUES_PATH) -> list[LaunchIssue]:
         start = match.end()
         end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
         section = text[start:end].strip()
+        is_seed = title.startswith(SEED_TITLE_PREFIXES)
+        if not is_seed:
+            continue
+
         if not section:
             errors.append(f"{title}: empty issue section")
             continue

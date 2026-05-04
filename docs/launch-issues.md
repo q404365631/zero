@@ -79,30 +79,12 @@ Acceptance:
 - `docs/release.md` names Homebrew as a supported distribution path.
 - The path works without private package registry access.
 
-## Maintainer Task: First Public Release Verification
+## Completed Maintainer Tasks
 
-Labels: `release`, `security`
+These tasks are intentionally not part of the launch issue seed anymore because
+the public `v0.1.1` release already exists and has clean-download evidence:
 
-Verify the first public release from a clean download directory before
-publishing it.
-
-Acceptance:
-
-- The draft GitHub Release includes all expected assets.
-- `shasum -a 256 -c SHA256SUMS` passes.
-- `gh attestation verify zero-linux -R zero-intel/zero` passes.
-- `gh attestation verify zero-macos -R zero-intel/zero` passes.
-
-## Maintainer Task: First Release Candidate
-
-Labels: `release`
-
-Tag the first release candidate after the public repo is created on GitHub and
-CI is green.
-
-Acceptance:
-
-- Release notes use `.github/RELEASE_TEMPLATE.md`.
-- Artifacts from `.github/workflows/release.yml` are attached or linked.
-- `SHA256SUMS` verification is called out.
-- No claims depend on private production data.
+- First public release verification:
+  [docs/releases/v0.1.1-evidence.md](releases/v0.1.1-evidence.md)
+- First release candidate:
+  [docs/releases/v0.1.1.md](releases/v0.1.1.md)
