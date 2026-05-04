@@ -154,6 +154,9 @@ contains "zero://runtime/parity" docs/mcp/transcript.jsonl
 contains "zero.memory.entry.v1" docs/memory-core.md
 contains "zero.runtime.production_parity.v1" docs/runtime-bus.md
 contains "Machine-readable entrypoints" README.md
+contains "just public-proof" README.md
+contains "just public-proof" docs/first-10-minutes.md
+contains "just public-proof" docs/proof/README.md
 contains "Stewardship Pledge" GOVERNANCE.md
 contains "CODEOWNERS" GOVERNANCE.md
 contains "Review Ownership" docs/review-ownership.md

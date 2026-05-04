@@ -116,7 +116,18 @@ That command copies only publishable source files, verifies the public and
 hardening gates, runs the paper example, and smokes the paper API through the
 CLI outside the maintainer checkout.
 
-## 6. Run The Local Gate
+## 6. Verify Public Proof And Agent Surfaces
+
+```bash
+just public-proof
+```
+
+This checks the deterministic demo proof pack, the ZERO Network proof chain,
+the read-only MCP server, and the committed MCP transcript. It is the shortest
+command that proves the public proof packets and agent-readable surface are in
+sync without enabling live execution.
+
+## 7. Run The Local Gate
 
 Before opening a pull request:
 
@@ -136,5 +147,6 @@ After ten minutes, you have verified:
 - The CLI can inspect operator state.
 - Safety gates accept and reject actions.
 - Public proof and intelligence contracts do not leak raw traces.
+- The demo proof pack, Network proof chain, and MCP transcript are current.
 - Live execution is not enabled by accident.
 - The local repo can pass the same core gate maintainers use before release.

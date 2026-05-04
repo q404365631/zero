@@ -3,6 +3,16 @@
 ZERO proof packs are public-safe artifacts that let a human or agent verify what
 the runtime actually did.
 
+Run the full public proof gate:
+
+```bash
+just public-proof
+```
+
+That command verifies the demo proof pack, the ZERO Network proof chain, the
+read-only MCP server, and the committed MCP transcript together. It is the
+preferred pre-PR check when changing proof, Network, MCP, or agent-facing docs.
+
 The current committed pack is intentionally modest:
 
 - it is generated from the deterministic paper scenario in
@@ -41,6 +51,14 @@ This pack proves profile, leaderboard, deployment-claim, deployment-heartbeat,
 and hosted-compatible ingestion bindings. The static fixture is unsigned so it
 stays reproducible; signed deployment identity is covered by the paper and
 Railway smoke tests.
+
+Agents can inspect the same Network proof chain through MCP without gaining any
+live execution capability:
+
+```bash
+PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
+PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
+```
 
 Future launch proof packs must add signed live records, exchange-side evidence,
 and paper/live correlation only after those records exist. Do not publish an

@@ -195,14 +195,16 @@ exist. Protected live-code evolution remains human-reviewed. See
 ZERO should earn trust through behavior that another engineer can verify:
 
 1. Run paper mode locally or on Railway.
-2. Verify `docs/proof/network/network-proof-pack.json` against its profile,
+2. Run `just public-proof` to verify the demo proof pack, Network proof chain,
+   read-only MCP server, and committed MCP transcript together.
+3. Verify `docs/proof/network/network-proof-pack.json` against its profile,
    leaderboard, deployment identity, and ingestion artifacts.
-3. Inspect runtime, risk, live cockpit, immune, account, and reconciliation
+4. Inspect runtime, risk, live cockpit, immune, account, and reconciliation
    packets through the CLI/API.
-4. Rehearse a live canary in fail-closed mode.
-5. Attach public-safe exchange-side evidence when an operator-owned live canary
+5. Rehearse a live canary in fail-closed mode.
+6. Attach public-safe exchange-side evidence when an operator-owned live canary
    is ready.
-6. Verify the bundle, recursive checksums, privacy flags, live canary policy,
+7. Verify the bundle, recursive checksums, privacy flags, live canary policy,
    and report with local scripts before publishing anything.
 
 That flow is implemented for refusal-mode rehearsal today. Accepted live canary

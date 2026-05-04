@@ -162,6 +162,12 @@ proof-pack:
 network-proof-pack:
     PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py
 
+public-proof:
+    PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py --check
+    PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py --check
+    PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
+    PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
+
 draft-release-rehearsal:
     scripts/draft_release_rehearsal.sh
 
@@ -421,7 +427,7 @@ container-demo: container-build
 container-example: container-build
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-lint: stale-artifact-clean engine-lint cli-lint docs-check issue-template-check label-taxonomy-check github-label-config-check codeowners-check hardening-gate public-readiness
+lint: stale-artifact-clean engine-lint cli-lint docs-check public-proof issue-template-check label-taxonomy-check github-label-config-check codeowners-check hardening-gate public-readiness
 
 test: engine-test cli-test
 
