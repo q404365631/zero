@@ -146,6 +146,7 @@ jobs:
           test -x scripts/package_dry_run.sh
           test -x scripts/registry_readiness.py
           test -x scripts/homebrew_formula.py
+          test -x scripts/homebrew_formula_check.py
           test -x scripts/release_provenance.py
           test -x scripts/release_verify.py
           test -x scripts/release_evidence.py
@@ -180,6 +181,7 @@ jobs:
           scripts/github_label_sync.py --validate-config
           scripts/github_launch_issues.py --validate-config
           scripts/codeowners_check.py
+          scripts/homebrew_formula_check.py
           python3 scripts/openapi_contract_check.py
           PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
           PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check

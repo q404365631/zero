@@ -29,7 +29,7 @@ end.
 | Security and custody | 92 | No secrets needed for first run; Hyperliquid private keys have operator-scoped keychain/env helpers, redaction tests, a non-secret preflight gate, optional SDK-backed live adapter, threat model, secret-leak runbook, dependency policy, SBOM/provenance metadata, and release provenance policy. Missing external security review. |
 | ZERO Network | 82 | Public-safe local profile packets, proof hashes, deployment claim hashes, deployment heartbeat hashes, verification badges, leaderboard rows, opt-in local publish logs, hosted-compatible ingestion, proof validation, duplicate refusal, metric-consistency checks, accepted-only leaderboard output, `zero.network.profile_verification.v1` profile-plus-identity verification, and deterministic `zero.network_proof_pack.v1` public proof-chain artifacts exist. Missing production hosted service persistence, public hosted pages, stale-publication windows, sybil policy, and external hosted identity service operation. |
 | ZERO Intelligence | 78 | Delayed public snapshots, catalog, billing-ready commercial contract, hosted-compatible `/v1/intelligence/*` reads/writes, token-gated paid scopes, actual rate-limit headers, usage events, HMAC-SHA256 webhook signature fixtures, aggregate export jobs, plan/scope model, dataset names, fail-closed model gateway status, model gateway health probes, model gateway audit bundles, mock/local provider conformance, real external model adapters, bounded retry/cost policy, hosted key-management rules, plan boundary, and opt-in local export packets exist. Missing production hosted persistence, billing provider integration, warehouse-backed realtime/history feeds, production webhook delivery, commercial terms, live hosted key-management implementation, and hosted audit retention. |
-| Release and distribution | 98 | GitHub release artifacts, checksums, SBOM/provenance bundle, recorded `v0.1.1` clean-download release evidence, published-release evidence command, release verifier, tamper-detection rehearsal, draft-release rollback rehearsal, Homebrew formula renderer, attestations, installer, registry-readiness gate, package dry-run, distribution readiness policy, release template hardening checks, dependency policy, and rollback rules exist. Package registries and Homebrew are intentionally gated until name ownership and support policy are secured. |
+| Release and distribution | 100 | GitHub release artifacts, checksums, SBOM/provenance bundle, recorded `v0.1.1` clean-download release evidence, published-release evidence command, release verifier, tamper-detection rehearsal, draft-release rollback rehearsal, committed Homebrew formula, formula drift check, attestations, installer, registry-readiness gate, package dry run, distribution readiness policy, release template hardening checks, dependency policy, and rollback rules exist. External package registries remain unpublished pending name ownership and support policy. |
 | Documentation for operators | 100 | Good local docs, operator isolation docs, Hyperliquid read-only boundary docs, live-paper quote docs, immune-system docs, live cockpit docs, live cockpit drill bundle, verifier, and tamper rehearsal, live certification docs, live evidence docs, live canary policy/operator docs, Railway paper deploy, remote-doctor, and evidence-pack docs, restart recovery docs, audit/metrics docs, live-preflight warnings, threat model, and incident runbooks. Missing real exchange drill evidence only as external proof, not documented workflow. |
 
 **Public repo readiness: 100/100.**
@@ -70,7 +70,7 @@ public-runtime contracts.
 | Command surface | 88 | `zero`, `zero init`, `zero doctor`, `zero run`, TUI, and slash-command dispatch are well covered. |
 | Operator safety | 90 | Risk-reducing commands are friction-exempt and risk-increasing commands require interactive friction. |
 | Engine integration | 97 | HTTP, WebSocket, mock engine, contract tests, Rust client decoding for production-parity OODA reports, live receipt packets, and live canary policy packets, `/runtime-parity`, `/live-receipts`, and `/live-canary` operator rendering, and live risk-reducer endpoints exist. Real accepted canary evidence remains external. |
-| Install path | 94 | Release installer exists with checksum and attestation verification, and `v0.1.1` was installed from the public GitHub Release into a temporary bin directory. Homebrew formula rendering exists from release checksums, while Homebrew/package registries remain blocked until ownership is secured. |
+| Install path | 100 | Release installer exists with checksum and attestation verification, `v0.1.1` was installed from the public GitHub Release into a temporary bin directory, and the public Homebrew repo tap installs and tests `zero` from the checksummed GitHub Release asset. External package registries remain unpublished pending ownership proof. |
 | Diagnostics | 99 | Doctor, JSON output, exit codes, rate-budget checks, operator/credential partition checks, live-preflight diagnostics, live-cockpit next-action/operator rendering, Railway remote doctor, deployment evidence verification, deployment identity verification, deployment evidence log capture/signing, rollback rehearsal checks, paid-scope fail-closed checks, and live-control refusals are strong. Missing external production examples against a real linked Railway project. |
 | TUI production UX | 94 | Snapshot coverage, status honesty, risk overlays, live-stream pane, and a full-screen live cockpit are strong. Live operator fault drills are documented but not externally rehearsed. |
 | Non-interactive automation | 93 | `zero run` covers cockpit, receipts, canary policy, runtime parity, breaker, certification, account truth, and risk-reducer workflows while intentionally gating risk-increasing commands. Needs external production examples. |
@@ -104,7 +104,7 @@ ZERO is 100/100 when a new serious operator can:
 
 ## Execution Cycles
 
-Forecast after Cycle 37: **0 major public-repo cycles remain before the repo can
+Forecast after Cycle 38: **0 major public-repo cycles remain before the repo can
 be treated as the complete ZERO autonomous operating-system launch artifact.**
 The remaining work is external proof and hosted product operation: operator
 canary evidence, third-party review, package registry ownership, hosted Network,
@@ -420,8 +420,8 @@ Target score: 100/100.
 - Add chaos drills, exchange outage drills, restart drills, key-rotation drills,
   and incident runbooks.
 - Add security review, threat model update, and signed release policy.
-- Add Homebrew/package registry distribution once names, Trusted Publishing,
-  owner lists, and rollback procedures are secured.
+- Add package registry distribution once names, Trusted Publishing, owner
+  lists, and rollback procedures are secured.
 
 Current progress:
 
@@ -444,8 +444,9 @@ Current progress:
 - Added dependency and supply-chain policy plus release SBOM/provenance
   generation so release bundles carry checksummed `SBOM.spdx.json` and
   `PROVENANCE.json` alongside GitHub artifact attestations.
-- Added draft-release rollback rehearsal and Homebrew formula rendering from
-  `SHA256SUMS`, keeping the tap publication step gated behind ownership proof.
+- Added draft-release rollback rehearsal, Homebrew formula rendering from
+  `SHA256SUMS`, a committed public repo tap formula, and a formula drift check
+  that proves `Formula/zero.rb` remains renderer-generated.
 - Backfilled the public `v0.1.1` GitHub Release with checksummed
   `SBOM.spdx.json` and `PROVENANCE.json`, verified executable attestations, and
   added `scripts/release_evidence.py` for clean-download release evidence.

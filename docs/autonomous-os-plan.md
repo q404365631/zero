@@ -87,7 +87,7 @@ speed, scale, history, and reliability.
 | Security and custody | 91 | external review, key-handling drill evidence |
 | ZERO Network | 82 | deterministic public proof-chain pack plus profile identity verifier exist; hosted identity service, public pages, and production ingestion service remain |
 | ZERO Intelligence | 70 | production hosted service persistence, billing provider, history storage, terms |
-| Release and distribution | 99 | external registry ownership evidence and public Homebrew tap publication |
+| Release and distribution | 100 | public Homebrew repo tap exists; external registry ownership evidence remains outside the public runtime |
 | Operator docs | 98 | real exchange drill evidence |
 
 ## Execution Cycles
@@ -595,7 +595,7 @@ Finish distribution:
 - release asset verifier;
 - rollback and tamper-detection rehearsal;
 - publish package registry ownership plan;
-- Homebrew tap;
+- Homebrew formula drift check;
 - SBOM/provenance;
 - dependency update and security response policy.
 
@@ -630,13 +630,14 @@ Current progress:
   temporary draft GitHub Release creation, fresh-download verification,
   Homebrew formula rendering, and rollback.
 - Added `scripts/homebrew_formula.py` to render a tap-ready formula from
-  `SHA256SUMS` without publishing a tap.
+  `SHA256SUMS`, committed `Formula/zero.rb`, and verified the public repo tap
+  install path.
 - Backfilled `v0.1.1` with `SBOM.spdx.json` and `PROVENANCE.json`, verified the
   published release from a clean download, and added `scripts/release_evidence.py`
   so maintainers can rerun checksum, metadata, attestation, and formula evidence.
 
-Remaining scope before Cycle 26: external package-registry ownership evidence,
-public Homebrew tap publication, and external review evidence.
+Remaining scope before Cycle 26: external package-registry ownership evidence
+and external review evidence.
 
 ### Cycle 26: External Review And Real-World Evidence
 

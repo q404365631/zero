@@ -188,6 +188,9 @@ release-workflow-rehearsal:
 homebrew-formula release_dir tag:
     scripts/homebrew_formula.py "{{release_dir}}" --tag "{{tag}}"
 
+homebrew-formula-check:
+    scripts/homebrew_formula_check.py
+
 railway-smoke:
     scripts/railway_smoke.sh
 
@@ -391,6 +394,7 @@ docs-check:
     test -x scripts/package_dry_run.sh
     test -x scripts/registry_readiness.py
     test -x scripts/homebrew_formula.py
+    test -x scripts/homebrew_formula_check.py
     test -x scripts/release_provenance.py
     test -x scripts/release_verify.py
     test -x scripts/release_evidence.py
@@ -430,6 +434,7 @@ docs-check:
     scripts/github_label_sync.py --validate-config
     scripts/github_launch_issues.py --validate-config
     scripts/codeowners_check.py
+    scripts/homebrew_formula_check.py
     PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
     PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
     scripts/generate_llms_full.py --check
@@ -445,7 +450,7 @@ container-demo: container-build
 container-example: container-build
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-lint: stale-artifact-clean engine-lint cli-lint docs-check public-proof issue-template-check label-taxonomy-check github-label-config-check launch-issue-config-check codeowners-check hardening-gate public-readiness
+lint: stale-artifact-clean engine-lint cli-lint docs-check public-proof issue-template-check label-taxonomy-check github-label-config-check launch-issue-config-check codeowners-check homebrew-formula-check hardening-gate public-readiness
 
 test: engine-test cli-test
 

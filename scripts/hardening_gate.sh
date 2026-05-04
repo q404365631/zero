@@ -23,6 +23,7 @@ required_files=(
   ".github/labels.yml"
   "docs/review-ownership.md"
   "scripts/codeowners_check.py"
+  "scripts/homebrew_formula_check.py"
   "scripts/stale_artifact_check.sh"
   "llms.txt"
   "docs/llms.txt"
@@ -133,6 +134,7 @@ contains "shasum -a 256 -c SHA256SUMS" .github/RELEASE_TEMPLATE.md
 contains "package registry publication remains disabled" .github/RELEASE_TEMPLATE.md
 contains "gh attestation verify zero-linux" .github/RELEASE_TEMPLATE.md
 contains "scripts/release_evidence.py <tag>" .github/RELEASE_TEMPLATE.md
+contains "scripts/homebrew_formula_check.py" .github/RELEASE_TEMPLATE.md
 contains "zero.release_evidence.v1" docs/releases/v0.1.1-evidence.md
 contains "verification.fail=0" docs/releases/v0.1.1-evidence.md
 contains "ZERO LLM Full Context" docs/llms-full.txt
@@ -248,6 +250,7 @@ python3 -m py_compile scripts/release_evidence.py
 python3 -m py_compile scripts/registry_readiness.py
 python3 -m py_compile scripts/release_provenance.py
 python3 -m py_compile scripts/homebrew_formula.py
+python3 -m py_compile scripts/homebrew_formula_check.py
 python3 -m py_compile scripts/generate_llms_full.py
 python3 -m py_compile scripts/proof_pack.py
 python3 -m py_compile scripts/network_proof_pack.py
@@ -264,6 +267,7 @@ scripts/label_taxonomy_check.py >/dev/null
 scripts/github_label_sync.py --validate-config >/dev/null
 scripts/github_launch_issues.py --validate-config >/dev/null
 scripts/codeowners_check.py >/dev/null
+scripts/homebrew_formula_check.py >/dev/null
 python3 -m py_compile scripts/live_cockpit_drill.py
 python3 -m py_compile scripts/live_cockpit_drill_verify.py
 python3 -m py_compile scripts/live_cockpit_drill_tamper_rehearsal.py

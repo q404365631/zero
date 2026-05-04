@@ -36,7 +36,8 @@ reserved for ZERO Intelligence.
 - Published `v0.1.1` release evidence from a clean GitHub download, including
   checksum verification, release verifier output, executable attestations, and
   Homebrew formula rendering
-- Draft GitHub Release rollback rehearsal and Homebrew formula renderer
+- Draft GitHub Release rollback rehearsal, Homebrew formula renderer, committed
+  public repo tap formula, and formula drift check
 - GitHub artifact attestations for release asset provenance
 - One-command live canary operator workflow with public-safe report,
   exchange-evidence attachment, recursive checksums, and local verifier
@@ -84,8 +85,9 @@ reserved for ZERO Intelligence.
 
 - Keep the public GitHub Actions matrix green after every push
 - Keep published release evidence green with `just release-evidence v0.1.1`
-- Keep Homebrew and package-registry publication disabled until public name
-  ownership, Trusted Publishing, owner lists, and rollback procedure are secured
+- Keep package-registry publication disabled until public name ownership,
+  Trusted Publishing, owner lists, and rollback procedure are secured
+- Keep the committed Homebrew formula generated from release checksums
 
 ## Definition Of 100
 

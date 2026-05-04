@@ -277,7 +277,8 @@ The committed formula is `Formula/zero.rb`. To update it for a new release,
 render the formula from a downloaded and verified release directory:
 
 ```bash
-scripts/homebrew_formula.py <downloaded-release-dir> --tag v0.1.1 --output zero.rb
+scripts/homebrew_formula.py <downloaded-release-dir> --tag v0.1.1 --output Formula/zero.rb
+scripts/homebrew_formula_check.py
 ```
 
 The formula uses the `zero-macos` and `zero-linux` checksums from `SHA256SUMS`,

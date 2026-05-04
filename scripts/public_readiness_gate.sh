@@ -95,9 +95,11 @@ required=(
   .github/ISSUE_TEMPLATE/config.yml
   .github/CODEOWNERS
   .github/labels.yml
+  Formula/zero.rb
   docs/review-ownership.md
   scripts/github_label_sync.py
   scripts/codeowners_check.py
+  scripts/homebrew_formula_check.py
   scripts/stale_artifact_check.sh
   .github/dependabot.yml
   .github/workflows/ci.yml
@@ -159,6 +161,16 @@ file_contains "zero.network_proof_pack.v1" docs/proof/network/network-proof-pack
 file_contains "zero.network.profile_verification.v1" docs/proof/network/profile-verification.json
 file_contains "not yet a complete autonomous capital terminal" docs/production-readiness.md
 file_contains "Do not publish this private monorepo wholesale" docs/public-upgrade.md
+file_contains "brew tap zero-intel/zero" README.md
+file_contains "brew tap zero-intel/zero" docs/release.md
+file_contains "The public runtime defaults to paper mode" Formula/zero.rb
+
+echo "-- homebrew formula"
+if scripts/homebrew_formula_check.py; then
+  echo "ok"
+else
+  status=1
+fi
 
 if [[ "$status" -eq 0 ]]; then
   echo "public readiness gate passed"
