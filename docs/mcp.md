@@ -67,6 +67,7 @@ the proof pack without gaining any live execution capability.
 | `zero_get_journal_tail` | `read_only_public` | Returns the paper decision journal tail from the bundled scenario. |
 | `zero_get_rejection_audit` | `read_only_public` | Returns rejection counts grouped by paper stage and reason. |
 | `zero_get_proof_pack` | `read_only_public` | Returns the public-safe demo proof-pack manifest. |
+| `zero_get_network_proof_pack` | `read_only_public` | Returns the public-safe ZERO Network proof-chain manifest. |
 | `zero_get_memory_snapshot` | `read_only_public` | Returns public-safe memory extracted from bundled paper decisions. |
 | `zero_get_memory_stats` | `read_only_public` | Returns aggregate memory stats without entry bodies. |
 | `zero_get_genesis_proposals` | `read_only_public` | Returns plan-only genesis proposal classifications. |
@@ -93,6 +94,7 @@ All tools declare `canPlaceOrders=false`, `canChangeRuntimeState=false`, and
 | `zero://journal/tail` | Paper decision journal tail. |
 | `zero://rejections/audit` | Paper rejection audit grouped by stage and reason. |
 | `zero://proof/demo` | Demo proof-pack manifest. |
+| `zero://proof/network` | ZERO Network proof-chain manifest. |
 | `zero://memory/snapshot` | Public-safe local memory extracted from bundled paper decisions. |
 | `zero://memory/stats` | Aggregate memory stats without entry bodies. |
 | `zero://genesis/proposals` | Plan-only genesis proposal classifications. |
@@ -119,7 +121,7 @@ All tools declare `canPlaceOrders=false`, `canChangeRuntimeState=false`, and
 - Evolve output never pushes or promotes; human approval is still required.
 - Research output never claims live PnL, mutates the checkout, or pushes.
 - Decision-stack output never grants live execution authority.
-- The demo proof pack does not claim live trading or paper/live correlation.
+- The demo and Network proof packs do not claim live trading or paper/live correlation.
 - The public source checkout contains the bundled proof and paper artifacts.
 
 The smoke command is part of the public readiness gates so this agent surface

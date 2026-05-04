@@ -144,8 +144,10 @@ contains "zero_get_immune_status" docs/mcp/transcript.jsonl
 contains "zero_get_backtest_report" docs/mcp/transcript.jsonl
 contains "zero_get_evidence_bundle" docs/mcp/transcript.jsonl
 contains "zero_get_safety_catalog" docs/mcp/transcript.jsonl
+contains "zero_get_network_proof_pack" docs/mcp/transcript.jsonl
 contains "read_only_public" docs/mcp/transcript.jsonl
 contains "zero://proof/demo" docs/mcp/transcript.jsonl
+contains "zero://proof/network" docs/mcp/transcript.jsonl
 contains "zero://memory/snapshot" docs/mcp/transcript.jsonl
 contains "zero://mcp/safety" docs/mcp/transcript.jsonl
 contains "zero://runtime/parity" docs/mcp/transcript.jsonl

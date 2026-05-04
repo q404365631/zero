@@ -146,6 +146,12 @@ REQUESTS: tuple[dict[str, Any], ...] = (
         "jsonrpc": "2.0",
         "id": 23,
         "method": "resources/read",
+        "params": {"uri": "zero://proof/network"},
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 24,
+        "method": "resources/read",
         "params": {"uri": "zero://mcp/safety"},
     },
 )
@@ -313,7 +319,20 @@ def validate(entries: list[dict[str, Any]]) -> None:
     if boundary["live_trading_claimed"] or boundary["paper_vs_live_correlation_claimed"]:
         raise RuntimeError("transcript proof pack must not claim live trading or paper/live correlation")
 
-    safety_resource = entries[22]["response"]
+    network_proof_response = entries[22]["response"]
+    network_proof_text = network_proof_response["result"]["contents"][0]["text"]
+    network_proof = json.loads(network_proof_text)
+    network_boundary = network_proof["claim_boundary"]
+    if (
+        network_proof["schema_version"] != "zero.network_proof_pack.v1"
+        or network_boundary["live_trading_claimed"]
+        or network_boundary["paper_vs_live_correlation_claimed"]
+        or network_proof["privacy"]["contains_exchange_credentials"]
+        or network_proof["privacy"]["contains_wallet_material"]
+    ):
+        raise RuntimeError("transcript Network proof pack must remain public-safe and non-live-claiming")
+
+    safety_resource = entries[23]["response"]
     safety_resource_text = safety_resource["result"]["contents"][0]["text"]
     safety_resource_payload = json.loads(safety_resource_text)
     if safety_resource_payload["default"] != "read_only_public":

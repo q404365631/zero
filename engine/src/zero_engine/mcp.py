@@ -114,6 +114,56 @@ EMBEDDED_PROOF_PACK: JsonMap = {
     "proof_hash": "embedded-source-checkout-required-for-file-hash-verification",
 }
 
+EMBEDDED_NETWORK_PROOF_PACK: JsonMap = {
+    "schema_version": "zero.network_proof_pack.v1",
+    "generated_at": "2026-05-01T00:00:00Z",
+    "name": "demo-network-proof-chain",
+    "mode": "paper",
+    "profile_schema_version": "zero.network.profile.v1",
+    "verification_schema_version": "zero.network.profile_verification.v1",
+    "ok": True,
+    "claim_boundary": {
+        "paper_mode_verified": True,
+        "hosted_ingestion_compatible": True,
+        "live_trading_claimed": False,
+        "paper_vs_live_correlation_claimed": False,
+        "pnl_claimed": False,
+    },
+    "bindings": {
+        "proof_hash": "source-checkout-required-for-network-proof-hash",
+        "deployment_claim_hash": "source-checkout-required-for-claim-hash",
+        "deployment_heartbeat_hash": "source-checkout-required-for-heartbeat-hash",
+        "leaderboard_proof_hash": "source-checkout-required-for-network-proof-hash",
+    },
+    "identity": {
+        "bundle_schema_version": "zero.deployment_identity_evidence.v1",
+        "signature_present": False,
+        "signature_required_for_static_fixture": False,
+        "signed_identity_smoke_tested_in_ci": True,
+    },
+    "verification": {
+        "ok": True,
+        "checks_ok": 0,
+        "checks_failed": 0,
+        "hosted_ingestion_accepted": 1,
+    },
+    "privacy": {
+        "contains_exchange_credentials": False,
+        "contains_wallet_material": False,
+        "contains_raw_decisions": False,
+        "contains_trace_tokens": False,
+        "contains_idempotency_tokens": False,
+    },
+    "artifacts": {
+        "network-proof-pack.json": "source-checkout-only",
+        "profile.json": "source-checkout-only",
+        "profile-verification.json": "source-checkout-only",
+        "leaderboard.json": "source-checkout-only",
+        "identity/identity_bundle.json": "source-checkout-only",
+    },
+    "proof_hash": "embedded-source-checkout-required-for-file-hash-verification",
+}
+
 EMBEDDED_GENESIS_PROPOSALS = (
     Proposal(
         proposal_id="sha256:genesis-accepted-docs",
@@ -557,6 +607,13 @@ def get_proof_pack() -> JsonMap:
     return json.loads((root / "docs" / "proof" / "demo" / "proof-pack.json").read_text())
 
 
+def get_network_proof_pack() -> JsonMap:
+    root = find_repo_root()
+    if root is None:
+        return EMBEDDED_NETWORK_PROOF_PACK
+    return json.loads((root / "docs" / "proof" / "network" / "network-proof-pack.json").read_text())
+
+
 def tool_definitions() -> list[JsonMap]:
     empty_schema = {"type": "object", "properties": {}, "additionalProperties": False}
     tools = [
@@ -603,6 +660,11 @@ def tool_definitions() -> list[JsonMap]:
         {
             "name": "zero_get_proof_pack",
             "description": "Read-only public-safe demo proof-pack manifest.",
+            "inputSchema": empty_schema,
+        },
+        {
+            "name": "zero_get_network_proof_pack",
+            "description": "Read-only public-safe ZERO Network proof-chain manifest.",
             "inputSchema": empty_schema,
         },
         {
@@ -669,6 +731,7 @@ TOOLS: dict[str, Callable[[], JsonMap]] = {
     "zero_get_journal_tail": get_journal_tail,
     "zero_get_rejection_audit": get_rejection_audit,
     "zero_get_proof_pack": get_proof_pack,
+    "zero_get_network_proof_pack": get_network_proof_pack,
     "zero_get_memory_snapshot": get_memory_snapshot,
     "zero_get_memory_stats": get_memory_stats,
     "zero_get_genesis_proposals": get_genesis_proposals,
@@ -730,6 +793,12 @@ def resource_definitions() -> list[JsonMap]:
             "uri": "zero://proof/demo",
             "name": "Demo Proof Pack",
             "description": "Public-safe demo proof-pack manifest.",
+            "mimeType": "application/json",
+        },
+        {
+            "uri": "zero://proof/network",
+            "name": "Network Proof Pack",
+            "description": "Public-safe ZERO Network proof-chain manifest.",
             "mimeType": "application/json",
         },
         {
@@ -815,6 +884,8 @@ def read_resource(uri: str) -> str:
         return json.dumps(get_rejection_audit(), indent=2, sort_keys=True)
     if uri == "zero://proof/demo":
         return json.dumps(get_proof_pack(), indent=2, sort_keys=True)
+    if uri == "zero://proof/network":
+        return json.dumps(get_network_proof_pack(), indent=2, sort_keys=True)
     if uri == "zero://memory/snapshot":
         return json.dumps(get_memory_snapshot(), indent=2, sort_keys=True)
     if uri == "zero://memory/stats":
@@ -946,6 +1017,15 @@ def smoke() -> int:
     boundary = proof.get("claim_boundary", {})
     if boundary.get("live_trading_claimed") or boundary.get("paper_vs_live_correlation_claimed"):
         raise RuntimeError("demo proof pack must not claim live trading or paper/live correlation")
+    network_proof = get_network_proof_pack()
+    network_boundary = network_proof.get("claim_boundary", {})
+    if (
+        network_boundary.get("live_trading_claimed")
+        or network_boundary.get("paper_vs_live_correlation_claimed")
+        or network_proof.get("privacy", {}).get("contains_exchange_credentials")
+        or network_proof.get("privacy", {}).get("contains_wallet_material")
+    ):
+        raise RuntimeError("network proof pack must remain public-safe and non-live-claiming")
     for name in names:
         payload = TOOLS[name]()
         if not isinstance(payload, dict):

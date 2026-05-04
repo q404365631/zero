@@ -35,6 +35,7 @@ def test_tools_are_read_only() -> None:
         "zero_get_journal_tail",
         "zero_get_rejection_audit",
         "zero_get_proof_pack",
+        "zero_get_network_proof_pack",
         "zero_get_memory_snapshot",
         "zero_get_memory_stats",
         "zero_get_genesis_proposals",
@@ -74,7 +75,7 @@ def test_tools_list_and_call_paper_results() -> None:
     )
 
     assert listed is not None
-    assert len(listed["result"]["tools"]) == 19
+    assert len(listed["result"]["tools"]) == 20
     assert called is not None
     payload = json.loads(called["result"]["content"][0]["text"])
     assert payload["schema_version"] == "zero.mcp.paper_results.v1"
@@ -104,6 +105,7 @@ def test_resources_list_and_read() -> None:
         "zero://journal/tail",
         "zero://rejections/audit",
         "zero://proof/demo",
+        "zero://proof/network",
         "zero://memory/snapshot",
         "zero://memory/stats",
         "zero://genesis/proposals",
@@ -119,6 +121,21 @@ def test_resources_list_and_read() -> None:
     proof = json.loads(read["result"]["contents"][0]["text"])
     assert proof["claim_boundary"]["live_trading_claimed"] is False
     assert proof["live_correlation"]["status"] == "unavailable"
+
+    network_read = mcp.handle_request(
+        {
+            "jsonrpc": "2.0",
+            "id": 51,
+            "method": "resources/read",
+            "params": {"uri": "zero://proof/network"},
+        }
+    )
+    assert network_read is not None
+    network_proof = json.loads(network_read["result"]["contents"][0]["text"])
+    assert network_proof["schema_version"] == "zero.network_proof_pack.v1"
+    assert network_proof["claim_boundary"]["live_trading_claimed"] is False
+    assert network_proof["claim_boundary"]["hosted_ingestion_compatible"] is True
+    assert network_proof["verification"]["ok"] is True
 
 
 def test_memory_snapshot_is_public_safe() -> None:
@@ -295,7 +312,7 @@ def test_immune_backtest_evidence_and_safety_catalog_are_read_only() -> None:
     assert catalog["default"] == "read_only_public"
     assert catalog["risk_increasing_tools"] == []
     assert catalog["risk_reducing_tools"] == []
-    assert len(catalog["read_only_tools"]) == 19
+    assert len(catalog["read_only_tools"]) == 20
     assert all(tool["canPlaceOrders"] is False for tool in catalog["read_only_tools"])
 
 
@@ -402,6 +419,7 @@ def test_installed_package_fallback_stays_read_only(monkeypatch) -> None:
 
     paper = mcp.get_paper_results()
     proof = mcp.get_proof_pack()
+    network_proof = mcp.get_network_proof_pack()
     memory = mcp.get_memory_snapshot()
     memory_stats = mcp.get_memory_stats()
     genesis = mcp.get_genesis_proposals()
@@ -422,6 +440,9 @@ def test_installed_package_fallback_stays_read_only(monkeypatch) -> None:
     assert paper["mode"] == "paper"
     assert paper["fills"] == 2
     assert proof["claim_boundary"]["live_trading_claimed"] is False
+    assert network_proof["schema_version"] == "zero.network_proof_pack.v1"
+    assert network_proof["claim_boundary"]["live_trading_claimed"] is False
+    assert network_proof["claim_boundary"]["paper_vs_live_correlation_claimed"] is False
     assert memory["paper_only"] is True
     assert memory_stats["paper_only"] is True
     assert genesis["paper_only"] is True

@@ -249,7 +249,7 @@ Exit gate:
 
 Current public status:
 
-- `zero-mcp` now exposes 19 read-only tools and 18 resources for strategies,
+- `zero-mcp` now exposes 20 read-only tools and 19 resources for strategies,
   runtime status, health, paper results, positions, journal tail, rejection
   audit, proof pack, memory snapshot/stats, genesis proposals, evolve status,
   research report, decision stack, immune status, backtest report, evidence
