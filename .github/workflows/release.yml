@@ -9,7 +9,23 @@ permissions:
   contents: read
 
 jobs:
+  public-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Verify public proof surfaces
+        run: |
+          PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py --check
+          PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py --check
+          PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
+          PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
+
   registry-readiness:
+    needs: [public-proof]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6.0.2

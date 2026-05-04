@@ -23,6 +23,8 @@ just paper-api-smoke
 ## Verification
 
 - [ ] `just ci`
+- [ ] `just public-proof`
+- [ ] `just release-preflight`
 - [ ] `scripts/hardening_gate.sh`
 - [ ] `just registry-readiness`
 - [ ] `just release-rehearsal`

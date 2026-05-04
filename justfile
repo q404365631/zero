@@ -153,6 +153,8 @@ release-provenance dir:
 release-evidence tag:
     scripts/release_evidence.py "{{tag}}"
 
+release-preflight: public-proof registry-readiness package-dry-run release-rehearsal draft-release-rehearsal
+
 llms-full:
     scripts/generate_llms_full.py
 

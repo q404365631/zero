@@ -6369,10 +6369,13 @@ Before tagging:
 
 ```bash
 just ci
+just release-preflight
 ```
 
 Required checks:
 
+- Public proof gate for demo proof pack, Network proof chain, read-only MCP
+  smoke test, and committed MCP transcript
 - Python engine lint and tests
 - Rust CLI formatting, clippy, and tests
 - Local paper API smoke through the Rust CLI
@@ -6470,6 +6473,20 @@ publish package registries or mutate release assets.
 The current `v0.1.1` clean-download verification is recorded in
 [docs/releases/v0.1.1-evidence.md](releases/v0.1.1-evidence.md).
 
+## Public Proof Gate
+
+Run the public proof gate before tagging, publishing release notes, or
+announcing a release candidate:
+
+```bash
+just public-proof
+```
+
+The gate verifies that the committed demo proof pack, Network proof chain,
+read-only MCP server, and committed MCP transcript are internally consistent.
+The tag-triggered release workflow runs the same proof commands before registry
+readiness and before any package, CLI binary, or container artifact is built.
+
 ## Hardening Gate
 
 Run the local hardening gate before tagging or publishing:
@@ -6501,6 +6518,7 @@ specific release or `ZERO_INSTALL_DIR=/path/to/bin` to choose another location.
 Run the non-publishing package check before opening a release PR or tagging:
 
 ```bash
+just public-proof
 just registry-readiness
 just package-dry-run
 ```
@@ -6560,6 +6578,7 @@ release manually.
 
 `.github/workflows/release.yml` runs on tags shaped like `v*.*.*` and builds:
 
+- Public proof preflight before release artifacts are built
 - Registry-readiness preflight before package artifacts are built
 - Python wheel and source distribution for `engine/`
 - Linux and macOS CLI binaries for the `zero` crate
