@@ -9,7 +9,8 @@
 ZERO is an open-source runtime and operator terminal for running autonomous
 capital operations without giving up custody. It starts with onchain perpetual
 markets: paper-first execution, safety gates, local journals, Hyperliquid
-read-only/live boundaries, public proof packets, and intelligence contracts.
+read-only/live boundaries, self-evolution loops, public proof packets, and
+intelligence contracts.
 
 > Not another trading bot. ZERO is the control plane that makes autonomous
 > onchain operations inspectable, interruptible, and self-custodial.
@@ -77,15 +78,25 @@ service or an unattended live-capital promise.
 ## Launch Status
 
 This repository is the public product page and open-core engineering home for
-ZERO. It is useful today for paper-mode runtime work, operator-terminal
-development, safety-gate design, public proof contracts, and ZERO Intelligence
-API contract work.
+ZERO. It is launch-ready for paper runtime work, operator-terminal development,
+safety-gate design, public proof contracts, self-evolution workflows, ZERO
+Network contracts, and ZERO Intelligence API contracts.
 
-It is not yet a promise that a new operator can clone the repo and run a fully
-autonomous live-capital system unattended. Live-capable code must pass local
-custody, reconciliation, immune, journal, dead-man, and operator-friction
-checks before risk can increase. Treat live mode as a self-custodial canary
-path, not a shortcut.
+For live capital, the public stance is exact: ZERO is a self-custodial local
+runtime, not a hosted custody service. Operators bring their own wallet,
+exchange account, limits, journals, kill switch, and disclosure policy. The
+runtime can only increase risk after local custody, reconciliation, immune,
+journal, dead-man, and operator-friction checks pass.
+
+## Live Operation Boundary
+
+| Question | Public answer |
+| --- | --- |
+| Can a new engineer run ZERO today? | Yes: clone, bootstrap, run the paper API, inspect it through the CLI, and verify proof packs. |
+| Can ZERO trade live? | Operator-owned deployments have live Hyperliquid execution evidence represented by `zero.live_trading_evidence.v1`. |
+| Does the public repo publish raw live records? | No. It publishes redacted evidence, hash-only proof, canary workflows, and verifiers. |
+| Does ZERO custody funds? | No. Live mode is local, self-custodial, explicit, and gated. |
+| Is unattended live trading the default? | No. Paper is default; live risk requires canary review and local operator responsibility. |
 
 ## Why ZERO Exists
 
@@ -110,11 +121,11 @@ guarded by preflight checks.
 
 | Surface | Role | Public status |
 | --- | --- | --- |
-| ZERO Runtime | Python engine for paper execution, production-parity OODA reports, live-readiness contracts, journals, safety gates, strategy adapters, venue adapter interfaces, and canary evidence. | Open source |
+| ZERO Runtime | Python engine for paper execution, production-parity OODA reports, live-readiness contracts, journals, safety gates, strategy adapters, venue adapter interfaces, local evolution gates, and canary evidence. | Open source |
 | ZERO Terminal | Rust CLI/TUI for setup, diagnostics, state inspection, replay, live cockpit views, and supervised actions. | Open source |
 | ZERO Evolution | Local memory, genesis proposals, research reports, decision-stack review, guardian review, red-team, paper canaries, calibration, promotion plans, local apply receipts, rollback receipts, and evolve loops that let ZERO improve under review. | Memory, genesis, research, decision stack, paper-first evolve gates, local apply, and rollback execution open; protected promotion remains human-reviewed |
-| ZERO Network | Public-safe profiles, leaderboards, verification badges, profile verification, and deterministic proof-chain packets. | Open source contracts |
-| ZERO Intelligence | Delayed public snapshots plus commercial realtime APIs, history, cohorts, webhooks, exports, and SLAs. | Open contracts + paid access |
+| ZERO Network | Public-safe profiles, empty/active/stale page states, leaderboards, verification badges, profile verification, and deterministic proof-chain packets. | Open source contracts |
+| ZERO Intelligence | Delayed public snapshots plus commercial realtime APIs, history, cohorts, webhooks, exports, and SLAs built from verified autonomous behavior. | Open contracts + paid access |
 
 ## Capability Boundary
 
