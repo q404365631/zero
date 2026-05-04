@@ -20,6 +20,131 @@ just github-launch-issue-sync
 The sync only creates missing issues with exact matching titles. It does not
 edit existing issues, reopen closed issues, or delete anything.
 
+## Good First Issue: Add a paper-only momentum strategy plugin
+
+Labels: `good first issue`, `good-first-strategy`, `strategy`, `examples`, `agent-eligible`
+
+Add a deterministic paper-only strategy plugin under `examples/strategy-plugin/`
+or a new sibling example. The plugin should be easy for a new engineer to read
+and must never submit orders directly.
+
+Acceptance:
+
+- The plugin declares `StrategyPluginMetadata` with `paper_only=true`.
+- The plugin returns `StrategySignal` or `None`; execution still flows through
+  the paper engine.
+- The example runs without network access, exchange credentials, or live mode.
+- Tests or a smoke command cover one accepted signal and one rejected/no-signal
+  path.
+
+## Good First Issue: Add a deterministic market-data adapter fixture
+
+Labels: `good first issue`, `market-data`, `examples`, `agent-eligible`
+
+Add a market-data adapter example that reads a small local fixture and exposes
+chronological candles through the public adapter interface.
+
+Acceptance:
+
+- The adapter declares `MarketDataAdapterMetadata`.
+- The adapter returns deterministic `Candle` objects in chronological order.
+- The example requires no secrets, network access, or exchange account.
+- Tests cover unknown symbol, positive limit validation, and `latest`.
+
+## Good First Issue: Add CLI doctor troubleshooting examples
+
+Labels: `good first issue`, `cli`, `docs`, `agent-eligible`
+
+Improve the public CLI docs with copy-paste troubleshooting examples for common
+`zero doctor` warnings: missing API token, paper API not running, and live
+preflight refusing closed.
+
+Acceptance:
+
+- The docs show exact commands and expected safe output snippets.
+- The examples do not imply live trading is ready by default.
+- The first-10-minutes path links to the new troubleshooting section.
+- `just docs-check` passes.
+
+## Good First Issue: Add a stale ZERO Network profile fixture
+
+Labels: `good first issue`, `network`, `examples`, `agent-eligible`
+
+Add a deterministic public-safe fixture that shows how a ZERO Network profile
+looks when proof is valid but freshness has expired.
+
+Acceptance:
+
+- The fixture contains no wallet material, raw trades, private notes, or raw
+  exchange order IDs.
+- The generated page or JSON clearly separates proof validity from freshness.
+- Existing Network smoke tests still pass.
+- The docs explain that stale proof is archive evidence, not active operator
+  status.
+
+## Good First Issue: Add proof-pack privacy regression fixtures
+
+Labels: `good first issue`, `proof-pack`, `security`, `agent-eligible`
+
+Add negative fixtures for the proof-pack verifier that demonstrate refusal when
+public proof artifacts contain private-looking fields.
+
+Acceptance:
+
+- The negative fixtures are synthetic and contain no real secrets.
+- The verifier rejects at least one wallet-like field and one raw exchange ID
+  field.
+- The docs explain why proof packs are proof-of-process, not custody or PnL
+  proof.
+- `just public-proof` still passes for committed valid proof packs.
+
+## Help Wanted: Expand read-only MCP strategy resources
+
+Labels: `help wanted`, `mcp`, `docs`, `agent-eligible`
+
+Improve the read-only MCP resources so coding agents can discover strategy
+runner docs, strategy plugin docs, and market-data adapter docs without reading
+the entire repository.
+
+Acceptance:
+
+- New resources are read-only and cannot change runtime state.
+- The MCP safety catalog still reports no risk-increasing tools.
+- The transcript fixture is updated and deterministic.
+- `PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check` passes.
+
+## Help Wanted: Design public Network empty and stale states
+
+Labels: `help wanted`, `network`, `design`, `design-review`
+
+Improve the generated public ZERO Network pages for empty, stale, and active
+states so viewers can understand what is verified, what is stale, and what is
+not claimed.
+
+Acceptance:
+
+- Empty, stale, and active states are visually distinct.
+- Copy never implies PnL, guaranteed returns, hosted custody, or live trading by
+  default.
+- The generated pages remain static, escaped, and public-safe.
+- `scripts/network_pages_smoke.py` passes.
+
+## Help Wanted: Add release evidence reader docs
+
+Labels: `help wanted`, `release`, `docs`, `packaging`
+
+Add a short guide that explains how a user verifies a ZERO release from scratch:
+checksums, GitHub artifact attestations, SBOM/provenance metadata, Homebrew
+formula checks, and clean-download evidence.
+
+Acceptance:
+
+- The guide starts from a fresh clone or a downloaded release asset.
+- It includes the exact `gh attestation verify` and checksum commands.
+- It explains what the Homebrew formula drift check proves.
+- It links to `docs/releases/v0.1.1-evidence.md` without claiming future
+  releases have already been verified.
+
 ## Completed Maintainer Tasks
 
 These tasks are intentionally not part of the launch issue seed anymore because

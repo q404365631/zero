@@ -59,7 +59,8 @@ reserved for ZERO Intelligence.
   temporary directory, reruns hardening, and smokes the paper API through the
   CLI
 - Public contribution, security, governance, support, and issue templates
-- First-release notes template and ready-to-create contributor issue set
+- First-release notes template and ready-to-create launch issue seed with five
+  good-first issues and three help-wanted issues
 - Public boundary audit from the private repo
 
 ## Paper-Only

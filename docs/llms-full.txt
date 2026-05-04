@@ -4016,8 +4016,10 @@ installing, or contributing.
 - Release rehearsal evidence.
 - OpenSSF Scorecard enabled.
 - CodeQL, secret scan, Dependabot, and release attestations green.
-- At least five scoped `good first issue` candidates.
-- At least three `help wanted` issues for serious contributors.
+- At least five scoped `good first issue` candidates in
+  [launch issues](launch-issues.md).
+- At least three `help wanted` issues for serious contributors in
+  [launch issues](launch-issues.md).
 
 Exit gate:
 

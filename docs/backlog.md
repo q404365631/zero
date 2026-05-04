@@ -1,6 +1,6 @@
 # Launch Backlog
 
-This is the public launch backlog seed. Use [launch issues](launch-issues.md)
+This is the public launch backlog index. Use [launch issues](launch-issues.md)
 for ready-to-create issue bodies before opening the repository.
 
 Maintainers should validate and create the launch issue seed with:
@@ -13,7 +13,13 @@ just github-launch-issue-sync
 The GitHub sync is title-idempotent: it creates missing seed issues and leaves
 existing issues untouched.
 
-## Good First Issues
+## Active Launch Issue Seed
+
+The active launch issue seed now lives in
+[docs/launch-issues.md](launch-issues.md). It contains five scoped good-first
+issues and three help-wanted issues for agentic and human contributors.
+
+## Example Contribution Shapes
 
 ### Add a paper-first strategy plugin
 
