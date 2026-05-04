@@ -34,17 +34,32 @@ EXPECTED = {
     "index.html": {
         "title": "ZERO Network",
         "h1": "Public Proof Surface",
-        "links": {"profile.html", "leaderboard.html"},
+        "links": {"profile.html", "empty-profile.html", "stale-profile.html", "leaderboard.html"},
+        "must_contain": {"Empty", "Active", "Stale"},
     },
     "profile.html": {
         "title": "ZERO Local \u00b7 ZERO Network",
         "h1": "ZERO Local",
         "links": set(),
+        "must_contain": {"Active aggregate proof"},
+    },
+    "empty-profile.html": {
+        "title": "ZERO Empty \u00b7 ZERO Network",
+        "h1": "ZERO Empty",
+        "links": set(),
+        "must_contain": {"Empty public profile", "makes no PnL, custody, or live trading claim"},
+    },
+    "stale-profile.html": {
+        "title": "ZERO Network Demo \u00b7 ZERO Network",
+        "h1": "ZERO Network Demo",
+        "links": set(),
+        "must_contain": {"Stale archive proof", "Do not treat it as current operator status"},
     },
     "leaderboard.html": {
         "title": "ZERO Network Leaderboard",
         "h1": "Public Leaderboard",
         "links": set(),
+        "must_contain": {"Empty", "Active", "Stale"},
     },
 }
 
@@ -152,6 +167,12 @@ def validate_page(
     missing_links = expected_links - parsed.links
     if missing_links:
         failures.append(f"{filename}: missing links {sorted(missing_links)}")
+    expected_text = expected.get("must_contain", set())
+    if not isinstance(expected_text, set):
+        raise TypeError("expected must_contain must be a set")
+    for text in expected_text:
+        if text not in body:
+            failures.append(f"{filename}: missing expected text {text!r}")
     for href in parsed.links:
         if is_remote_or_script_ref(href):
             failures.append(f"{filename}: link is not local-safe: {href}")

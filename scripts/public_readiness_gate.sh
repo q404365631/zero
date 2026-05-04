@@ -109,6 +109,12 @@ required=(
   .github/workflows/codeql.yml
   .github/workflows/secret-scan.yml
   .github/workflows/scorecard.yml
+  contracts/network/empty-profile.json
+  contracts/network/empty-profile.html
+  contracts/network/stale-profile.html
+  examples/network-empty-profile/README.md
+  examples/network-empty-profile/build.py
+  examples/network-empty-profile/empty-profile.json
 )
 for path in "${required[@]}"; do
   if [[ ! -f "$path" ]]; then

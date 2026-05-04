@@ -77,6 +77,8 @@ reserved for ZERO Intelligence.
   ID leakage
 - Deterministic ZERO Network stale profile fixture separating valid proof from
   active operator freshness
+- Deterministic ZERO Network empty, active, and stale static page states with
+  local-link-only smoke coverage
 - Public boundary audit from the private repo
 
 ## Paper-Only

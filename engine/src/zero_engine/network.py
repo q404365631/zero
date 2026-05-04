@@ -289,6 +289,13 @@ def public_leaderboard_page(leaderboard: dict[str, Any], *, generated_at: str) -
     assert_public_profile_safe(leaderboard)
 
     row_items = "\n".join(_leaderboard_page_row(row) for row in rows if isinstance(row, dict))
+    if not row_items:
+        row_items = """          <tr class="empty-row">
+            <td data-label="State" colspan="8">
+              <strong>No active public profiles.</strong>
+              <span>ZERO Network has no accepted aggregate proof rows yet. No PnL, custody, or live trading claim is implied.</span>
+            </td>
+          </tr>"""
     row_count = int(leaderboard.get("row_count", len(rows)))
     top_row = rows[0] if rows and isinstance(rows[0], dict) else {}
     top_handle = _escape(str(top_row.get("handle", "none")))
@@ -356,6 +363,26 @@ def public_leaderboard_page(leaderboard: dict[str, Any], *, generated_at: str) -
         border-radius: 8px;
         padding: 18px;
       }}
+      .state-grid {{
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin: 0 0 28px;
+      }}
+      .state-panel {{
+        border-left: 4px solid var(--line);
+      }}
+      .state-empty {{ border-left-color: #747d79; }}
+      .state-active {{ border-left-color: #0b6b53; }}
+      .state-stale {{ border-left-color: #a46a00; }}
+      .state-panel strong {{
+        display: block;
+        margin-bottom: 6px;
+      }}
+      .state-panel p {{
+        margin: 0;
+        color: var(--muted);
+      }}
       .label {{
         color: var(--muted);
         font-size: 0.78rem;
@@ -401,6 +428,24 @@ def public_leaderboard_page(leaderboard: dict[str, Any], *, generated_at: str) -
         color: var(--muted);
         font-size: 0.9rem;
       }}
+      .state-pill {{
+        display: inline-block;
+        border-radius: 999px;
+        padding: 3px 9px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }}
+      .empty-row td {{
+        display: table-cell;
+        color: var(--muted);
+      }}
+      .empty-row strong {{
+        display: block;
+        color: var(--ink);
+      }}
       footer {{
         margin-top: 28px;
         color: var(--muted);
@@ -408,7 +453,7 @@ def public_leaderboard_page(leaderboard: dict[str, Any], *, generated_at: str) -
       }}
       @media (max-width: 820px) {{
         main {{ padding: 36px 16px; }}
-        .summary {{ grid-template-columns: 1fr; }}
+        .summary, .state-grid {{ grid-template-columns: 1fr; }}
         table, thead, tbody, th, td, tr {{ display: block; }}
         thead {{ display: none; }}
         tr {{ border-bottom: 1px solid var(--line); }}
@@ -443,6 +488,11 @@ def public_leaderboard_page(leaderboard: dict[str, Any], *, generated_at: str) -
         <div class="panel"><div class="label">Top Handle</div><div class="value">@{top_handle}</div></div>
         <div class="panel"><div class="label">Top Score</div><div class="value">{top_score}</div></div>
       </section>
+      <section class="state-grid" aria-label="Network state guide">
+        <div class="panel state-panel state-empty"><strong>Empty</strong><p>No accepted public decisions. Nothing is ranked or claimed.</p></div>
+        <div class="panel state-panel state-active"><strong>Active</strong><p>Verified aggregate proof generated inside the freshness window.</p></div>
+        <div class="panel state-panel state-stale"><strong>Stale</strong><p>Proof may still verify, but it is archive evidence, not current operator status.</p></div>
+      </section>
       <table aria-label="ZERO Network leaderboard">
         <thead>
           <tr>
@@ -475,9 +525,13 @@ def public_network_index_page(
     *,
     generated_at: str,
     profile_href: str = "profile.html",
+    empty_profile_href: str = "empty-profile.html",
+    stale_profile_href: str = "stale-profile.html",
     leaderboard_href: str = "leaderboard.html",
 ) -> str:
     profile_link = _safe_contract_href(profile_href)
+    empty_profile_link = _safe_contract_href(empty_profile_href)
+    stale_profile_link = _safe_contract_href(stale_profile_href)
     leaderboard_link = _safe_contract_href(leaderboard_href)
     timestamp = _escape(generated_at)
 
@@ -570,6 +624,22 @@ def public_network_index_page(
         padding-bottom: 10px;
       }}
       .rules li:last-child {{ border-bottom: 0; padding-bottom: 0; }}
+      .state-grid {{
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin: 0 0 28px;
+      }}
+      .state-panel {{
+        border-left: 4px solid var(--line);
+      }}
+      .state-empty {{ border-left-color: #747d79; }}
+      .state-active {{ border-left-color: #0b6b53; }}
+      .state-stale {{ border-left-color: #a46a00; }}
+      .state-panel strong {{
+        display: block;
+        margin-bottom: 6px;
+      }}
       footer {{
         margin-top: 28px;
         color: var(--muted);
@@ -577,7 +647,7 @@ def public_network_index_page(
       }}
       @media (max-width: 720px) {{
         main {{ padding: 36px 16px; }}
-        .grid {{ grid-template-columns: 1fr; }}
+        .grid, .state-grid {{ grid-template-columns: 1fr; }}
       }}
     </style>
   </head>
@@ -588,11 +658,26 @@ def public_network_index_page(
         <h1>Public Proof Surface</h1>
         <p>Opt-in aggregate behavior for autonomous onchain operations. Proof-of-process, not financial advice.</p>
       </header>
+      <section class="state-grid" aria-label="Network publication states">
+        <div class="panel state-panel state-empty"><strong>Empty</strong><p>No decisions are published. The profile is present but makes no behavior claim.</p></div>
+        <div class="panel state-panel state-active"><strong>Active</strong><p>Aggregate proof verifies and was generated inside the freshness window.</p></div>
+        <div class="panel state-panel state-stale"><strong>Stale</strong><p>Historical proof can remain visible after freshness expires, but active status is removed.</p></div>
+      </section>
       <section class="grid" aria-label="Network contract pages">
         <div class="panel">
-          <h2>Operator Profile</h2>
-          <p>One redacted profile with aggregate behavior, verification badges, and proof hash.</p>
+          <h2>Active Profile</h2>
+          <p>Current redacted profile with aggregate behavior, verification badges, and proof hash.</p>
           <p><a href="{profile_link}">Open profile page</a></p>
+        </div>
+        <div class="panel">
+          <h2>Empty Profile</h2>
+          <p>A safe zero-claim state for operators with no public decisions yet.</p>
+          <p><a href="{empty_profile_link}">Open empty state</a></p>
+        </div>
+        <div class="panel">
+          <h2>Stale Profile</h2>
+          <p>Historical proof that still verifies but is no longer active operator status.</p>
+          <p><a href="{stale_profile_link}">Open stale state</a></p>
         </div>
         <div class="panel">
           <h2>Public Leaderboard</h2>
@@ -624,6 +709,7 @@ def public_profile_page(profile: dict[str, Any], *, generated_at: str) -> str:
     assert_public_profile_safe(profile)
     metrics = profile.get("metrics", {})
     verification = profile.get("verification", {})
+    display_state = public_profile_display_state(profile, evaluated_at=generated_at)
     badges = verification.get("badges", [])
     if not isinstance(metrics, dict):
         raise ValueError("public profile metrics must be a JSON object")
@@ -650,6 +736,10 @@ def public_profile_page(profile: dict[str, Any], *, generated_at: str) -> str:
     handle = _escape(row["handle"])
     mode = _escape(row["mode"].upper())
     status = _escape(str(verification.get("status", "unknown")))
+    state_label = _escape(display_state["label"])
+    state_class = _escape(display_state["class"])
+    state_summary = _escape(display_state["summary"])
+    state_detail = _escape(display_state["detail"])
     timestamp = _escape(generated_at)
     rejection_rate = _escape(f"{float(metrics.get('rejection_rate', 0.0)):.2%}")
 
@@ -698,6 +788,36 @@ def public_profile_page(profile: dict[str, Any], *, generated_at: str) -> str:
       .handle {{
         color: var(--muted);
         font-size: 1rem;
+      }}
+      .state-callout {{
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 16px 18px;
+        margin: 28px 0 0;
+      }}
+      .state-callout strong {{
+        display: block;
+        margin-bottom: 6px;
+      }}
+      .state-callout p {{
+        margin: 0;
+        color: var(--muted);
+      }}
+      .state-empty {{ border-left-color: #747d79; }}
+      .state-active {{ border-left-color: #0b6b53; }}
+      .state-stale {{ border-left-color: #a46a00; }}
+      .state-expired {{ border-left-color: #8a1f11; }}
+      .state-pill {{
+        display: inline-block;
+        border-radius: 999px;
+        padding: 3px 9px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
       }}
       .summary {{
         display: grid;
@@ -786,8 +906,12 @@ def public_profile_page(profile: dict[str, Any], *, generated_at: str) -> str:
     <main>
       <header>
         <h1>{display_name}</h1>
-        <div class="handle">@{handle} · {mode} · {status}</div>
+        <div class="handle">@{handle} · {mode} · {status} · <span class="state-pill">{state_label}</span></div>
       </header>
+      <section class="state-callout {state_class}" aria-label="Network profile state">
+        <strong>{state_summary}</strong>
+        <p>{state_detail}</p>
+      </section>
       <section class="summary" aria-label="Profile summary">
         <div class="panel"><div class="label">Decisions</div><div class="value">{_escape(str(metrics.get("decisions", 0)))}</div></div>
         <div class="panel"><div class="label">Rejection Rate</div><div class="value">{rejection_rate}</div></div>
@@ -910,6 +1034,56 @@ def network_profile_freshness(
     }
     assert_public_profile_safe(payload)
     return payload
+
+
+def public_profile_display_state(profile: dict[str, Any], *, evaluated_at: str) -> dict[str, str]:
+    metrics = profile.get("metrics", {})
+    verification = profile.get("verification", {})
+    decisions = _safe_int(metrics.get("decisions")) if isinstance(metrics, dict) else 0
+    verification_status = str(verification.get("status", "unknown")) if isinstance(verification, dict) else "unknown"
+    if decisions <= 0 or verification_status == "empty":
+        return {
+            "status": "empty",
+            "class": "state-empty",
+            "label": "empty",
+            "summary": "Empty public profile",
+            "detail": "No public decisions are published yet. This page makes no PnL, custody, or live trading claim.",
+        }
+
+    freshness = network_profile_freshness(profile, evaluated_at=evaluated_at)
+    proof_status = freshness.get("proof", {}).get("status")
+    freshness_status = str(freshness.get("freshness", {}).get("status", "expired"))
+    if proof_status != "valid":
+        return {
+            "status": "invalid",
+            "class": "state-expired",
+            "label": "invalid",
+            "summary": "Proof requires review",
+            "detail": "The public proof hash does not recompute. Treat this profile as unverified until the packet is rebuilt.",
+        }
+    if freshness_status == "fresh":
+        return {
+            "status": "active",
+            "class": "state-active",
+            "label": "active",
+            "summary": "Active aggregate proof",
+            "detail": "The profile proof verifies and was generated inside the freshness window. This is proof-of-process, not financial advice.",
+        }
+    if freshness_status == "stale":
+        return {
+            "status": "stale",
+            "class": "state-stale",
+            "label": "stale",
+            "summary": "Stale archive proof",
+            "detail": "The profile proof still verifies, but freshness has expired. Do not treat it as current operator status.",
+        }
+    return {
+        "status": "expired",
+        "class": "state-expired",
+        "label": "expired",
+        "summary": "Expired archive proof",
+        "detail": "The profile is outside the public freshness window. It remains historical evidence only.",
+    }
 
 
 def publish_profile(
@@ -1246,10 +1420,12 @@ def _leaderboard_page_row(row: dict[str, Any]) -> str:
     open_positions = _escape(str(int(row.get("open_positions", 0))))
     score = _escape(str(float(row.get("verification_score", 0.0))))
     proof_hash = _escape(str(row.get("proof_hash", "")))
+    state = "empty" if int(row.get("decisions", 0)) <= 0 else "active"
+    state_label = _escape(state)
     return f"""          <tr>
             <td data-label="Rank">{rank}</td>
             <td data-label="Operator"><div class="handle">@{handle}</div><div class="name">{display_name}</div></td>
-            <td data-label="Mode">{mode}</td>
+            <td data-label="Mode">{mode}<br><span class="state-pill">{state_label}</span></td>
             <td data-label="Decisions">{decisions}</td>
             <td data-label="Rejection">{rejection_rate}</td>
             <td data-label="Open">{open_positions}</td>

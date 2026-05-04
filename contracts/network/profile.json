@@ -5,7 +5,7 @@
     "handle": "zero_local",
     "mode": "paper",
     "open_positions": 0,
-    "proof_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "proof_hash": "sha256:04fc16f2e39938c8e0aa2b91648c55aa00dd64a898ddb20a5f3004d359217c48",
     "rejection_rate": 0.9167,
     "verification_score": 28.5
   },
@@ -34,17 +34,17 @@
   "verification": {
     "badges": [
       {
-        "evidence": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "evidence": "sha256:04fc16f2e39938c8e0aa2b91648c55aa00dd64a898ddb20a5f3004d359217c48",
         "name": "paper_verified",
         "status": "verified"
       },
       {
-        "evidence": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "evidence": "sha256:04fc16f2e39938c8e0aa2b91648c55aa00dd64a898ddb20a5f3004d359217c48",
         "name": "durable_journal",
         "status": "verified"
       }
     ],
-    "proof_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "proof_hash": "sha256:04fc16f2e39938c8e0aa2b91648c55aa00dd64a898ddb20a5f3004d359217c48",
     "status": "verified"
   }
 }

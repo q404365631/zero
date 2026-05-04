@@ -59,6 +59,26 @@
         border-radius: 8px;
         padding: 18px;
       }
+      .state-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin: 0 0 28px;
+      }
+      .state-panel {
+        border-left: 4px solid var(--line);
+      }
+      .state-empty { border-left-color: #747d79; }
+      .state-active { border-left-color: #0b6b53; }
+      .state-stale { border-left-color: #a46a00; }
+      .state-panel strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+      .state-panel p {
+        margin: 0;
+        color: var(--muted);
+      }
       .label {
         color: var(--muted);
         font-size: 0.78rem;
@@ -104,6 +124,24 @@
         color: var(--muted);
         font-size: 0.9rem;
       }
+      .state-pill {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 3px 9px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+      .empty-row td {
+        display: table-cell;
+        color: var(--muted);
+      }
+      .empty-row strong {
+        display: block;
+        color: var(--ink);
+      }
       footer {
         margin-top: 28px;
         color: var(--muted);
@@ -111,7 +149,7 @@
       }
       @media (max-width: 820px) {
         main { padding: 36px 16px; }
-        .summary { grid-template-columns: 1fr; }
+        .summary, .state-grid { grid-template-columns: 1fr; }
         table, thead, tbody, th, td, tr { display: block; }
         thead { display: none; }
         tr { border-bottom: 1px solid var(--line); }
@@ -146,6 +184,11 @@
         <div class="panel"><div class="label">Top Handle</div><div class="value">@zero_local</div></div>
         <div class="panel"><div class="label">Top Score</div><div class="value">28.5</div></div>
       </section>
+      <section class="state-grid" aria-label="Network state guide">
+        <div class="panel state-panel state-empty"><strong>Empty</strong><p>No accepted public decisions. Nothing is ranked or claimed.</p></div>
+        <div class="panel state-panel state-active"><strong>Active</strong><p>Verified aggregate proof generated inside the freshness window.</p></div>
+        <div class="panel state-panel state-stale"><strong>Stale</strong><p>Proof may still verify, but it is archive evidence, not current operator status.</p></div>
+      </section>
       <table aria-label="ZERO Network leaderboard">
         <thead>
           <tr>
@@ -163,7 +206,7 @@
           <tr>
             <td data-label="Rank">1</td>
             <td data-label="Operator"><div class="handle">@zero_local</div><div class="name">ZERO Local</div></td>
-            <td data-label="Mode">PAPER</td>
+            <td data-label="Mode">PAPER<br><span class="state-pill">active</span></td>
             <td data-label="Decisions">12</td>
             <td data-label="Rejection">91.67%</td>
             <td data-label="Open">0</td>

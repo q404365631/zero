@@ -119,3 +119,19 @@ Rebuild or verify the shape with:
 ```bash
 PYTHONPATH="$PWD/engine/src" python3 examples/network-stale-profile/build.py
 ```
+
+## Deterministic Empty Fixture
+
+The public repo also includes an empty-profile fixture in
+`examples/network-empty-profile/empty-profile.json`. It proves the profile and
+page builders can render a zero-claim public state:
+
+- `verification.status=empty`: no public decisions have been observed.
+- `metrics.decisions=0`: the page has no behavior to rank.
+- `state=empty`: viewers should not infer PnL, custody, or live trading.
+
+Rebuild or verify the shape with:
+
+```bash
+PYTHONPATH="$PWD/engine/src" python3 examples/network-empty-profile/build.py
+```

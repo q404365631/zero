@@ -87,6 +87,22 @@
         padding-bottom: 10px;
       }
       .rules li:last-child { border-bottom: 0; padding-bottom: 0; }
+      .state-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin: 0 0 28px;
+      }
+      .state-panel {
+        border-left: 4px solid var(--line);
+      }
+      .state-empty { border-left-color: #747d79; }
+      .state-active { border-left-color: #0b6b53; }
+      .state-stale { border-left-color: #a46a00; }
+      .state-panel strong {
+        display: block;
+        margin-bottom: 6px;
+      }
       footer {
         margin-top: 28px;
         color: var(--muted);
@@ -94,7 +110,7 @@
       }
       @media (max-width: 720px) {
         main { padding: 36px 16px; }
-        .grid { grid-template-columns: 1fr; }
+        .grid, .state-grid { grid-template-columns: 1fr; }
       }
     </style>
   </head>
@@ -105,11 +121,26 @@
         <h1>Public Proof Surface</h1>
         <p>Opt-in aggregate behavior for autonomous onchain operations. Proof-of-process, not financial advice.</p>
       </header>
+      <section class="state-grid" aria-label="Network publication states">
+        <div class="panel state-panel state-empty"><strong>Empty</strong><p>No decisions are published. The profile is present but makes no behavior claim.</p></div>
+        <div class="panel state-panel state-active"><strong>Active</strong><p>Aggregate proof verifies and was generated inside the freshness window.</p></div>
+        <div class="panel state-panel state-stale"><strong>Stale</strong><p>Historical proof can remain visible after freshness expires, but active status is removed.</p></div>
+      </section>
       <section class="grid" aria-label="Network contract pages">
         <div class="panel">
-          <h2>Operator Profile</h2>
-          <p>One redacted profile with aggregate behavior, verification badges, and proof hash.</p>
+          <h2>Active Profile</h2>
+          <p>Current redacted profile with aggregate behavior, verification badges, and proof hash.</p>
           <p><a href="profile.html">Open profile page</a></p>
+        </div>
+        <div class="panel">
+          <h2>Empty Profile</h2>
+          <p>A safe zero-claim state for operators with no public decisions yet.</p>
+          <p><a href="empty-profile.html">Open empty state</a></p>
+        </div>
+        <div class="panel">
+          <h2>Stale Profile</h2>
+          <p>Historical proof that still verifies but is no longer active operator status.</p>
+          <p><a href="stale-profile.html">Open stale state</a></p>
         </div>
         <div class="panel">
           <h2>Public Leaderboard</h2>

@@ -57,6 +57,12 @@ required_files=(
   "docs/research.md"
   "docs/decision-stack.md"
   "docs/live-evidence.md"
+  "contracts/network/empty-profile.json"
+  "contracts/network/empty-profile.html"
+  "contracts/network/stale-profile.html"
+  "examples/network-empty-profile/README.md"
+  "examples/network-empty-profile/build.py"
+  "examples/network-empty-profile/empty-profile.json"
   ".github/RELEASE_TEMPLATE.md"
   "Formula/zero.rb"
 )

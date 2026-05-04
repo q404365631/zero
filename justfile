@@ -34,6 +34,9 @@ network-profile-page-example:
 network-stale-profile-example:
     PYTHONPATH="$PWD/engine/src" python3 examples/network-stale-profile/build.py --output /tmp/zero-stale-profile.json >/dev/null
 
+network-empty-profile-example:
+    PYTHONPATH="$PWD/engine/src" python3 examples/network-empty-profile/build.py --output /tmp/zero-empty-profile.json >/dev/null
+
 network-leaderboard-page-example:
     PYTHONPATH="$PWD/engine/src" python3 examples/network-leaderboard-page/build.py
 
@@ -378,6 +381,9 @@ docs-check:
     test -f examples/network-stale-profile/README.md
     test -f examples/network-stale-profile/build.py
     test -f examples/network-stale-profile/stale-profile.json
+    test -f examples/network-empty-profile/README.md
+    test -x examples/network-empty-profile/build.py
+    test -f examples/network-empty-profile/empty-profile.json
     test -f examples/network-leaderboard-page/README.md
     test -f examples/network-leaderboard-page/build.py
     test -f examples/network-index-page/README.md
@@ -395,9 +401,12 @@ docs-check:
     test -f contracts/live/evidence.json
     test -f contracts/live/receipts.json
     test -f contracts/network/profile.json
+    test -f contracts/network/empty-profile.json
     test -f contracts/network/leaderboard.json
     test -f contracts/network/ingestion.json
     test -f contracts/network/profile.html
+    test -f contracts/network/empty-profile.html
+    test -f contracts/network/stale-profile.html
     test -f contracts/network/leaderboard.html
     test -f contracts/network/index.html
     test -f contracts/intelligence/snapshot.json
@@ -489,4 +498,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke fresh-clone-rehearsal example strategy-example strategy-plugin-example momentum-strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example memory-core-example genesis-example evolve-example research-example decision-stack-example network-leaderboard-example network-profile-page-example network-stale-profile-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness
+ci: lint test paper-api-smoke fresh-clone-rehearsal example strategy-example strategy-plugin-example momentum-strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example memory-core-example genesis-example evolve-example research-example decision-stack-example network-leaderboard-example network-profile-page-example network-stale-profile-example network-empty-profile-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness

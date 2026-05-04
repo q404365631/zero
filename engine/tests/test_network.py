@@ -21,6 +21,7 @@ from zero_engine.network import (
     public_leaderboard,
     public_leaderboard_page,
     public_network_index_page,
+    public_profile_display_state,
     public_profile,
     public_profile_page,
 )
@@ -387,6 +388,49 @@ def test_network_stale_profile_example_fixture_is_fresh(tmp_path) -> None:
     assert output.read_text() == expected
 
 
+def test_network_empty_profile_example_fixture_is_public_safe_and_fresh() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    fixture = json.loads(
+        (repo_root / "examples/network-empty-profile/empty-profile.json").read_text()
+    )
+
+    assert fixture["schema_version"] == "zero.network.profile.v1"
+    assert fixture["verification"]["status"] == "empty"
+    assert fixture["metrics"]["decisions"] == 0
+    assert fixture["profile"]["handle"] == "zero_empty"
+    assert public_profile_display_state(
+        fixture,
+        evaluated_at="2026-05-01T00:00:00+00:00",
+    )["status"] == "empty"
+    body = json.dumps(fixture)
+    assert "wallet_address" not in body
+    assert "exchange_order_id" not in body
+    assert "network-fill" not in body
+    assert "trace-network" not in body
+
+
+def test_network_empty_profile_example_fixture_is_fresh(tmp_path) -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    output = tmp_path / "empty-profile.json"
+
+    subprocess.run(
+        [
+            sys.executable,
+            "examples/network-empty-profile/build.py",
+            "--output",
+            str(output),
+        ],
+        cwd=repo_root,
+        check=True,
+        text=True,
+        capture_output=True,
+        env={**os.environ, "PYTHONPATH": str(repo_root / "engine/src")},
+    )
+
+    expected = (repo_root / "examples/network-empty-profile/empty-profile.json").read_text()
+    assert output.read_text() == expected
+
+
 def test_network_ingestion_contract_is_fresh() -> None:
     repo_root = Path(__file__).resolve().parents[2]
     expected = json.loads((repo_root / "contracts/network/ingestion.json").read_text())
@@ -509,8 +553,13 @@ def test_public_network_index_page_links_contract_pages_only() -> None:
     assert "<!doctype html>" in page
     assert "<title>ZERO Network</title>" in page
     assert 'href="profile.html"' in page
+    assert 'href="empty-profile.html"' in page
+    assert 'href="stale-profile.html"' in page
     assert 'href="leaderboard.html"' in page
     assert "Opt-in aggregate behavior" in page
+    assert "Empty" in page
+    assert "Active" in page
+    assert "Stale" in page
     assert "network-fill" not in page
     assert "trace-network" not in page
     assert "BTC" not in page
@@ -533,6 +582,7 @@ def test_public_profile_page_renders_aggregate_html_only(tmp_path) -> None:
     assert "<!doctype html>" in page
     assert "ZERO Network" in page
     assert "@zero_test" in page
+    assert "Active aggregate proof" in page
     assert "Aggregate Behavior" in page
     assert profile["verification"]["proof_hash"] in page
     assert "network-fill" not in page
@@ -551,12 +601,48 @@ def test_public_profile_page_escapes_profile_text(tmp_path) -> None:
     assert "&lt;script&gt;alert(1)&lt;/script&gt;" in page
 
 
+def test_public_profile_page_renders_empty_and_stale_states() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    empty_profile = json.loads((repo_root / "contracts/network/empty-profile.json").read_text())
+    stale_profile = json.loads((repo_root / "docs/proof/network/profile.json").read_text())
+
+    empty_page = public_profile_page(empty_profile, generated_at="2026-05-01T00:00:00+00:00")
+    stale_page = public_profile_page(stale_profile, generated_at="2026-05-04T00:00:00+00:00")
+
+    assert "Empty public profile" in empty_page
+    assert "makes no PnL, custody, or live trading claim" in empty_page
+    assert "Stale archive proof" in stale_page
+    assert "Do not treat it as current operator status" in stale_page
+    assert "network-fill" not in empty_page
+    assert "trace-network" not in stale_page
+
+
 def test_network_profile_page_contract_is_fresh() -> None:
     repo_root = Path(__file__).resolve().parents[2]
     profile = json.loads((repo_root / "contracts/network/profile.json").read_text())
     expected = (repo_root / "contracts/network/profile.html").read_text()
 
     page = public_profile_page(profile, generated_at=FIXED_DT.isoformat())
+
+    assert page == expected
+
+
+def test_network_empty_profile_page_contract_is_fresh() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    profile = json.loads((repo_root / "contracts/network/empty-profile.json").read_text())
+    expected = (repo_root / "contracts/network/empty-profile.html").read_text()
+
+    page = public_profile_page(profile, generated_at=FIXED_DT.isoformat())
+
+    assert page == expected
+
+
+def test_network_stale_profile_page_contract_is_fresh() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    profile = json.loads((repo_root / "docs/proof/network/profile.json").read_text())
+    expected = (repo_root / "contracts/network/stale-profile.html").read_text()
+
+    page = public_profile_page(profile, generated_at="2026-05-04T00:00:00+00:00")
 
     assert page == expected
 

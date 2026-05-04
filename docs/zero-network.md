@@ -174,10 +174,15 @@ contract pages:
 just network-index-page-example
 ```
 
-The index links the public-safe profile and leaderboard pages, explains the
+The index links the active, empty, stale, and leaderboard pages, explains the
 opt-in aggregate publication model, and refuses remote or script-style links.
 It uses no JavaScript, remote assets, journals, private execution details, or
-external links.
+external links. The three profile states are deliberately distinct:
+
+- **Empty:** no public decisions, no behavior claim.
+- **Active:** aggregate proof verifies inside the freshness window.
+- **Stale:** proof may still verify, but it is archive evidence, not current
+  operator status.
 
 See [examples/network-index-page](../examples/network-index-page) and
 [contracts/network/index.html](../contracts/network/index.html).
@@ -191,13 +196,16 @@ already-redacted `zero.network.profile.v1` packet:
 just network-profile-page-example
 ```
 
-The builder emits HTML for aggregate behavior, verification badges, and proof
-hash only. It escapes profile-provided text and uses no JavaScript, remote
-assets, raw journals, symbols, trace IDs, idempotency keys, wallet addresses,
-exchange order IDs, strategy labels, or private notes.
+The builder emits HTML for aggregate behavior, verification badges, proof hash,
+and the public display state only. It escapes profile-provided text and uses no
+JavaScript, remote assets, raw journals, symbols, trace IDs, idempotency keys,
+wallet addresses, exchange order IDs, strategy labels, or private notes.
 
 See [examples/network-profile-page](../examples/network-profile-page) and
-[contracts/network/profile.html](../contracts/network/profile.html).
+[contracts/network/profile.html](../contracts/network/profile.html). Empty and
+stale fixtures are committed at
+[contracts/network/empty-profile.html](../contracts/network/empty-profile.html)
+and [contracts/network/stale-profile.html](../contracts/network/stale-profile.html).
 
 ## Public Leaderboard Builder
 
@@ -231,9 +239,10 @@ just network-leaderboard-page-example
 ```
 
 The page renders rank, handle, display name, mode, aggregate counts,
-verification score, and proof hash only. It escapes row-provided text and uses
-no JavaScript, remote assets, raw journals, symbols, trace IDs, idempotency
-keys, wallet addresses, exchange order IDs, strategy labels, or private notes.
+verification score, proof hash, and an explicit state guide only. It escapes
+row-provided text and uses no JavaScript, remote assets, raw journals, symbols,
+trace IDs, idempotency keys, wallet addresses, exchange order IDs, strategy
+labels, or private notes.
 
 See [examples/network-leaderboard-page](../examples/network-leaderboard-page)
 and [contracts/network/leaderboard.html](../contracts/network/leaderboard.html).
@@ -247,10 +256,12 @@ just network-pages-smoke
 ```
 
 The gate parses `contracts/network/index.html`,
-`contracts/network/profile.html`, and `contracts/network/leaderboard.html`.
-It verifies each page title and primary heading, requires expected local links,
-and fails on JavaScript, event handlers, remote references, missing local link
-targets, or raw private runtime tokens.
+`contracts/network/profile.html`, `contracts/network/empty-profile.html`,
+`contracts/network/stale-profile.html`, and
+`contracts/network/leaderboard.html`. It verifies each page title and primary
+heading, requires expected local links and state copy, and fails on JavaScript,
+event handlers, remote references, missing local link targets, or raw private
+runtime tokens.
 
 ## Verification Badges
 
