@@ -24,9 +24,14 @@ Large design changes should start as a proposal issue.
 
 ## Public vs Commercial Boundary
 
-The public project contains the local engine, CLI, paper mode, APIs, examples, and extension contracts.
+The public project contains the local runtime, operator terminal, paper mode,
+local APIs, safety gates, venue-adapter contracts, examples, proof contracts,
+and extension interfaces.
 
-Commercial ZERO Cloud features may be discussed publicly, but proprietary hosted implementation details are not required for open-source contribution.
+ZERO Intelligence is the commercial product. Its public contracts may be
+discussed in this repo, but proprietary hosted implementation details,
+commercial datasets, billing systems, customer-specific infrastructure, and
+SLA operations are not required for open-source contribution.
 
 ## Stewardship Pledge
 
