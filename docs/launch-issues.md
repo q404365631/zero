@@ -145,6 +145,10 @@ Labels: `help wanted`, `network`, `design`, `design-review`
 
 GitHub: [#24](https://github.com/zero-intel/zero/issues/24)
 
+Status: delivered in [ZERO Network Empty Profile Fixture](../examples/network-empty-profile/README.md),
+[ZERO Network Stale Profile Fixture](../examples/network-stale-profile/README.md),
+and [ZERO Network Profile Page Example](../examples/network-profile-page/README.md).
+
 Improve the generated public ZERO Network pages for empty, stale, and active
 states so viewers can understand what is verified, what is stale, and what is
 not claimed.

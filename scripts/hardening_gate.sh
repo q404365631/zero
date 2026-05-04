@@ -23,6 +23,7 @@ required_files=(
   ".github/labels.yml"
   "docs/review-ownership.md"
   "scripts/codeowners_check.py"
+  "scripts/contributor_board_check.py"
   "scripts/homebrew_formula_check.py"
   "scripts/stale_artifact_check.sh"
   "scripts/live_trading_evidence.py"
@@ -228,6 +229,9 @@ contains "safety-critical" docs/label-taxonomy.md
 contains "just launch-issue-config-check" docs/label-taxonomy.md
 contains "just github-launch-issue-sync" docs/launch-issues.md
 contains "exact matching titles" docs/launch-issues.md
+contains "Status: delivered" docs/launch-issues.md
+contains "No seed issues are currently open" docs/contributor-issue-board.md
+contains "Design public Network empty and stale states" docs/contributor-issue-board.md
 contains "just github-launch-issue-sync" docs/backlog.md
 contains "launch-issue-config-check" justfile
 contains "github-launch-issue-sync" justfile
@@ -282,6 +286,7 @@ python3 -m py_compile scripts/issue_template_check.py
 python3 -m py_compile scripts/label_taxonomy_check.py
 python3 -m py_compile scripts/github_label_sync.py
 python3 -m py_compile scripts/github_launch_issues.py
+python3 -m py_compile scripts/contributor_board_check.py
 python3 -m py_compile scripts/codeowners_check.py
 PYTHONPATH="$PWD/engine/src" python3 -m py_compile engine/src/zero_engine/mcp.py
 PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke >/dev/null
@@ -289,6 +294,7 @@ scripts/issue_template_check.py >/dev/null
 scripts/label_taxonomy_check.py >/dev/null
 scripts/github_label_sync.py --validate-config >/dev/null
 scripts/github_launch_issues.py --validate-config >/dev/null
+scripts/contributor_board_check.py >/dev/null
 scripts/codeowners_check.py >/dev/null
 scripts/homebrew_formula_check.py >/dev/null
 python3 -m py_compile scripts/live_cockpit_drill.py

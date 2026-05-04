@@ -18,7 +18,8 @@ for delivered examples.
 
 ## Help Wanted
 
-- [#24 Design public Network empty and stale states](https://github.com/zero-intel/zero/issues/24)
+No seed issues are currently open. See [Completed Seed Issues](#completed-seed-issues)
+for delivered examples.
 
 ## Completed Seed Issues
 
@@ -36,6 +37,10 @@ for delivered examples.
   delivered in [Proof Privacy Regression Fixtures](proof/privacy-regression/README.md).
 - [#21 Add a stale ZERO Network profile fixture](https://github.com/zero-intel/zero/issues/21) -
   delivered in [ZERO Network Stale Profile Fixture](../examples/network-stale-profile/README.md).
+- [#24 Design public Network empty and stale states](https://github.com/zero-intel/zero/issues/24) -
+  delivered in [ZERO Network Empty Profile Fixture](../examples/network-empty-profile/README.md),
+  [ZERO Network Stale Profile Fixture](../examples/network-stale-profile/README.md),
+  and [ZERO Network Profile Page Example](../examples/network-profile-page/README.md).
 
 ## Contribution Rules
 

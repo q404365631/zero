@@ -351,6 +351,7 @@ docs-check:
     test -f docs/launch-scorecard.md
     test -f docs/backlog.md
     test -f docs/launch-issues.md
+    test -x scripts/contributor_board_check.py
     test -f .github/RELEASE_TEMPLATE.md
     test -f examples/paper-trading/run.py
     test -f examples/paper-trading/strategy_demo.py
@@ -476,6 +477,7 @@ docs-check:
     scripts/label_taxonomy_check.py
     scripts/github_label_sync.py --validate-config
     scripts/github_launch_issues.py --validate-config
+    scripts/contributor_board_check.py
     scripts/codeowners_check.py
     scripts/homebrew_formula_check.py
     PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke

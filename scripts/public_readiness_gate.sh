@@ -101,6 +101,7 @@ required=(
   Formula/zero.rb
   docs/review-ownership.md
   scripts/github_label_sync.py
+  scripts/contributor_board_check.py
   scripts/codeowners_check.py
   scripts/homebrew_formula_check.py
   scripts/stale_artifact_check.sh
@@ -176,8 +177,16 @@ file_contains "Do not publish this private monorepo wholesale" docs/public-upgra
 file_contains "brew tap zero-intel/zero" README.md
 file_contains "brew tap zero-intel/zero" docs/release.md
 file_contains "The public runtime defaults to paper mode" Formula/zero.rb
+file_contains "No seed issues are currently open" docs/contributor-issue-board.md
 file_contains "zero.registry_launch_packet.v1" contracts/distribution/registry-launch.json
 file_contains "package_registries_enabled" contracts/distribution/registry-launch.json
+
+echo "-- contributor issue board"
+if scripts/contributor_board_check.py; then
+  echo "ok"
+else
+  status=1
+fi
 
 echo "-- homebrew formula"
 if scripts/homebrew_formula_check.py; then
