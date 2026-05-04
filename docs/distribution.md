@@ -14,12 +14,12 @@ support commitments are stable.
 - `PROVENANCE.json`
 - GitHub artifact attestations
 - Installer script that verifies checksum and attestation before installing
+- Homebrew formula in `Formula/zero.rb`
 
 ## Not Yet Published
 
 - PyPI
 - crates.io
-- Homebrew
 - Docker Hub or GHCR package
 
 These channels require maintainer-owned package names, least-privilege tokens,
@@ -31,7 +31,7 @@ rollback procedure, and support expectations before enablement.
 |---|---|---|
 | PyPI | `zero-engine` | name ownership, Trusted Publishing, signed release dry run |
 | crates.io | `zero`, `zero-*` crates | namespace review, README/license metadata, tokenless publishing plan, `cargo owner` review |
-| Homebrew | `zero-intel/zero` tap | public formula review, checksum update automation |
+| Homebrew | `zero-intel/zero` public repo tap | `Formula/zero.rb` update from release checksums |
 | Container | `zero-intel/zero-paper` | registry ownership, provenance, paper-only labeling |
 
 ## Registry Readiness Gate
@@ -85,7 +85,7 @@ Before adding any package registry:
 
 ## Homebrew Formula Requirements
 
-The first formula must:
+The committed formula must:
 
 - install the `zero` CLI only;
 - point to a tagged GitHub Release asset;
@@ -94,15 +94,20 @@ The first formula must:
 - state that the engine defaults to paper mode;
 - link to `docs/release.md` and `docs/safety-model.md`.
 
-Render the candidate formula from a verified release directory:
+Render the formula from a verified release directory:
 
 ```bash
 scripts/homebrew_formula.py <downloaded-release-dir> --tag v0.1.1 --output zero.rb
 ```
 
 The renderer reads `SHA256SUMS` and refuses to emit a formula unless checksums
-for both `zero-linux` and `zero-macos` are present. The formula is a tap input,
-not a tap publication step.
+for both `zero-linux` and `zero-macos` are present. The public repo can be used
+as a Homebrew tap without private registry access:
+
+```bash
+brew tap zero-intel/zero https://github.com/zero-intel/zero
+brew install zero
+```
 
 ## Draft Release Rollback Rehearsal
 

@@ -14,6 +14,7 @@ CODEOWNERS = ROOT / ".github" / "CODEOWNERS"
 REQUIRED_PATTERNS = [
     "*",
     "/.github/",
+    "/Formula/zero.rb",
     "/scripts/assemble_release_assets.sh",
     "/scripts/draft_release_rehearsal.sh",
     "/scripts/homebrew_formula.py",

@@ -44,21 +44,6 @@ Acceptance:
 - The example requires no secrets, network access, or live exchange account.
 - Tests cover missing symbols, positive limits, and paper strategy integration.
 
-## Help Wanted
-
-### Add Homebrew tap
-
-Labels: `help wanted`, `release`, `cli`, `packaging`
-
-Add a Homebrew tap or formula after public release artifact names stabilize.
-
-Acceptance:
-
-- `README.md` links the Homebrew install command.
-- The formula installs the checksummed GitHub Release binary or builds from source.
-- `docs/release.md` names Homebrew as a supported distribution path.
-- The path works without private package registry access.
-
 ## Maintainer Tasks
 
 ### Completed: first public release
@@ -72,3 +57,13 @@ Evidence:
 
 Do not create new first-release tasks unless a future release target changes
 artifact requirements or public safety claims.
+
+### Completed: Homebrew formula
+
+The public repo now includes `Formula/zero.rb`, generated from the `v0.1.1`
+GitHub Release checksum manifest. Operators can install it with:
+
+```bash
+brew tap zero-intel/zero https://github.com/zero-intel/zero
+brew install zero
+```

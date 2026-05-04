@@ -143,7 +143,7 @@ present and parseable. It is intentionally lightweight so it can run inside
 
 ## CLI Install Path
 
-After the first GitHub Release is published, install the latest CLI binary with:
+Install the latest CLI binary with checksum and attestation verification:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zero-intel/zero/main/scripts/install.sh | bash
@@ -153,6 +153,17 @@ The installer requires `gh`. It downloads the latest release asset for the host
 OS, verifies `SHA256SUMS`, verifies the GitHub artifact attestation, and installs
 `zero` to `~/.local/bin` by default. Set `ZERO_VERSION=vX.Y.Z` to install a
 specific release or `ZERO_INSTALL_DIR=/path/to/bin` to choose another location.
+
+Homebrew is also supported through the public repo tap:
+
+```bash
+brew tap zero-intel/zero https://github.com/zero-intel/zero
+brew install zero
+```
+
+The formula lives at `Formula/zero.rb`, installs the `zero` CLI from the
+checksummed GitHub Release asset, and does not require private package registry
+access. It is generated from `SHA256SUMS` by `scripts/homebrew_formula.py`.
 
 ## Package Dry Run
 
@@ -179,7 +190,7 @@ Current package-name assumptions:
 
 - PyPI candidate: `zero-engine`
 - crates.io candidates: the `zero-*` workspace crates plus the `zero` binary crate
-- Homebrew candidate: a future `zero-intel/zero` tap or equivalent one-line installer
+- Homebrew: `zero-intel/zero` public repo tap with `Formula/zero.rb`
 
 ## Release Rehearsal
 
@@ -256,21 +267,22 @@ executable attestations, then deletes the draft release and temporary tag. Use
 
 The workflow uploads artifacts to the GitHub Actions run and attaches the
 assembled release bundle to a draft GitHub Release. It does not publish to PyPI,
-crates.io, Homebrew, or Docker Hub yet. Package publishing should be added only
+crates.io, Docker Hub, or GHCR yet. Package publishing should be added only
 after repository ownership, package names, signing, and token permissions are
 finalized.
 
 ## Homebrew Formula
 
-Render the formula from a downloaded and verified release directory:
+The committed formula is `Formula/zero.rb`. To update it for a new release,
+render the formula from a downloaded and verified release directory:
 
 ```bash
 scripts/homebrew_formula.py <downloaded-release-dir> --tag v0.1.1 --output zero.rb
 ```
 
-The formula uses the `zero-macos` and `zero-linux` checksums from `SHA256SUMS`.
-Do not publish it to a tap until [distribution.md](distribution.md) ownership
-and rollback gates pass.
+The formula uses the `zero-macos` and `zero-linux` checksums from `SHA256SUMS`,
+installs the CLI only, states that the public runtime defaults to paper mode,
+and links to the release and safety docs in its caveats.
 
 ## Signing And Provenance
 

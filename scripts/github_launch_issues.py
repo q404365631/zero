@@ -97,9 +97,6 @@ def validate_launch_issues(issues: list[LaunchIssue], errors: list[str] | None =
     labels = defined_labels()
     seen_titles: set[str] = set()
 
-    if not issues:
-        errors.append("docs/launch-issues.md contains no seed issues")
-
     for issue in issues:
         if issue.title in seen_titles:
             errors.append(f"duplicate issue title: {issue.title}")

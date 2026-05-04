@@ -317,7 +317,7 @@ $ curl -fsS http://127.0.0.1:8765/immune
 
 ## Install CLI
 
-Install the latest release binary:
+Install the latest release binary with checksum and attestation verification:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zero-intel/zero/main/scripts/install.sh | bash
@@ -327,6 +327,17 @@ zero --version
 The installer downloads the GitHub Release asset for your OS, verifies
 `SHA256SUMS`, verifies the GitHub artifact attestation, and installs `zero` to
 `~/.local/bin` by default.
+
+Or install the public Homebrew formula:
+
+```bash
+brew tap zero-intel/zero https://github.com/zero-intel/zero
+brew install zero
+zero --version
+```
+
+The formula installs the `zero` CLI from the checksummed GitHub Release asset.
+It does not use private package registries.
 
 ## Source Quickstart
 

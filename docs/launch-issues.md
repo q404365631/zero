@@ -20,19 +20,6 @@ just github-launch-issue-sync
 The sync only creates missing issues with exact matching titles. It does not
 edit existing issues, reopen closed issues, or delete anything.
 
-## Help Wanted: Homebrew Tap
-
-Labels: `help wanted`, `release`, `cli`, `packaging`
-
-Add a Homebrew tap or formula after public release artifact names stabilize.
-
-Acceptance:
-
-- `README.md` links the Homebrew install command.
-- The formula installs the checksummed GitHub Release binary or builds from source.
-- `docs/release.md` names Homebrew as a supported distribution path.
-- The path works without private package registry access.
-
 ## Completed Maintainer Tasks
 
 These tasks are intentionally not part of the launch issue seed anymore because
@@ -53,3 +40,5 @@ These tasks are no longer part of the launch issue seed:
   [examples/paper-trading/README.md](../examples/paper-trading/README.md)
 - Docker daemon troubleshooting note:
   [docs/local-development.md](local-development.md)
+- Homebrew formula and public repo tap:
+  [Formula/zero.rb](../Formula/zero.rb)

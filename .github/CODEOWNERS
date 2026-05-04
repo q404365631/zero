@@ -7,6 +7,7 @@
 
 # GitHub and release automation.
 /.github/ @squaeragent
+/Formula/zero.rb @squaeragent
 /scripts/assemble_release_assets.sh @squaeragent
 /scripts/draft_release_rehearsal.sh @squaeragent
 /scripts/homebrew_formula.py @squaeragent

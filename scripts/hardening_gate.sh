@@ -53,6 +53,7 @@ required_files=(
   "docs/decision-stack.md"
   "docs/live-evidence.md"
   ".github/RELEASE_TEMPLATE.md"
+  "Formula/zero.rb"
 )
 
 for file in "${required_files[@]}"; do
@@ -85,6 +86,9 @@ contains "Dependency And Supply Chain Policy" docs/dependency-policy.md
 contains "Vulnerability Response" docs/dependency-policy.md
 contains "Homebrew Formula Requirements" docs/distribution.md
 contains "scripts/homebrew_formula.py" docs/distribution.md
+contains "brew tap zero-intel/zero" docs/distribution.md
+contains "brew tap zero-intel/zero" docs/release.md
+contains "brew tap zero-intel/zero" README.md
 contains "Trusted Publishing" docs/distribution.md
 contains "cargo owner" docs/distribution.md
 contains "GitHub artifact attestations" docs/release.md
