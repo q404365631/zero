@@ -69,6 +69,8 @@ reserved for ZERO Intelligence.
   market-data adapter contributor docs
 - Deterministic market-data adapter fixture with unknown-symbol, positive-limit,
   and paper strategy integration tests
+- Paper-only momentum strategy plugin with deterministic accepted and no-signal
+  paths for first-time strategy contributors
 - Proof-pack privacy regression fixtures for wallet-like and raw exchange order
   ID leakage
 - Deterministic ZERO Network stale profile fixture separating valid proof from

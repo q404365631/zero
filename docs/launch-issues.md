@@ -28,6 +28,8 @@ Labels: `good first issue`, `good-first-strategy`, `strategy`, `examples`, `agen
 
 GitHub: [#18](https://github.com/zero-intel/zero/issues/18)
 
+Status: delivered in [Paper Momentum Strategy Plugin](../examples/momentum-strategy-plugin/README.md).
+
 Add a deterministic paper-only strategy plugin under `examples/strategy-plugin/`
 or a new sibling example. The plugin should be easy for a new engineer to read
 and must never submit orders directly.

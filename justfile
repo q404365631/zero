@@ -16,6 +16,9 @@ strategy-example:
 strategy-plugin-example:
     PYTHONPATH="$PWD/engine/src:$PWD/examples/strategy-plugin" python3 examples/strategy-plugin/run.py
 
+momentum-strategy-plugin-example:
+    PYTHONPATH="$PWD/engine/src:$PWD/examples/momentum-strategy-plugin" python3 examples/momentum-strategy-plugin/run.py
+
 strategy-runner-example:
     PYTHONPATH="$PWD/engine/src" python3 examples/strategy-runner/run.py
 
@@ -343,6 +346,9 @@ docs-check:
     test -f examples/strategy-plugin/README.md
     test -f examples/strategy-plugin/plugin.py
     test -f examples/strategy-plugin/run.py
+    test -f examples/momentum-strategy-plugin/README.md
+    test -f examples/momentum-strategy-plugin/plugin.py
+    test -f examples/momentum-strategy-plugin/run.py
     test -f examples/strategy-runner/README.md
     test -f examples/strategy-runner/close-strength.yaml
     test -x examples/strategy-runner/run.py
@@ -475,4 +481,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke fresh-clone-rehearsal example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example memory-core-example genesis-example evolve-example research-example decision-stack-example network-leaderboard-example network-profile-page-example network-stale-profile-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness
+ci: lint test paper-api-smoke fresh-clone-rehearsal example strategy-example strategy-plugin-example momentum-strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example memory-core-example genesis-example evolve-example research-example decision-stack-example network-leaderboard-example network-profile-page-example network-stale-profile-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness

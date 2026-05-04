@@ -13,7 +13,8 @@ Use the GitHub labels when choosing work:
 
 ## Good First Issues
 
-- [#18 Add a paper-only momentum strategy plugin](https://github.com/zero-intel/zero/issues/18)
+No seed issues are currently open. See [Completed Seed Issues](#completed-seed-issues)
+for delivered examples.
 
 ## Help Wanted
 
@@ -21,6 +22,8 @@ Use the GitHub labels when choosing work:
 
 ## Completed Seed Issues
 
+- [#18 Add a paper-only momentum strategy plugin](https://github.com/zero-intel/zero/issues/18) -
+  delivered in [Paper Momentum Strategy Plugin](../examples/momentum-strategy-plugin/README.md).
 - [#19 Add a deterministic market-data adapter fixture](https://github.com/zero-intel/zero/issues/19) -
   delivered in [Market Data Adapter Example](../examples/market-data-adapter/README.md).
 - [#23 Expand read-only MCP strategy resources](https://github.com/zero-intel/zero/issues/23) -

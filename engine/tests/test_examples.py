@@ -44,6 +44,32 @@ def test_strategy_plugin_example_runs_from_repo_root() -> None:
     assert payload["decisions"][0]["source"] == "strategy-plugin:close-strength"
 
 
+def test_momentum_strategy_plugin_example_runs_from_repo_root() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    result = subprocess.run(
+        [sys.executable, "examples/momentum-strategy-plugin/run.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    payload = json.loads(result.stdout)
+    assert payload["mode"] == "paper"
+    assert payload["plugin"]["name"] == "paper-momentum"
+    assert payload["plugin"]["paper_only"] is True
+    assert payload["signals"][0]["symbol"] == "BTC"
+    assert payload["signals"][0]["proposed"] is True
+    assert payload["signals"][0]["allowed"] is True
+    assert payload["signals"][0]["source"] == "strategy-plugin:paper-momentum"
+    assert payload["signals"][1]["symbol"] == "ETH"
+    assert payload["signals"][1]["proposed"] is False
+    assert payload["signals"][1]["allowed"] is None
+    assert payload["fills"] == 1
+    assert payload["rejections"] == 0
+    assert payload["decisions"][0]["source"] == "strategy-plugin:paper-momentum"
+
+
 def test_network_leaderboard_example_runs_from_repo_root() -> None:
     repo_root = Path(__file__).resolve().parents[2]
     result = subprocess.run(

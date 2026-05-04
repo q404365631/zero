@@ -110,13 +110,16 @@ Public runners and plugins must not:
 ## Example
 
 See [examples/strategy-runner](../examples/strategy-runner) and
-[examples/strategy-plugin](../examples/strategy-plugin).
+[examples/strategy-plugin](../examples/strategy-plugin). For a slightly larger
+accepted/no-signal plugin example, see
+[examples/momentum-strategy-plugin](../examples/momentum-strategy-plugin).
 
 Run:
 
 ```bash
 just strategy-runner-example
 just strategy-plugin-example
+just momentum-strategy-plugin-example
 ```
 
 Before opening a pull request:

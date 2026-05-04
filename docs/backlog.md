@@ -32,6 +32,9 @@ source-controlled acceptance criteria in [launch issues](launch-issues.md).
 
 Labels: `good first issue`, `strategy`, `examples`
 
+Status: delivered in
+[Paper Momentum Strategy Plugin](../examples/momentum-strategy-plugin/README.md).
+
 Add a deterministic strategy plugin under `examples/strategy-plugin/` or a new
 example directory that follows [strategy plugin docs](strategy-plugins.md).
 
@@ -73,6 +76,7 @@ Evidence:
 - [Deterministic market-data adapter fixture](../examples/market-data-adapter/README.md)
 - [Proof-pack privacy regression fixtures](proof/privacy-regression/README.md)
 - [ZERO Network stale profile fixture](../examples/network-stale-profile/README.md)
+- [Paper Momentum Strategy Plugin](../examples/momentum-strategy-plugin/README.md)
 
 Do not create new first-release tasks unless a future release target changes
 artifact requirements or public safety claims.
