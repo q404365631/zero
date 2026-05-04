@@ -181,6 +181,98 @@ Acceptance:
 - It links to `docs/releases/v0.1.1-evidence.md` without claiming future
   releases have already been verified.
 
+## Good First Issue: Add a deterministic funding-rate adapter fixture
+
+Labels: `good first issue`, `market-data`, `examples`, `agent-eligible`
+
+GitHub: [#26](https://github.com/zero-intel/zero/issues/26)
+
+Add a deterministic funding-rate market-data fixture under `examples/` so
+contributors can model non-price venue data without using network access,
+exchange credentials, or live accounts.
+
+Acceptance:
+
+- The fixture is local and synthetic.
+- The adapter exposes funding-rate rows in chronological order.
+- The example requires no secrets, network access, wallet material, or live
+  mode.
+- Tests or a smoke command cover unknown symbol, positive limit validation, and
+  latest funding lookup.
+
+## Good First Issue: Add a paper sizing policy example
+
+Labels: `good first issue`, `strategy`, `examples`, `safety`, `agent-eligible`
+
+GitHub: [#27](https://github.com/zero-intel/zero/issues/27)
+
+Add a deterministic paper sizing policy example under `examples/` that teaches
+contributors how ZERO sizes proposed paper orders before they reach execution.
+
+Acceptance:
+
+- The example is paper-only and submits nothing directly.
+- The sizing policy caps notional, handles confidence thresholds, and preserves
+  reduce-only behavior.
+- The example requires no network access, exchange credentials, wallet
+  material, or live mode.
+- Tests or a smoke command cover capped size, rejected low-confidence setup, and
+  reduce-only path.
+
+## Good First Issue: Add MCP client setup snippets
+
+Labels: `good first issue`, `mcp`, `docs`, `agent-eligible`
+
+GitHub: [#28](https://github.com/zero-intel/zero/issues/28)
+
+Add short setup snippets showing how a contributor can point local agent tools
+at ZERO MCP resources without giving the agent mutation or live-trading
+privileges.
+
+Acceptance:
+
+- The snippets are read-only and do not include secrets, tokens, wallets, or
+  live execution setup.
+- The docs name the supported ZERO MCP resources a contributor should inspect
+  first.
+- The safety catalog still reports no risk-increasing tools.
+- `PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check` passes.
+
+## Help Wanted: Add a static ZERO Intelligence catalog page
+
+Labels: `help wanted`, `contracts`, `design`, `docs`
+
+GitHub: [#29](https://github.com/zero-intel/zero/issues/29)
+
+Add a deterministic static page generated from
+`contracts/intelligence/catalog.json` so public readers can inspect the
+delayed-public and commercial boundary without needing a hosted service.
+
+Acceptance:
+
+- The page is generated from committed public contracts, not hand-copied data.
+- Copy does not imply hosted realtime availability, guaranteed returns, custody,
+  or live trading by default.
+- The page uses no remote assets, JavaScript, secrets, tokens, wallets, or
+  private records.
+- A smoke check verifies escaping and local links.
+
+## Help Wanted: Add Homebrew rollback verification docs
+
+Labels: `help wanted`, `release`, `docs`, `packaging`
+
+GitHub: [#30](https://github.com/zero-intel/zero/issues/30)
+
+Add a short Homebrew rollback verification section for operators who install
+ZERO from the public tap and need to return to the previous release.
+
+Acceptance:
+
+- The docs show exact rollback or reinstall commands for the public tap path.
+- The docs explain what checksum and formula drift checks prove.
+- The docs do not claim PyPI, crates.io, or container registry publication.
+- `just docs-check` and `scripts/homebrew_formula_check.py` pass.
+
 ## Completed Maintainer Tasks
 
 These tasks are intentionally not part of the launch issue seed anymore because

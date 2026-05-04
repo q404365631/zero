@@ -177,7 +177,8 @@ file_contains "Do not publish this private monorepo wholesale" docs/public-upgra
 file_contains "brew tap zero-intel/zero" README.md
 file_contains "brew tap zero-intel/zero" docs/release.md
 file_contains "The public runtime defaults to paper mode" Formula/zero.rb
-file_contains "No seed issues are currently open" docs/contributor-issue-board.md
+file_contains "Add a deterministic funding-rate adapter fixture" docs/contributor-issue-board.md
+file_contains "Add Homebrew rollback verification docs" docs/contributor-issue-board.md
 file_contains "zero.registry_launch_packet.v1" contracts/distribution/registry-launch.json
 file_contains "package_registries_enabled" contracts/distribution/registry-launch.json
 

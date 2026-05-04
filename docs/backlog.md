@@ -17,8 +17,9 @@ existing issues untouched.
 ## Active Launch Issue Seed
 
 The active launch issue seed now lives in
-[docs/launch-issues.md](launch-issues.md). It contains five scoped good-first
-issues and three help-wanted issues for agentic and human contributors.
+[docs/launch-issues.md](launch-issues.md). It keeps the completed first wave
+for auditability and opens a second wave with three scoped good-first issues
+and two help-wanted issues for agentic and human contributors.
 
 The corresponding live issues are listed in
 [docs/contributor-issue-board.md](contributor-issue-board.md).

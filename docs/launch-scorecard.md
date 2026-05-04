@@ -62,8 +62,9 @@ reserved for ZERO Intelligence.
   temporary directory, reruns hardening, and smokes the paper API through the
   CLI
 - Public contribution, security, governance, support, and issue templates
-- First-release notes template, live contributor issue board, and launch issue
-  seed with five good-first issues and three help-wanted issues
+- First-release notes template, live contributor issue board, completed first
+  issue wave, and second-wave launch issue seed with three good-first issues
+  and two help-wanted issues
 - Reader-focused release verification guide covering checksums, attestations,
   SBOM/provenance metadata, Homebrew formula drift, and clean-download evidence
 - CLI doctor troubleshooting guide for missing tokens, stopped paper API, and

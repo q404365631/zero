@@ -13,13 +13,14 @@ Use the GitHub labels when choosing work:
 
 ## Good First Issues
 
-No seed issues are currently open. See [Completed Seed Issues](#completed-seed-issues)
-for delivered examples.
+- [#26 Add a deterministic funding-rate adapter fixture](https://github.com/zero-intel/zero/issues/26)
+- [#27 Add a paper sizing policy example](https://github.com/zero-intel/zero/issues/27)
+- [#28 Add MCP client setup snippets](https://github.com/zero-intel/zero/issues/28)
 
 ## Help Wanted
 
-No seed issues are currently open. See [Completed Seed Issues](#completed-seed-issues)
-for delivered examples.
+- [#29 Add a static ZERO Intelligence catalog page](https://github.com/zero-intel/zero/issues/29)
+- [#30 Add Homebrew rollback verification docs](https://github.com/zero-intel/zero/issues/30)
 
 ## Completed Seed Issues
 

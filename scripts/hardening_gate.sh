@@ -230,7 +230,8 @@ contains "just launch-issue-config-check" docs/label-taxonomy.md
 contains "just github-launch-issue-sync" docs/launch-issues.md
 contains "exact matching titles" docs/launch-issues.md
 contains "Status: delivered" docs/launch-issues.md
-contains "No seed issues are currently open" docs/contributor-issue-board.md
+contains "Add a deterministic funding-rate adapter fixture" docs/contributor-issue-board.md
+contains "Add Homebrew rollback verification docs" docs/contributor-issue-board.md
 contains "Design public Network empty and stale states" docs/contributor-issue-board.md
 contains "just github-launch-issue-sync" docs/backlog.md
 contains "launch-issue-config-check" justfile
