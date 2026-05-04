@@ -65,6 +65,8 @@ reserved for ZERO Intelligence.
   SBOM/provenance metadata, Homebrew formula drift, and clean-download evidence
 - CLI doctor troubleshooting guide for missing tokens, stopped paper API, and
   fail-closed live preflight warnings
+- Read-only MCP markdown resources for strategy runner, strategy plugin, and
+  market-data adapter contributor docs
 - Public boundary audit from the private repo
 
 ## Paper-Only

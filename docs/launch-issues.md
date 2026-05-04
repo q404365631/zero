@@ -118,6 +118,8 @@ Labels: `help wanted`, `mcp`, `docs`, `agent-eligible`
 
 GitHub: [#23](https://github.com/zero-intel/zero/issues/23)
 
+Status: delivered in [ZERO MCP Server](mcp.md).
+
 Improve the read-only MCP resources so coding agents can discover strategy
 runner docs, strategy plugin docs, and market-data adapter docs without reading
 the entire repository.

@@ -249,11 +249,12 @@ Exit gate:
 
 Current public status:
 
-- `zero-mcp` now exposes 20 read-only tools and 19 resources for strategies,
+- `zero-mcp` now exposes 20 read-only tools and 22 resources for strategies,
   runtime status, health, paper results, positions, journal tail, rejection
   audit, proof pack, memory snapshot/stats, genesis proposals, evolve status,
   research report, decision stack, immune status, backtest report, evidence
-  bundle, and safety catalog.
+  bundle, safety catalog, and contributor docs for strategy runners, strategy
+  plugins, and market-data adapters.
 - Every public tool declares `safetyClass: read_only_public`,
   `canPlaceOrders: false`, `canChangeRuntimeState: false`, and
   `canReadSecrets: false`.

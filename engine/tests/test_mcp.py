@@ -116,6 +116,9 @@ def test_resources_list_and_read() -> None:
         "zero://backtest/report",
         "zero://evidence/bundle",
         "zero://mcp/safety",
+        "zero://docs/strategy-runner",
+        "zero://docs/strategy-plugin",
+        "zero://docs/market-data-adapters",
     }
     assert read is not None
     proof = json.loads(read["result"]["contents"][0]["text"])
@@ -136,6 +139,29 @@ def test_resources_list_and_read() -> None:
     assert network_proof["claim_boundary"]["live_trading_claimed"] is False
     assert network_proof["claim_boundary"]["hosted_ingestion_compatible"] is True
     assert network_proof["verification"]["ok"] is True
+
+
+def test_strategy_docs_resources_are_markdown_and_read_only() -> None:
+    for uri, expected in {
+        "zero://docs/strategy-runner": "Strategy Runner",
+        "zero://docs/strategy-plugin": "Strategy Plugin",
+        "zero://docs/market-data-adapters": "Market Data Adapter",
+    }.items():
+        response = mcp.handle_request(
+            {
+                "jsonrpc": "2.0",
+                "id": 52,
+                "method": "resources/read",
+                "params": {"uri": uri},
+            }
+        )
+
+        assert response is not None
+        content = response["result"]["contents"][0]
+        assert content["mimeType"] == "text/markdown"
+        assert expected in content["text"]
+        assert "sk_live_" not in content["text"].lower()
+        assert "0x1234567890" not in content["text"].lower()
 
 
 def test_memory_snapshot_is_public_safe() -> None:
@@ -436,6 +462,7 @@ def test_installed_package_fallback_stays_read_only(monkeypatch) -> None:
     evidence = mcp.get_evidence_bundle()
     catalog = mcp.safety_catalog()
     scenario_text = mcp.read_resource("zero://paper/scenario")
+    strategy_runner_docs = mcp.read_resource("zero://docs/strategy-runner")
 
     assert paper["mode"] == "paper"
     assert paper["fills"] == 2
@@ -463,3 +490,4 @@ def test_installed_package_fallback_stays_read_only(monkeypatch) -> None:
     assert evidence["paper_only"] is True
     assert catalog["risk_increasing_tools"] == []
     assert "paper-launch-smoke" in scenario_text
+    assert "Strategy Runner" in strategy_runner_docs

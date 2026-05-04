@@ -154,6 +154,24 @@ REQUESTS: tuple[dict[str, Any], ...] = (
         "method": "resources/read",
         "params": {"uri": "zero://mcp/safety"},
     },
+    {
+        "jsonrpc": "2.0",
+        "id": 25,
+        "method": "resources/read",
+        "params": {"uri": "zero://docs/strategy-runner"},
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 26,
+        "method": "resources/read",
+        "params": {"uri": "zero://docs/strategy-plugin"},
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 27,
+        "method": "resources/read",
+        "params": {"uri": "zero://docs/market-data-adapters"},
+    },
 )
 
 
@@ -337,6 +355,18 @@ def validate(entries: list[dict[str, Any]]) -> None:
     safety_resource_payload = json.loads(safety_resource_text)
     if safety_resource_payload["default"] != "read_only_public":
         raise RuntimeError("transcript safety resource must remain read-only")
+
+    for entry, expected in zip(
+        entries[24:27],
+        ("Strategy Runner", "Strategy Plugin", "Market Data Adapter"),
+        strict=True,
+    ):
+        content = entry["response"]["result"]["contents"][0]
+        if content["mimeType"] != "text/markdown" or expected not in content["text"]:
+            raise RuntimeError(f"transcript docs resource missing markdown docs: {expected}")
+        serialized = content["text"].lower()
+        if "sk_live_" in serialized or "0x1234567890" in serialized:
+            raise RuntimeError(f"transcript docs resource leaked secret-shaped text: {expected}")
 
 
 def main() -> int:

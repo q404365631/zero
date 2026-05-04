@@ -7,7 +7,9 @@ status, health, journal tail, rejection audit, local memory snapshots and stats,
 genesis proposal classifications, evolve gate status, research command-chain
 reports, the public decision stack, immune status, deterministic backtest
 summary, hash-only evidence bundle, safety catalog, and the demo proof-pack
-manifest.
+manifest. It also exposes contributor-facing strategy runner, strategy plugin,
+and market-data adapter docs as markdown resources so coding agents can find
+the right extension path without scanning the full repository.
 
 It does not expose live execution, order placement, approval, wallet, secret, or
 venue-write tools. The server is for inspection and local development until live
@@ -52,7 +54,8 @@ stats, inspect plan-only genesis proposals, inspect paper-only evolve gates,
 inspect paper-only research reports, inspect the lens/layer/modifier decision
 stack, inspect production-parity OODA reports, inspect
 journal/rejection/immune/evidence/backtest surfaces, list resources, and read
-the proof pack without gaining any live execution capability.
+the proof pack and contributor docs without gaining any live execution
+capability.
 
 ## Tools
 
@@ -105,6 +108,9 @@ All tools declare `canPlaceOrders=false`, `canChangeRuntimeState=false`, and
 | `zero://backtest/report` | Deterministic paper backtest report without PnL claims. |
 | `zero://evidence/bundle` | Hash-only public-safe evidence bundle. |
 | `zero://mcp/safety` | Safety classification for every public MCP tool. |
+| `zero://docs/strategy-runner` | Markdown docs for declarative paper strategy runners. |
+| `zero://docs/strategy-plugin` | Markdown docs for deterministic paper strategy plugins. |
+| `zero://docs/market-data-adapters` | Markdown docs for deterministic market-data adapters. |
 
 ## Smoke Contract
 

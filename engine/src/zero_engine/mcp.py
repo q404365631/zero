@@ -237,6 +237,44 @@ def genesis_proposals_path() -> Path:
     return repo_root() / "examples" / "genesis" / "proposals.jsonl"
 
 
+DOC_RESOURCES: tuple[JsonMap, ...] = (
+    {
+        "uri": "zero://docs/strategy-runner",
+        "name": "Strategy Runner Docs",
+        "description": "Read-only contributor docs for declarative paper strategy runners.",
+        "path": "examples/strategy-runner/README.md",
+        "fallback": (
+            "# Strategy Runner Docs\n\n"
+            "Declarative strategy runners are paper-only examples for coding agents and "
+            "contributors. Use `examples/strategy-runner/close-strength.yaml` as the "
+            "reference fixture and keep new runners deterministic.\n"
+        ),
+    },
+    {
+        "uri": "zero://docs/strategy-plugin",
+        "name": "Strategy Plugin Docs",
+        "description": "Read-only contributor docs for deterministic paper strategy plugins.",
+        "path": "examples/strategy-plugin/README.md",
+        "fallback": (
+            "# Strategy Plugin Docs\n\n"
+            "Strategy plugins are the smallest paper-only contributor path. Keep plugin "
+            "fixtures deterministic, avoid credentials, and include a focused smoke test.\n"
+        ),
+    },
+    {
+        "uri": "zero://docs/market-data-adapters",
+        "name": "Market Data Adapter Docs",
+        "description": "Read-only contributor docs for deterministic market-data adapters.",
+        "path": "examples/market-data-adapter/README.md",
+        "fallback": (
+            "# Market Data Adapter Docs\n\n"
+            "Market-data adapters should load public-safe deterministic fixtures for tests "
+            "and examples. Do not add exchange credentials or live-only dependencies.\n"
+        ),
+    },
+)
+
+
 def load_demo_scenario() -> Any:
     root = find_repo_root()
     if root is None:
@@ -746,7 +784,7 @@ TOOLS: dict[str, Callable[[], JsonMap]] = {
 
 
 def resource_definitions() -> list[JsonMap]:
-    return [
+    resources = [
         {
             "uri": "zero://paper/scenario",
             "name": "Bundled Paper Scenario",
@@ -862,6 +900,16 @@ def resource_definitions() -> list[JsonMap]:
             "mimeType": "application/json",
         },
     ]
+    resources.extend(
+        {
+            "uri": str(resource["uri"]),
+            "name": str(resource["name"]),
+            "description": str(resource["description"]),
+            "mimeType": "text/markdown",
+        }
+        for resource in DOC_RESOURCES
+    )
+    return resources
 
 
 def read_resource(uri: str) -> str:
@@ -906,6 +954,19 @@ def read_resource(uri: str) -> str:
         return json.dumps(get_evidence_bundle(), indent=2, sort_keys=True)
     if uri == "zero://mcp/safety":
         return json.dumps(safety_catalog(), indent=2, sort_keys=True)
+    for resource in DOC_RESOURCES:
+        if uri == resource["uri"]:
+            root = find_repo_root()
+            if root is None:
+                return str(resource["fallback"])
+            return (root / str(resource["path"])).read_text(encoding="utf-8")
+    raise KeyError(uri)
+
+
+def resource_mime_type(uri: str) -> str:
+    for resource in resource_definitions():
+        if resource["uri"] == uri:
+            return str(resource["mimeType"])
     raise KeyError(uri)
 
 
@@ -969,11 +1030,12 @@ def handle_request(request: JsonMap) -> JsonMap | None:
         uri = str(params.get("uri", ""))
         try:
             text = read_resource(uri)
+            mime_type = resource_mime_type(uri)
         except KeyError:
             return error_response(request_id, -32602, f"unknown ZERO resource: {uri}")
         return result_response(
             request_id,
-            {"contents": [{"uri": uri, "mimeType": "application/json", "text": text}]},
+            {"contents": [{"uri": uri, "mimeType": mime_type, "text": text}]},
         )
     return error_response(request_id, -32601, f"method not found: {method}")
 

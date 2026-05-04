@@ -69,6 +69,7 @@ Evidence:
 - [Clean-download release evidence](releases/v0.1.1-evidence.md)
 - [Release verification guide](release-verification.md)
 - [CLI doctor troubleshooting guide](cli-doctor-troubleshooting.md)
+- [Read-only MCP contributor docs resources](mcp.md)
 
 Do not create new first-release tasks unless a future release target changes
 artifact requirements or public safety claims.
