@@ -42,6 +42,8 @@ required_files=(
   "docs/public-upgrade.md"
   "docs/private-engine-capability-gap-audit.md"
   "docs/label-taxonomy.md"
+  "docs/launch-issues.md"
+  "docs/backlog.md"
   "docs/mcp.md"
   "docs/mcp/transcript.jsonl"
   "docs/memory-core.md"
@@ -195,6 +197,12 @@ contains "containers" .github/labels.yml
 contains "packaging" .github/labels.yml
 contains "Label Taxonomy" docs/label-taxonomy.md
 contains "safety-critical" docs/label-taxonomy.md
+contains "just launch-issue-config-check" docs/label-taxonomy.md
+contains "just github-launch-issue-sync" docs/launch-issues.md
+contains "exact matching titles" docs/launch-issues.md
+contains "just github-launch-issue-sync" docs/backlog.md
+contains "launch-issue-config-check" justfile
+contains "github-launch-issue-sync" justfile
 contains "Agent Operating Guide" docs/llms.txt
 contains "live_correlation" docs/proof/demo/proof-pack.json
 contains "unavailable" docs/proof/demo/proof-pack.json
@@ -243,12 +251,14 @@ python3 -m py_compile scripts/mcp_transcript.py
 python3 -m py_compile scripts/issue_template_check.py
 python3 -m py_compile scripts/label_taxonomy_check.py
 python3 -m py_compile scripts/github_label_sync.py
+python3 -m py_compile scripts/github_launch_issues.py
 python3 -m py_compile scripts/codeowners_check.py
 PYTHONPATH="$PWD/engine/src" python3 -m py_compile engine/src/zero_engine/mcp.py
 PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke >/dev/null
 scripts/issue_template_check.py >/dev/null
 scripts/label_taxonomy_check.py >/dev/null
 scripts/github_label_sync.py --validate-config >/dev/null
+scripts/github_launch_issues.py --validate-config >/dev/null
 scripts/codeowners_check.py >/dev/null
 python3 -m py_compile scripts/live_cockpit_drill.py
 python3 -m py_compile scripts/live_cockpit_drill_verify.py

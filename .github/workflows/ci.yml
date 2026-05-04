@@ -137,6 +137,7 @@ jobs:
           test -x scripts/issue_template_check.py
           test -x scripts/label_taxonomy_check.py
           test -x scripts/github_label_sync.py
+          test -x scripts/github_launch_issues.py
           test -x scripts/codeowners_check.py
           test -x scripts/stale_artifact_check.sh
           test -x scripts/openapi_contract_check.py
@@ -177,6 +178,7 @@ jobs:
           scripts/issue_template_check.py
           scripts/label_taxonomy_check.py
           scripts/github_label_sync.py --validate-config
+          scripts/github_launch_issues.py --validate-config
           scripts/codeowners_check.py
           python3 scripts/openapi_contract_check.py
           PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke

@@ -120,6 +120,15 @@ github-label-check repo="zero-intel/zero":
 github-label-sync repo="zero-intel/zero":
     scripts/github_label_sync.py --repo "{{repo}}" --apply
 
+launch-issue-config-check:
+    scripts/github_launch_issues.py --validate-config
+
+github-launch-issue-check repo="zero-intel/zero":
+    scripts/github_launch_issues.py --repo "{{repo}}" --check
+
+github-launch-issue-sync repo="zero-intel/zero":
+    scripts/github_launch_issues.py --repo "{{repo}}" --apply
+
 codeowners-check:
     scripts/codeowners_check.py
 
@@ -373,6 +382,7 @@ docs-check:
     test -x scripts/issue_template_check.py
     test -x scripts/label_taxonomy_check.py
     test -x scripts/github_label_sync.py
+    test -x scripts/github_launch_issues.py
     test -x scripts/codeowners_check.py
     test -x scripts/stale_artifact_check.sh
     test -x scripts/openapi_contract_check.py
@@ -417,6 +427,7 @@ docs-check:
     scripts/issue_template_check.py
     scripts/label_taxonomy_check.py
     scripts/github_label_sync.py --validate-config
+    scripts/github_launch_issues.py --validate-config
     scripts/codeowners_check.py
     PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
     PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
@@ -433,7 +444,7 @@ container-demo: container-build
 container-example: container-build
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-lint: stale-artifact-clean engine-lint cli-lint docs-check public-proof issue-template-check label-taxonomy-check github-label-config-check codeowners-check hardening-gate public-readiness
+lint: stale-artifact-clean engine-lint cli-lint docs-check public-proof issue-template-check label-taxonomy-check github-label-config-check launch-issue-config-check codeowners-check hardening-gate public-readiness
 
 test: engine-test cli-test
 

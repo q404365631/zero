@@ -4,6 +4,22 @@ Create these issues before opening the repository. They are intentionally small
 and scoped so a new contributor can land a useful first PR without private
 context.
 
+Validate the seed issues locally:
+
+```bash
+just launch-issue-config-check
+```
+
+Maintainers can create missing GitHub issues after labels are synced:
+
+```bash
+just github-label-sync
+just github-launch-issue-sync
+```
+
+The sync only creates missing issues with exact matching titles. It does not
+edit existing issues, reopen closed issues, or delete anything.
+
 ## Good First Issue: Add Paper Example Output Summary
 
 Labels: `good first issue`, `docs`, `examples`

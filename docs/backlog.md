@@ -3,6 +3,16 @@
 This is the public launch backlog seed. Use [launch issues](launch-issues.md)
 for ready-to-create issue bodies before opening the repository.
 
+Maintainers should validate and create the launch issue seed with:
+
+```bash
+just launch-issue-config-check
+just github-launch-issue-sync
+```
+
+The GitHub sync is title-idempotent: it creates missing seed issues and leaves
+existing issues untouched.
+
 ## Good First Issues
 
 ### Add a paper-first strategy plugin

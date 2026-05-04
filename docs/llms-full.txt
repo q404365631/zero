@@ -5360,6 +5360,18 @@ just github-label-sync
 `github-label-sync` only creates or updates labels listed in
 `.github/labels.yml`. It does not delete extra repository labels.
 
+After labels are synced, maintainers can seed the launch issues from
+`docs/launch-issues.md`:
+
+```bash
+just launch-issue-config-check
+just github-launch-issue-check
+just github-launch-issue-sync
+```
+
+The issue sync creates missing exact-title seed issues only. It does not edit
+existing issues or delete maintainer-created work.
+
 ## Routing Labels
 
 - `needs triage`: maintainer review is required before work starts.
