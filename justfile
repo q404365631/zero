@@ -158,6 +158,7 @@ package-dry-run:
 
 registry-readiness:
     scripts/registry_readiness.py
+    scripts/registry_launch_packet.py --check
 
 release-rehearsal:
     scripts/release_rehearsal.sh
@@ -324,6 +325,7 @@ docs-check:
     test -f docs/incident-runbooks.md
     test -f docs/dependency-policy.md
     test -f docs/distribution.md
+    test -f docs/registry-launch.md
     test -f docs/hyperliquid-readonly.md
     test -f docs/live-certification.md
     test -f docs/live-cockpit.md
@@ -417,6 +419,7 @@ docs-check:
     test -f contracts/intelligence/model_gateway.json
     test -f contracts/intelligence/model_gateway_health.json
     test -f contracts/intelligence/model_gateway_audit.json
+    test -f contracts/distribution/registry-launch.json
     test -f openapi/zero-paper-api.v1.yaml
     test -x scripts/assemble_release_assets.sh
     test -x scripts/install.sh
@@ -431,6 +434,7 @@ docs-check:
     test -x scripts/network_pages_smoke.py
     test -x scripts/package_dry_run.sh
     test -x scripts/registry_readiness.py
+    test -x scripts/registry_launch_packet.py
     test -x scripts/homebrew_formula.py
     test -x scripts/homebrew_formula_check.py
     test -x scripts/release_provenance.py

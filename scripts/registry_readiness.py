@@ -230,10 +230,12 @@ def check_docs() -> list[Finding]:
             "Trusted Publishing",
             "cargo owner",
             "Homebrew Formula Requirements",
+            "Registry Launch Packet",
             "Registry Rollback",
         ],
         "docs/release.md": [
             "just registry-readiness",
+            "registry launch packet",
             "Trusted Publishing",
             "does not publish to PyPI",
         ],

@@ -1,0 +1,106 @@
+{
+  "channels": [
+    {
+      "candidate": "zero-intel/zero",
+      "channel": "github_release",
+      "current_release": "v0.1.2",
+      "evidence": [
+        "docs/releases/v0.1.2-evidence.md",
+        "Formula/zero.rb",
+        ".github/workflows/release.yml"
+      ],
+      "required_before_enablement": [],
+      "status": "published"
+    },
+    {
+      "candidate": "zero-intel/zero",
+      "channel": "homebrew_tap",
+      "current_release": "v0.1.2",
+      "evidence": [
+        "Formula/zero.rb",
+        "docs/distribution.md",
+        "docs/release.md"
+      ],
+      "required_before_enablement": [],
+      "status": "ready"
+    },
+    {
+      "candidate": "zero-engine",
+      "channel": "pypi",
+      "current_release": null,
+      "evidence": [
+        "engine/pyproject.toml",
+        "docs/distribution.md"
+      ],
+      "required_before_enablement": [
+        "maintainer-controlled PyPI project or documented name-claim path",
+        "PyPI Trusted Publishing configured for GitHub Actions",
+        "test install from TestPyPI or staged package index",
+        "rollback/deprecation procedure documented in release notes"
+      ],
+      "status": "blocked"
+    },
+    {
+      "candidate": "zero,zero-commands,zero-config,zero-doctor,zero-engine-client,zero-headless,zero-onboarding,zero-operator-state,zero-session,zero-testkit,zero-tui",
+      "channel": "crates_io",
+      "current_release": null,
+      "evidence": [
+        "cli/Cargo.toml",
+        "cli/crates/*/Cargo.toml",
+        "docs/distribution.md"
+      ],
+      "required_before_enablement": [
+        "crate namespace review completed",
+        "cargo owner evidence recorded after reservation/publication",
+        "publish order documented for the workspace crate graph",
+        "rollback/yank procedure documented in release notes"
+      ],
+      "status": "blocked"
+    },
+    {
+      "candidate": "zero-intel/zero-paper",
+      "channel": "container_registry",
+      "current_release": null,
+      "evidence": [
+        "Dockerfile",
+        ".github/workflows/release.yml",
+        "docs/distribution.md"
+      ],
+      "required_before_enablement": [
+        "registry namespace is maintainer-controlled",
+        "image name and labels state paper mode by default",
+        "provenance and SBOM are attached to the image publication",
+        "rollback/delete procedure documented in release notes"
+      ],
+      "status": "blocked"
+    }
+  ],
+  "checks": {
+    "cargo_workspace_version": "0.1.2",
+    "docs_name_cargo_owner": true,
+    "docs_name_registry_rollback": true,
+    "docs_name_trusted_publishing": true,
+    "docs_release_states_no_registry_publish": true,
+    "homebrew_formula_tracks_current_release": true,
+    "package_registry_publication_disabled": true,
+    "pypi_candidate_matches_pyproject": true,
+    "release_evidence_current": true,
+    "release_workflow_has_no_cargo_publish": true,
+    "release_workflow_has_no_container_push": true,
+    "release_workflow_has_no_pypi_publish": true,
+    "schema_version": "zero.registry_launch_packet.v1"
+  },
+  "forbidden_publish_markers_found": {
+    "container": [],
+    "crates": [],
+    "pypi": []
+  },
+  "generated_at": "2026-05-04T00:00:00Z",
+  "schema_version": "zero.registry_launch_packet.v1",
+  "summary": {
+    "current_release": "v0.1.2",
+    "default_distribution": "GitHub Release plus public Homebrew tap",
+    "package_registries_enabled": false,
+    "policy": "Package registries stay blocked until ownership, tokenless publishing, and rollback evidence are recorded."
+  }
+}

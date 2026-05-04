@@ -49,6 +49,25 @@ It does not contact PyPI, crates.io, Homebrew, Docker Hub, GHCR, or any private
 registry. A passing result means the repo is structured for registry review; it
 does not mean any channel has been published.
 
+## Registry Launch Packet
+
+The checked launch packet is
+[`contracts/distribution/registry-launch.json`](../contracts/distribution/registry-launch.json).
+It records the current channel state: GitHub Releases are published, the public
+Homebrew tap is ready, and PyPI, crates.io, Docker Hub, and GHCR remain blocked.
+
+Regenerate and verify it with:
+
+```bash
+scripts/registry_launch_packet.py --output contracts/distribution/registry-launch.json
+scripts/registry_launch_packet.py --check
+```
+
+`just registry-readiness` runs this check. The release workflow must not add
+PyPI, crates.io, Docker Hub, or GHCR publication until this packet and the
+release notes include namespace ownership, tokenless or least-privilege
+publishing, clean install evidence, rollback steps, and support expectations.
+
 ## Ownership Proof Requirements
 
 Package channels must be proven before use:

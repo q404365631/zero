@@ -71,6 +71,7 @@ required=(
   docs/decision-stack.md
   docs/private-engine-capability-gap-audit.md
   docs/label-taxonomy.md
+  docs/registry-launch.md
   docs/proof/README.md
   docs/proof/demo/README.md
   docs/proof/demo/proof-pack.json
@@ -112,6 +113,7 @@ required=(
   contracts/network/empty-profile.json
   contracts/network/empty-profile.html
   contracts/network/stale-profile.html
+  contracts/distribution/registry-launch.json
   examples/network-empty-profile/README.md
   examples/network-empty-profile/build.py
   examples/network-empty-profile/empty-profile.json
@@ -174,6 +176,8 @@ file_contains "Do not publish this private monorepo wholesale" docs/public-upgra
 file_contains "brew tap zero-intel/zero" README.md
 file_contains "brew tap zero-intel/zero" docs/release.md
 file_contains "The public runtime defaults to paper mode" Formula/zero.rb
+file_contains "zero.registry_launch_packet.v1" contracts/distribution/registry-launch.json
+file_contains "package_registries_enabled" contracts/distribution/registry-launch.json
 
 echo "-- homebrew formula"
 if scripts/homebrew_formula_check.py; then

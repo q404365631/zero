@@ -367,6 +367,10 @@ zero --version
 The formula installs the `zero` CLI from the checksummed GitHub Release asset.
 It does not use private package registries.
 
+PyPI, crates.io, Docker Hub, and GHCR are intentionally unpublished until
+ownership and rollback evidence are recorded in
+[docs/registry-launch.md](docs/registry-launch.md).
+
 ## Source Quickstart
 
 Requirements: Python 3.11+, Rust stable, Cargo, and `just`.

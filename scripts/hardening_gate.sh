@@ -40,6 +40,7 @@ required_files=(
   "docs/threat-model.md"
   "docs/incident-runbooks.md"
   "docs/distribution.md"
+  "docs/registry-launch.md"
   "docs/safety-model.md"
   "docs/release.md"
   "docs/releases/v0.1.1-evidence.md"
@@ -61,6 +62,7 @@ required_files=(
   "contracts/network/empty-profile.json"
   "contracts/network/empty-profile.html"
   "contracts/network/stale-profile.html"
+  "contracts/distribution/registry-launch.json"
   "examples/network-empty-profile/README.md"
   "examples/network-empty-profile/build.py"
   "examples/network-empty-profile/empty-profile.json"
@@ -97,7 +99,11 @@ contains "Bad Release Artifact" docs/incident-runbooks.md
 contains "Dependency And Supply Chain Policy" docs/dependency-policy.md
 contains "Vulnerability Response" docs/dependency-policy.md
 contains "Homebrew Formula Requirements" docs/distribution.md
+contains "Registry Launch Packet" docs/distribution.md
 contains "scripts/homebrew_formula.py" docs/distribution.md
+contains "zero.registry_launch_packet.v1" docs/registry-launch.md
+contains "package_registries_enabled" contracts/distribution/registry-launch.json
+contains "\"status\": \"blocked\"" contracts/distribution/registry-launch.json
 contains "brew tap zero-intel/zero" docs/distribution.md
 contains "brew tap zero-intel/zero" docs/release.md
 contains "brew tap zero-intel/zero" README.md

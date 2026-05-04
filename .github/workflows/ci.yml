@@ -86,6 +86,7 @@ jobs:
           test -f docs/zero-network.md
           test -f docs/zero-intelligence.md
           test -f docs/dependency-policy.md
+          test -f docs/registry-launch.md
           test -f docs/live-cockpit.md
           test -f docs/live-certification.md
           test -f docs/hyperliquid-readonly.md
@@ -118,6 +119,7 @@ jobs:
           test -f contracts/network/index.html
           test -f contracts/intelligence/snapshot.json
           test -f contracts/intelligence/catalog.json
+          test -f contracts/distribution/registry-launch.json
           test -f examples/strategy-plugin/README.md
           test -f examples/strategy-plugin/plugin.py
           test -f examples/strategy-plugin/run.py
@@ -162,6 +164,7 @@ jobs:
           test -x scripts/network_pages_smoke.py
           test -x scripts/package_dry_run.sh
           test -x scripts/registry_readiness.py
+          test -x scripts/registry_launch_packet.py
           test -x scripts/homebrew_formula.py
           test -x scripts/homebrew_formula_check.py
           test -x scripts/release_provenance.py
