@@ -5,7 +5,7 @@
     "environment": "paper",
     "kind": "local",
     "owner": "local-operator",
-    "version": "0.1.1"
+    "version": "0.1.2"
   },
   "evidence": {
     "decisions": 12,

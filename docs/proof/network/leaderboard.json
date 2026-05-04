@@ -27,13 +27,13 @@
   "rows": [
     {
       "decisions": 2,
-      "deployment_claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
-      "deployment_heartbeat_hash": "sha256:13ea613e372cef34d1edfca35245bd7e9d08d50a8fa73fc9eb9dfac929d57efd",
+      "deployment_claim_hash": "sha256:82ecef926249e36a1a8fd3f8c2112f32c20abf1ad2d98cec615fdbdf04be1b2b",
+      "deployment_heartbeat_hash": "sha256:a249d3641422e96598d03e1908b16eb15e05c4cce06064b28e83dbbf64381e43",
       "display_name": "ZERO Network Demo",
       "handle": "zero_network_demo",
       "mode": "paper",
       "open_positions": 1,
-      "proof_hash": "sha256:153bd0a5445f91b1807a75aa998720519dceea0eb35096751220dadf1b97f281",
+      "proof_hash": "sha256:71b27a515d1c1faea7a3f83b51af8e482ae4578155977b543887d7a086bbf6b4",
       "rank": 1,
       "rejection_rate": 0.5,
       "verification_score": 13.5

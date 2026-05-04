@@ -15,7 +15,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 rust-version = "1.93"
 license = "Apache-2.0"
@@ -89,16 +89,16 @@ proptest = "1"
 criterion = { version = "0.5", features = ["html_reports"] }
 
 # internal crates (workspace refs)
-zero-tui = { path = "crates/zero-tui", version = "0.1.1" }
-zero-engine-client = { path = "crates/zero-engine-client", version = "0.1.1" }
-zero-session = { path = "crates/zero-session", version = "0.1.1" }
-zero-config = { path = "crates/zero-config", version = "0.1.1" }
-zero-commands = { path = "crates/zero-commands", version = "0.1.1" }
-zero-onboarding = { path = "crates/zero-onboarding", version = "0.1.1" }
-zero-doctor = { path = "crates/zero-doctor", version = "0.1.1" }
-zero-operator-state = { path = "crates/zero-operator-state", version = "0.1.1" }
-zero-testkit = { path = "crates/zero-testkit", version = "0.1.1" }
-zero-headless = { path = "crates/zero-headless", version = "0.1.1" }
+zero-tui = { path = "crates/zero-tui", version = "0.1.2" }
+zero-engine-client = { path = "crates/zero-engine-client", version = "0.1.2" }
+zero-session = { path = "crates/zero-session", version = "0.1.2" }
+zero-config = { path = "crates/zero-config", version = "0.1.2" }
+zero-commands = { path = "crates/zero-commands", version = "0.1.2" }
+zero-onboarding = { path = "crates/zero-onboarding", version = "0.1.2" }
+zero-doctor = { path = "crates/zero-doctor", version = "0.1.2" }
+zero-operator-state = { path = "crates/zero-operator-state", version = "0.1.2" }
+zero-testkit = { path = "crates/zero-testkit", version = "0.1.2" }
+zero-headless = { path = "crates/zero-headless", version = "0.1.2" }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

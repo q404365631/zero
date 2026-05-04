@@ -22,7 +22,7 @@ The response is `zero.deployment.claim.v1`:
     "kind": "local",
     "environment": "paper",
     "owner": "local-operator",
-    "version": "0.1.1"
+    "version": "0.1.2"
   },
   "operator": {
     "handle": "local-operator",

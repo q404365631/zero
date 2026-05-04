@@ -4,7 +4,7 @@
     "environment": "paper",
     "kind": "local",
     "owner": "local-operator",
-    "version": "0.1.1"
+    "version": "0.1.2"
   },
   "deployment_claim_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
   "generated_at": "2026-05-01T00:00:00+00:00",

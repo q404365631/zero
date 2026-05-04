@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ZERO Paper API
-  version: 0.1.1
+  version: 0.1.2
   summary: Local paper runtime and operator API for ZERO.
   description: |
     ZERO Paper API is the public local runtime contract for paper-first,

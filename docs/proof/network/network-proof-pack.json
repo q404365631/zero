@@ -1,19 +1,19 @@
 {
   "artifacts": {
     "README.md": "sha256:29663e3e393eced718e36553e9fc5d53bbda6d5b2ea73f1caed8aaa1e0c728d8",
-    "identity/SHA256SUMS": "sha256:8007b289922298fb2400c9a869851b9c6e8c5f4ab766a55a05a2547221531240",
-    "identity/deployment_claim.json": "sha256:0a34d56c31f88709d6247985e1217a51bfaeacc3eeada44cbdb3f4162fd8ccf8",
-    "identity/deployment_heartbeat.json": "sha256:66d1ce5a55aa038fbf6bad65421841789b91e203d66813adc6fbd117a2100f8b",
-    "identity/identity_bundle.json": "sha256:7e278e7b5bb4fd883e431b96f330932ad504c82624a99f2e82ef61bf827c7064",
-    "leaderboard.json": "sha256:fa1c26d664a698711567904bd4031a7f42b5ffb5c42acce2b980abcffd8ec95e",
+    "identity/SHA256SUMS": "sha256:4d30c35f9b0979a43643c8b725c786f1a9c9ff00f7cff8a6d55feff396a2cb69",
+    "identity/deployment_claim.json": "sha256:b3f0cfee8f05ef7fcc047dc8f682c8093ca65ec2d76a043870e9443b8a76db8e",
+    "identity/deployment_heartbeat.json": "sha256:c0341cccd9d30a3fb8446ad47aec2327c486216f381e08c485cf78674c6c5b50",
+    "identity/identity_bundle.json": "sha256:23823d356843f1b5909bd44cd374d4b49b6c8536349d70417b15a1e914e61cda",
+    "leaderboard.json": "sha256:24545b1f03fb960fdf031d88ccf80fc8e2026431aa8ee1ee1b311d6fc4c742d4",
     "profile-verification.json": "sha256:40f1f8c54b079f28935bb3dc029d7b85c4eb11a494851847ccf8de6e9459cf7f",
-    "profile.json": "sha256:56271065674e55b1a50117ca7d652f94b91c7ab5593cd528afd339e853036d4f"
+    "profile.json": "sha256:06e5b51110bf868a15e338b333f1fa840bf1fa3a1f7173a54b5bd69036a2d8bd"
   },
   "bindings": {
-    "deployment_claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
-    "deployment_heartbeat_hash": "sha256:13ea613e372cef34d1edfca35245bd7e9d08d50a8fa73fc9eb9dfac929d57efd",
-    "leaderboard_proof_hash": "sha256:153bd0a5445f91b1807a75aa998720519dceea0eb35096751220dadf1b97f281",
-    "proof_hash": "sha256:153bd0a5445f91b1807a75aa998720519dceea0eb35096751220dadf1b97f281"
+    "deployment_claim_hash": "sha256:82ecef926249e36a1a8fd3f8c2112f32c20abf1ad2d98cec615fdbdf04be1b2b",
+    "deployment_heartbeat_hash": "sha256:a249d3641422e96598d03e1908b16eb15e05c4cce06064b28e83dbbf64381e43",
+    "leaderboard_proof_hash": "sha256:71b27a515d1c1faea7a3f83b51af8e482ae4578155977b543887d7a086bbf6b4",
+    "proof_hash": "sha256:71b27a515d1c1faea7a3f83b51af8e482ae4578155977b543887d7a086bbf6b4"
   },
   "claim_boundary": {
     "hosted_ingestion_compatible": true,
@@ -40,7 +40,7 @@
     "contains_wallet_material": false
   },
   "profile_schema_version": "zero.network.profile.v1",
-  "proof_hash": "sha256:ba2beaab89a2f3bc1291c7d797b344918608e12da8dc9f0afc12675bde034a85",
+  "proof_hash": "sha256:05595c3846e6247cc4f2bba8e1c1235a536eaa4721c2c7c83782459b0a6f4494",
   "schema_version": "zero.network_proof_pack.v1",
   "verification": {
     "checks_failed": 0,

@@ -4,11 +4,11 @@
     "environment": "paper",
     "kind": "local",
     "owner": "zero-network-demo",
-    "version": "0.1.1"
+    "version": "0.1.2"
   },
-  "deployment_claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
+  "deployment_claim_hash": "sha256:82ecef926249e36a1a8fd3f8c2112f32c20abf1ad2d98cec615fdbdf04be1b2b",
   "generated_at": "2026-05-01T00:00:00Z",
-  "heartbeat_hash": "sha256:13ea613e372cef34d1edfca35245bd7e9d08d50a8fa73fc9eb9dfac929d57efd",
+  "heartbeat_hash": "sha256:a249d3641422e96598d03e1908b16eb15e05c4cce06064b28e83dbbf64381e43",
   "liveness": {
     "dead_man_expired": true,
     "dead_man_timeout_s": null,
@@ -41,7 +41,7 @@
     "algorithm": null,
     "public_key": null,
     "signature": null,
-    "signed_heartbeat_hash": "sha256:13ea613e372cef34d1edfca35245bd7e9d08d50a8fa73fc9eb9dfac929d57efd",
+    "signed_heartbeat_hash": "sha256:a249d3641422e96598d03e1908b16eb15e05c4cce06064b28e83dbbf64381e43",
     "signer": "local-runtime",
     "status": "unsigned_local"
   }

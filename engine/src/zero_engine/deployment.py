@@ -19,7 +19,7 @@ class DeploymentIdentityConfig:
     deployment_kind: str = "local"
     environment: str = "paper"
     owner: str = "local-operator"
-    version: str = "0.1.1"
+    version: str = "0.1.2"
     public_key: str | None = None
     signature: str | None = None
     signer: str | None = None
@@ -51,7 +51,7 @@ def deployment_claim(
             "kind": _safe_text(cfg.deployment_kind, default="local"),
             "environment": _safe_text(cfg.environment, default="paper"),
             "owner": _safe_text(cfg.owner, default="local-operator"),
-            "version": _safe_text(cfg.version, default="0.1.1"),
+            "version": _safe_text(cfg.version, default="0.1.2"),
         },
         "operator": _operator_claim(operator_context or {}),
         "runtime": _safe_mapping(runtime or {}),
@@ -100,7 +100,7 @@ def deployment_heartbeat(
             "kind": _safe_text(cfg.deployment_kind, default="local"),
             "environment": _safe_text(cfg.environment, default="paper"),
             "owner": _safe_text(cfg.owner, default="local-operator"),
-            "version": _safe_text(cfg.version, default="0.1.1"),
+            "version": _safe_text(cfg.version, default="0.1.2"),
         },
         "deployment_claim_hash": _safe_text(deployment_claim_hash, default="sha256:unknown", max_len=96),
         "operator": _operator_claim(operator_context or {}),

@@ -70,7 +70,7 @@ def build_api(work_dir: Path) -> PaperApi:
             network_publish_enabled=True,
             deployment_id="zero-network-demo",
             deployment_owner="zero-network-demo",
-            deployment_version="0.1.1",
+            deployment_version="0.1.2",
         )
     )
     api.execute(

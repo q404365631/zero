@@ -21,13 +21,13 @@
   },
   "profile": {
     "deployment_claim": {
-      "claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
+      "claim_hash": "sha256:82ecef926249e36a1a8fd3f8c2112f32c20abf1ad2d98cec615fdbdf04be1b2b",
       "deployment": {
         "deployment_id": "zero-network-demo",
         "environment": "paper",
         "kind": "local",
         "owner": "zero-network-demo",
-        "version": "0.1.1"
+        "version": "0.1.2"
       },
       "evidence": {
         "decisions": 2,
@@ -61,7 +61,7 @@
         "algorithm": null,
         "public_key": null,
         "signature": null,
-        "signed_claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
+        "signed_claim_hash": "sha256:82ecef926249e36a1a8fd3f8c2112f32c20abf1ad2d98cec615fdbdf04be1b2b",
         "signer": "local-runtime",
         "status": "unsigned_local"
       }
@@ -72,11 +72,11 @@
         "environment": "paper",
         "kind": "local",
         "owner": "zero-network-demo",
-        "version": "0.1.1"
+        "version": "0.1.2"
       },
-      "deployment_claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
+      "deployment_claim_hash": "sha256:82ecef926249e36a1a8fd3f8c2112f32c20abf1ad2d98cec615fdbdf04be1b2b",
       "generated_at": "2026-05-01T00:00:00Z",
-      "heartbeat_hash": "sha256:13ea613e372cef34d1edfca35245bd7e9d08d50a8fa73fc9eb9dfac929d57efd",
+      "heartbeat_hash": "sha256:a249d3641422e96598d03e1908b16eb15e05c4cce06064b28e83dbbf64381e43",
       "liveness": {
         "dead_man_expired": true,
         "dead_man_timeout_s": null,
@@ -109,7 +109,7 @@
         "algorithm": null,
         "public_key": null,
         "signature": null,
-        "signed_heartbeat_hash": "sha256:13ea613e372cef34d1edfca35245bd7e9d08d50a8fa73fc9eb9dfac929d57efd",
+        "signed_heartbeat_hash": "sha256:a249d3641422e96598d03e1908b16eb15e05c4cce06064b28e83dbbf64381e43",
         "signer": "local-runtime",
         "status": "unsigned_local"
       }
@@ -117,12 +117,12 @@
     "generated_at": "2026-05-01T00:00:00Z",
     "leaderboard_row": {
       "decisions": 2,
-      "deployment_claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
-      "deployment_heartbeat_hash": "sha256:13ea613e372cef34d1edfca35245bd7e9d08d50a8fa73fc9eb9dfac929d57efd",
+      "deployment_claim_hash": "sha256:82ecef926249e36a1a8fd3f8c2112f32c20abf1ad2d98cec615fdbdf04be1b2b",
+      "deployment_heartbeat_hash": "sha256:a249d3641422e96598d03e1908b16eb15e05c4cce06064b28e83dbbf64381e43",
       "handle": "zero_network_demo",
       "mode": "paper",
       "open_positions": 1,
-      "proof_hash": "sha256:153bd0a5445f91b1807a75aa998720519dceea0eb35096751220dadf1b97f281",
+      "proof_hash": "sha256:71b27a515d1c1faea7a3f83b51af8e482ae4578155977b543887d7a086bbf6b4",
       "rejection_rate": 0.5,
       "verification_score": 13.5
     },
@@ -170,24 +170,24 @@
     "verification": {
       "badges": [
         {
-          "evidence": "sha256:153bd0a5445f91b1807a75aa998720519dceea0eb35096751220dadf1b97f281",
+          "evidence": "sha256:71b27a515d1c1faea7a3f83b51af8e482ae4578155977b543887d7a086bbf6b4",
           "name": "paper_verified",
           "status": "verified"
         },
         {
-          "evidence": "sha256:153bd0a5445f91b1807a75aa998720519dceea0eb35096751220dadf1b97f281",
+          "evidence": "sha256:71b27a515d1c1faea7a3f83b51af8e482ae4578155977b543887d7a086bbf6b4",
           "name": "durable_journal",
           "status": "verified"
         }
       ],
-      "deployment_claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
-      "deployment_heartbeat_hash": "sha256:13ea613e372cef34d1edfca35245bd7e9d08d50a8fa73fc9eb9dfac929d57efd",
-      "proof_hash": "sha256:153bd0a5445f91b1807a75aa998720519dceea0eb35096751220dadf1b97f281",
+      "deployment_claim_hash": "sha256:82ecef926249e36a1a8fd3f8c2112f32c20abf1ad2d98cec615fdbdf04be1b2b",
+      "deployment_heartbeat_hash": "sha256:a249d3641422e96598d03e1908b16eb15e05c4cce06064b28e83dbbf64381e43",
+      "proof_hash": "sha256:71b27a515d1c1faea7a3f83b51af8e482ae4578155977b543887d7a086bbf6b4",
       "status": "verified"
     }
   },
   "proof": {
-    "proof_hash": "sha256:153bd0a5445f91b1807a75aa998720519dceea0eb35096751220dadf1b97f281",
+    "proof_hash": "sha256:71b27a515d1c1faea7a3f83b51af8e482ae4578155977b543887d7a086bbf6b4",
     "reason": "profile proof hash recomputes",
     "status": "valid"
   },

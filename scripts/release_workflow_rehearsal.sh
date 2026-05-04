@@ -213,19 +213,29 @@ RELEASE_JSON="$(
     --repo "$REPO" \
     --json assets,isDraft,url \
 )"
-python3 - "$TAG" "$RELEASE_JSON" <<'PY'
+ENGINE_VERSION="$(
+  python3 - "$ROOT/engine/pyproject.toml" <<'PY'
+import sys
+import tomllib
+
+with open(sys.argv[1], "rb") as handle:
+    print(tomllib.load(handle)["project"]["version"])
+PY
+)"
+python3 - "$TAG" "$ENGINE_VERSION" "$RELEASE_JSON" <<'PY'
 import json
 import sys
 
 tag = sys.argv[1]
-release = json.loads(sys.argv[2])
+engine_version = sys.argv[2]
+release = json.loads(sys.argv[3])
 asset_names = {asset["name"] for asset in release["assets"]}
 required_assets = {
     "PROVENANCE.json",
     "SBOM.spdx.json",
     "SHA256SUMS",
-    "zero_engine-0.1.1.tar.gz",
-    "zero_engine-0.1.1-py3-none-any.whl",
+    f"zero_engine-{engine_version}.tar.gz",
+    f"zero_engine-{engine_version}-py3-none-any.whl",
     "zero-linux",
     "zero-macos",
     "zero-paper-image.tar",

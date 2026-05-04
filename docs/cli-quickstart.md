@@ -30,10 +30,10 @@ cargo run -q -p zero -- --api http://127.0.0.1:8765 doctor
 Abbreviated output:
 
 ```text
-  [   ok] runtime                zero-doctor v0.1.1 · <os>/<arch> · debug
+  [   ok] runtime                zero-doctor v0.1.2 · <os>/<arch> · debug
   [   ok] config_dir             <local config dir>
   [   ok] config_parse           <local config dir>/config.toml parses
-  [   ok] engine_reachable       zero-paper-engine v0.1.1 (http://127.0.0.1:8765/)
+  [   ok] engine_reachable       zero-paper-engine v0.1.2 (http://127.0.0.1:8765/)
   [   ok] engine_healthy         ok — 2 healthy / 0 stale / 0 dead
   [   ok] engine_components      all fresh
   [ warn] auth                   no token set — read-only endpoints only

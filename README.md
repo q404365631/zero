@@ -247,7 +247,7 @@ interactive TUI:
 
 ```text
 $ zero --api http://127.0.0.1:8765 doctor
-[   ok] engine_reachable       zero-paper-engine v0.1.1
+[   ok] engine_reachable       zero-paper-engine v0.1.2
 [ warn] auth                   no token set — read-only endpoints only
 [ warn] live_preflight         not ready: live_executor, wallet, key, journal
 

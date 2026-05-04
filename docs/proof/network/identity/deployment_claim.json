@@ -1,11 +1,11 @@
 {
-  "claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
+  "claim_hash": "sha256:82ecef926249e36a1a8fd3f8c2112f32c20abf1ad2d98cec615fdbdf04be1b2b",
   "deployment": {
     "deployment_id": "zero-network-demo",
     "environment": "paper",
     "kind": "local",
     "owner": "zero-network-demo",
-    "version": "0.1.1"
+    "version": "0.1.2"
   },
   "evidence": {
     "decisions": 2,
@@ -39,7 +39,7 @@
     "algorithm": null,
     "public_key": null,
     "signature": null,
-    "signed_claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
+    "signed_claim_hash": "sha256:82ecef926249e36a1a8fd3f8c2112f32c20abf1ad2d98cec615fdbdf04be1b2b",
     "signer": "local-runtime",
     "status": "unsigned_local"
   }

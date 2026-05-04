@@ -315,7 +315,7 @@ class PaperApiState:
     deployment_kind: str = "local"
     deployment_environment: str = "paper"
     deployment_owner: str = "local-operator"
-    deployment_version: str = "0.1.1"
+    deployment_version: str = "0.1.2"
     deployment_public_key: str | None = None
     deployment_signature: str | None = None
     deployment_signer: str | None = None
@@ -728,7 +728,7 @@ class PaperApi:
     def root(self) -> dict[str, Any]:
         return {
             "name": "zero-paper-engine",
-            "version": "0.1.1",
+            "version": "0.1.2",
             "status": "ok",
             "ts": self.state.now_iso(),
         }
@@ -2766,7 +2766,7 @@ def serve(
                     deployment_kind=os.environ.get("ZERO_DEPLOYMENT_KIND", "local"),
                     deployment_environment=os.environ.get("ZERO_DEPLOYMENT_ENVIRONMENT", "paper"),
                     deployment_owner=os.environ.get("ZERO_DEPLOYMENT_OWNER", "local-operator"),
-                    deployment_version=os.environ.get("ZERO_DEPLOYMENT_VERSION", "0.1.1"),
+                    deployment_version=os.environ.get("ZERO_DEPLOYMENT_VERSION", "0.1.2"),
                     deployment_public_key=os.environ.get("ZERO_DEPLOYMENT_PUBLIC_KEY"),
                     deployment_signature=os.environ.get("ZERO_DEPLOYMENT_SIGNATURE"),
                     deployment_signer=os.environ.get("ZERO_DEPLOYMENT_SIGNER"),

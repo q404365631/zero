@@ -10,7 +10,7 @@
   <text x="140" y="60" fill="#aeb8c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">ZERO operator terminal - public paper proof</text>
 
   <text x="64" y="118" fill="#35d07f" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" font-weight="700">$ zero --api 127.0.0.1:8765 doctor</text>
-  <text x="64" y="154" fill="#d8e2ee" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21">[ ok ] engine_reachable       zero-paper-engine v0.1.1</text>
+  <text x="64" y="154" fill="#d8e2ee" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21">[ ok ] engine_reachable       zero-paper-engine v0.1.2</text>
   <text x="64" y="186" fill="#f5c542" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21">[ warn ] live_preflight       not ready: wallet, key, journal</text>
 
   <text x="64" y="238" fill="#35d07f" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" font-weight="700">$ zero run live-cockpit</text>

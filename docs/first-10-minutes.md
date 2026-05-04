@@ -64,7 +64,7 @@ cargo run -q -p zero -- --api http://127.0.0.1:8765 run risk
 Expected shape:
 
 ```text
-[ ok ] engine_reachable  zero-paper-engine v0.1.1
+[ ok ] engine_reachable  zero-paper-engine v0.1.2
 [warn] auth              no token set - read-only endpoints only
 engine: regime=PAPER MARKET. Local deterministic demo.
 risk: OK

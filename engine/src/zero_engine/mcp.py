@@ -18,7 +18,7 @@ from zero_engine.research import snapshot_from_fixture as research_snapshot_from
 from zero_engine.runtime import production_parity_snapshot
 
 SERVER_NAME = "zero-mcp"
-SERVER_VERSION = "0.1.1"
+SERVER_VERSION = "0.1.2"
 DEFAULT_PROTOCOL_VERSION = "2025-06-18"
 SUPPORTED_PROTOCOL_VERSIONS = {"2025-06-18", "2025-11-25"}
 PAPER_TS = 1777646400.0
