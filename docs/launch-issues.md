@@ -63,6 +63,8 @@ Labels: `good first issue`, `cli`, `docs`, `agent-eligible`
 
 GitHub: [#20](https://github.com/zero-intel/zero/issues/20)
 
+Status: delivered in [CLI Doctor Troubleshooting](cli-doctor-troubleshooting.md).
+
 Improve the public CLI docs with copy-paste troubleshooting examples for common
 `zero doctor` warnings: missing API token, paper API not running, and live
 preflight refusing closed.

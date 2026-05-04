@@ -46,6 +46,10 @@ Abbreviated output:
 The auth warning is expected. The public paper API exposes read-only inspection
 without a token and marks execution responses as simulated.
 
+For copy-paste fixes when doctor cannot reach the paper API, warns about a
+missing token, or reports `live_preflight` as not ready, see
+[CLI Doctor Troubleshooting](cli-doctor-troubleshooting.md).
+
 Inspect the engine status:
 
 ```bash

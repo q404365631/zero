@@ -547,6 +547,7 @@ Machine-readable entrypoints:
 - [Demo Terminal](docs/demo-terminal.md)
 - [Proof Packs](docs/proof/README.md)
 - [CLI Quickstart](docs/cli-quickstart.md)
+- [CLI Doctor Troubleshooting](docs/cli-doctor-troubleshooting.md)
 - [API](docs/api.md)
 - [Memory Core](docs/memory-core.md)
 - [Research Command Chain](docs/research.md)

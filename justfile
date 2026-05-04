@@ -283,6 +283,7 @@ docs-check:
     test -f docs/first-10-minutes.md
     test -f docs/demo-terminal.md
     test -f docs/cli-quickstart.md
+    test -f docs/cli-doctor-troubleshooting.md
     test -f docs/api.md
     test -f docs/mcp.md
     test -f docs/mcp/transcript.jsonl

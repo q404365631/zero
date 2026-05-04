@@ -63,6 +63,8 @@ reserved for ZERO Intelligence.
   seed with five good-first issues and three help-wanted issues
 - Reader-focused release verification guide covering checksums, attestations,
   SBOM/provenance metadata, Homebrew formula drift, and clean-download evidence
+- CLI doctor troubleshooting guide for missing tokens, stopped paper API, and
+  fail-closed live preflight warnings
 - Public boundary audit from the private repo
 
 ## Paper-Only

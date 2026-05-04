@@ -25,6 +25,7 @@ SOURCES = (
     "docs/proof/README.md",
     "docs/architecture.md",
     "docs/cli-quickstart.md",
+    "docs/cli-doctor-troubleshooting.md",
     "docs/api.md",
     "docs/memory-core.md",
     "docs/genesis.md",

@@ -73,6 +73,11 @@ risk: OK
 The auth warning is expected. The public paper API exposes read-only inspection
 without a token and marks execution responses as simulated.
 
+If doctor cannot reach the engine, warns about missing tokens, or reports
+`live_preflight` as not ready, use
+[CLI Doctor Troubleshooting](cli-doctor-troubleshooting.md). Those warnings are
+usually expected in public paper mode.
+
 ## 4. See The Public Product Boundary
 
 With the paper API still running:
