@@ -1,0 +1,52 @@
+{
+  "generated_at": "2026-05-01T00:00:00Z",
+  "privacy": {
+    "default": "private",
+    "excluded": [
+      "raw decisions",
+      "trace ids",
+      "idempotency keys",
+      "wallet addresses",
+      "exchange order ids",
+      "private notes",
+      "strategy source labels",
+      "per-trade symbols"
+    ],
+    "included": [
+      "aggregate decision counts",
+      "aggregate fill and rejection counts",
+      "aggregate notional",
+      "verification badge status",
+      "proof hash",
+      "deployment claim hash",
+      "deployment heartbeat hash"
+    ],
+    "publication": "opt-in"
+  },
+  "row_count": 1,
+  "rows": [
+    {
+      "decisions": 2,
+      "deployment_claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
+      "deployment_heartbeat_hash": "sha256:13ea613e372cef34d1edfca35245bd7e9d08d50a8fa73fc9eb9dfac929d57efd",
+      "display_name": "ZERO Network Demo",
+      "handle": "zero_network_demo",
+      "mode": "paper",
+      "open_positions": 1,
+      "proof_hash": "sha256:153bd0a5445f91b1807a75aa998720519dceea0eb35096751220dadf1b97f281",
+      "rank": 1,
+      "rejection_rate": 0.5,
+      "verification_score": 13.5
+    }
+  ],
+  "rules": {
+    "purpose": "proof-of-process, not financial advice",
+    "ranking": [
+      "verification_score desc",
+      "decisions desc",
+      "rejection_rate desc",
+      "handle asc"
+    ]
+  },
+  "schema_version": "zero.network.leaderboard.v1"
+}

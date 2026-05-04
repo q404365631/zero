@@ -1,0 +1,150 @@
+{
+  "checks": [
+    {
+      "detail": "zero.deployment.claim.v1",
+      "name": "claim_schema",
+      "status": "ok"
+    },
+    {
+      "detail": "zero.deployment.heartbeat.v1",
+      "name": "heartbeat_schema",
+      "status": "ok"
+    },
+    {
+      "detail": "claim hash is sha256",
+      "name": "claim_hash_shape",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat hash is sha256",
+      "name": "heartbeat_hash_shape",
+      "status": "ok"
+    },
+    {
+      "detail": "claim hash verifies",
+      "name": "claim_hash",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat hash verifies",
+      "name": "heartbeat_hash",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat binds to claim",
+      "name": "heartbeat_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "claim signature object binds claim hash",
+      "name": "claim_signature_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat signature object binds heartbeat hash",
+      "name": "heartbeat_signature_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "claim excludes credentials",
+      "name": "claim_no_credentials",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat excludes credentials",
+      "name": "heartbeat_no_credentials",
+      "status": "ok"
+    },
+    {
+      "detail": "claim excludes wallet material",
+      "name": "claim_no_wallet",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat excludes wallet material",
+      "name": "heartbeat_no_wallet",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:private_key",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:secret_key",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:wallet material",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:exchange credential",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:idempotency_key",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:trace-",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:bearer",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:forbid_token_1",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:forbid_token_2",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:forbid_token_3",
+      "status": "ok"
+    }
+  ],
+  "claim": {
+    "claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
+    "schema_version": "zero.deployment.claim.v1",
+    "signature_status": "unsigned_local"
+  },
+  "files": {
+    "claim": "deployment_claim.json",
+    "claim_sha256": "sha256:0a34d56c31f88709d6247985e1217a51bfaeacc3eeada44cbdb3f4162fd8ccf8",
+    "heartbeat": "deployment_heartbeat.json",
+    "heartbeat_sha256": "sha256:66d1ce5a55aa038fbf6bad65421841789b91e203d66813adc6fbd117a2100f8b"
+  },
+  "generated_at": "2026-05-01T00:00:00Z",
+  "heartbeat": {
+    "deployment_claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
+    "heartbeat_hash": "sha256:13ea613e372cef34d1edfca35245bd7e9d08d50a8fa73fc9eb9dfac929d57efd",
+    "liveness_status": "paper_only",
+    "schema_version": "zero.deployment.heartbeat.v1",
+    "signature_status": "unsigned_local"
+  },
+  "ok": true,
+  "privacy": {
+    "contains_exchange_credentials": false,
+    "contains_private_key": false,
+    "contains_wallet_material": false,
+    "public_safe": true
+  },
+  "schema_version": "zero.deployment_identity_evidence.v1",
+  "summary": {
+    "fail": 0,
+    "ok": 23
+  }
+}

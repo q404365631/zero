@@ -159,6 +159,9 @@ llms-full:
 proof-pack:
     PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py
 
+network-proof-pack:
+    PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py
+
 draft-release-rehearsal:
     scripts/draft_release_rehearsal.sh
 
@@ -245,6 +248,13 @@ docs-check:
     test -f docs/proof/demo/proof-pack.json
     test -f docs/proof/demo/paper-decisions.csv
     test -f docs/proof/demo/paper-proof.svg
+    test -f docs/proof/network/README.md
+    test -f docs/proof/network/network-proof-pack.json
+    test -f docs/proof/network/profile.json
+    test -f docs/proof/network/profile-verification.json
+    test -f docs/proof/network/leaderboard.json
+    test -f docs/proof/network/identity/identity_bundle.json
+    test -f docs/proof/network/identity/SHA256SUMS
     test -f docs/local-development.md
     test -f docs/first-10-minutes.md
     test -f docs/demo-terminal.md
@@ -364,6 +374,7 @@ docs-check:
     test -x scripts/release_evidence.py
     test -x scripts/generate_llms_full.py
     test -x scripts/proof_pack.py
+    test -x scripts/network_proof_pack.py
     test -x scripts/release_rehearsal.sh
     test -x scripts/draft_release_rehearsal.sh
     test -x scripts/hardening_gate.sh
@@ -399,6 +410,7 @@ docs-check:
     PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
     scripts/generate_llms_full.py --check
     PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py --check
+    PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py --check
 
 container-build:
     docker build -t zero-public:local .

@@ -1,0 +1,52 @@
+{
+  "artifacts": {
+    "README.md": "sha256:29663e3e393eced718e36553e9fc5d53bbda6d5b2ea73f1caed8aaa1e0c728d8",
+    "identity/SHA256SUMS": "sha256:8007b289922298fb2400c9a869851b9c6e8c5f4ab766a55a05a2547221531240",
+    "identity/deployment_claim.json": "sha256:0a34d56c31f88709d6247985e1217a51bfaeacc3eeada44cbdb3f4162fd8ccf8",
+    "identity/deployment_heartbeat.json": "sha256:66d1ce5a55aa038fbf6bad65421841789b91e203d66813adc6fbd117a2100f8b",
+    "identity/identity_bundle.json": "sha256:7e278e7b5bb4fd883e431b96f330932ad504c82624a99f2e82ef61bf827c7064",
+    "leaderboard.json": "sha256:fa1c26d664a698711567904bd4031a7f42b5ffb5c42acce2b980abcffd8ec95e",
+    "profile-verification.json": "sha256:40f1f8c54b079f28935bb3dc029d7b85c4eb11a494851847ccf8de6e9459cf7f",
+    "profile.json": "sha256:56271065674e55b1a50117ca7d652f94b91c7ab5593cd528afd339e853036d4f"
+  },
+  "bindings": {
+    "deployment_claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
+    "deployment_heartbeat_hash": "sha256:13ea613e372cef34d1edfca35245bd7e9d08d50a8fa73fc9eb9dfac929d57efd",
+    "leaderboard_proof_hash": "sha256:153bd0a5445f91b1807a75aa998720519dceea0eb35096751220dadf1b97f281",
+    "proof_hash": "sha256:153bd0a5445f91b1807a75aa998720519dceea0eb35096751220dadf1b97f281"
+  },
+  "claim_boundary": {
+    "hosted_ingestion_compatible": true,
+    "live_trading_claimed": false,
+    "paper_mode_verified": true,
+    "paper_vs_live_correlation_claimed": false,
+    "pnl_claimed": false
+  },
+  "generated_at": "2026-05-01T00:00:00Z",
+  "identity": {
+    "bundle_schema_version": "zero.deployment_identity_evidence.v1",
+    "signature_present": false,
+    "signature_required_for_static_fixture": false,
+    "signed_identity_smoke_tested_in_ci": true
+  },
+  "mode": "paper",
+  "name": "demo-network-proof-chain",
+  "ok": true,
+  "privacy": {
+    "contains_exchange_credentials": false,
+    "contains_idempotency_tokens": false,
+    "contains_raw_decisions": false,
+    "contains_trace_tokens": false,
+    "contains_wallet_material": false
+  },
+  "profile_schema_version": "zero.network.profile.v1",
+  "proof_hash": "sha256:ba2beaab89a2f3bc1291c7d797b344918608e12da8dc9f0afc12675bde034a85",
+  "schema_version": "zero.network_proof_pack.v1",
+  "verification": {
+    "checks_failed": 0,
+    "checks_ok": 81,
+    "hosted_ingestion_accepted": 1,
+    "ok": true
+  },
+  "verification_schema_version": "zero.network.profile_verification.v1"
+}

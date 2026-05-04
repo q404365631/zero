@@ -1,0 +1,421 @@
+{
+  "findings": [
+    {
+      "detail": "zero.network.profile.v1",
+      "name": "profile_schema",
+      "status": "ok"
+    },
+    {
+      "detail": "profile excludes forbidden private runtime data",
+      "name": "profile_public_safety",
+      "status": "ok"
+    },
+    {
+      "detail": "proof hash is sha256",
+      "name": "proof_hash_shape",
+      "status": "ok"
+    },
+    {
+      "detail": "profile proof hash recomputes",
+      "name": "proof_hash",
+      "status": "ok"
+    },
+    {
+      "detail": "leaderboard_row is object",
+      "name": "leaderboard_row_shape",
+      "status": "ok"
+    },
+    {
+      "detail": "leaderboard row binds proof hash",
+      "name": "leaderboard_proof_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "leaderboard row binds deployment claim hash",
+      "name": "leaderboard_claim_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "leaderboard row binds deployment heartbeat hash",
+      "name": "leaderboard_heartbeat_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "profile includes deployment claim",
+      "name": "deployment_claim_present",
+      "status": "ok"
+    },
+    {
+      "detail": "profile includes deployment heartbeat",
+      "name": "deployment_heartbeat_present",
+      "status": "ok"
+    },
+    {
+      "detail": "claim hash matches verification",
+      "name": "profile_claim_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat hash matches verification",
+      "name": "profile_heartbeat_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat binds claim hash",
+      "name": "profile_heartbeat_claim_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "zero.deployment.claim.v1",
+      "name": "claim_schema",
+      "status": "ok"
+    },
+    {
+      "detail": "zero.deployment.heartbeat.v1",
+      "name": "heartbeat_schema",
+      "status": "ok"
+    },
+    {
+      "detail": "claim hash is sha256",
+      "name": "claim_hash_shape",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat hash is sha256",
+      "name": "heartbeat_hash_shape",
+      "status": "ok"
+    },
+    {
+      "detail": "claim hash verifies",
+      "name": "claim_hash",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat hash verifies",
+      "name": "heartbeat_hash",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat binds to claim",
+      "name": "heartbeat_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "claim signature object binds claim hash",
+      "name": "claim_signature_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat signature object binds heartbeat hash",
+      "name": "heartbeat_signature_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "claim excludes credentials",
+      "name": "claim_no_credentials",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat excludes credentials",
+      "name": "heartbeat_no_credentials",
+      "status": "ok"
+    },
+    {
+      "detail": "claim excludes wallet material",
+      "name": "claim_no_wallet",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat excludes wallet material",
+      "name": "heartbeat_no_wallet",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:private_key",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:secret_key",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:wallet material",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:exchange credential",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:idempotency_key",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:trace-",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:bearer",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:forbid_token_1",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:forbid_token_2",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:forbid_token_3",
+      "status": "ok"
+    },
+    {
+      "detail": "profile is accepted by hosted-compatible intake",
+      "name": "hosted_ingestion_acceptance",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "profile_redaction:forbid_token_1",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "profile_redaction:forbid_token_2",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "profile_redaction:forbid_token_3",
+      "status": "ok"
+    },
+    {
+      "detail": "identity bundle directory exists",
+      "name": "identity_bundle_dir",
+      "status": "ok"
+    },
+    {
+      "detail": "identity_bundle.json present",
+      "name": "identity_bundle",
+      "status": "ok"
+    },
+    {
+      "detail": "deployment_claim.json present",
+      "name": "identity_claim_file",
+      "status": "ok"
+    },
+    {
+      "detail": "deployment_heartbeat.json present",
+      "name": "identity_heartbeat_file",
+      "status": "ok"
+    },
+    {
+      "detail": "SHA256SUMS present",
+      "name": "identity_sha256s",
+      "status": "ok"
+    },
+    {
+      "detail": "zero.deployment_identity_evidence.v1",
+      "name": "identity_bundle_schema",
+      "status": "ok"
+    },
+    {
+      "detail": "identity bundle reports ok",
+      "name": "identity_bundle_ok",
+      "status": "ok"
+    },
+    {
+      "detail": "identity claim matches profile",
+      "name": "identity_claim_profile_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "identity heartbeat matches profile",
+      "name": "identity_heartbeat_profile_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "identity heartbeat binds identity claim",
+      "name": "identity_heartbeat_claim_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "zero.deployment.claim.v1",
+      "name": "claim_schema",
+      "status": "ok"
+    },
+    {
+      "detail": "zero.deployment.heartbeat.v1",
+      "name": "heartbeat_schema",
+      "status": "ok"
+    },
+    {
+      "detail": "claim hash is sha256",
+      "name": "claim_hash_shape",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat hash is sha256",
+      "name": "heartbeat_hash_shape",
+      "status": "ok"
+    },
+    {
+      "detail": "claim hash verifies",
+      "name": "claim_hash",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat hash verifies",
+      "name": "heartbeat_hash",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat binds to claim",
+      "name": "heartbeat_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "claim signature object binds claim hash",
+      "name": "claim_signature_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat signature object binds heartbeat hash",
+      "name": "heartbeat_signature_binding",
+      "status": "ok"
+    },
+    {
+      "detail": "claim excludes credentials",
+      "name": "claim_no_credentials",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat excludes credentials",
+      "name": "heartbeat_no_credentials",
+      "status": "ok"
+    },
+    {
+      "detail": "claim excludes wallet material",
+      "name": "claim_no_wallet",
+      "status": "ok"
+    },
+    {
+      "detail": "heartbeat excludes wallet material",
+      "name": "heartbeat_no_wallet",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:private_key",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:secret_key",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:wallet material",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:exchange credential",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:idempotency_key",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:trace-",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:bearer",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:forbid_token_1",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:forbid_token_2",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "redaction:forbid_token_3",
+      "status": "ok"
+    },
+    {
+      "detail": "SHA256SUMS covers identity files",
+      "name": "identity_sha256_inventory",
+      "status": "ok"
+    },
+    {
+      "detail": "hash matches",
+      "name": "identity_sha256:deployment_claim.json",
+      "status": "ok"
+    },
+    {
+      "detail": "hash matches",
+      "name": "identity_sha256:deployment_heartbeat.json",
+      "status": "ok"
+    },
+    {
+      "detail": "hash matches",
+      "name": "identity_sha256:identity_bundle.json",
+      "status": "ok"
+    },
+    {
+      "detail": "signature presence policy satisfied",
+      "name": "identity_signature_present",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "identity_redaction:forbid_token_1",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "identity_redaction:forbid_token_2",
+      "status": "ok"
+    },
+    {
+      "detail": "forbidden token absent",
+      "name": "identity_redaction:forbid_token_3",
+      "status": "ok"
+    }
+  ],
+  "identity": {
+    "provided": true,
+    "require_signed_identity": false,
+    "signature_present": false
+  },
+  "ok": true,
+  "profile": "profile.json",
+  "schema_version": "zero.network.profile_verification.v1",
+  "summary": {
+    "fail": 0,
+    "ok": 81
+  }
+}

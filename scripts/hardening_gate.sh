@@ -184,6 +184,10 @@ contains "Agent Operating Guide" docs/llms.txt
 contains "live_correlation" docs/proof/demo/proof-pack.json
 contains "unavailable" docs/proof/demo/proof-pack.json
 contains "does not claim live trading" docs/proof/README.md
+contains "zero.network_proof_pack.v1" docs/proof/network/network-proof-pack.json
+contains "zero.network.profile_verification.v1" docs/proof/network/profile-verification.json
+contains "hosted_ingestion_compatible" docs/proof/network/network-proof-pack.json
+contains "signed_identity_smoke_tested_in_ci" docs/proof/network/network-proof-pack.json
 
 python3 -m json.tool contracts/intelligence/snapshot.json >/dev/null
 python3 -m json.tool contracts/intelligence/catalog.json >/dev/null
@@ -218,6 +222,7 @@ python3 -m py_compile scripts/release_provenance.py
 python3 -m py_compile scripts/homebrew_formula.py
 python3 -m py_compile scripts/generate_llms_full.py
 python3 -m py_compile scripts/proof_pack.py
+python3 -m py_compile scripts/network_proof_pack.py
 python3 -m py_compile scripts/mcp_transcript.py
 python3 -m py_compile scripts/issue_template_check.py
 python3 -m py_compile scripts/label_taxonomy_check.py
@@ -238,6 +243,7 @@ scripts/registry_readiness.py >/dev/null
 PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
 scripts/generate_llms_full.py --check
 PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py --check
+PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py --check
 scripts/draft_release_rehearsal.sh >/dev/null
 rm -rf scripts/__pycache__
 scripts/stale_artifact_check.sh --clean >/dev/null

@@ -56,6 +56,11 @@ def parse_args() -> argparse.Namespace:
         help="Optional OpenSSL public key. Required with --private-key.",
     )
     create.add_argument("--signer", default="local-operator", help="Signer label for the signature artifact.")
+    create.add_argument(
+        "--generated-at",
+        default=None,
+        help="Optional ISO-8601 timestamp for reproducible bundle fixtures.",
+    )
     create.add_argument("--json", action="store_true", help="Emit bundle report JSON.")
 
     verify = subparsers.add_parser("verify", help="Verify an identity evidence bundle.")
@@ -231,7 +236,7 @@ def create_bundle(args: argparse.Namespace) -> int:
     fail = len([check for check in checks if check["status"] == "fail"])
     bundle = {
         "schema_version": BUNDLE_SCHEMA_VERSION,
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": args.generated_at or datetime.now(timezone.utc).isoformat(),
         "ok": fail == 0,
         "summary": {"ok": len(checks) - fail, "fail": fail},
         "claim": {

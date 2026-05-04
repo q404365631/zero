@@ -76,6 +76,13 @@ required=(
   docs/proof/demo/proof-pack.json
   docs/proof/demo/paper-decisions.csv
   docs/proof/demo/paper-proof.svg
+  docs/proof/network/README.md
+  docs/proof/network/network-proof-pack.json
+  docs/proof/network/profile.json
+  docs/proof/network/profile-verification.json
+  docs/proof/network/leaderboard.json
+  docs/proof/network/identity/identity_bundle.json
+  docs/proof/network/identity/SHA256SUMS
   .cursor/rules/global.mdc
   .github/PULL_REQUEST_TEMPLATE.md
   .github/ISSUE_TEMPLATE/agent_task.yml
@@ -147,6 +154,9 @@ file_contains "zero.research.report.v1" docs/research.md
 file_contains "zero.decision.stack.v1" docs/decision-stack.md
 file_contains "zero.deployment_identity_evidence.v1" docs/deployment-identity.md
 file_contains "zero.network.profile_verification.v1" docs/zero-network.md
+file_contains "zero.network_proof_pack.v1" docs/proof/README.md
+file_contains "zero.network_proof_pack.v1" docs/proof/network/network-proof-pack.json
+file_contains "zero.network.profile_verification.v1" docs/proof/network/profile-verification.json
 file_contains "not yet a complete autonomous capital terminal" docs/production-readiness.md
 file_contains "Do not publish this private monorepo wholesale" docs/public-upgrade.md
 

@@ -101,7 +101,7 @@ guarded by preflight checks.
 | ZERO Runtime | Python engine for paper execution, production-parity OODA reports, live-readiness contracts, journals, safety gates, strategy adapters, venue adapter interfaces, and canary evidence. | Open source |
 | ZERO Terminal | Rust CLI/TUI for setup, diagnostics, state inspection, replay, live cockpit views, and supervised actions. | Open source |
 | ZERO Evolution | Local memory, genesis proposals, research reports, decision-stack review, guardian review, red-team, paper canaries, calibration, promotion plans, local apply receipts, rollback receipts, and evolve loops that let ZERO improve under review. | Memory, genesis, research, decision stack, paper-first evolve gates, local apply, and rollback execution open; protected promotion remains human-reviewed |
-| ZERO Network | Public-safe profiles, leaderboards, verification badges, and proof packets. | Open source contracts |
+| ZERO Network | Public-safe profiles, leaderboards, verification badges, profile verification, and deterministic proof-chain packets. | Open source contracts |
 | ZERO Intelligence | Delayed public snapshots plus commercial realtime APIs, history, cohorts, webhooks, exports, and SLAs. | Open contracts + paid access |
 
 ## Capability Boundary
@@ -113,7 +113,7 @@ guarded by preflight checks.
 | Live readiness | Runnable now as local preflight, cockpit, certification, reconciliation, immune, receipt, evidence, and canary-policy contracts. |
 | Live execution | Code boundary exists, but live capital remains operator-owned and gated until local custody, preflight, journal, kill-switch, reconciliation, and canary evidence pass. |
 | Self-evolution | Local memory, genesis proposal core, research command chain, decision-stack lenses/layers/modifiers, production-parity OODA reporting, and paper-first evolve gates exist now with redacted extraction, append-only journals, guardian classification, hunt/edge/convergence/thesis/score/meta/sharpen reports, public evaluation surfaces, live-shadow fail-closed parity, red-team review, sandbox candidate mutation, paper canary, calibration, promotion plan, rollback plan, promotion verification, explicit local apply, rollback receipts, API readouts, and expanded read-only MCP snapshots for runtime status, parity, health, journal, rejection audit, memory stats, immune state, backtest summary, evidence bundle, and safety catalog. Protected live-code evolution remains human-reviewed. |
-| Public proof | Runnable now through redacted Network contracts, canary bundles, exchange-evidence normalization, recursive checksums, and operator report verification. |
+| Public proof | Runnable now through redacted Network contracts, deterministic Network proof packs, canary bundles, exchange-evidence normalization, recursive checksums, and operator report verification. |
 | Commercial API | Contracted now as ZERO Intelligence; production hosted persistence, billing, warehouse history, and SLAs are commercial work. |
 
 ```mermaid
@@ -195,12 +195,14 @@ exist. Protected live-code evolution remains human-reviewed. See
 ZERO should earn trust through behavior that another engineer can verify:
 
 1. Run paper mode locally or on Railway.
-2. Inspect runtime, risk, live cockpit, immune, account, and reconciliation
+2. Verify `docs/proof/network/network-proof-pack.json` against its profile,
+   leaderboard, deployment identity, and ingestion artifacts.
+3. Inspect runtime, risk, live cockpit, immune, account, and reconciliation
    packets through the CLI/API.
-3. Rehearse a live canary in fail-closed mode.
-4. Attach public-safe exchange-side evidence when an operator-owned live canary
+4. Rehearse a live canary in fail-closed mode.
+5. Attach public-safe exchange-side evidence when an operator-owned live canary
    is ready.
-5. Verify the bundle, recursive checksums, privacy flags, live canary policy,
+6. Verify the bundle, recursive checksums, privacy flags, live canary policy,
    and report with local scripts before publishing anything.
 
 That flow is implemented for refusal-mode rehearsal today. Accepted live canary

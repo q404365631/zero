@@ -85,7 +85,7 @@ speed, scale, history, and reliability.
 | Deployment | 96 | live Railway proof, external production log-drain evidence |
 | Observability and audit | 97 | signed bundles, metrics backend, log drains |
 | Security and custody | 91 | external review, key-handling drill evidence |
-| ZERO Network | 78 | profile-plus-signed-identity verifier exists; hosted identity service, public pages, and production ingestion service remain |
+| ZERO Network | 82 | deterministic public proof-chain pack plus profile identity verifier exist; hosted identity service, public pages, and production ingestion service remain |
 | ZERO Intelligence | 70 | production hosted service persistence, billing provider, history storage, terms |
 | Release and distribution | 99 | external registry ownership evidence and public Homebrew tap publication |
 | Operator docs | 98 | real exchange drill evidence |

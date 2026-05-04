@@ -155,7 +155,7 @@ guarded by preflight checks.
 | ZERO Runtime | Python engine for paper execution, production-parity OODA reports, live-readiness contracts, journals, safety gates, strategy adapters, venue adapter interfaces, and canary evidence. | Open source |
 | ZERO Terminal | Rust CLI/TUI for setup, diagnostics, state inspection, replay, live cockpit views, and supervised actions. | Open source |
 | ZERO Evolution | Local memory, genesis proposals, research reports, decision-stack review, guardian review, red-team, paper canaries, calibration, promotion plans, local apply receipts, rollback receipts, and evolve loops that let ZERO improve under review. | Memory, genesis, research, decision stack, paper-first evolve gates, local apply, and rollback execution open; protected promotion remains human-reviewed |
-| ZERO Network | Public-safe profiles, leaderboards, verification badges, and proof packets. | Open source contracts |
+| ZERO Network | Public-safe profiles, leaderboards, verification badges, profile verification, and deterministic proof-chain packets. | Open source contracts |
 | ZERO Intelligence | Delayed public snapshots plus commercial realtime APIs, history, cohorts, webhooks, exports, and SLAs. | Open contracts + paid access |
 
 ## Capability Boundary
@@ -167,7 +167,7 @@ guarded by preflight checks.
 | Live readiness | Runnable now as local preflight, cockpit, certification, reconciliation, immune, receipt, evidence, and canary-policy contracts. |
 | Live execution | Code boundary exists, but live capital remains operator-owned and gated until local custody, preflight, journal, kill-switch, reconciliation, and canary evidence pass. |
 | Self-evolution | Local memory, genesis proposal core, research command chain, decision-stack lenses/layers/modifiers, production-parity OODA reporting, and paper-first evolve gates exist now with redacted extraction, append-only journals, guardian classification, hunt/edge/convergence/thesis/score/meta/sharpen reports, public evaluation surfaces, live-shadow fail-closed parity, red-team review, sandbox candidate mutation, paper canary, calibration, promotion plan, rollback plan, promotion verification, explicit local apply, rollback receipts, API readouts, and expanded read-only MCP snapshots for runtime status, parity, health, journal, rejection audit, memory stats, immune state, backtest summary, evidence bundle, and safety catalog. Protected live-code evolution remains human-reviewed. |
-| Public proof | Runnable now through redacted Network contracts, canary bundles, exchange-evidence normalization, recursive checksums, and operator report verification. |
+| Public proof | Runnable now through redacted Network contracts, deterministic Network proof packs, canary bundles, exchange-evidence normalization, recursive checksums, and operator report verification. |
 | Commercial API | Contracted now as ZERO Intelligence; production hosted persistence, billing, warehouse history, and SLAs are commercial work. |
 
 ```mermaid
@@ -249,12 +249,14 @@ exist. Protected live-code evolution remains human-reviewed. See
 ZERO should earn trust through behavior that another engineer can verify:
 
 1. Run paper mode locally or on Railway.
-2. Inspect runtime, risk, live cockpit, immune, account, and reconciliation
+2. Verify `docs/proof/network/network-proof-pack.json` against its profile,
+   leaderboard, deployment identity, and ingestion artifacts.
+3. Inspect runtime, risk, live cockpit, immune, account, and reconciliation
    packets through the CLI/API.
-3. Rehearse a live canary in fail-closed mode.
-4. Attach public-safe exchange-side evidence when an operator-owned live canary
+4. Rehearse a live canary in fail-closed mode.
+5. Attach public-safe exchange-side evidence when an operator-owned live canary
    is ready.
-5. Verify the bundle, recursive checksums, privacy flags, live canary policy,
+6. Verify the bundle, recursive checksums, privacy flags, live canary policy,
    and report with local scripts before publishing anything.
 
 That flow is implemented for refusal-mode rehearsal today. Accepted live canary
@@ -1425,6 +1427,30 @@ Generate or verify the demo pack:
 PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py
 PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py --check
 ```
+
+## Network Proof Pack
+
+The public repository also commits a deterministic ZERO Network proof chain in
+`docs/proof/network`. It is generated from a fixed-clock paper runtime and
+emits:
+
+- `zero.network.profile.v1` in `profile.json`;
+- `zero.network.leaderboard.v1` in `leaderboard.json`;
+- `zero.deployment_identity_evidence.v1` in `identity/identity_bundle.json`;
+- `zero.network.profile_verification.v1` in `profile-verification.json`;
+- `zero.network_proof_pack.v1` in `network-proof-pack.json`.
+
+Verify the full public-safe chain:
+
+```bash
+PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py
+PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py --check
+```
+
+This pack proves profile, leaderboard, deployment-claim, deployment-heartbeat,
+and hosted-compatible ingestion bindings. The static fixture is unsigned so it
+stays reproducible; signed deployment identity is covered by the paper and
+Railway smoke tests.
 
 Future launch proof packs must add signed live records, exchange-side evidence,
 and paper/live correlation only after those records exist. Do not publish an
@@ -3345,7 +3371,7 @@ end.
 | Deployment | 96 | Docker path, Railway config, healthcheck, restart policy, `PORT`-aware start script, durable journal replay, traceable paper decisions, Railway remote doctor, redacted deployment evidence pack, evidence verifier, optional HMAC evidence signature, OpenSSL-backed deployment identity evidence bundle, plan-only deployment rollback rehearsal, optional Railway CLI log capture with CI redaction/signature/identity/rollback coverage, Railway smoke test, and Railway incident runbook exist. Missing live deployed project proof and external production log-drain evidence. |
 | Observability and audit | 100 | HTTP trace IDs, operator context packets, operator-local state partitions, live-control action logs, traced paper decisions, metrics, idempotency counters, replay counts, retention/redaction metadata, structured audit export, checksum-chained runtime events, local state snapshots, immune breaker packets, Hyperliquid reconciliation packets, live cockpit packets, live execution receipt hashes, dry-run live certification packets, hash-only signed live evidence bundles, live canary policy packets, live canary bundle verification, live cockpit drill replay verification, live cockpit drill tamper rehearsal, public-safe exchange evidence attachment, public-safe operator reports, recursive operator evidence checksums, operator report verification, model gateway health packets, model gateway audit bundles, deployment evidence manifests, and required incident artifacts are documented. Remaining production work is external log drains/signing, not public-runtime audit shape. |
 | Security and custody | 92 | No secrets needed for first run; Hyperliquid private keys have operator-scoped keychain/env helpers, redaction tests, a non-secret preflight gate, optional SDK-backed live adapter, threat model, secret-leak runbook, dependency policy, SBOM/provenance metadata, and release provenance policy. Missing external security review. |
-| ZERO Network | 78 | Public-safe local profile packets, proof hashes, deployment claim hashes, deployment heartbeat hashes, verification badges, leaderboard rows, opt-in local publish logs, hosted-compatible ingestion, proof validation, duplicate refusal, metric-consistency checks, accepted-only leaderboard output, and `zero.network.profile_verification.v1` profile-plus-signed-identity verification exist. Missing production hosted service persistence, public hosted pages, stale-publication windows, sybil policy, and external hosted identity service operation. |
+| ZERO Network | 82 | Public-safe local profile packets, proof hashes, deployment claim hashes, deployment heartbeat hashes, verification badges, leaderboard rows, opt-in local publish logs, hosted-compatible ingestion, proof validation, duplicate refusal, metric-consistency checks, accepted-only leaderboard output, `zero.network.profile_verification.v1` profile-plus-identity verification, and deterministic `zero.network_proof_pack.v1` public proof-chain artifacts exist. Missing production hosted service persistence, public hosted pages, stale-publication windows, sybil policy, and external hosted identity service operation. |
 | ZERO Intelligence | 78 | Delayed public snapshots, catalog, billing-ready commercial contract, hosted-compatible `/v1/intelligence/*` reads/writes, token-gated paid scopes, actual rate-limit headers, usage events, HMAC-SHA256 webhook signature fixtures, aggregate export jobs, plan/scope model, dataset names, fail-closed model gateway status, model gateway health probes, model gateway audit bundles, mock/local provider conformance, real external model adapters, bounded retry/cost policy, hosted key-management rules, plan boundary, and opt-in local export packets exist. Missing production hosted persistence, billing provider integration, warehouse-backed realtime/history feeds, production webhook delivery, commercial terms, live hosted key-management implementation, and hosted audit retention. |
 | Release and distribution | 98 | GitHub release artifacts, checksums, SBOM/provenance bundle, recorded `v0.1.1` clean-download release evidence, published-release evidence command, release verifier, tamper-detection rehearsal, draft-release rollback rehearsal, Homebrew formula renderer, attestations, installer, registry-readiness gate, package dry-run, distribution readiness policy, release template hardening checks, dependency policy, and rollback rules exist. Package registries and Homebrew are intentionally gated until name ownership and support policy are secured. |
 | Documentation for operators | 100 | Good local docs, operator isolation docs, Hyperliquid read-only boundary docs, live-paper quote docs, immune-system docs, live cockpit docs, live cockpit drill bundle, verifier, and tamper rehearsal, live certification docs, live evidence docs, live canary policy/operator docs, Railway paper deploy, remote-doctor, and evidence-pack docs, restart recovery docs, audit/metrics docs, live-preflight warnings, threat model, and incident runbooks. Missing real exchange drill evidence only as external proof, not documented workflow. |
@@ -3694,6 +3720,10 @@ Current progress:
 - Added tests and smoke checks proving public profiles exclude raw decisions,
   trace IDs, idempotency keys, per-trade symbols, wallet material, exchange
   order details, and strategy source labels.
+- Added `docs/proof/network` with a deterministic
+  `zero.network_proof_pack.v1` chain that binds the public profile,
+  leaderboard, deployment identity bundle, profile verification report, and
+  hosted-compatible ingestion acceptance.
 
 ### Cycle 10: ZERO Intelligence
 
@@ -4044,7 +4074,7 @@ speed, scale, history, and reliability.
 | Deployment | 96 | live Railway proof, external production log-drain evidence |
 | Observability and audit | 97 | signed bundles, metrics backend, log drains |
 | Security and custody | 91 | external review, key-handling drill evidence |
-| ZERO Network | 78 | profile-plus-signed-identity verifier exists; hosted identity service, public pages, and production ingestion service remain |
+| ZERO Network | 82 | deterministic public proof-chain pack plus profile identity verifier exist; hosted identity service, public pages, and production ingestion service remain |
 | ZERO Intelligence | 70 | production hosted service persistence, billing provider, history storage, terms |
 | Release and distribution | 99 | external registry ownership evidence and public Homebrew tap publication |
 | Operator docs | 98 | real exchange drill evidence |
@@ -5820,6 +5850,28 @@ This makes the public Network boundary explicit: profiles are aggregate and
 open, while signed deployment identity is operator-owned evidence that can be
 verified without exposing exchange credentials, wallet material, trace IDs, or
 raw decisions.
+
+## Network Proof Pack
+
+The repository commits a deterministic public-safe Network proof chain in
+[docs/proof/network](proof/network). It is generated by:
+
+```bash
+PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py
+PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py --check
+```
+
+The manifest emits `zero.network_proof_pack.v1` and binds:
+
+- the `zero.network.profile.v1` packet;
+- the derived `zero.network.leaderboard.v1` row;
+- deployment claim and heartbeat artifacts;
+- `zero.deployment_identity_evidence.v1`;
+- the recomputed `zero.network.profile_verification.v1` report;
+- hosted-compatible ingestion acceptance.
+
+This is the public "verify the chain" artifact for agents and reviewers. It
+does not claim live trading, PnL, or paper/live correlation.
 
 ## Public Index Page Builder
 

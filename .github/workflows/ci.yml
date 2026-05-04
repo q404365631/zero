@@ -65,6 +65,11 @@ jobs:
           test -f docs/proof/demo/proof-pack.json
           test -f docs/proof/demo/paper-decisions.csv
           test -f docs/proof/demo/paper-proof.svg
+          test -f docs/proof/network/network-proof-pack.json
+          test -f docs/proof/network/profile.json
+          test -f docs/proof/network/profile-verification.json
+          test -f docs/proof/network/leaderboard.json
+          test -f docs/proof/network/identity/identity_bundle.json
           test -f docs/cli-quickstart.md
           test -f docs/api.md
           test -f docs/mcp.md
@@ -144,6 +149,7 @@ jobs:
           test -x scripts/release_verify.py
           test -x scripts/release_evidence.py
           test -x scripts/proof_pack.py
+          test -x scripts/network_proof_pack.py
           test -x scripts/release_rehearsal.sh
           test -x scripts/draft_release_rehearsal.sh
           test -x scripts/railway_start.sh
@@ -175,6 +181,7 @@ jobs:
           PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
           PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
           PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py --check
+          PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py --check
           scripts/public_readiness_gate.sh
 
   registry-readiness:

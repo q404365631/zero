@@ -18,6 +18,30 @@ PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py
 PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py --check
 ```
 
+## Network Proof Pack
+
+The public repository also commits a deterministic ZERO Network proof chain in
+`docs/proof/network`. It is generated from a fixed-clock paper runtime and
+emits:
+
+- `zero.network.profile.v1` in `profile.json`;
+- `zero.network.leaderboard.v1` in `leaderboard.json`;
+- `zero.deployment_identity_evidence.v1` in `identity/identity_bundle.json`;
+- `zero.network.profile_verification.v1` in `profile-verification.json`;
+- `zero.network_proof_pack.v1` in `network-proof-pack.json`.
+
+Verify the full public-safe chain:
+
+```bash
+PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py
+PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py --check
+```
+
+This pack proves profile, leaderboard, deployment-claim, deployment-heartbeat,
+and hosted-compatible ingestion bindings. The static fixture is unsigned so it
+stays reproducible; signed deployment identity is covered by the paper and
+Railway smoke tests.
+
 Future launch proof packs must add signed live records, exchange-side evidence,
 and paper/live correlation only after those records exist. Do not publish an
 R-squared value, latency claim, win rate, or PnL result unless the exact
