@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -14,6 +17,7 @@ from zero_engine.network import (
     expected_profile_proof_hash,
     ingest_public_profiles,
     load_public_profiles,
+    network_profile_freshness,
     public_leaderboard,
     public_leaderboard_page,
     public_network_index_page,
@@ -321,6 +325,66 @@ def test_network_ingestion_api_accepts_current_profile_packet(tmp_path) -> None:
     assert ingestion["schema_version"] == "zero.network.ingestion.v1"
     assert ingestion["summary"]["accepted"] == 1
     assert ingestion["leaderboard"]["rows"][0]["handle"] == "zero_test"
+
+
+def test_network_profile_freshness_separates_valid_proof_from_stale_status() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    profile = json.loads((repo_root / "docs/proof/network/profile.json").read_text())
+
+    freshness = network_profile_freshness(
+        profile,
+        evaluated_at="2026-05-04T00:00:00+00:00",
+    )
+
+    assert freshness["schema_version"] == "zero.network.profile_freshness.v1"
+    assert freshness["proof"]["status"] == "valid"
+    assert freshness["freshness"]["status"] == "stale"
+    assert freshness["claim_boundary"]["active_operator_status_asserted"] is False
+    body = json.dumps(freshness)
+    assert "wallet_address" not in body
+    assert "exchange_order_id" not in body
+    assert "network-fill" not in body
+    assert "trace-network" not in body
+
+
+def test_network_stale_profile_example_fixture_is_public_safe_and_fresh() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    fixture = json.loads(
+        (repo_root / "examples/network-stale-profile/stale-profile.json").read_text()
+    )
+
+    assert fixture["schema_version"] == "zero.network.stale_profile_fixture.v1"
+    assert fixture["proof"]["status"] == "valid"
+    assert fixture["freshness"]["status"] == "stale"
+    assert fixture["claim_boundary"]["active_operator_status_asserted"] is False
+    assert expected_profile_proof_hash(fixture["profile"]) == fixture["proof"]["proof_hash"]
+    body = json.dumps(fixture)
+    assert "wallet_address" not in body
+    assert "exchange_order_id" not in body
+    assert "network-fill" not in body
+    assert "trace-network" not in body
+
+
+def test_network_stale_profile_example_fixture_is_fresh(tmp_path) -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    output = tmp_path / "stale-profile.json"
+
+    subprocess.run(
+        [
+            sys.executable,
+            "examples/network-stale-profile/build.py",
+            "--output",
+            str(output),
+        ],
+        cwd=repo_root,
+        check=True,
+        text=True,
+        capture_output=True,
+        env={**os.environ, "PYTHONPATH": str(repo_root / "engine/src")},
+    )
+
+    expected = (repo_root / "examples/network-stale-profile/stale-profile.json").read_text()
+    assert output.read_text() == expected
 
 
 def test_network_ingestion_contract_is_fresh() -> None:

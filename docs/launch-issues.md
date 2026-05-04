@@ -84,6 +84,8 @@ Labels: `good first issue`, `network`, `examples`, `agent-eligible`
 
 GitHub: [#21](https://github.com/zero-intel/zero/issues/21)
 
+Status: delivered in [ZERO Network Stale Profile Fixture](../examples/network-stale-profile/README.md).
+
 Add a deterministic public-safe fixture that shows how a ZERO Network profile
 looks when proof is valid but freshness has expired.
 

@@ -127,6 +127,9 @@ jobs:
           test -f examples/network-leaderboard/profiles.jsonl
           test -f examples/network-profile-page/README.md
           test -f examples/network-profile-page/build.py
+          test -f examples/network-stale-profile/README.md
+          test -x examples/network-stale-profile/build.py
+          test -f examples/network-stale-profile/stale-profile.json
           test -f examples/network-leaderboard-page/README.md
           test -f examples/network-leaderboard-page/build.py
           test -f examples/network-index-page/README.md
@@ -288,6 +291,20 @@ jobs:
         run: python -m pip install -e ".[dev]"
       - name: Build network profile page example
         run: PYTHONPATH="$PWD/engine/src" python3 examples/network-profile-page/build.py
+
+  network-stale-profile-example:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install engine
+        working-directory: engine
+        run: python -m pip install -e ".[dev]"
+      - name: Build stale network profile example
+        run: PYTHONPATH="$PWD/engine/src" python3 examples/network-stale-profile/build.py --output /tmp/zero-stale-profile.json
 
   network-leaderboard-page-example:
     runs-on: ubuntu-latest

@@ -28,6 +28,9 @@ network-leaderboard-example:
 network-profile-page-example:
     PYTHONPATH="$PWD/engine/src" python3 examples/network-profile-page/build.py
 
+network-stale-profile-example:
+    PYTHONPATH="$PWD/engine/src" python3 examples/network-stale-profile/build.py --output /tmp/zero-stale-profile.json >/dev/null
+
 network-leaderboard-page-example:
     PYTHONPATH="$PWD/engine/src" python3 examples/network-leaderboard-page/build.py
 
@@ -360,6 +363,9 @@ docs-check:
     test -f examples/network-leaderboard/profiles.jsonl
     test -f examples/network-profile-page/README.md
     test -f examples/network-profile-page/build.py
+    test -f examples/network-stale-profile/README.md
+    test -f examples/network-stale-profile/build.py
+    test -f examples/network-stale-profile/stale-profile.json
     test -f examples/network-leaderboard-page/README.md
     test -f examples/network-leaderboard-page/build.py
     test -f examples/network-index-page/README.md
@@ -469,4 +475,4 @@ container-smoke:
     docker run --rm zero-public:local
     docker run --rm zero-public:local python /app/examples/paper-trading/run.py
 
-ci: lint test paper-api-smoke fresh-clone-rehearsal example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example memory-core-example genesis-example evolve-example research-example decision-stack-example network-leaderboard-example network-profile-page-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness
+ci: lint test paper-api-smoke fresh-clone-rehearsal example strategy-example strategy-plugin-example strategy-runner-example market-data-adapter-example runtime-loop-example memory-core-example genesis-example evolve-example research-example decision-stack-example network-leaderboard-example network-profile-page-example network-stale-profile-example network-leaderboard-page-example network-index-page-example network-pages-smoke registry-readiness package-dry-run release-rehearsal draft-release-rehearsal public-readiness

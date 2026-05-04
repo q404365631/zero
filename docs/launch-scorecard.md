@@ -71,6 +71,8 @@ reserved for ZERO Intelligence.
   and paper strategy integration tests
 - Proof-pack privacy regression fixtures for wallet-like and raw exchange order
   ID leakage
+- Deterministic ZERO Network stale profile fixture separating valid proof from
+  active operator freshness
 - Public boundary audit from the private repo
 
 ## Paper-Only

@@ -102,3 +102,20 @@ require hosted custody, exchange credential upload, or private journal upload.
 Freshness is an honesty signal. It tells viewers when the public proof was last
 observed without turning ZERO Network into a custody service or a performance
 claim.
+
+## Deterministic Stale Fixture
+
+The public repo includes a stale-profile fixture in
+`examples/network-stale-profile/stale-profile.json`. It shows the important
+separation:
+
+- `proof.status=valid`: the profile proof hash still recomputes.
+- `freshness.status=stale`: the packet is no longer active operator status.
+- `claim_boundary.active_operator_status_asserted=false`: viewers should treat
+  it as archive evidence, not current liveness.
+
+Rebuild or verify the shape with:
+
+```bash
+PYTHONPATH="$PWD/engine/src" python3 examples/network-stale-profile/build.py
+```

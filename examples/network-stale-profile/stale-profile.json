@@ -1,0 +1,195 @@
+{
+  "claim_boundary": {
+    "active_operator_status_asserted": false,
+    "custody_claimed": false,
+    "live_trading_claimed": false,
+    "pnl_claimed": false
+  },
+  "description": "Deterministic public-safe fixture: proof valid, freshness stale.",
+  "freshness": {
+    "archive_within_s": 2592000,
+    "fresh_within_s": 86400,
+    "reason": "freshness expired; proof remains historical audit evidence",
+    "stale_within_s": 604800,
+    "status": "stale"
+  },
+  "privacy": {
+    "contains_private_notes": false,
+    "contains_raw_trades": false,
+    "contains_venue_order_material": false,
+    "contains_wallet_material": false
+  },
+  "profile": {
+    "deployment_claim": {
+      "claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
+      "deployment": {
+        "deployment_id": "zero-network-demo",
+        "environment": "paper",
+        "kind": "local",
+        "owner": "zero-network-demo",
+        "version": "0.1.1"
+      },
+      "evidence": {
+        "decisions": 2,
+        "fills": 1,
+        "live_execution_count": 0,
+        "rejections": 1
+      },
+      "generated_at": "2026-05-01T00:00:00Z",
+      "operator": {
+        "handle": "local-operator",
+        "role": "owner",
+        "scope": "local-private",
+        "source": "runtime-default"
+      },
+      "privacy": {
+        "contains_exchange_credentials": false,
+        "contains_idempotency_tokens": false,
+        "contains_raw_decisions": false,
+        "contains_trace_tokens": false,
+        "contains_wallet_material": false,
+        "default": "public-safe-aggregate"
+      },
+      "runtime": {
+        "journal_durable": true,
+        "live_executor_configured": false,
+        "market_source": "paper:static",
+        "mode": "paper"
+      },
+      "schema_version": "zero.deployment.claim.v1",
+      "signature": {
+        "algorithm": null,
+        "public_key": null,
+        "signature": null,
+        "signed_claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
+        "signer": "local-runtime",
+        "status": "unsigned_local"
+      }
+    },
+    "deployment_heartbeat": {
+      "deployment": {
+        "deployment_id": "zero-network-demo",
+        "environment": "paper",
+        "kind": "local",
+        "owner": "zero-network-demo",
+        "version": "0.1.1"
+      },
+      "deployment_claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
+      "generated_at": "2026-05-01T00:00:00Z",
+      "heartbeat_hash": "sha256:13ea613e372cef34d1edfca35245bd7e9d08d50a8fa73fc9eb9dfac929d57efd",
+      "liveness": {
+        "dead_man_expired": true,
+        "dead_man_timeout_s": null,
+        "last_live_heartbeat_at": null,
+        "live_executor_configured": false,
+        "next_required_within_s": null,
+        "status": "paper_only"
+      },
+      "operator": {
+        "handle": "local-operator",
+        "role": "owner",
+        "scope": "local-private",
+        "source": "runtime-default"
+      },
+      "privacy": {
+        "contains_exchange_credentials": false,
+        "contains_idempotency_tokens": false,
+        "contains_raw_decisions": false,
+        "contains_trace_tokens": false,
+        "contains_wallet_material": false,
+        "default": "public-safe-liveness"
+      },
+      "runtime": {
+        "journal_durable": true,
+        "market_source": "paper:static",
+        "mode": "paper"
+      },
+      "schema_version": "zero.deployment.heartbeat.v1",
+      "signature": {
+        "algorithm": null,
+        "public_key": null,
+        "signature": null,
+        "signed_heartbeat_hash": "sha256:13ea613e372cef34d1edfca35245bd7e9d08d50a8fa73fc9eb9dfac929d57efd",
+        "signer": "local-runtime",
+        "status": "unsigned_local"
+      }
+    },
+    "generated_at": "2026-05-01T00:00:00Z",
+    "leaderboard_row": {
+      "decisions": 2,
+      "deployment_claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
+      "deployment_heartbeat_hash": "sha256:13ea613e372cef34d1edfca35245bd7e9d08d50a8fa73fc9eb9dfac929d57efd",
+      "handle": "zero_network_demo",
+      "mode": "paper",
+      "open_positions": 1,
+      "proof_hash": "sha256:153bd0a5445f91b1807a75aa998720519dceea0eb35096751220dadf1b97f281",
+      "rejection_rate": 0.5,
+      "verification_score": 13.5
+    },
+    "metrics": {
+      "acceptance_rate": 0.5,
+      "decisions": 2,
+      "fills": 1,
+      "journal_durable": true,
+      "live_execution_count": 0,
+      "open_positions": 1,
+      "rejection_rate": 0.5,
+      "rejections": 1,
+      "total_notional_usd": 28905.0
+    },
+    "mode": "paper",
+    "privacy": {
+      "default": "private",
+      "excluded": [
+        "raw decisions",
+        "trace ids",
+        "idempotency keys",
+        "wallet addresses",
+        "exchange order ids",
+        "private notes",
+        "strategy source labels",
+        "per-trade symbols"
+      ],
+      "included": [
+        "aggregate decision counts",
+        "aggregate fill and rejection counts",
+        "aggregate notional",
+        "verification badge status",
+        "proof hash",
+        "deployment claim hash",
+        "deployment heartbeat hash"
+      ],
+      "publication": "opt-in"
+    },
+    "profile": {
+      "display_name": "ZERO Network Demo",
+      "handle": "zero_network_demo",
+      "publish_enabled": true
+    },
+    "schema_version": "zero.network.profile.v1",
+    "verification": {
+      "badges": [
+        {
+          "evidence": "sha256:153bd0a5445f91b1807a75aa998720519dceea0eb35096751220dadf1b97f281",
+          "name": "paper_verified",
+          "status": "verified"
+        },
+        {
+          "evidence": "sha256:153bd0a5445f91b1807a75aa998720519dceea0eb35096751220dadf1b97f281",
+          "name": "durable_journal",
+          "status": "verified"
+        }
+      ],
+      "deployment_claim_hash": "sha256:50f6f07d4e300f8c996ff6a53a6820d9293a6957c5e1a1743bb146fc09068126",
+      "deployment_heartbeat_hash": "sha256:13ea613e372cef34d1edfca35245bd7e9d08d50a8fa73fc9eb9dfac929d57efd",
+      "proof_hash": "sha256:153bd0a5445f91b1807a75aa998720519dceea0eb35096751220dadf1b97f281",
+      "status": "verified"
+    }
+  },
+  "proof": {
+    "proof_hash": "sha256:153bd0a5445f91b1807a75aa998720519dceea0eb35096751220dadf1b97f281",
+    "reason": "profile proof hash recomputes",
+    "status": "valid"
+  },
+  "schema_version": "zero.network.stale_profile_fixture.v1"
+}

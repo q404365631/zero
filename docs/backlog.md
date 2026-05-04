@@ -72,6 +72,7 @@ Evidence:
 - [Read-only MCP contributor docs resources](mcp.md)
 - [Deterministic market-data adapter fixture](../examples/market-data-adapter/README.md)
 - [Proof-pack privacy regression fixtures](proof/privacy-regression/README.md)
+- [ZERO Network stale profile fixture](../examples/network-stale-profile/README.md)
 
 Do not create new first-release tasks unless a future release target changes
 artifact requirements or public safety claims.

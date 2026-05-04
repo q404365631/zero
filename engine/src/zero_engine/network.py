@@ -5,6 +5,7 @@ import html
 import json
 import re
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +16,9 @@ PROFILE_SCHEMA_VERSION = "zero.network.profile.v1"
 LEADERBOARD_SCHEMA_VERSION = "zero.network.leaderboard.v1"
 INGESTION_SCHEMA_VERSION = "zero.network.ingestion.v1"
 SHA256_RE = re.compile(r"^sha256:[a-f0-9]{64}$")
+PAPER_PROFILE_FRESH_WITHIN_S = 24 * 60 * 60
+PAPER_PROFILE_STALE_WITHIN_S = 7 * 24 * 60 * 60
+PAPER_PROFILE_ARCHIVE_WITHIN_S = 30 * 24 * 60 * 60
 
 
 @dataclass(frozen=True)
@@ -837,6 +841,77 @@ def load_ingested_public_profiles(path: str | Path, *, generated_at: str) -> dic
     return ingest_public_profiles(load_public_profiles(path), generated_at=generated_at)
 
 
+def network_profile_freshness(
+    profile: dict[str, Any],
+    *,
+    evaluated_at: str,
+) -> dict[str, Any]:
+    assert_public_profile_safe(profile)
+    generated_at = str(profile.get("generated_at", ""))
+    profile_time = _parse_public_timestamp(generated_at)
+    evaluated_time = _parse_public_timestamp(evaluated_at)
+    age_s = max(0, int((evaluated_time - profile_time).total_seconds()))
+    proof_hash = str(profile.get("verification", {}).get("proof_hash", ""))
+    proof_valid = False
+    proof_reason = "proof hash mismatch"
+    try:
+        proof_valid = proof_hash == expected_profile_proof_hash(profile)
+    except (TypeError, ValueError, KeyError) as exc:
+        proof_reason = f"proof hash unavailable: {exc}"
+    else:
+        if proof_valid:
+            proof_reason = "profile proof hash recomputes"
+
+    if age_s <= PAPER_PROFILE_FRESH_WITHIN_S:
+        status = "fresh"
+        display = "active"
+        reason = "inside the paper profile fresh window"
+    elif age_s <= PAPER_PROFILE_STALE_WITHIN_S:
+        status = "stale"
+        display = "archive"
+        reason = "freshness expired; proof remains historical audit evidence"
+    else:
+        status = "expired"
+        display = "historical"
+        reason = "outside the stale public-profile window"
+
+    payload = {
+        "schema_version": "zero.network.profile_freshness.v1",
+        "evaluated_at": evaluated_at,
+        "profile_generated_at": generated_at,
+        "mode": str(profile.get("mode", "paper")),
+        "age_s": age_s,
+        "status": status,
+        "display_treatment": display,
+        "proof": {
+            "status": "valid" if proof_valid else "invalid",
+            "proof_hash": proof_hash,
+            "reason": proof_reason,
+        },
+        "freshness": {
+            "status": status,
+            "fresh_within_s": PAPER_PROFILE_FRESH_WITHIN_S,
+            "stale_within_s": PAPER_PROFILE_STALE_WITHIN_S,
+            "archive_within_s": PAPER_PROFILE_ARCHIVE_WITHIN_S,
+            "reason": reason,
+        },
+        "claim_boundary": {
+            "active_operator_status_asserted": status == "fresh",
+            "custody_claimed": False,
+            "pnl_claimed": False,
+            "live_trading_claimed": False,
+        },
+        "privacy": {
+            "contains_wallet_material": False,
+            "contains_raw_trades": False,
+            "contains_venue_order_material": False,
+            "contains_private_notes": False,
+        },
+    }
+    assert_public_profile_safe(payload)
+    return payload
+
+
 def publish_profile(
     profile: dict[str, Any],
     *,
@@ -931,6 +1006,15 @@ def assert_public_profile_safe(payload: dict[str, Any]) -> None:
     for token in forbidden:
         if token in body:
             raise ValueError(f"public profile contains forbidden token: {token}")
+
+
+def _parse_public_timestamp(value: str) -> datetime:
+    if not value:
+        raise ValueError("public timestamp is required")
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=UTC)
+    return parsed.astimezone(UTC)
 
 
 def sha256_json(payload: dict[str, Any]) -> str:
