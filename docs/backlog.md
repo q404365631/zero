@@ -57,26 +57,6 @@ Acceptance:
 - The example command remains `just example`.
 - The output summary stays deterministic and paper-only.
 
-### Add ZERO Network stale publication window docs
-
-Labels: `good first issue`, `network`, `docs`, `security`
-
-Add a short stale-publication policy document for public Network profiles and
-leaderboards. The current ingestion contract already covers consent, proof
-validation, metric consistency, duplicate accepted handles, and duplicate
-accepted proof hashes. This issue should define how hosted pages mark stale or
-expired packets.
-
-Acceptance:
-
-- The document explains why stale packets should lose freshness badges even
-  when proof hashes remain valid.
-- The document proposes public-safe freshness windows for paper and live
-  profile packets.
-- The document keeps leaderboard rank proof-of-process, not PnL.
-- The policy does not require exchange credentials or hosted custody.
-- [ZERO Network docs](zero-network.md) link to the document.
-
 ### Add Docker daemon troubleshooting note
 
 Labels: `good first issue`, `docs`, `containers`

@@ -294,6 +294,7 @@ docs-check:
     test -f docs/positioning.md
     test -f docs/open-core-boundary.md
     test -f docs/zero-network.md
+    test -f docs/network-freshness.md
     test -f docs/zero-intelligence.md
     test -f docs/threat-model.md
     test -f docs/incident-runbooks.md

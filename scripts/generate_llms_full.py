@@ -51,6 +51,7 @@ SOURCES = (
     ".github/ISSUE_TEMPLATE/design_review.yml",
     ".github/ISSUE_TEMPLATE/docs_gap.yml",
     "docs/zero-network.md",
+    "docs/network-freshness.md",
     "docs/zero-intelligence.md",
     "docs/model-gateway.md",
     "docs/release.md",

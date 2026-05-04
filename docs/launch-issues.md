@@ -46,26 +46,6 @@ Acceptance:
 - The note keeps the container path paper-only.
 - The note does not weaken CI expectations.
 
-## Good First Issue: Add ZERO Network Stale Publication Window Docs
-
-Labels: `good first issue`, `network`, `docs`, `security`
-
-Add a short stale-publication policy document for public Network profiles and
-leaderboards. The ingestion contract already rejects missing consent, proof
-mismatches, inconsistent aggregate metrics, and duplicate accepted handles or
-proofs. This issue should document how hosted Network pages should mark stale
-or expired packets once real publication timestamps are available.
-
-Acceptance:
-
-- The document explains why stale packets should lose freshness badges even
-  when proof hashes remain valid.
-- The document proposes public-safe freshness windows for paper and live
-  profile packets.
-- The document keeps leaderboard rank proof-of-process, not PnL.
-- The policy does not require exchange credentials or hosted custody.
-- `docs/zero-network.md` links to the document.
-
 ## Help Wanted: Homebrew Tap
 
 Labels: `help wanted`, `release`, `cli`, `packaging`
@@ -88,3 +68,10 @@ the public `v0.1.1` release already exists and has clean-download evidence:
   [docs/releases/v0.1.1-evidence.md](releases/v0.1.1-evidence.md)
 - First release candidate:
   [docs/releases/v0.1.1.md](releases/v0.1.1.md)
+
+## Completed Contributor Tasks
+
+These tasks are no longer part of the launch issue seed:
+
+- ZERO Network stale publication window docs:
+  [docs/network-freshness.md](network-freshness.md)

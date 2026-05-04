@@ -106,6 +106,15 @@ credentials.
 The pinned contract fixture lives at
 [contracts/network/ingestion.json](../contracts/network/ingestion.json).
 
+## Freshness And Stale Publication
+
+ZERO Network pages must distinguish historical proof validity from current
+operator freshness. A stale profile can keep a valid proof hash while losing
+freshness badges and active leaderboard treatment.
+
+See [network-freshness.md](network-freshness.md) for the public-safe freshness
+windows, badge policy, and leaderboard rules.
+
 ## Profile And Identity Verification
 
 `scripts/network_profile_verify.py` verifies a public profile packet before it

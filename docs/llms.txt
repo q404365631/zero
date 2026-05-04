@@ -67,6 +67,7 @@
 ## Network And Intelligence
 
 - [ZERO Network](zero-network.md)
+- [ZERO Network Freshness](network-freshness.md)
 - [ZERO Intelligence](zero-intelligence.md)
 - [Model Gateway](model-gateway.md)
 - [Deployment Identity](deployment-identity.md)
