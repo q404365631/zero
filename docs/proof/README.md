@@ -21,6 +21,12 @@ The current committed pack is intentionally modest:
   manifest;
 - it explicitly does not claim live trading, PnL, or paper-vs-live correlation.
 
+Proof packs are proof-of-process, not custody proof or PnL proof. A public pack
+can show that a deterministic runtime, profile, leaderboard, and evidence chain
+were generated and verified under redaction rules. It does not prove exchange
+account ownership, wallet control, profitability, or live execution unless a
+future manifest attaches signed live records and exchange-side evidence.
+
 Generate or verify the demo pack:
 
 ```bash
@@ -58,6 +64,19 @@ live execution capability:
 ```bash
 PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
 PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
+```
+
+## Privacy Regression Fixtures
+
+The negative fixtures in `docs/proof/privacy-regression` are synthetic payloads
+that intentionally include private-looking fields. They keep the verifier honest:
+wallet-like material and raw exchange order IDs must be refused before anything
+is published as public proof.
+
+Run them with:
+
+```bash
+PYTHONPATH="$PWD/engine/src" scripts/proof_privacy_regression.py
 ```
 
 Future launch proof packs must add signed live records, exchange-side evidence,

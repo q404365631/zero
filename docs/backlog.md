@@ -71,6 +71,7 @@ Evidence:
 - [CLI doctor troubleshooting guide](cli-doctor-troubleshooting.md)
 - [Read-only MCP contributor docs resources](mcp.md)
 - [Deterministic market-data adapter fixture](../examples/market-data-adapter/README.md)
+- [Proof-pack privacy regression fixtures](proof/privacy-regression/README.md)
 
 Do not create new first-release tasks unless a future release target changes
 artifact requirements or public safety claims.

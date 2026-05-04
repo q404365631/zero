@@ -15,7 +15,6 @@ Use the GitHub labels when choosing work:
 
 - [#18 Add a paper-only momentum strategy plugin](https://github.com/zero-intel/zero/issues/18)
 - [#21 Add a stale ZERO Network profile fixture](https://github.com/zero-intel/zero/issues/21)
-- [#22 Add proof-pack privacy regression fixtures](https://github.com/zero-intel/zero/issues/22)
 
 ## Help Wanted
 
@@ -31,6 +30,8 @@ Use the GitHub labels when choosing work:
   delivered in [Release Verification Guide](release-verification.md).
 - [#20 Add CLI doctor troubleshooting examples](https://github.com/zero-intel/zero/issues/20) -
   delivered in [CLI Doctor Troubleshooting](cli-doctor-troubleshooting.md).
+- [#22 Add proof-pack privacy regression fixtures](https://github.com/zero-intel/zero/issues/22) -
+  delivered in [Proof Privacy Regression Fixtures](proof/privacy-regression/README.md).
 
 ## Contribution Rules
 

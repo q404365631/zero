@@ -1,0 +1,57 @@
+{
+  "description": "Synthetic negative fixture: wallet-like material must not appear in a public proof profile.",
+  "expected_failures": [
+    {
+      "contains": "wallet_address",
+      "name": "profile_public_safety"
+    }
+  ],
+  "payload": {
+    "generated_at": "2026-05-01T00:00:00Z",
+    "leaderboard_row": {
+      "decisions": 1,
+      "deployment_claim_hash": null,
+      "deployment_heartbeat_hash": null,
+      "handle": "privacy_wallet",
+      "mode": "paper",
+      "open_positions": 0,
+      "proof_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "rejection_rate": 1.0,
+      "verification_score": 1.5
+    },
+    "metrics": {
+      "acceptance_rate": 0.0,
+      "decisions": 1,
+      "fills": 0,
+      "journal_durable": false,
+      "live_execution_count": 0,
+      "open_positions": 0,
+      "rejections": 1,
+      "rejection_rate": 1.0,
+      "total_notional_usd": 0.0
+    },
+    "mode": "paper",
+    "privacy": {
+      "default": "negative-fixture",
+      "synthetic": true
+    },
+    "private_debug": {
+      "wallet_address": "0x1111111111111111"
+    },
+    "profile": {
+      "display_name": "Privacy Wallet Fixture",
+      "handle": "privacy_wallet",
+      "publish_enabled": true
+    },
+    "schema_version": "zero.network.profile.v1",
+    "verification": {
+      "badges": [],
+      "deployment_claim_hash": null,
+      "deployment_heartbeat_hash": null,
+      "proof_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "status": "verified"
+    }
+  },
+  "schema_version": "zero.proof_privacy_regression_fixture.v1",
+  "synthetic": true
+}

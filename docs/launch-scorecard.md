@@ -69,6 +69,8 @@ reserved for ZERO Intelligence.
   market-data adapter contributor docs
 - Deterministic market-data adapter fixture with unknown-symbol, positive-limit,
   and paper strategy integration tests
+- Proof-pack privacy regression fixtures for wallet-like and raw exchange order
+  ID leakage
 - Public boundary audit from the private repo
 
 ## Paper-Only

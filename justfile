@@ -176,6 +176,7 @@ network-proof-pack:
 public-proof:
     PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py --check
     PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py --check
+    PYTHONPATH="$PWD/engine/src" scripts/proof_privacy_regression.py
     PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
     PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
 
@@ -279,6 +280,9 @@ docs-check:
     test -f docs/proof/network/leaderboard.json
     test -f docs/proof/network/identity/identity_bundle.json
     test -f docs/proof/network/identity/SHA256SUMS
+    test -f docs/proof/privacy-regression/README.md
+    test -f docs/proof/privacy-regression/wallet-like-profile.json
+    test -f docs/proof/privacy-regression/raw-exchange-id-profile.json
     test -f docs/local-development.md
     test -f docs/first-10-minutes.md
     test -f docs/demo-terminal.md
@@ -445,6 +449,7 @@ docs-check:
     scripts/generate_llms_full.py --check
     PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py --check
     PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py --check
+    PYTHONPATH="$PWD/engine/src" scripts/proof_privacy_regression.py
 
 container-build:
     docker build -t zero-public:local .

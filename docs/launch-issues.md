@@ -102,6 +102,8 @@ Labels: `good first issue`, `proof-pack`, `security`, `agent-eligible`
 
 GitHub: [#22](https://github.com/zero-intel/zero/issues/22)
 
+Status: delivered in [Proof Privacy Regression Fixtures](proof/privacy-regression/README.md).
+
 Add negative fixtures for the proof-pack verifier that demonstrate refusal when
 public proof artifacts contain private-looking fields.
 
