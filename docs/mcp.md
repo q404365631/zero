@@ -132,3 +132,65 @@ All tools declare `canPlaceOrders=false`, `canChangeRuntimeState=false`, and
 
 The smoke command is part of the public readiness gates so this agent surface
 cannot silently drift into a write-capable trading interface.
+
+## Client Setup
+
+These snippets show how to connect local agent tools to the ZERO MCP server
+for read-only inspection. They do not include secrets, tokens, wallets, or live
+execution setup.
+
+### Claude Code / Cursor
+
+Add to your project's `.mcp.json` or MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "zero": {
+      "command": "bash",
+      "args": ["-c", "PYTHONPATH=$PWD/engine/src python3 -m zero_engine.mcp"]
+    }
+  }
+}
+```
+
+Or, if you installed the engine package:
+
+```json
+{
+  "mcpServers": {
+    "zero": {
+      "command": "zero-mcp"
+    }
+  }
+}
+```
+
+### Generic stdio client
+
+Any MCP-compatible client that supports stdio transport can connect:
+
+```bash
+# Start the server
+PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
+
+# Or with the installed package
+zero-mcp --smoke
+```
+
+### Supported resources
+
+After connecting, the agent can inspect these ZERO MCP resources:
+
+- `zero://paper/scenario` — bundled deterministic paper scenario
+- `zero://paper/results` — generated paper replay results
+- `zero://runtime/status` — paper runtime status
+- `zero://journal/tail` — paper decision journal tail
+- `zero://proof/demo` — demo proof-pack manifest
+- `zero://mcp/safety` — safety classification for every public tool
+- `zero://docs/strategy-runner` — strategy runner docs
+- `zero://docs/strategy-plugin` — strategy plugin docs
+- `zero://docs/market-data-adapters` — market-data adapter docs
+
+Run `PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check` to verify
+the server exposes only read-only public tools before connecting your client.
