@@ -1,8 +1,10 @@
 # Launch Issues
 
-Create these issues before opening the repository. They are intentionally small
-and scoped so a new contributor can land a useful first PR without private
-context.
+These issues are the source-controlled seed for the public contribution board.
+They are intentionally small and scoped so a new contributor can land a useful
+first PR without private context.
+
+The current live board is [Contributor Issue Board](contributor-issue-board.md).
 
 Validate the seed issues locally:
 
@@ -24,6 +26,8 @@ edit existing issues, reopen closed issues, or delete anything.
 
 Labels: `good first issue`, `good-first-strategy`, `strategy`, `examples`, `agent-eligible`
 
+GitHub: [#18](https://github.com/zero-intel/zero/issues/18)
+
 Add a deterministic paper-only strategy plugin under `examples/strategy-plugin/`
 or a new sibling example. The plugin should be easy for a new engineer to read
 and must never submit orders directly.
@@ -41,6 +45,8 @@ Acceptance:
 
 Labels: `good first issue`, `market-data`, `examples`, `agent-eligible`
 
+GitHub: [#19](https://github.com/zero-intel/zero/issues/19)
+
 Add a market-data adapter example that reads a small local fixture and exposes
 chronological candles through the public adapter interface.
 
@@ -54,6 +60,8 @@ Acceptance:
 ## Good First Issue: Add CLI doctor troubleshooting examples
 
 Labels: `good first issue`, `cli`, `docs`, `agent-eligible`
+
+GitHub: [#20](https://github.com/zero-intel/zero/issues/20)
 
 Improve the public CLI docs with copy-paste troubleshooting examples for common
 `zero doctor` warnings: missing API token, paper API not running, and live
@@ -69,6 +77,8 @@ Acceptance:
 ## Good First Issue: Add a stale ZERO Network profile fixture
 
 Labels: `good first issue`, `network`, `examples`, `agent-eligible`
+
+GitHub: [#21](https://github.com/zero-intel/zero/issues/21)
 
 Add a deterministic public-safe fixture that shows how a ZERO Network profile
 looks when proof is valid but freshness has expired.
@@ -86,6 +96,8 @@ Acceptance:
 
 Labels: `good first issue`, `proof-pack`, `security`, `agent-eligible`
 
+GitHub: [#22](https://github.com/zero-intel/zero/issues/22)
+
 Add negative fixtures for the proof-pack verifier that demonstrate refusal when
 public proof artifacts contain private-looking fields.
 
@@ -102,6 +114,8 @@ Acceptance:
 
 Labels: `help wanted`, `mcp`, `docs`, `agent-eligible`
 
+GitHub: [#23](https://github.com/zero-intel/zero/issues/23)
+
 Improve the read-only MCP resources so coding agents can discover strategy
 runner docs, strategy plugin docs, and market-data adapter docs without reading
 the entire repository.
@@ -116,6 +130,8 @@ Acceptance:
 ## Help Wanted: Design public Network empty and stale states
 
 Labels: `help wanted`, `network`, `design`, `design-review`
+
+GitHub: [#24](https://github.com/zero-intel/zero/issues/24)
 
 Improve the generated public ZERO Network pages for empty, stale, and active
 states so viewers can understand what is verified, what is stale, and what is
@@ -132,6 +148,8 @@ Acceptance:
 ## Help Wanted: Add release evidence reader docs
 
 Labels: `help wanted`, `release`, `docs`, `packaging`
+
+GitHub: [#25](https://github.com/zero-intel/zero/issues/25)
 
 Add a short guide that explains how a user verifies a ZERO release from scratch:
 checksums, GitHub artifact attestations, SBOM/provenance metadata, Homebrew

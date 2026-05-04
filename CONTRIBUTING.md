@@ -6,8 +6,10 @@ Thanks for helping improve ZERO.
 
 1. Read the README.
 2. Run the paper-mode demo.
-3. Pick an issue labeled `good first issue`, `good-first-strategy`,
-   `agent-eligible`, or `help wanted`.
+3. Pick an issue from the
+   [Contributor Issue Board](docs/contributor-issue-board.md) or one labeled
+   `good first issue`, `good-first-strategy`, `agent-eligible`, or
+   `help wanted`.
 4. Open a small pull request with tests.
 
 ## Local Setup

@@ -1,7 +1,8 @@
 # Launch Backlog
 
-This is the public launch backlog index. Use [launch issues](launch-issues.md)
-for ready-to-create issue bodies before opening the repository.
+This is the public launch backlog index. Use
+[Contributor Issue Board](contributor-issue-board.md) for live public issues
+and [launch issues](launch-issues.md) for the source-controlled seed bodies.
 
 Maintainers should validate and create the launch issue seed with:
 
@@ -18,6 +19,9 @@ existing issues untouched.
 The active launch issue seed now lives in
 [docs/launch-issues.md](launch-issues.md). It contains five scoped good-first
 issues and three help-wanted issues for agentic and human contributors.
+
+The corresponding live issues are listed in
+[docs/contributor-issue-board.md](contributor-issue-board.md).
 
 ## Example Contribution Shapes
 

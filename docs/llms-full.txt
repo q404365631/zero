@@ -36,6 +36,7 @@ Use this bundle for retrieval and coding agents. It is not evidence of live trad
 - `docs/autonomous-os-plan.md`
 - `docs/private-engine-capability-gap-audit.md`
 - `docs/agentic-contribution.md`
+- `docs/contributor-issue-board.md`
 - `docs/review-ownership.md`
 - `docs/label-taxonomy.md`
 - `.github/ISSUE_TEMPLATE/agent_task.yml`
@@ -532,6 +533,14 @@ deployment project, secrets, exchange credentials, and runtime state.
 
 ## Contributor Paths
 
+Start with the live
+[Contributor Issue Board](docs/contributor-issue-board.md) or the GitHub
+[`good first issue`](https://github.com/zero-intel/zero/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22),
+[`agent-eligible`](https://github.com/zero-intel/zero/issues?q=is%3Aissue%20is%3Aopen%20label%3Aagent-eligible),
+and
+[`help wanted`](https://github.com/zero-intel/zero/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22help%20wanted%22)
+queues.
+
 Good first contribution areas:
 
 - Declarative strategy runners that stay paper-first.
@@ -574,6 +583,7 @@ Machine-readable entrypoints:
 - [docs/llms-full.txt](docs/llms-full.txt)
 - [AGENTS.md](AGENTS.md)
 - [Agent Commands](.claude/commands/README.md)
+- [Contributor Issue Board](docs/contributor-issue-board.md)
 - [Issue Templates](.github/ISSUE_TEMPLATE/agent_task.yml)
 - [OpenAPI Contract](openapi/zero-paper-api.v1.yaml)
 - [Memory Core](docs/memory-core.md)
@@ -615,6 +625,7 @@ Machine-readable entrypoints:
 - [Autonomous OS Plan](docs/autonomous-os-plan.md)
 - [Capability Gap Audit](docs/private-engine-capability-gap-audit.md)
 - [Agentic Contribution](docs/agentic-contribution.md)
+- [Contributor Issue Board](docs/contributor-issue-board.md)
 - [Launch Scorecard](docs/launch-scorecard.md)
 - [Roadmap](docs/roadmap.md)
 
@@ -820,8 +831,10 @@ Thanks for helping improve ZERO.
 
 1. Read the README.
 2. Run the paper-mode demo.
-3. Pick an issue labeled `good first issue`, `good-first-strategy`,
-   `agent-eligible`, or `help wanted`.
+3. Pick an issue from the
+   [Contributor Issue Board](docs/contributor-issue-board.md) or one labeled
+   `good first issue`, `good-first-strategy`, `agent-eligible`, or
+   `help wanted`.
 4. Open a small pull request with tests.
 
 ## Local Setup
@@ -1136,6 +1149,7 @@ Out of scope:
 ## For Agents
 
 - [Agentic Contribution](agentic-contribution.md)
+- [Contributor Issue Board](contributor-issue-board.md)
 - [Issue Templates](../.github/ISSUE_TEMPLATE/agent_task.yml)
 - [Label Taxonomy](label-taxonomy.md)
 - [Full LLM Context](llms-full.txt)
@@ -5346,6 +5360,49 @@ For design agent work:
   risk-increasing actions;
 - generated public pages should stay aggregate-only;
 - no text should imply hosted custody, guaranteed profit, or black-box trading.
+````
+
+
+## Source: `docs/contributor-issue-board.md`
+
+````markdown
+# Contributor Issue Board
+
+These issues are the first public contribution lanes for ZERO. They are scoped
+so a human contributor or coding agent can make progress without private
+operator context, exchange credentials, or live trading.
+
+Use the GitHub labels when choosing work:
+
+- [`good first issue`](https://github.com/zero-intel/zero/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22)
+- [`agent-eligible`](https://github.com/zero-intel/zero/issues?q=is%3Aissue%20is%3Aopen%20label%3Aagent-eligible)
+- [`help wanted`](https://github.com/zero-intel/zero/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22help%20wanted%22)
+- [`design-review`](https://github.com/zero-intel/zero/issues?q=is%3Aissue%20is%3Aopen%20label%3Adesign-review)
+
+## Good First Issues
+
+- [#18 Add a paper-only momentum strategy plugin](https://github.com/zero-intel/zero/issues/18)
+- [#19 Add a deterministic market-data adapter fixture](https://github.com/zero-intel/zero/issues/19)
+- [#20 Add CLI doctor troubleshooting examples](https://github.com/zero-intel/zero/issues/20)
+- [#21 Add a stale ZERO Network profile fixture](https://github.com/zero-intel/zero/issues/21)
+- [#22 Add proof-pack privacy regression fixtures](https://github.com/zero-intel/zero/issues/22)
+
+## Help Wanted
+
+- [#23 Expand read-only MCP strategy resources](https://github.com/zero-intel/zero/issues/23)
+- [#24 Design public Network empty and stale states](https://github.com/zero-intel/zero/issues/24)
+- [#25 Add release evidence reader docs](https://github.com/zero-intel/zero/issues/25)
+
+## Contribution Rules
+
+- Keep the default path paper-first.
+- Do not add exchange credentials, wallet material, raw fills, private journals,
+  or production deployment details.
+- Keep examples deterministic unless an issue explicitly asks for read-only
+  live market data.
+- Include a test, smoke command, or verification note with every PR.
+- For agent-authored work, follow [AGENTS.md](../AGENTS.md) and
+  [Agentic Contribution](agentic-contribution.md).
 ````
 
 

@@ -43,6 +43,7 @@ SOURCES = (
     "docs/autonomous-os-plan.md",
     "docs/private-engine-capability-gap-audit.md",
     "docs/agentic-contribution.md",
+    "docs/contributor-issue-board.md",
     "docs/review-ownership.md",
     "docs/label-taxonomy.md",
     ".github/ISSUE_TEMPLATE/agent_task.yml",

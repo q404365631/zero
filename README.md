@@ -477,6 +477,14 @@ deployment project, secrets, exchange credentials, and runtime state.
 
 ## Contributor Paths
 
+Start with the live
+[Contributor Issue Board](docs/contributor-issue-board.md) or the GitHub
+[`good first issue`](https://github.com/zero-intel/zero/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22),
+[`agent-eligible`](https://github.com/zero-intel/zero/issues?q=is%3Aissue%20is%3Aopen%20label%3Aagent-eligible),
+and
+[`help wanted`](https://github.com/zero-intel/zero/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22help%20wanted%22)
+queues.
+
 Good first contribution areas:
 
 - Declarative strategy runners that stay paper-first.
@@ -519,6 +527,7 @@ Machine-readable entrypoints:
 - [docs/llms-full.txt](docs/llms-full.txt)
 - [AGENTS.md](AGENTS.md)
 - [Agent Commands](.claude/commands/README.md)
+- [Contributor Issue Board](docs/contributor-issue-board.md)
 - [Issue Templates](.github/ISSUE_TEMPLATE/agent_task.yml)
 - [OpenAPI Contract](openapi/zero-paper-api.v1.yaml)
 - [Memory Core](docs/memory-core.md)
@@ -560,6 +569,7 @@ Machine-readable entrypoints:
 - [Autonomous OS Plan](docs/autonomous-os-plan.md)
 - [Capability Gap Audit](docs/private-engine-capability-gap-audit.md)
 - [Agentic Contribution](docs/agentic-contribution.md)
+- [Contributor Issue Board](docs/contributor-issue-board.md)
 - [Launch Scorecard](docs/launch-scorecard.md)
 - [Roadmap](docs/roadmap.md)
 

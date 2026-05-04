@@ -9,4 +9,5 @@
 - [ZERO docs index](docs/llms.txt)
 - [Full LLM context](docs/llms-full.txt)
 - [Agent operating guide](AGENTS.md)
+- [Contributor issue board](docs/contributor-issue-board.md)
 - [OpenAPI v1](openapi/zero-paper-api.v1.yaml)
