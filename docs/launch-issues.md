@@ -20,19 +20,6 @@ just github-launch-issue-sync
 The sync only creates missing issues with exact matching titles. It does not
 edit existing issues, reopen closed issues, or delete anything.
 
-## Good First Issue: Add Docker Daemon Troubleshooting Note
-
-Labels: `good first issue`, `docs`, `containers`
-
-Add a short troubleshooting note to `docs/local-development.md` for
-`just container-smoke` when Docker is installed but the daemon is not running.
-
-Acceptance:
-
-- The note explains the daemon requirement without assuming Docker Desktop.
-- The note keeps the container path paper-only.
-- The note does not weaken CI expectations.
-
 ## Help Wanted: Homebrew Tap
 
 Labels: `help wanted`, `release`, `cli`, `packaging`
@@ -64,3 +51,5 @@ These tasks are no longer part of the launch issue seed:
   [docs/network-freshness.md](network-freshness.md)
 - Paper example output summary:
   [examples/paper-trading/README.md](../examples/paper-trading/README.md)
+- Docker daemon troubleshooting note:
+  [docs/local-development.md](local-development.md)

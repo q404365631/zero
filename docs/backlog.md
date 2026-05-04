@@ -44,19 +44,6 @@ Acceptance:
 - The example requires no secrets, network access, or live exchange account.
 - Tests cover missing symbols, positive limits, and paper strategy integration.
 
-### Add Docker daemon troubleshooting note
-
-Labels: `good first issue`, `docs`, `containers`
-
-Add a short troubleshooting note to `docs/local-development.md` for
-`just container-smoke` when Docker is installed but the daemon is not running.
-
-Acceptance:
-
-- The note explains the daemon requirement without assuming Docker Desktop.
-- The note keeps the container path paper-only.
-- The note does not weaken CI expectations.
-
 ## Help Wanted
 
 ### Add Homebrew tap

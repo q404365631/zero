@@ -148,3 +148,19 @@ With Compose:
 ```bash
 docker compose run --rm zero-paper-example
 ```
+
+## Container Troubleshooting
+
+`just container-smoke` requires a Docker-compatible daemon, not only the Docker
+CLI binary. If `docker --version` works but `just container-smoke` fails with a
+message like `Cannot connect to the Docker daemon`, start whichever local
+daemon your workstation uses and rerun the command.
+
+Common local options include Docker Desktop, Colima, OrbStack, Rancher Desktop,
+or another Docker-compatible runtime. ZERO does not require a specific desktop
+product.
+
+The container smoke path remains paper-only. It builds the local image, runs
+the default paper demo, and runs the deterministic paper trading example. It
+must not request exchange credentials, wallet material, live-capital
+configuration, or private ZERO infrastructure.
