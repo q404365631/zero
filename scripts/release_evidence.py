@@ -14,6 +14,7 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
+COMMITTED_FORMULA = ROOT / "Formula" / "zero.rb"
 
 
 def parse_args() -> argparse.Namespace:
@@ -125,6 +126,21 @@ def render_homebrew(download_dir: Path, tag: str) -> Path:
     return output
 
 
+def verify_committed_homebrew(rendered_formula: Path) -> bool:
+    if not COMMITTED_FORMULA.is_file():
+        raise SystemExit("missing committed Homebrew formula: Formula/zero.rb")
+
+    rendered = rendered_formula.read_text(encoding="utf-8")
+    committed = COMMITTED_FORMULA.read_text(encoding="utf-8")
+    if rendered != committed:
+        raise SystemExit(
+            "committed Homebrew formula does not match release checksums; "
+            "run scripts/homebrew_formula.py <downloaded-release-dir> "
+            "--tag <tag> --output Formula/zero.rb"
+        )
+    return True
+
+
 def main() -> int:
     args = parse_args()
     download_dir = Path(tempfile.mkdtemp(prefix=f"zero-release-{args.tag}-"))
@@ -140,6 +156,7 @@ def main() -> int:
             raise SystemExit(json.dumps(verify_report, indent=2, sort_keys=True))
         attestations = verify_attestations(args.repo, download_dir)
         formula = render_homebrew(download_dir, args.tag)
+        formula_matches_committed = verify_committed_homebrew(formula)
 
         report = {
             "schema_version": "zero.release_evidence.v1",
@@ -149,6 +166,7 @@ def main() -> int:
             "verification": verify_report["summary"],
             "attestations": attestations,
             "homebrew_formula": str(formula) if args.keep_dir else None,
+            "homebrew_formula_matches_committed": formula_matches_committed,
         }
         if args.json:
             print(json.dumps(report, indent=2, sort_keys=True))

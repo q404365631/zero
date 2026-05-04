@@ -18,6 +18,7 @@ REQUIRED_PATTERNS = [
     "/scripts/assemble_release_assets.sh",
     "/scripts/draft_release_rehearsal.sh",
     "/scripts/homebrew_formula.py",
+    "/scripts/homebrew_formula_check.py",
     "/scripts/install.sh",
     "/scripts/package_dry_run.sh",
     "/scripts/release_evidence.py",

@@ -108,8 +108,10 @@ just release-evidence v0.1.1
 
 The evidence command downloads the release, verifies `SHA256SUMS`, runs
 `scripts/release_verify.py`, verifies executable artifact attestations, and
-renders the Homebrew formula from the downloaded checksum manifest. It does not
-publish package registries or mutate release assets.
+renders the Homebrew formula from the downloaded checksum manifest. It then
+fails unless that rendered formula exactly matches the committed
+`Formula/zero.rb`, so the public tap cannot drift away from the published
+release. It does not publish package registries or mutate release assets.
 
 The current `v0.1.1` clean-download verification is recorded in
 [docs/releases/v0.1.1-evidence.md](releases/v0.1.1-evidence.md).

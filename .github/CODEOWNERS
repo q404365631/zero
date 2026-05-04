@@ -11,6 +11,7 @@
 /scripts/assemble_release_assets.sh @squaeragent
 /scripts/draft_release_rehearsal.sh @squaeragent
 /scripts/homebrew_formula.py @squaeragent
+/scripts/homebrew_formula_check.py @squaeragent
 /scripts/install.sh @squaeragent
 /scripts/package_dry_run.sh @squaeragent
 /scripts/release_evidence.py @squaeragent

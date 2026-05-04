@@ -137,6 +137,7 @@ contains "scripts/release_evidence.py <tag>" .github/RELEASE_TEMPLATE.md
 contains "scripts/homebrew_formula_check.py" .github/RELEASE_TEMPLATE.md
 contains "zero.release_evidence.v1" docs/releases/v0.1.1-evidence.md
 contains "verification.fail=0" docs/releases/v0.1.1-evidence.md
+contains "homebrew_formula_matches_committed=true" docs/releases/v0.1.1-evidence.md
 contains "ZERO LLM Full Context" docs/llms-full.txt
 contains "read-only" docs/mcp.md
 contains "zero-mcp" docs/mcp.md

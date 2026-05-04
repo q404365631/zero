@@ -102,8 +102,11 @@ scripts/homebrew_formula_check.py
 ```
 
 The renderer reads `SHA256SUMS` and refuses to emit a formula unless checksums
-for both `zero-linux` and `zero-macos` are present. The public repo can be used
-as a Homebrew tap without private registry access:
+for both `zero-linux` and `zero-macos` are present. `scripts/release_evidence.py
+<tag>` also compares the formula rendered from the downloaded release against
+the committed `Formula/zero.rb`, so release evidence fails if the public tap is
+stale. The public repo can be used as a Homebrew tap without private registry
+access:
 
 ```bash
 brew tap zero-intel/zero https://github.com/zero-intel/zero
