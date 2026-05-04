@@ -151,6 +151,8 @@ Labels: `help wanted`, `release`, `docs`, `packaging`
 
 GitHub: [#25](https://github.com/zero-intel/zero/issues/25)
 
+Status: delivered in [Release Verification Guide](release-verification.md).
+
 Add a short guide that explains how a user verifies a ZERO release from scratch:
 checksums, GitHub artifact attestations, SBOM/provenance metadata, Homebrew
 formula checks, and clean-download evidence.

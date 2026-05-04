@@ -23,6 +23,9 @@ issues and three help-wanted issues for agentic and human contributors.
 The corresponding live issues are listed in
 [docs/contributor-issue-board.md](contributor-issue-board.md).
 
+Completed seed issues move to the completed section on the board and keep their
+source-controlled acceptance criteria in [launch issues](launch-issues.md).
+
 ## Example Contribution Shapes
 
 ### Add a paper-first strategy plugin
@@ -64,6 +67,7 @@ Evidence:
 
 - [Release notes](releases/v0.1.1.md)
 - [Clean-download release evidence](releases/v0.1.1-evidence.md)
+- [Release verification guide](release-verification.md)
 
 Do not create new first-release tasks unless a future release target changes
 artifact requirements or public safety claims.

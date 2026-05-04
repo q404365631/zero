@@ -67,6 +67,9 @@ the limitation is called out clearly.
 
 ## Verification
 
+For a reader-focused verification path, start with
+[Release Verification Guide](release-verification.md).
+
 Download the artifact bundle and verify its checksum file before running it:
 
 ```bash

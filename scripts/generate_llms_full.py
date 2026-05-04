@@ -56,6 +56,7 @@ SOURCES = (
     "docs/zero-intelligence.md",
     "docs/model-gateway.md",
     "docs/release.md",
+    "docs/release-verification.md",
 )
 
 

@@ -61,6 +61,8 @@ reserved for ZERO Intelligence.
 - Public contribution, security, governance, support, and issue templates
 - First-release notes template, live contributor issue board, and launch issue
   seed with five good-first issues and three help-wanted issues
+- Reader-focused release verification guide covering checksums, attestations,
+  SBOM/provenance metadata, Homebrew formula drift, and clean-download evidence
 - Public boundary audit from the private repo
 
 ## Paper-Only

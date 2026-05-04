@@ -321,6 +321,7 @@ docs-check:
     test -f docs/contributor-issue-board.md
     test -f docs/label-taxonomy.md
     test -f docs/release.md
+    test -f docs/release-verification.md
     test -f docs/releases/v0.1.1.md
     test -f docs/releases/v0.1.1-evidence.md
     test -f docs/launch-scorecard.md

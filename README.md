@@ -474,6 +474,7 @@ deployment project, secrets, exchange credentials, and runtime state.
 - [docs/railway-deploy.md](docs/railway-deploy.md)
 - [docs/distribution.md](docs/distribution.md)
 - [docs/release.md](docs/release.md)
+- [docs/release-verification.md](docs/release-verification.md)
 
 ## Contributor Paths
 
@@ -571,6 +572,7 @@ Machine-readable entrypoints:
 - [Agentic Contribution](docs/agentic-contribution.md)
 - [Contributor Issue Board](docs/contributor-issue-board.md)
 - [Launch Scorecard](docs/launch-scorecard.md)
+- [Release Verification](docs/release-verification.md)
 - [Roadmap](docs/roadmap.md)
 
 ## License

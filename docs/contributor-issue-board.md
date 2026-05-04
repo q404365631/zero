@@ -23,7 +23,11 @@ Use the GitHub labels when choosing work:
 
 - [#23 Expand read-only MCP strategy resources](https://github.com/zero-intel/zero/issues/23)
 - [#24 Design public Network empty and stale states](https://github.com/zero-intel/zero/issues/24)
-- [#25 Add release evidence reader docs](https://github.com/zero-intel/zero/issues/25)
+
+## Completed Seed Issues
+
+- [#25 Add release evidence reader docs](https://github.com/zero-intel/zero/issues/25) -
+  delivered in [Release Verification Guide](release-verification.md).
 
 ## Contribution Rules
 

@@ -32,6 +32,7 @@
 - [Proof Packs](proof/README.md)
 - [Railway Deploy](railway-deploy.md)
 - [Release](release.md)
+- [Release Verification](release-verification.md)
 
 ## Architecture And Contracts
 
