@@ -33,7 +33,7 @@ reserved for ZERO Intelligence.
 - Release verifier and tamper-detection rehearsal
 - Release SBOM/provenance bundle with checksummed `SBOM.spdx.json` and
   `PROVENANCE.json`
-- Published `v0.1.1` release evidence from a clean GitHub download, including
+- Published `v0.1.2` release evidence from a clean GitHub download, including
   checksum verification, release verifier output, executable attestations, and
   Homebrew formula rendering
 - Draft GitHub Release rollback rehearsal, Homebrew formula renderer, committed
@@ -104,7 +104,7 @@ reserved for ZERO Intelligence.
 ## Remaining To Keep 100
 
 - Keep the public GitHub Actions matrix green after every push
-- Keep published release evidence green with `just release-evidence v0.1.1`
+- Keep published release evidence green with `just release-evidence v0.1.2`
 - Keep package-registry publication disabled until public name ownership,
   Trusted Publishing, owner lists, and rollback procedure are secured
 - Keep the committed Homebrew formula generated from release checksums

@@ -15,13 +15,13 @@ from GitHub and check everything in a temporary clean directory:
 ```bash
 git clone https://github.com/zero-intel/zero.git
 cd zero
-just release-evidence v0.1.1
+just release-evidence v0.1.2
 ```
 
 For machine-readable output:
 
 ```bash
-scripts/release_evidence.py v0.1.1 --json
+scripts/release_evidence.py v0.1.2 --json
 ```
 
 The release evidence command:
@@ -35,8 +35,8 @@ The release evidence command:
 - fails if the rendered formula differs from the committed `Formula/zero.rb`.
 
 The current published evidence is recorded in
-[v0.1.1 release evidence](releases/v0.1.1-evidence.md). That page is evidence
-for `v0.1.1` only; future releases need their own clean-download evidence.
+[v0.1.2 release evidence](releases/v0.1.2-evidence.md). Historical `v0.1.1`
+evidence remains in [v0.1.1 release evidence](releases/v0.1.1-evidence.md).
 
 ## From Downloaded Assets
 
@@ -104,7 +104,7 @@ The committed formula at `Formula/zero.rb` must be generated from a verified
 release directory:
 
 ```bash
-scripts/homebrew_formula.py /path/to/downloaded/zero-release --tag v0.1.1 --output /tmp/zero.rb
+scripts/homebrew_formula.py /path/to/downloaded/zero-release --tag v0.1.2 --output /tmp/zero.rb
 diff -u Formula/zero.rb /tmp/zero.rb
 scripts/homebrew_formula_check.py
 ```

@@ -134,7 +134,7 @@ Exit gate:
 ```bash
 just release-rehearsal
 just draft-release-rehearsal
-just release-evidence v0.1.1
+just release-evidence v0.1.2
 just fresh-clone-rehearsal
 just public-readiness
 ```

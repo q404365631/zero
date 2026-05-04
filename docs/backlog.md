@@ -64,12 +64,15 @@ Acceptance:
 
 ### Completed: first public release
 
-The first public release is complete as `v0.1.1`.
+The first public release is complete as `v0.1.1`; the current published
+release is `v0.1.2`.
 
 Evidence:
 
 - [Release notes](releases/v0.1.1.md)
 - [Clean-download release evidence](releases/v0.1.1-evidence.md)
+- [Current v0.1.2 release notes](releases/v0.1.2.md)
+- [Current v0.1.2 clean-download evidence](releases/v0.1.2-evidence.md)
 - [Release verification guide](release-verification.md)
 - [CLI doctor troubleshooting guide](cli-doctor-troubleshooting.md)
 - [Read-only MCP contributor docs resources](mcp.md)
@@ -83,7 +86,7 @@ artifact requirements or public safety claims.
 
 ### Completed: Homebrew formula
 
-The public repo now includes `Formula/zero.rb`, generated from the `v0.1.1`
+The public repo now includes `Formula/zero.rb`, generated from the `v0.1.2`
 GitHub Release checksum manifest. Operators can install it with:
 
 ```bash

@@ -2,17 +2,17 @@
 class Zero < Formula
   desc "Operator terminal for self-custodial onchain operations"
   homepage "https://getzero.dev"
-  version "0.1.1"
+  version "0.1.2"
   license "Apache-2.0"
 
   if OS.mac? && Hardware::CPU.arm?
-    url "https://github.com/zero-intel/zero/releases/download/v0.1.1/zero-macos"
-    sha256 "7dfbcd7acba04dece4d0c4dcee2e72213c191bf0cb9c6b432f5e663d87bd4b0f"
+    url "https://github.com/zero-intel/zero/releases/download/v0.1.2/zero-macos"
+    sha256 "68262ded7cb7b1add978cdf292dab2d34c20246c711e0dbfb14f50735020e3d3"
   elsif OS.mac?
     odie "ZERO currently ships an arm64 macOS binary; use install.sh or build from source on Intel macOS"
   else
-    url "https://github.com/zero-intel/zero/releases/download/v0.1.1/zero-linux"
-    sha256 "2c31ca36e274c44b55efa5bcdcfb758bac2379e185be8e092101d042eed72fd6"
+    url "https://github.com/zero-intel/zero/releases/download/v0.1.2/zero-linux"
+    sha256 "b735e19420994ab4241698df9aa500863e2c4fdcda2ba3c02ad7ebbe3505d9d9"
   end
 
   def install

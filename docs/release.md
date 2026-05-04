@@ -106,7 +106,7 @@ Use `zero-macos` for the macOS binary.
 Verify a published GitHub Release from a clean download directory:
 
 ```bash
-just release-evidence v0.1.1
+just release-evidence v0.1.2
 ```
 
 The evidence command downloads the release, verifies `SHA256SUMS`, runs
@@ -116,8 +116,8 @@ fails unless that rendered formula exactly matches the committed
 `Formula/zero.rb`, so the public tap cannot drift away from the published
 release. It does not publish package registries or mutate release assets.
 
-The current `v0.1.1` clean-download verification is recorded in
-[docs/releases/v0.1.1-evidence.md](releases/v0.1.1-evidence.md).
+The current `v0.1.2` clean-download verification is recorded in
+[docs/releases/v0.1.2-evidence.md](releases/v0.1.2-evidence.md).
 
 ## Public Proof Gate
 
@@ -282,7 +282,7 @@ The committed formula is `Formula/zero.rb`. To update it for a new release,
 render the formula from a downloaded and verified release directory:
 
 ```bash
-scripts/homebrew_formula.py <downloaded-release-dir> --tag v0.1.1 --output Formula/zero.rb
+scripts/homebrew_formula.py <downloaded-release-dir> --tag v0.1.2 --output Formula/zero.rb
 scripts/homebrew_formula_check.py
 ```
 

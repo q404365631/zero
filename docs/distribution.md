@@ -97,7 +97,7 @@ The committed formula must:
 Render the formula from a verified release directory:
 
 ```bash
-scripts/homebrew_formula.py <downloaded-release-dir> --tag v0.1.1 --output Formula/zero.rb
+scripts/homebrew_formula.py <downloaded-release-dir> --tag v0.1.2 --output Formula/zero.rb
 scripts/homebrew_formula_check.py
 ```
 

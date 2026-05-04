@@ -43,6 +43,7 @@ required_files=(
   "docs/safety-model.md"
   "docs/release.md"
   "docs/releases/v0.1.1-evidence.md"
+  "docs/releases/v0.1.2-evidence.md"
   "docs/production-readiness.md"
   "docs/public-upgrade.md"
   "docs/private-engine-capability-gap-audit.md"
@@ -105,7 +106,7 @@ contains "cargo owner" docs/distribution.md
 contains "GitHub artifact attestations" docs/release.md
 contains "SBOM.spdx.json" docs/release.md
 contains "PROVENANCE.json" docs/release.md
-contains "just release-evidence v0.1.1" docs/release.md
+contains "just release-evidence v0.1.2" docs/release.md
 contains "just registry-readiness" docs/release.md
 contains "release rehearsal" docs/release.md
 contains "draft release rehearsal" docs/release.md
@@ -148,6 +149,9 @@ contains "scripts/homebrew_formula_check.py" .github/RELEASE_TEMPLATE.md
 contains "zero.release_evidence.v1" docs/releases/v0.1.1-evidence.md
 contains "verification.fail=0" docs/releases/v0.1.1-evidence.md
 contains "homebrew_formula_matches_committed=true" docs/releases/v0.1.1-evidence.md
+contains "zero.release_evidence.v1" docs/releases/v0.1.2-evidence.md
+contains "verification.fail=0" docs/releases/v0.1.2-evidence.md
+contains "homebrew_formula_matches_committed=true" docs/releases/v0.1.2-evidence.md
 contains "ZERO LLM Full Context" docs/llms-full.txt
 contains "read-only" docs/mcp.md
 contains "zero-mcp" docs/mcp.md

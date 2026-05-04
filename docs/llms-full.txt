@@ -3726,7 +3726,7 @@ for local wallet control, preflight, kill-switches, reconciliation, and review.
 | Security and custody | 100 | No secrets needed for first run; Hyperliquid private keys have operator-scoped keychain/env helpers, redaction tests, a non-secret preflight gate, optional SDK-backed live adapter, threat model, secret-leak runbook, dependency policy, SBOM/provenance metadata, and release provenance policy. External security review remains diligence evidence, not a missing custody contract. |
 | ZERO Network contracts | 100 | Public-safe local profile packets, proof hashes, deployment claim hashes, deployment heartbeat hashes, verification badges, leaderboard rows, opt-in local publish logs, hosted-compatible ingestion, proof validation, duplicate refusal, metric-consistency checks, accepted-only leaderboard output, empty/active/stale public page states, `zero.network.profile_verification.v1` profile-plus-identity verification, and deterministic `zero.network_proof_pack.v1` public proof-chain artifacts exist. Hosted persistence, sybil policy operation, and identity service operation are external product work. |
 | ZERO Intelligence contracts | 100 | Delayed public snapshots, catalog, billing-ready commercial contract, hosted-compatible `/v1/intelligence/*` reads/writes, token-gated paid scopes, actual rate-limit headers, usage events, HMAC-SHA256 webhook signature fixtures, aggregate export jobs, plan/scope model, dataset names, fail-closed model gateway status, model gateway health probes, model gateway audit bundles, mock/local provider conformance, external model adapter contract tests, bounded retry/cost policy, hosted key-management rules, plan boundary, and opt-in local export packets exist. Production persistence, billing, warehouse-backed feeds, and webhook delivery are external commercial service work. |
-| Release and distribution | 100 | GitHub release artifacts, checksums, SBOM/provenance bundle, recorded `v0.1.1` clean-download release evidence, published-release evidence command with committed Homebrew formula comparison, release verifier, tamper-detection rehearsal, draft-release rollback rehearsal, committed Homebrew formula, formula drift check, attestations, installer, registry-readiness gate, package dry run, distribution readiness policy, release template hardening checks, dependency policy, and rollback rules exist. External package registries remain unpublished pending name ownership and support policy. |
+| Release and distribution | 100 | GitHub release artifacts, checksums, SBOM/provenance bundle, recorded `v0.1.2` clean-download release evidence, published-release evidence command with committed Homebrew formula comparison, release verifier, tamper-detection rehearsal, draft-release rollback rehearsal, committed Homebrew formula, formula drift check, attestations, installer, registry-readiness gate, package dry run, distribution readiness policy, release template hardening checks, dependency policy, and rollback rules exist. External package registries remain unpublished pending name ownership and support policy. |
 | Documentation for operators | 100 | Good local docs, operator isolation docs, Hyperliquid read-only boundary docs, live-paper quote docs, immune-system docs, live cockpit docs, live cockpit drill bundle, verifier, and tamper rehearsal, live certification docs, live evidence docs, redacted live trading evidence docs, live canary policy/operator docs, Railway paper deploy, remote-doctor, and evidence-pack docs, restart recovery docs, audit/metrics docs, live-preflight warnings, threat model, and incident runbooks. Missing third-party review evidence only as external proof, not documented workflow. |
 
 **Public repo readiness: 100/100.**
@@ -3770,7 +3770,7 @@ not missing public-runtime contracts.
 | Command surface | 100 | `zero`, `zero init`, `zero doctor`, `zero run`, TUI, and slash-command dispatch cover the public runtime and operator workflows. |
 | Operator safety | 100 | Risk-reducing commands are friction-exempt and risk-increasing commands require interactive friction. |
 | Engine integration | 100 | HTTP, WebSocket, mock engine, contract tests, Rust client decoding for production-parity OODA reports, live receipt packets, live canary policy packets, `/runtime-parity`, `/live-receipts`, and `/live-canary` operator rendering, live risk-reducer endpoints, and redacted private live execution evidence exist. Raw accepted canary records remain external. |
-| Install path | 100 | Release installer exists with checksum and attestation verification, `v0.1.1` was installed from the public GitHub Release into a temporary bin directory, and the public Homebrew repo tap installs and tests `zero` from the checksummed GitHub Release asset. External package registries remain unpublished pending ownership proof. |
+| Install path | 100 | Release installer exists with checksum and attestation verification, `v0.1.2` was installed from the public GitHub Release into a temporary bin directory, and the public Homebrew repo tap installs and tests `zero` from the checksummed GitHub Release asset. External package registries remain unpublished pending ownership proof. |
 | Diagnostics | 100 | Doctor, JSON output, exit codes, rate-budget checks, operator/credential partition checks, live-preflight diagnostics, live-cockpit next-action/operator rendering, Railway remote doctor, deployment evidence verification, deployment identity verification, deployment evidence log capture/signing, rollback rehearsal checks, paid-scope fail-closed checks, and live-control refusals are covered. External production examples against a linked Railway project remain operations evidence. |
 | TUI production UX | 100 | Snapshot coverage, status honesty, risk overlays, live-stream pane, and a full-screen live cockpit are covered for the public runtime. External live operator fault drills remain operations evidence. |
 | Non-interactive automation | 100 | `zero run` covers cockpit, receipts, canary policy, runtime parity, breaker, certification, account truth, and risk-reducer workflows while intentionally gating risk-increasing commands. External production examples remain operations evidence. |
@@ -4298,7 +4298,7 @@ Exit gate:
 ```bash
 just release-rehearsal
 just draft-release-rehearsal
-just release-evidence v0.1.1
+just release-evidence v0.1.2
 just fresh-clone-rehearsal
 just public-readiness
 ```
@@ -7027,7 +7027,7 @@ Use `zero-macos` for the macOS binary.
 Verify a published GitHub Release from a clean download directory:
 
 ```bash
-just release-evidence v0.1.1
+just release-evidence v0.1.2
 ```
 
 The evidence command downloads the release, verifies `SHA256SUMS`, runs
@@ -7037,8 +7037,8 @@ fails unless that rendered formula exactly matches the committed
 `Formula/zero.rb`, so the public tap cannot drift away from the published
 release. It does not publish package registries or mutate release assets.
 
-The current `v0.1.1` clean-download verification is recorded in
-[docs/releases/v0.1.1-evidence.md](releases/v0.1.1-evidence.md).
+The current `v0.1.2` clean-download verification is recorded in
+[docs/releases/v0.1.2-evidence.md](releases/v0.1.2-evidence.md).
 
 ## Public Proof Gate
 
@@ -7203,7 +7203,7 @@ The committed formula is `Formula/zero.rb`. To update it for a new release,
 render the formula from a downloaded and verified release directory:
 
 ```bash
-scripts/homebrew_formula.py <downloaded-release-dir> --tag v0.1.1 --output Formula/zero.rb
+scripts/homebrew_formula.py <downloaded-release-dir> --tag v0.1.2 --output Formula/zero.rb
 scripts/homebrew_formula_check.py
 ```
 
@@ -7254,13 +7254,13 @@ from GitHub and check everything in a temporary clean directory:
 ```bash
 git clone https://github.com/zero-intel/zero.git
 cd zero
-just release-evidence v0.1.1
+just release-evidence v0.1.2
 ```
 
 For machine-readable output:
 
 ```bash
-scripts/release_evidence.py v0.1.1 --json
+scripts/release_evidence.py v0.1.2 --json
 ```
 
 The release evidence command:
@@ -7274,8 +7274,8 @@ The release evidence command:
 - fails if the rendered formula differs from the committed `Formula/zero.rb`.
 
 The current published evidence is recorded in
-[v0.1.1 release evidence](releases/v0.1.1-evidence.md). That page is evidence
-for `v0.1.1` only; future releases need their own clean-download evidence.
+[v0.1.2 release evidence](releases/v0.1.2-evidence.md). Historical `v0.1.1`
+evidence remains in [v0.1.1 release evidence](releases/v0.1.1-evidence.md).
 
 ## From Downloaded Assets
 
@@ -7343,7 +7343,7 @@ The committed formula at `Formula/zero.rb` must be generated from a verified
 release directory:
 
 ```bash
-scripts/homebrew_formula.py /path/to/downloaded/zero-release --tag v0.1.1 --output /tmp/zero.rb
+scripts/homebrew_formula.py /path/to/downloaded/zero-release --tag v0.1.2 --output /tmp/zero.rb
 diff -u Formula/zero.rb /tmp/zero.rb
 scripts/homebrew_formula_check.py
 ```
