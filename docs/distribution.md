@@ -123,6 +123,22 @@ fresh directory, verifies the bundle, renders the Homebrew formula, then deletes
 the draft release and temporary tag. This proves the rollback motion without
 publishing a package registry, Homebrew tap, or production release.
 
+## Tag Workflow Rehearsal
+
+After changing `.github/workflows/release.yml`, run the full tag-triggered
+release workflow drill:
+
+```bash
+scripts/release_workflow_rehearsal.sh --execute
+```
+
+The drill creates a temporary prerelease tag on `origin/main`, waits for the
+real release workflow, verifies the `public-proof` job and all artifact jobs,
+downloads the generated draft GitHub Release, checks `SHA256SUMS`, runs
+`scripts/release_verify.py`, verifies executable attestations, renders the
+Homebrew formula, then deletes the draft release and tag. It does not publish
+package registries, Homebrew taps, or production releases.
+
 ## Registry Rollback
 
 If a package is unsafe:

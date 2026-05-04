@@ -29,6 +29,7 @@ just paper-api-smoke
 - [ ] `just registry-readiness`
 - [ ] `just release-rehearsal`
 - [ ] `just draft-release-rehearsal`
+- [ ] `scripts/release_workflow_rehearsal.sh --execute` has passed for a temporary rehearsal tag, or this release explains why the high-fidelity tag workflow drill was intentionally skipped.
 - [ ] Draft GitHub Release contains the Python package, CLI binaries, paper image tarball, and `SHA256SUMS`.
 - [ ] `scripts/release_verify.py <downloaded-release-dir>` passes.
 - [ ] `SBOM.spdx.json` and `PROVENANCE.json` are attached and included in `SHA256SUMS`.

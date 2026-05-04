@@ -215,6 +215,23 @@ Homebrew formula from the fresh download, then deletes the draft release and its
 temporary tag. Use `--keep` only when a maintainer needs to inspect the draft
 release manually.
 
+## Tag Workflow Rehearsal
+
+Before the first public release candidate, and after any material release
+workflow change, run the high-fidelity GitHub tag workflow drill:
+
+```bash
+scripts/release_workflow_rehearsal.sh --execute
+```
+
+The script creates a temporary prerelease tag on `origin/main`, waits for the
+real `.github/workflows/release.yml` run, verifies that `public-proof`,
+registry-readiness, package builds, CLI builds, container smoke, and draft
+release assembly all succeeded, downloads the generated draft release from
+GitHub, verifies checksums, release provenance, Homebrew formula rendering, and
+executable attestations, then deletes the draft release and temporary tag. Use
+`--keep` only when a maintainer needs to inspect the temporary draft manually.
+
 ## Current Automation
 
 `.github/workflows/release.yml` runs on tags shaped like `v*.*.*` and builds:
@@ -234,6 +251,8 @@ release manually.
   checksum manifest
 - Dry-run draft release rollback rehearsal in CI; execute mode remains
   maintainer-triggered only
+- Maintainer-triggered tag workflow rehearsal through
+  `scripts/release_workflow_rehearsal.sh --execute`
 
 The workflow uploads artifacts to the GitHub Actions run and attaches the
 assembled release bundle to a draft GitHub Release. It does not publish to PyPI,

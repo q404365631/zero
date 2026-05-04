@@ -152,6 +152,7 @@ jobs:
           test -x scripts/network_proof_pack.py
           test -x scripts/release_rehearsal.sh
           test -x scripts/draft_release_rehearsal.sh
+          test -x scripts/release_workflow_rehearsal.sh
           test -x scripts/railway_start.sh
           test -x scripts/railway_doctor.py
           test -x scripts/deployment_identity_evidence.py

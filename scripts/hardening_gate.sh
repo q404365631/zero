@@ -161,8 +161,12 @@ contains "just public-proof" docs/release.md
 contains "just public-proof" .github/RELEASE_TEMPLATE.md
 contains "public-proof" .github/workflows/release.yml
 contains "release-preflight" justfile
+contains "release-workflow-rehearsal" justfile
 contains "just release-preflight" docs/release.md
 contains "just release-preflight" .github/RELEASE_TEMPLATE.md
+contains "release_workflow_rehearsal.sh --execute" docs/release.md
+contains "release_workflow_rehearsal.sh --execute" docs/distribution.md
+contains "release_workflow_rehearsal.sh --execute" .github/RELEASE_TEMPLATE.md
 contains "Stewardship Pledge" GOVERNANCE.md
 contains "CODEOWNERS" GOVERNANCE.md
 contains "Review Ownership" docs/review-ownership.md
@@ -214,6 +218,7 @@ bash -n scripts/install.sh
 bash -n scripts/package_dry_run.sh
 bash -n scripts/release_rehearsal.sh
 bash -n scripts/draft_release_rehearsal.sh
+bash -n scripts/release_workflow_rehearsal.sh
 bash -n scripts/paper_api_smoke.sh
 bash -n scripts/fresh_clone_rehearsal.sh
 bash -n scripts/railway_smoke.sh

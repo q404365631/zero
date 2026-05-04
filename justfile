@@ -173,6 +173,9 @@ public-proof:
 draft-release-rehearsal:
     scripts/draft_release_rehearsal.sh
 
+release-workflow-rehearsal:
+    scripts/release_workflow_rehearsal.sh
+
 homebrew-formula release_dir tag:
     scripts/homebrew_formula.py "{{release_dir}}" --tag "{{tag}}"
 
@@ -385,6 +388,7 @@ docs-check:
     test -x scripts/network_proof_pack.py
     test -x scripts/release_rehearsal.sh
     test -x scripts/draft_release_rehearsal.sh
+    test -x scripts/release_workflow_rehearsal.sh
     test -x scripts/hardening_gate.sh
     test -x scripts/public_readiness_gate.sh
     test -x scripts/railway_start.sh
