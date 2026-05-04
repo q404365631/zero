@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 
 import pytest
 
@@ -8,6 +9,13 @@ from zero_engine import (
     latest_close,
     validate_market_data_adapter,
 )
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+EXAMPLE_ADAPTER_DIR = REPO_ROOT / "examples" / "market-data-adapter"
+sys.path.insert(0, str(EXAMPLE_ADAPTER_DIR))
+
+from adapter import example_adapter  # noqa: E402
 
 
 class ExampleAdapter:
@@ -63,15 +71,38 @@ def test_latest_close_validates_adapter_and_returns_close() -> None:
     assert latest_close(ExampleAdapter(), "BTC") == 108
 
 
+def test_market_data_adapter_fixture_returns_chronological_candles() -> None:
+    adapter = example_adapter()
+
+    candles = adapter.candles("btc")
+
+    assert adapter.metadata.name == "fixture-candles"
+    assert adapter.metadata.requires_secrets is False
+    assert [candle.ts for candle in candles] == [
+        "2026-05-01T00:00:00Z",
+        "2026-05-01T00:05:00Z",
+    ]
+    assert [candle.close for candle in candles] == [40050, 40550]
+
+
+def test_market_data_adapter_fixture_validates_limits_and_unknown_symbols() -> None:
+    adapter = example_adapter()
+
+    assert adapter.candles("BTC", limit=1)[0].close == 40550
+    with pytest.raises(ValueError, match="limit must be positive"):
+        adapter.candles("BTC", limit=0)
+    with pytest.raises(KeyError, match="no candles for SOL"):
+        adapter.latest("SOL")
+
+
 def test_market_data_adapter_example_runs_from_repo_root() -> None:
     import json
     import subprocess
     import sys
 
-    repo_root = Path(__file__).resolve().parents[2]
     result = subprocess.run(
         [sys.executable, "examples/market-data-adapter/run.py"],
-        cwd=repo_root,
+        cwd=REPO_ROOT,
         check=True,
         capture_output=True,
         text=True,
@@ -79,9 +110,10 @@ def test_market_data_adapter_example_runs_from_repo_root() -> None:
 
     payload = json.loads(result.stdout)
     assert payload["mode"] == "paper"
-    assert payload["adapter"]["name"] == "memory-candles"
+    assert payload["adapter"]["name"] == "fixture-candles"
     assert payload["adapter"]["requires_secrets"] is False
+    assert payload["adapter"]["source"] == "local-jsonl-fixture"
     assert payload["latest_close"] == 40550
     assert payload["proposed"] is True
     assert payload["allowed"] is True
-    assert payload["decisions"][0]["source"] == "market-adapter:memory-candles"
+    assert payload["decisions"][0]["source"] == "market-adapter:fixture-candles"

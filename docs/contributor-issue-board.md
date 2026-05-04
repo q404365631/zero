@@ -14,7 +14,6 @@ Use the GitHub labels when choosing work:
 ## Good First Issues
 
 - [#18 Add a paper-only momentum strategy plugin](https://github.com/zero-intel/zero/issues/18)
-- [#19 Add a deterministic market-data adapter fixture](https://github.com/zero-intel/zero/issues/19)
 - [#21 Add a stale ZERO Network profile fixture](https://github.com/zero-intel/zero/issues/21)
 - [#22 Add proof-pack privacy regression fixtures](https://github.com/zero-intel/zero/issues/22)
 
@@ -24,6 +23,8 @@ Use the GitHub labels when choosing work:
 
 ## Completed Seed Issues
 
+- [#19 Add a deterministic market-data adapter fixture](https://github.com/zero-intel/zero/issues/19) -
+  delivered in [Market Data Adapter Example](../examples/market-data-adapter/README.md).
 - [#23 Expand read-only MCP strategy resources](https://github.com/zero-intel/zero/issues/23) -
   delivered in [ZERO MCP Server](mcp.md).
 - [#25 Add release evidence reader docs](https://github.com/zero-intel/zero/issues/25) -

@@ -67,6 +67,8 @@ reserved for ZERO Intelligence.
   fail-closed live preflight warnings
 - Read-only MCP markdown resources for strategy runner, strategy plugin, and
   market-data adapter contributor docs
+- Deterministic market-data adapter fixture with unknown-symbol, positive-limit,
+  and paper strategy integration tests
 - Public boundary audit from the private repo
 
 ## Paper-Only

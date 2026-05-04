@@ -1,0 +1,4 @@
+{"symbol":"BTC","ts":"2026-05-01T00:00:00Z","open":40000,"high":40100,"low":39900,"close":40050,"volume":1000}
+{"symbol":"BTC","ts":"2026-05-01T00:05:00Z","open":40050,"high":40650,"low":40000,"close":40550,"volume":1200}
+{"symbol":"ETH","ts":"2026-05-01T00:00:00Z","open":3000,"high":3010,"low":2990,"close":3005,"volume":800}
+{"symbol":"ETH","ts":"2026-05-01T00:05:00Z","open":3005,"high":3030,"low":3000,"close":3025,"volume":840}

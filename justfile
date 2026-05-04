@@ -341,6 +341,7 @@ docs-check:
     test -x examples/strategy-runner/run.py
     test -f examples/market-data-adapter/README.md
     test -f examples/market-data-adapter/adapter.py
+    test -f examples/market-data-adapter/candles.jsonl
     test -f examples/market-data-adapter/run.py
     test -f examples/runtime-loop/README.md
     test -x examples/runtime-loop/run.py

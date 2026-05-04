@@ -16,8 +16,8 @@ Or use:
 just market-data-adapter-example
 ```
 
-The adapter exposes candles only. It does not know about execution, custody,
-risk limits, journals, or live mode.
+The adapter reads `candles.jsonl` from this directory and exposes candles only.
+It does not know about execution, custody, risk limits, journals, or live mode.
 
 Expected output shape:
 
@@ -25,9 +25,9 @@ Expected output shape:
 {
   "mode": "paper",
   "adapter": {
-    "name": "memory-candles",
+    "name": "fixture-candles",
     "requires_secrets": false,
-    "source": "example-fixture"
+    "source": "local-jsonl-fixture"
   },
   "latest_close": 40550.0,
   "proposed": true,

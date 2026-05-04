@@ -1,58 +1,29 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from pathlib import Path
 
-from zero_engine import Candle, MarketDataAdapterMetadata
+from zero_engine import Candle, JsonlCandleAdapter, MarketDataAdapterMetadata
 
 
-@dataclass(frozen=True)
-class MemoryCandleAdapter:
-    candles_by_symbol: dict[str, tuple[Candle, ...]]
+class FixtureCandleAdapter:
     metadata: MarketDataAdapterMetadata = MarketDataAdapterMetadata(
-        name="memory-candles",
+        name="fixture-candles",
         version="0.1.0",
-        description="Paper-only example adapter backed by in-memory OHLCV candles.",
-        source="example-fixture",
+        description="Paper-only example adapter backed by a checked-in OHLCV JSONL fixture.",
+        source="local-jsonl-fixture",
     )
+
+    def __init__(self, path: str | Path):
+        self.path = Path(path)
+        self._adapter = JsonlCandleAdapter(self.path)
 
     def candles(self, symbol: str, limit: int | None = None) -> tuple[Candle, ...]:
-        normalized = symbol.upper()
-        candles = self.candles_by_symbol.get(normalized, ())
-        if limit is not None:
-            if limit <= 0:
-                raise ValueError("limit must be positive")
-            return candles[-limit:]
-        return candles
+        return self._adapter.candles(symbol, limit=limit)
 
     def latest(self, symbol: str) -> Candle:
-        candles = self.candles(symbol)
-        if not candles:
-            raise KeyError(f"no candles for {symbol.upper()}")
-        return candles[-1]
+        return self._adapter.latest(symbol)
 
 
-def example_adapter() -> MemoryCandleAdapter:
-    return MemoryCandleAdapter(
-        {
-            "BTC": (
-                Candle(
-                    symbol="BTC",
-                    ts="2026-05-01T00:00:00Z",
-                    open=40000,
-                    high=40100,
-                    low=39900,
-                    close=40050,
-                    volume=1000,
-                ),
-                Candle(
-                    symbol="BTC",
-                    ts="2026-05-01T00:05:00Z",
-                    open=40050,
-                    high=40650,
-                    low=40000,
-                    close=40550,
-                    volume=1200,
-                ),
-            )
-        }
-    )
+def example_adapter(path: str | Path | None = None) -> FixtureCandleAdapter:
+    fixture_path = Path(path) if path is not None else Path(__file__).with_name("candles.jsonl")
+    return FixtureCandleAdapter(fixture_path)

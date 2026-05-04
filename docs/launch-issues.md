@@ -47,6 +47,8 @@ Labels: `good first issue`, `market-data`, `examples`, `agent-eligible`
 
 GitHub: [#19](https://github.com/zero-intel/zero/issues/19)
 
+Status: delivered in [Market Data Adapter Example](../examples/market-data-adapter/README.md).
+
 Add a market-data adapter example that reads a small local fixture and exposes
 chronological candles through the public adapter interface.
 
