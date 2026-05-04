@@ -18,6 +18,12 @@ operator must capture before and after any tiny-capital canary:
 - `/deployment/claim`
 - `/deployment/heartbeat`
 
+For historical operator evidence that already exists outside the public repo,
+use the separate proof bridge in [Live Trading Evidence](proof/live/README.md).
+That packet is `zero.live_trading_evidence.v1`: it summarizes private
+Hyperliquid fills, trades, and live decisions with hashed and bucketed fields,
+then verifies that raw custody material was not published.
+
 The packet includes `evidence_hash` and a `signature` object. By default the
 signature status is `unsigned_local`. Set `ZERO_LIVE_EVIDENCE_SIGNING_KEY` to
 produce a local HMAC-SHA256 signature without echoing the key material:

@@ -10,8 +10,9 @@ just public-proof
 ```
 
 That command verifies the demo proof pack, the ZERO Network proof chain, the
-read-only MCP server, and the committed MCP transcript together. It is the
-preferred pre-PR check when changing proof, Network, MCP, or agent-facing docs.
+redacted live trading evidence packet, the read-only MCP server, and the
+committed MCP transcript together. It is the preferred pre-PR check when
+changing proof, Network, MCP, or agent-facing docs.
 
 The current committed pack is intentionally modest:
 
@@ -23,9 +24,11 @@ The current committed pack is intentionally modest:
 
 Proof packs are proof-of-process, not custody proof or PnL proof. A public pack
 can show that a deterministic runtime, profile, leaderboard, and evidence chain
-were generated and verified under redaction rules. It does not prove exchange
-account ownership, wallet control, profitability, or live execution unless a
-future manifest attaches signed live records and exchange-side evidence.
+were generated and verified under redaction rules. The committed live trading
+packet separately proves that operator-owned live execution evidence exists and
+passes public redaction checks. It does not prove exchange account ownership,
+wallet control, or profitability unless the operator publishes or privately
+discloses matching raw Hyperliquid exports.
 
 Generate or verify the demo pack:
 
@@ -66,6 +69,23 @@ PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
 PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
 ```
 
+## Live Trading Evidence
+
+`docs/proof/live/live-trading-evidence.json` is a redacted
+`zero.live_trading_evidence.v1` packet generated from private operator
+Hyperliquid evidence. It summarizes live fills, trades, and live decision
+records with hashed symbols, bucketed quantities, bucketed timestamps, source
+hashes, and no raw venue payloads.
+
+Verify it with:
+
+```bash
+scripts/live_trading_evidence.py verify docs/proof/live/live-trading-evidence.json
+```
+
+The verifier rejects raw wallet-like material, private keys, order IDs, client
+order IDs, trace IDs, idempotency keys, and embedded source payloads.
+
 ## Privacy Regression Fixtures
 
 The negative fixtures in `docs/proof/privacy-regression` are synthetic payloads
@@ -79,8 +99,8 @@ Run them with:
 PYTHONPATH="$PWD/engine/src" scripts/proof_privacy_regression.py
 ```
 
-Future launch proof packs must add signed live records, exchange-side evidence,
-and paper/live correlation only after those records exist. Do not publish an
+Future correlation packs must add signed live records, exchange-side evidence,
+and paper/live correlation from the same strategy window. Do not publish an
 R-squared value, latency claim, win rate, or PnL result unless the exact
 supporting artifacts are committed or linked from the manifest.
 

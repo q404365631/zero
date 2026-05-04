@@ -191,8 +191,9 @@ bundled paper OODA loop, mirrors the same idempotency keys and intents through a
 disabled live executor, proves the live shadow path refuses every order, emits
 checksum-chained runtime-bus integrity, dry-run live certification status, and a
 rejection/execution-quality feedback packet. It places no live orders and does
-not claim live trading proof; operator-owned canary evidence is still required
-for any live claim.
+not claim live trading proof. The separate
+`docs/proof/live/live-trading-evidence.json` packet carries redacted
+operator-owned live evidence for public verification.
 
 `GET /decision/stack?coin=BTC` returns `zero.decision.stack.v1`, the public
 lens/layer/modifier shape behind paper evaluation. Lenses explain weighted

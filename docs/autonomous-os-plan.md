@@ -77,8 +77,8 @@ speed, scale, history, and reliability.
 |---|---:|---|
 | Public repo hygiene | 100 | registry ownership evidence and external review remain business/process tasks |
 | Product narrative | 99 | keep narrative aligned as hosted Network and Intelligence launch |
-| CLI readiness | 100 | five-mode terminal with full-screen live cockpit exists; external canary evidence remains operator-owned proof |
-| Engine runtime | 100 | public production-parity OODA report exists; live canary evidence remains operator-owned external proof |
+| CLI readiness | 100 | five-mode terminal with full-screen live cockpit exists; raw exchange records remain operator-owned proof |
+| Engine runtime | 100 | public production-parity OODA report plus redacted live trading evidence exist; raw exchange records remain operator-owned external proof |
 | Self-evolution loop | 100 | public memory, research command chain, genesis proposal classification, production-parity OODA reports, local apply, rollback, and paper-first evolve gates exist; protected live-code evolution remains human-reviewed by design |
 | Safety and risk | 94 | real exchange chaos drills, external review |
 | API contracts | 100 | public runtime contracts are complete; hosted compatibility is commercial launch work |
@@ -88,7 +88,7 @@ speed, scale, history, and reliability.
 | ZERO Network | 82 | deterministic public proof-chain pack plus profile identity verifier exist; hosted identity service, public pages, and production ingestion service remain |
 | ZERO Intelligence | 70 | production hosted service persistence, billing provider, history storage, terms |
 | Release and distribution | 100 | public Homebrew repo tap exists; external registry ownership evidence remains outside the public runtime |
-| Operator docs | 98 | real exchange drill evidence |
+| Operator docs | 98 | third-party review and optional raw exchange disclosure |
 
 ## Execution Cycles
 

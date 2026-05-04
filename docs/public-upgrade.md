@@ -104,6 +104,10 @@ Current progress: `/live/evidence` now packages preflight, cockpit, live
 execution receipts, reconciliation, immune, certification, audit, deployment
 claim, and deployment heartbeat hashes into `zero.live_evidence.v1`, with
 optional local HMAC-SHA256 signing via `ZERO_LIVE_EVIDENCE_SIGNING_KEY`.
+The repo also commits `zero.live_trading_evidence.v1`, a redacted proof bridge
+generated from private operator Hyperliquid fills, trades, and live decisions.
+It proves live execution evidence exists without publishing raw venue records,
+wallet addresses, private journals, or custody material.
 
 ### Cycle C: Launch Proof
 
@@ -174,5 +178,5 @@ Use two scores, always:
   the complete autonomous live-capital system.
 
 Do not collapse those into one number. A repo can be excellent for public
-contribution while the full live-capital system still needs canary evidence,
-external review, and hosted infrastructure.
+contribution while raw exchange disclosure, external review, and hosted
+infrastructure remain separate product work.

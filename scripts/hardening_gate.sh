@@ -25,6 +25,7 @@ required_files=(
   "scripts/codeowners_check.py"
   "scripts/homebrew_formula_check.py"
   "scripts/stale_artifact_check.sh"
+  "scripts/live_trading_evidence.py"
   "llms.txt"
   "docs/llms.txt"
   "docs/llms-full.txt"
@@ -34,6 +35,8 @@ required_files=(
   "docs/proof/demo/proof-pack.json"
   "docs/proof/demo/paper-decisions.csv"
   "docs/proof/demo/paper-proof.svg"
+  "docs/proof/live/README.md"
+  "docs/proof/live/live-trading-evidence.json"
   "docs/threat-model.md"
   "docs/incident-runbooks.md"
   "docs/distribution.md"
@@ -257,6 +260,7 @@ python3 -m py_compile scripts/homebrew_formula_check.py
 python3 -m py_compile scripts/generate_llms_full.py
 python3 -m py_compile scripts/proof_pack.py
 python3 -m py_compile scripts/network_proof_pack.py
+python3 -m py_compile scripts/live_trading_evidence.py
 python3 -m py_compile scripts/mcp_transcript.py
 python3 -m py_compile scripts/issue_template_check.py
 python3 -m py_compile scripts/label_taxonomy_check.py
@@ -281,6 +285,7 @@ PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
 scripts/generate_llms_full.py --check
 PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py --check
 PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py --check
+scripts/live_trading_evidence.py verify docs/proof/live/live-trading-evidence.json
 scripts/draft_release_rehearsal.sh >/dev/null
 rm -rf scripts/__pycache__
 scripts/stale_artifact_check.sh --clean >/dev/null

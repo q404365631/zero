@@ -445,12 +445,14 @@ executable production-parity OODA report, rejection/execution-quality feedback,
 live-shadow fail-closed evidence, a first-class operator CLI renderer for that
 proof, and a first-class terminal renderer for live canary policy qualification
 plus live execution receipts and a full-screen live cockpit in addition to
-local evolve apply/rollback.
+local evolve apply/rollback. The public repo also now carries
+`zero.live_trading_evidence.v1`, a redacted proof bridge generated from private
+operator Hyperliquid fills, trades, and live decisions.
 
 The remaining work is no longer missing public-runtime shape. It is external
 product proof and launch operation:
 
-1. operator-owned accepted canary evidence on real Hyperliquid;
+1. optional raw exchange disclosure for commercial diligence;
 2. third-party security review;
 3. hosted ZERO Network persistence and signed identity verification;
 4. paid ZERO Intelligence deployment, billing, and retention policy.

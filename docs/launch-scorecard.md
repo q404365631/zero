@@ -41,6 +41,8 @@ reserved for ZERO Intelligence.
 - GitHub artifact attestations for release asset provenance
 - One-command live canary operator workflow with public-safe report,
   exchange-evidence attachment, recursive checksums, and local verifier
+- Redacted live trading evidence packet generated from private operator
+  Hyperliquid records and verified by `scripts/live_trading_evidence.py`
 - Live cockpit drill bundle for read-only preflight, immune, reconciliation,
   certification, receipts, evidence, metrics, and audit packets, plus a local
   verifier and tamper rehearsal that replay packet-derived readiness

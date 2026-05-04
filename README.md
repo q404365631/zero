@@ -18,6 +18,9 @@ read-only/live boundaries, public proof packets, and intelligence contracts.
 
 The first proof is intentionally simple: the runtime boots in paper mode, live
 risk refuses closed, public proof packets verify, and no custody is required.
+The live proof bridge is separate: a redacted `zero.live_trading_evidence.v1`
+packet proves operator-owned Hyperliquid live execution evidence exists without
+publishing raw venue records, wallet addresses, or private journals.
 Run the same checks locally with:
 
 ```bash
@@ -120,9 +123,9 @@ guarded by preflight checks.
 | Paper engine | Runnable now with deterministic fixtures, local API, CLI, Docker, and Railway paths. |
 | Live market data | Runnable now through read-only Hyperliquid public info calls when enabled. |
 | Live readiness | Runnable now as local preflight, cockpit, certification, reconciliation, immune, receipt, evidence, and canary-policy contracts. |
-| Live execution | Code boundary exists, but live capital remains operator-owned and gated until local custody, preflight, journal, kill-switch, reconciliation, and canary evidence pass. |
+| Live execution | Private operator deployments have live Hyperliquid execution evidence represented by the redacted public packet. New live capital remains operator-owned, self-custodial, and gated by local custody, preflight, journal, kill-switch, reconciliation, and canary policy. |
 | Self-evolution | Local memory, genesis proposal core, research command chain, decision-stack lenses/layers/modifiers, production-parity OODA reporting, and paper-first evolve gates exist now with redacted extraction, append-only journals, guardian classification, hunt/edge/convergence/thesis/score/meta/sharpen reports, public evaluation surfaces, live-shadow fail-closed parity, red-team review, sandbox candidate mutation, paper canary, calibration, promotion plan, rollback plan, promotion verification, explicit local apply, rollback receipts, API readouts, and expanded read-only MCP snapshots for runtime status, parity, health, journal, rejection audit, memory stats, immune state, backtest summary, evidence bundle, and safety catalog. Protected live-code evolution remains human-reviewed. |
-| Public proof | Runnable now through redacted Network contracts, deterministic Network proof packs, canary bundles, exchange-evidence normalization, recursive checksums, and operator report verification. |
+| Public proof | Runnable now through deterministic demo proof packs, redacted Network contracts, deterministic Network proof packs, `zero.live_trading_evidence.v1`, canary bundles, exchange-evidence normalization, recursive checksums, and operator report verification. |
 | Commercial API | Contracted now as ZERO Intelligence; production hosted persistence, billing, warehouse history, and SLAs are commercial work. |
 
 ```mermaid
@@ -177,6 +180,9 @@ flowchart LR
   are ready.
 - Verify canary evidence bundles locally before sharing them as launch or
   incident evidence.
+- Verify the committed redacted live trading evidence packet that summarizes
+  private operator Hyperliquid fills, trades, and live decisions without raw
+  custody material.
 - Attach public-safe exchange-side order/fill evidence to canary bundles and
   verify it against ZERO live receipts without exposing raw venue payloads.
 - Run and verify a one-command live canary operator workflow that collects,
@@ -205,7 +211,8 @@ ZERO should earn trust through behavior that another engineer can verify:
 
 1. Run paper mode locally or on Railway.
 2. Run `just public-proof` to verify the demo proof pack, Network proof chain,
-   read-only MCP server, and committed MCP transcript together.
+   redacted live trading evidence, read-only MCP server, and committed MCP
+   transcript together.
 3. Verify `docs/proof/network/network-proof-pack.json` against its profile,
    leaderboard, deployment identity, and ingestion artifacts.
 4. Inspect runtime, risk, live cockpit, immune, account, and reconciliation
@@ -216,9 +223,10 @@ ZERO should earn trust through behavior that another engineer can verify:
 7. Verify the bundle, recursive checksums, privacy flags, live canary policy,
    and report with local scripts before publishing anything.
 
-That flow is implemented for refusal-mode rehearsal today. Accepted live canary
-evidence requires an operator-owned Hyperliquid wallet and explicit local live
-configuration; it is not part of public CI.
+That flow is implemented for refusal-mode rehearsal and redacted live-evidence
+verification today. Raw accepted live canary records require an operator-owned
+Hyperliquid wallet and explicit local disclosure; they are not part of public
+CI.
 
 ## See It Run
 

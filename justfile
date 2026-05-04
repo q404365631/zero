@@ -179,9 +179,13 @@ proof-pack:
 network-proof-pack:
     PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py
 
+live-trading-evidence-check:
+    scripts/live_trading_evidence.py verify docs/proof/live/live-trading-evidence.json
+
 public-proof:
     PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py --check
     PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py --check
+    scripts/live_trading_evidence.py verify docs/proof/live/live-trading-evidence.json
     PYTHONPATH="$PWD/engine/src" scripts/proof_privacy_regression.py
     PYTHONPATH="$PWD/engine/src" python3 -m zero_engine.mcp --smoke
     PYTHONPATH="$PWD/engine/src" scripts/mcp_transcript.py --check
@@ -286,6 +290,8 @@ docs-check:
     test -f docs/proof/network/leaderboard.json
     test -f docs/proof/network/identity/identity_bundle.json
     test -f docs/proof/network/identity/SHA256SUMS
+    test -f docs/proof/live/README.md
+    test -f docs/proof/live/live-trading-evidence.json
     test -f docs/proof/privacy-regression/README.md
     test -f docs/proof/privacy-regression/wallet-like-profile.json
     test -f docs/proof/privacy-regression/raw-exchange-id-profile.json
@@ -422,6 +428,7 @@ docs-check:
     test -x scripts/generate_llms_full.py
     test -x scripts/proof_pack.py
     test -x scripts/network_proof_pack.py
+    test -x scripts/live_trading_evidence.py
     test -x scripts/release_rehearsal.sh
     test -x scripts/draft_release_rehearsal.sh
     test -x scripts/release_workflow_rehearsal.sh
@@ -461,6 +468,7 @@ docs-check:
     scripts/generate_llms_full.py --check
     PYTHONPATH="$PWD/engine/src" scripts/proof_pack.py --check
     PYTHONPATH="$PWD/engine/src" scripts/network_proof_pack.py --check
+    scripts/live_trading_evidence.py verify docs/proof/live/live-trading-evidence.json
     PYTHONPATH="$PWD/engine/src" scripts/proof_privacy_regression.py
 
 container-build:
