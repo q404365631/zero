@@ -28,6 +28,7 @@ required_files=(
   "llms.txt"
   "docs/llms.txt"
   "docs/llms-full.txt"
+  "docs/assets/readme-terminal.svg"
   "docs/proof/README.md"
   "docs/proof/demo/README.md"
   "docs/proof/demo/proof-pack.json"
@@ -163,6 +164,7 @@ contains "zero://runtime/parity" docs/mcp/transcript.jsonl
 contains "zero.memory.entry.v1" docs/memory-core.md
 contains "zero.runtime.production_parity.v1" docs/runtime-bus.md
 contains "Machine-readable entrypoints" README.md
+contains "ZERO paper runtime terminal proof" README.md
 contains "just public-proof" README.md
 contains "just public-proof" docs/first-10-minutes.md
 contains "just public-proof" docs/proof/README.md

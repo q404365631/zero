@@ -56,8 +56,6 @@ Use this bundle for retrieval and coding agents. It is not evidence of live trad
 # ZERO
 
 [![CI](https://github.com/zero-intel/zero/actions/workflows/ci.yml/badge.svg)](https://github.com/zero-intel/zero/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/zero-intel/zero/actions/workflows/codeql.yml/badge.svg)](https://github.com/zero-intel/zero/actions/workflows/codeql.yml)
-[![Secret Scan](https://github.com/zero-intel/zero/actions/workflows/secret-scan.yml/badge.svg)](https://github.com/zero-intel/zero/actions/workflows/secret-scan.yml)
 [![OpenSSF Scorecard](https://github.com/zero-intel/zero/actions/workflows/scorecard.yml/badge.svg)](https://github.com/zero-intel/zero/actions/workflows/scorecard.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
@@ -70,6 +68,17 @@ read-only/live boundaries, public proof packets, and intelligence contracts.
 
 > Not another trading bot. ZERO is the control plane that makes autonomous
 > onchain operations inspectable, interruptible, and self-custodial.
+
+![ZERO paper runtime terminal proof](docs/assets/readme-terminal.svg)
+
+The first proof is intentionally simple: the runtime boots in paper mode, live
+risk refuses closed, public proof packets verify, and no custody is required.
+Run the same checks locally with:
+
+```bash
+just paper-api-smoke
+just public-proof
+```
 
 ZERO has three non-negotiable product rules:
 
@@ -475,6 +484,14 @@ ZERO is built around operational discipline, not activity.
 Read the full model in [docs/safety-model.md](docs/safety-model.md),
 [docs/threat-model.md](docs/threat-model.md), and
 [docs/incident-runbooks.md](docs/incident-runbooks.md).
+
+## Trust
+
+- CI, CodeQL, Secret Scan, and OpenSSF Scorecard run on public pushes.
+- Release assets ship with checksums, SBOM/provenance metadata, attestations,
+  release evidence, and Homebrew formula drift checks.
+- `just release-preflight` verifies public proof, package dry runs, release
+  rehearsals, registry readiness, and formula consistency before tagging.
 
 ## Open Core Boundary
 

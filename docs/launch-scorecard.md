@@ -50,9 +50,9 @@ reserved for ZERO Intelligence.
 - Registry-readiness gate for PyPI/Cargo metadata and package-channel guardrails
 - Package dry-run gate for Python artifacts and the Rust crate graph
 - Shared paper API contract fixtures pinned by Python API tests and Rust client tests
-- First-class GitHub product page with category narrative, quickstart, safety
-  model, open-core boundary, capability boundary, operator proof path, and
-  contributor paths
+- First-class GitHub product page with category narrative, above-the-fold
+  terminal proof artifact, quickstart, safety model, open-core boundary,
+  capability boundary, operator proof path, and contributor paths
 - First-10-minutes guide and reproducible terminal demo capture for source and
   installed release binaries, including the live cockpit/readiness boundary
 - Fresh source-tree rehearsal that copies the publishable checkout into a

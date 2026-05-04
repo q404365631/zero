@@ -266,6 +266,7 @@ docs-check:
     test -f llms.txt
     test -f docs/llms.txt
     test -f docs/llms-full.txt
+    test -f docs/assets/readme-terminal.svg
     test -f docs/proof/README.md
     test -f docs/proof/demo/README.md
     test -f docs/proof/demo/proof-pack.json

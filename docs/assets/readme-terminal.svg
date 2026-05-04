@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">ZERO paper runtime terminal proof</title>
+  <desc id="desc">A terminal-style summary showing ZERO running paper mode, refusing live risk, exposing public proof, and verifying the proof pack.</desc>
+  <rect width="1200" height="520" fill="#0b0f14"/>
+  <rect x="32" y="32" width="1136" height="456" rx="14" fill="#101820" stroke="#2b3846" stroke-width="2"/>
+  <rect x="32" y="32" width="1136" height="44" rx="14" fill="#162231"/>
+  <circle cx="58" cy="54" r="7" fill="#ff5f57"/>
+  <circle cx="82" cy="54" r="7" fill="#ffbd2e"/>
+  <circle cx="106" cy="54" r="7" fill="#28c840"/>
+  <text x="140" y="60" fill="#aeb8c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">ZERO operator terminal - public paper proof</text>
+
+  <text x="64" y="118" fill="#35d07f" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" font-weight="700">$ zero --api 127.0.0.1:8765 doctor</text>
+  <text x="64" y="154" fill="#d8e2ee" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21">[ ok ] engine_reachable       zero-paper-engine v0.1.1</text>
+  <text x="64" y="186" fill="#f5c542" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21">[ warn ] live_preflight       not ready: wallet, key, journal</text>
+
+  <text x="64" y="238" fill="#35d07f" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" font-weight="700">$ zero run live-cockpit</text>
+  <text x="64" y="274" fill="#d8e2ee" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21">live_mode=refused  ready=false  risk_allowed=false</text>
+  <text x="64" y="306" fill="#92a4b8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21">next: fix live preflight before risk can increase</text>
+
+  <text x="64" y="358" fill="#35d07f" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" font-weight="700">$ just public-proof</text>
+  <text x="64" y="394" fill="#d8e2ee" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21">proof-pack: ok     network-proof: ok     mcp-transcript: ok</text>
+  <text x="64" y="426" fill="#92a4b8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21">paper_mode_verified=true  live_trading_claimed=false</text>
+
+  <rect x="814" y="116" width="286" height="236" rx="10" fill="#0f151d" stroke="#314153"/>
+  <text x="842" y="160" fill="#d8e2ee" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" font-weight="700">What this proves</text>
+  <text x="842" y="204" fill="#aeb8c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">paper runtime boots</text>
+  <text x="842" y="238" fill="#aeb8c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">live risk refuses closed</text>
+  <text x="842" y="272" fill="#aeb8c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">proof packets verify</text>
+  <text x="842" y="306" fill="#aeb8c4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">no custody required</text>
+
+  <text x="814" y="418" fill="#6f8194" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17">Generated from committed public capabilities.</text>
+  <text x="814" y="448" fill="#6f8194" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17">No PnL, win-rate, or live-trading claim.</text>
+</svg>
